@@ -25,10 +25,10 @@ public class LocaleManager extends Manager {
         PREFIX,
         NO_PERMISSION,
 
-        COMMAND_RELOAD_DESCRIPTION,
-        COMMAND_RELOAD_RELOADED,
+        STACK_DISPLAY,
 
-        ON_COOLDOWN;
+        COMMAND_RELOAD_DESCRIPTION,
+        COMMAND_RELOAD_RELOADED;
 
         private String message;
 
