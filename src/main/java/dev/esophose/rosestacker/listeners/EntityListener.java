@@ -66,8 +66,10 @@ public class EntityListener implements Listener {
             inventory = villager.getInventory();
         } else {
             // Only pick up one item
-            stackManager.splitItem(stackedItem, 1);
-            event.setCancelled(true);
+            if (stackedItem.getStackSize() > 1) {
+                stackManager.splitItem(stackedItem, 1);
+                event.setCancelled(true);
+            }
             return;
         }
 

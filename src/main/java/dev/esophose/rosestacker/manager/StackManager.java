@@ -83,14 +83,17 @@ public class StackManager extends Manager implements Runnable {
 
         newItemStack.setAmount(newSize);
 
-        Item newItem = (Item) stackedItem.getLocation().getWorld().spawnEntity(stackedItem.getLocation(), EntityType.DROPPED_ITEM);
-        newItem.setItemStack(newItemStack);
-        newItem.setPickupDelay(0);
-
         stackedItem.getItem().setPickupDelay(20);
+        stackedItem.getItem().setTicksLived(1);
+
+        Item newItem = stackedItem.getLocation().getWorld().spawn(stackedItem.getLocation(), Item.class, (entity) -> {
+            entity.setItemStack(newItemStack);
+            entity.setPickupDelay(0);
+        });
 
         StackedItem newStackedItem = new StackedItem(newSize, newItem);
         this.stackedItems.add(newStackedItem);
+        stackedItem.increaseStackSize(-newSize);
         return newStackedItem;
     }
 
@@ -130,6 +133,11 @@ public class StackManager extends Manager implements Runnable {
             if (removed.contains(stackedItem))
                 continue;
 
+            if (!stackedItem.getItem().isValid()) {
+                this.stackedItems.remove(stackedItem);
+                continue;
+            }
+
             Stack removedStack = this.tryStack(stackedItem);
             if (removedStack != null)
                 removed.add(removedStack);
@@ -148,6 +156,9 @@ public class StackManager extends Manager implements Runnable {
 
         if (stack instanceof StackedItem) {
             StackedItem stackedItem = (StackedItem) stack;
+
+            if (stackedItem.getItem().getPickupDelay() > stackedItem.getItem().getPickupDelay())
+                return null;
 
             for (StackedItem other : this.stackedItems) {
                 if (stackedItem == other
@@ -180,6 +191,7 @@ public class StackManager extends Manager implements Runnable {
                     }
 
                     increased.increaseStackSize(removed.getStackSize());
+                    increased.getItem().setTicksLived(1);
                     removed.getItem().remove();
                     this.stackedItems.remove(removed);
 
