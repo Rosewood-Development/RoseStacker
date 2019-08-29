@@ -1,0 +1,79 @@
+package dev.esophose.rosestacker.stack;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
+
+public class StackedItem implements Stack {
+
+    private int size;
+    private Item item;
+
+    public StackedItem(int size, Item item) {
+        this.size = size;
+        this.item = item;
+
+        this.updateDisplay();
+    }
+
+    public void increaseStackSize(int amount) {
+        this.size += amount;
+        this.updateDisplay();
+    }
+
+    public Item getItem() {
+        return this.item;
+    }
+
+    @Override
+    public int getStackSize() {
+        return this.size;
+    }
+
+    @Override
+    public void setStackSize(int size) {
+        this.size = size;
+        this.updateDisplay();
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.item.getLocation();
+    }
+
+    @Override
+    public void updateDisplay() {
+        this.item.setCustomNameVisible(this.size > 1);
+        this.item.setCustomName(this.size + "x " + this.item.getItemStack().getType());
+
+        ItemStack itemStack = this.item.getItemStack();
+        itemStack.setAmount(Math.min(this.size, itemStack.getMaxStackSize()));
+        this.item.setItemStack(itemStack);
+    }
+
+    /**
+     * Checks if this StackedItem's item is equal to another item
+     *
+     * @param other The other StackedItem or Item to compare
+     * @return true if this StackedItem's item is equal, otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof StackedItem)
+            return this.item.equals(((StackedItem) other).item);
+
+        if (other instanceof Item)
+            return this.item.equals(other);
+
+        return false;
+    }
+
+    /**
+     * @return a hash code identical to this item for easier look up by entity
+     */
+    @Override
+    public int hashCode() {
+        return this.item.hashCode();
+    }
+
+}

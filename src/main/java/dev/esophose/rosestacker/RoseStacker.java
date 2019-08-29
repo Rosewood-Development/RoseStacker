@@ -1,5 +1,7 @@
 package dev.esophose.rosestacker;
 
+import dev.esophose.rosestacker.listeners.ChunkListener;
+import dev.esophose.rosestacker.listeners.EntityListener;
 import dev.esophose.rosestacker.manager.CommandManager;
 import dev.esophose.rosestacker.manager.ConfigurationManager;
 import dev.esophose.rosestacker.manager.DataManager;
@@ -8,6 +10,7 @@ import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.Manager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.utils.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashSet;
@@ -51,6 +54,10 @@ public class RoseStacker extends JavaPlugin {
 
         // Load managers
         this.reload();
+
+        // Register listeners
+        Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new EntityListener(this), this);
     }
 
     @Override
