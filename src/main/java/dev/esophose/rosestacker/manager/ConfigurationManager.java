@@ -14,8 +14,6 @@ public class ConfigurationManager extends Manager {
         LOCALE(SettingType.STRING),
         DISABLED_WORLDS(SettingType.STRING_LIST),
 
-        FARM_UPDATE_INTERVAL(SettingType.INT),
-
         MYSQL_ENABLED(SettingType.BOOLEAN),
         MYSQL_HOSTNAME(SettingType.STRING),
         MYSQL_PORT(SettingType.INT),

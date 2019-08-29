@@ -18,7 +18,7 @@ public class StackManager extends Manager implements Runnable {
         if (this.task != null)
             this.task.cancel();
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, Setting.FARM_UPDATE_INTERVAL.getInt());
+        this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 5);
     }
 
     @Override
