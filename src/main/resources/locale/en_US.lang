@@ -1,0 +1,5 @@
+prefix: "&7[&cRoseStacker&7] "
+no-permission: "&cYou don't have permission for that!"
+
+command-reload-description: "&8 - &d/rs reload &7- Reloads the plugin."
+command-reload-reloaded: "&7Configuration and locale files were reloaded."

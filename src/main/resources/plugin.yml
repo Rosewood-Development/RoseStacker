@@ -1,0 +1,17 @@
+name: RoseStacker
+version: @version@
+authors: [Esophose]
+main: dev.esophose.rosestacker.RoseStacker
+api-version: 1.14
+commands:
+  rosestacker:
+    description: The RoseStacker command
+    aliases: [stacker, rs]
+permissions:
+  rosestacker.*:
+    description: Inherits all plugin permissions
+    children:
+      rosestacker.reload: true
+  rosestacker.reload:
+    description: Reloads the plugin
+    default: op

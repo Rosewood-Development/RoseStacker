@@ -1,0 +1,45 @@
+#   __________                      _________ __                 __                 
+#   \______   \ ____  ______ ____  /   _____//  |______    ____ |  | __ ___________ 
+#    |       _//  _ \/  ___// __ \ \_____  \\   __\__  \ _/ ___\|  |/ // __ \_  __ \
+#    |    |   (  <_> )___ \\  ___/ /        \|  |  / __ \\  \___|    <\  ___/|  | \/
+#    |____|_  /\____/____  >\___  >_______  /|__| (____  /\___  >__|_ \\___  >__|   
+#           \/           \/     \/        \/           \/     \/     \/    \/       
+
+# The locale to use in the /locale folder
+# Default: en_US
+locale: en_US
+
+# A list of worlds that the plugin is disabled in
+# Default:
+# - disabled_world_name
+disabled-worlds:
+  - disabled_world_name
+
+# Enable MySQL
+# Default: false
+mysql-enabled: false
+
+# MySQL Database Hostname
+# Default: ''
+mysql-hostname: ''
+
+# MySQL Database Port
+# Default: 3306
+mysql-port: 3306
+
+# MySQL Database Name
+# Default: ''
+mysql-database-name: ''
+
+# MySQL Database User Name
+# Default: ''
+mysql-user-name: ''
+
+# MySQL Database User Password
+# Default: ''
+mysql-user-password: ''
+
+# If the database connection should use SSL
+# You should enable this if your database supports SSL
+# Default: false
+mysql-use-ssl: false
