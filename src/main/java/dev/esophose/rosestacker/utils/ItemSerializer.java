@@ -27,7 +27,7 @@ public class ItemSerializer {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
-            // Write the size of the inventory
+            // Write the size of the items
             dataOutput.writeInt(items.size());
 
             // Save every element in the list

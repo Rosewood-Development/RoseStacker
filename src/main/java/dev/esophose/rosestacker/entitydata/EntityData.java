@@ -1,9 +1,12 @@
 package dev.esophose.rosestacker.entitydata;
 
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 
-public interface EntityData {
+import java.io.Serializable;
 
-    void spawnAt(Location location);
+public interface EntityData extends Serializable {
+
+    LivingEntity spawnAt(Location location);
 
 }

@@ -23,7 +23,7 @@ public class EntitySerializer {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream);
 
-            // Write the size of the inventory
+            // Write the size of the data
             dataOutput.writeInt(entityData.size());
 
             // Save every element in the list
