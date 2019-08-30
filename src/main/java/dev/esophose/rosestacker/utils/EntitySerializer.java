@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.utils;
 
 import dev.esophose.rosestacker.entitydata.EntityData;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class EntitySerializer {
     public static String toBase64(List<EntityData> entityData) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream);
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
             // Write the size of the data
             dataOutput.writeInt(entityData.size());
@@ -49,7 +49,7 @@ public class EntitySerializer {
     public static List<EntityData> fromBase64(String data) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            ObjectInputStream dataInput = new ObjectInputStream(inputStream);
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             int length = dataInput.readInt();
             List<EntityData> entityData = new ArrayList<>();
 
