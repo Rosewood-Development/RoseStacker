@@ -1,5 +1,6 @@
 package dev.esophose.rosestacker;
 
+import dev.esophose.rosestacker.listeners.BlockListener;
 import dev.esophose.rosestacker.listeners.ChunkListener;
 import dev.esophose.rosestacker.listeners.EntityListener;
 import dev.esophose.rosestacker.manager.CommandManager;
@@ -61,6 +62,7 @@ public class RoseStacker extends JavaPlugin {
         // Register listeners
         Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
         Bukkit.getPluginManager().registerEvents(new EntityListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
     }
 
     @Override

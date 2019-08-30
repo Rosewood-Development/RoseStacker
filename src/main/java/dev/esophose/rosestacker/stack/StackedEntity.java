@@ -15,6 +15,16 @@ public class StackedEntity implements Stack {
         this.updateDisplay();
     }
 
+    public LivingEntity getEntity() {
+        return this.entity;
+    }
+
+    @Override
+    public void increaseStackSize(int amount) {
+        this.size += amount;
+        this.updateDisplay();
+    }
+
     @Override
     public int getStackSize() {
         return this.size;

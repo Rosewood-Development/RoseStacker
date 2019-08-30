@@ -15,6 +15,13 @@ locale: en_US
 disabled-worlds:
   - disabled_world_name
 
+stackable-blocks:
+  - DIAMOND_BLOCK
+  - GOLD_BLOCK
+  - DIAMOND_BLOCK
+  - EMERALD_BLOCK
+  - LAPIS_BLOCK
+
 # Enable MySQL
 # Default: false
 mysql-enabled: false

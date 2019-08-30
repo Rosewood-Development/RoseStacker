@@ -15,6 +15,16 @@ public class StackedSpawner implements Stack {
         this.updateDisplay();
     }
 
+    public CreatureSpawner getSpawner() {
+        return this.spawner;
+    }
+
+    @Override
+    public void increaseStackSize(int amount) {
+        this.size += amount;
+        this.updateDisplay();
+    }
+
     @Override
     public int getStackSize() {
         return this.size;

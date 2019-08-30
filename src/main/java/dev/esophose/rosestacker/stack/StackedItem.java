@@ -18,13 +18,14 @@ public class StackedItem implements Stack {
         this.updateDisplay();
     }
 
+    public Item getItem() {
+        return this.item;
+    }
+
+    @Override
     public void increaseStackSize(int amount) {
         this.size += amount;
         this.updateDisplay();
-    }
-
-    public Item getItem() {
-        return this.item;
     }
 
     @Override

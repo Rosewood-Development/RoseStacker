@@ -1,5 +1,9 @@
 package dev.esophose.rosestacker.stack;
 
+import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.HologramManager;
+import dev.esophose.rosestacker.manager.LocaleManager.Locale;
+import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -12,6 +16,16 @@ public class StackedBlock implements Stack {
         this.size = size;
         this.block = block;
 
+        this.updateDisplay();
+    }
+
+    public Block getBlock() {
+        return this.block;
+    }
+
+    @Override
+    public void increaseStackSize(int amount) {
+        this.size += amount;
         this.updateDisplay();
     }
 
@@ -32,7 +46,15 @@ public class StackedBlock implements Stack {
 
     @Override
     public void updateDisplay() {
+        HologramManager hologramManager = RoseStacker.getInstance().getHologramManager();
 
+        String displayString = Locale.STACK_DISPLAY.get()
+                .replaceAll("%amount%", String.valueOf(this.size))
+                .replaceAll("%name%", StackerUtils.formatName(this.block.getType().name()));
+
+        Location location = this.block.getLocation().clone().add(0.5, 0.75, 0.5);
+
+        hologramManager.createOrUpdateHologram(location, displayString);
     }
 
 }

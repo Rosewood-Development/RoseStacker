@@ -3,13 +3,19 @@ package dev.esophose.rosestacker.manager;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.Stack;
+import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.StackedItem;
+import dev.esophose.rosestacker.stack.StackedSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -23,11 +29,21 @@ public class StackManager extends Manager implements Runnable {
     private BukkitTask task;
 
     private Set<StackedItem> stackedItems;
+    private Set<StackedBlock> stackedBlocks;
+    private Set<StackedSpawner> stackedSpawners;
+    private Set<StackedEntity> stackedEntities;
+
+    private Set<Material> stackableBlockMaterials;
 
     public StackManager(RoseStacker roseStacker) {
         super(roseStacker);
 
         this.stackedItems = new HashSet<>();
+        this.stackedBlocks = new HashSet<>();
+        this.stackedSpawners = new HashSet<>();
+        this.stackedEntities = new HashSet<>();
+
+        this.stackableBlockMaterials = new HashSet<>();
     }
 
     @Override
@@ -38,6 +54,14 @@ public class StackManager extends Manager implements Runnable {
         this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 5);
 
         this.stackedItems.clear();
+        this.stackedBlocks.clear();
+        this.stackedSpawners.clear();
+        this.stackedEntities.clear();
+
+        this.stackableBlockMaterials.clear();
+
+        for (String materialName : Setting.STACKABLE_BLOCKS.getStringList())
+            this.stackableBlockMaterials.add(Material.matchMaterial(materialName));
 
         // Load all existing entities in the world
         List<String> disabledWorlds = Setting.DISABLED_WORLDS.getStringList();
@@ -60,6 +84,37 @@ public class StackManager extends Manager implements Runnable {
             if (stackedItem.getItem().equals(item))
                 return stackedItem;
         return null;
+    }
+
+    public StackedBlock getStackedBlock(Block block) {
+        for (StackedBlock stackedBlock : this.stackedBlocks)
+            if (stackedBlock.getBlock().equals(block))
+                return stackedBlock;
+        return null;
+    }
+
+    public StackedSpawner getStackedSpawner(Block block) {
+        for (StackedSpawner stackedSpawner : this.stackedSpawners)
+            if (stackedSpawner.getSpawner().equals(block.getState()))
+                return stackedSpawner;
+        return null;
+    }
+
+    public StackedEntity getStackedEntity(LivingEntity entity) {
+        for (StackedEntity stackedEntity : this.stackedEntities)
+            if (stackedEntity.getEntity().getUniqueId().equals(entity.getUniqueId()))
+                return stackedEntity;
+        return null;
+    }
+
+    /**
+     * Checks if a given block is either part of a block stack or spawner stack
+     *
+     * @param block The block to check
+     * @return true if the block is part of a block or spawner stack, otherwise false
+     */
+    public boolean isBlockStacked(Block block) {
+        return this.getStackedBlock(block) != null || this.getStackedSpawner(block) != null;
     }
 
     public void removeItem(StackedItem stackedItem) {
@@ -93,10 +148,10 @@ public class StackManager extends Manager implements Runnable {
         return newStackedItem;
     }
 
-    public void createStackFromEntity(Entity entity) {
+    public Stack createStackFromEntity(Entity entity) {
         Stack newStack = null;
 
-        // Load items
+        // Stack items
         if (entity instanceof Item) {
             Item item = (Item) entity;
             StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
@@ -105,7 +160,26 @@ public class StackManager extends Manager implements Runnable {
         }
 
         if (newStack != null)
-            this.tryStack(newStack);
+            this.tryStackEntity(newStack);
+
+        return newStack;
+    }
+
+    public Stack createStackFromBlock(Block block, int amount) {
+        Stack newStack = null;
+
+        // Stack spawners
+        if (block.getType() == Material.SPAWNER) {
+            StackedSpawner stackedSpawner = new StackedSpawner(amount, (CreatureSpawner) block.getState());
+            this.stackedSpawners.add(stackedSpawner);
+            newStack = stackedSpawner;
+        } else {
+            StackedBlock stackedBlock = new StackedBlock(amount, block);
+            this.stackedBlocks.add(stackedBlock);
+            newStack = stackedBlock;
+        }
+
+        return newStack;
     }
 
     public void loadChunk(Chunk chunk) {
@@ -134,7 +208,7 @@ public class StackManager extends Manager implements Runnable {
                 continue;
             }
 
-            Stack removedStack = this.tryStack(stackedItem);
+            Stack removedStack = this.tryStackEntity(stackedItem);
             if (removedStack != null)
                 removed.add(removedStack);
         }
@@ -146,7 +220,7 @@ public class StackManager extends Manager implements Runnable {
      * @param stack The stack to try stacking
      * @return if a stack was deleted, the stack that was deleted, otherwise null
      */
-    private Stack tryStack(Stack stack) {
+    private Stack tryStackEntity(Stack stack) {
         // Handle item entity stacking
         double maxStackDistanceSqrd = 1.5 * 1.5; // How far away should we stack items? // TODO: Configurable
 
