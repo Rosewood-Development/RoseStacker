@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker;
 
-import dev.esophose.rosestacker.listeners.BlockListener;
-import dev.esophose.rosestacker.listeners.ChunkListener;
-import dev.esophose.rosestacker.listeners.EntityListener;
+import dev.esophose.rosestacker.listener.BlockListener;
+import dev.esophose.rosestacker.listener.ChunkListener;
+import dev.esophose.rosestacker.listener.EntityListener;
 import dev.esophose.rosestacker.manager.CommandManager;
 import dev.esophose.rosestacker.manager.ConfigurationManager;
 import dev.esophose.rosestacker.manager.DataManager;

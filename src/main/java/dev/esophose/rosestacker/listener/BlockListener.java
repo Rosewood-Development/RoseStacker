@@ -1,4 +1,4 @@
-package dev.esophose.rosestacker.listeners;
+package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
