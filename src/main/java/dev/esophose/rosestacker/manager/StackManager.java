@@ -62,6 +62,7 @@ public class StackManager extends Manager implements Runnable {
 
         for (String materialName : Setting.STACKABLE_BLOCKS.getStringList())
             this.stackableBlockMaterials.add(Material.matchMaterial(materialName));
+        this.stackableBlockMaterials.add(Material.SPAWNER);
 
         // Load all existing entities in the world
         List<String> disabledWorlds = Setting.DISABLED_WORLDS.getStringList();
@@ -117,8 +118,29 @@ public class StackManager extends Manager implements Runnable {
         return this.getStackedBlock(block) != null || this.getStackedSpawner(block) != null;
     }
 
+    /**
+     * Checks if a given block type is able to be stacked
+     *
+     * @param block The block to check
+     * @return true if the block is stackable, otherwise false
+     */
+    public boolean isBlockTypeStackable(Block block) {
+        return this.stackableBlockMaterials.contains(block.getType());
+    }
+
     public void removeItem(StackedItem stackedItem) {
         this.stackedItems.remove(stackedItem);
+    }
+
+    public void removeBlock(Block block) {
+        if (!this.isBlockStacked(block))
+            return;
+
+        if (block.getType() == Material.SPAWNER) {
+            this.stackedSpawners.remove(this.getStackedSpawner(block));
+        } else {
+            this.stackedBlocks.remove(this.getStackedBlock(block));
+        }
     }
 
     /**
@@ -134,7 +156,7 @@ public class StackManager extends Manager implements Runnable {
 
         newItemStack.setAmount(newSize);
 
-        stackedItem.getItem().setPickupDelay(20);
+        stackedItem.getItem().setPickupDelay(30);
         stackedItem.getItem().setTicksLived(1);
 
         Item newItem = stackedItem.getLocation().getWorld().spawn(stackedItem.getLocation(), Item.class, (entity) -> {

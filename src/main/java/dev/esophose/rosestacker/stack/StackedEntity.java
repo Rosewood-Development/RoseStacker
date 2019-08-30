@@ -32,7 +32,8 @@ public class StackedEntity implements Stack {
 
     @Override
     public void setStackSize(int size) {
-
+        this.size = size;
+        this.updateDisplay();
     }
 
     @Override

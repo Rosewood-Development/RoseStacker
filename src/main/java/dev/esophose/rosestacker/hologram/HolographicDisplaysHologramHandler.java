@@ -6,6 +6,7 @@ import dev.esophose.rosestacker.RoseStacker;
 import org.bukkit.Location;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class HolographicDisplaysHologramHandler implements HologramHandler {
@@ -20,7 +21,7 @@ public class HolographicDisplaysHologramHandler implements HologramHandler {
     public void createOrUpdateHologram(Location location, String text) {
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = HologramsAPI.createHologram(RoseStacker.getInstance(), location);
+            hologram = HologramsAPI.createHologram(RoseStacker.getInstance(), location.clone().add(0, 1, 0));
             hologram.appendTextLine(text);
             this.holograms.put(location, hologram);
         } else {
@@ -40,7 +41,7 @@ public class HolographicDisplaysHologramHandler implements HologramHandler {
 
     @Override
     public void deleteAllHolograms() {
-        this.holograms.keySet().forEach(this::deleteHologram);
+        new HashSet<>(this.holograms.keySet()).forEach(this::deleteHologram);
     }
 
 }

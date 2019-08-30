@@ -36,7 +36,8 @@ public class StackedBlock implements Stack {
 
     @Override
     public void setStackSize(int size) {
-
+        this.size = size;
+        this.updateDisplay();
     }
 
     @Override
@@ -48,11 +49,16 @@ public class StackedBlock implements Stack {
     public void updateDisplay() {
         HologramManager hologramManager = RoseStacker.getInstance().getHologramManager();
 
+        Location location = this.block.getLocation().clone().add(0.5, 0.75, 0.5);
+
+        if (this.size <= 1) {
+            hologramManager.deleteHologram(location);
+            return;
+        }
+
         String displayString = Locale.STACK_DISPLAY.get()
                 .replaceAll("%amount%", String.valueOf(this.size))
                 .replaceAll("%name%", StackerUtils.formatName(this.block.getType().name()));
-
-        Location location = this.block.getLocation().clone().add(0.5, 0.75, 0.5);
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

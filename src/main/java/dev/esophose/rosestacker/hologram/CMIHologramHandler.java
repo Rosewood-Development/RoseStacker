@@ -8,6 +8,7 @@ import org.bukkit.Location;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class CMIHologramHandler implements HologramHandler {
@@ -46,7 +47,7 @@ public class CMIHologramHandler implements HologramHandler {
 
     @Override
     public void deleteAllHolograms() {
-        this.holograms.keySet().forEach(this::deleteHologram);
+        new HashSet<>(this.holograms.keySet()).forEach(this::deleteHologram);
     }
 
 }

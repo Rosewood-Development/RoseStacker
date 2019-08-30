@@ -3,9 +3,14 @@ package dev.esophose.rosestacker.listeners;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedBlock;
+import dev.esophose.rosestacker.stack.StackedSpawner;
+import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,6 +23,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
@@ -33,7 +39,44 @@ public class BlockListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
 
-        // TODO: Handle breaking a single block and the entire stack at once if holding shift, configurable
+        Block block = event.getBlock();
+        if (!stackManager.isBlockStacked(block))
+            return;
+
+        Player player = event.getPlayer();
+        boolean breakEverything = player.isSneaking();
+        Location dropLocation = block.getLocation().clone().add(0.5, 0.5, 0.5);
+
+        // TODO: Make break-entire-stack-while-sneaking setting, default true
+
+        if (block.getType() == Material.SPAWNER) {
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            if (breakEverything) {
+                // TODO: Drop a pre-stacked itemstack of the spawner
+            } else {
+                // TODO: Drop a spawner with metadata to tell what type it is
+            }
+
+            if (stackedSpawner.getStackSize() == 1)
+                stackManager.removeBlock(block);
+        } else {
+            StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            if (breakEverything) {
+                if (player.getGameMode() != GameMode.CREATIVE)
+                    StackerUtils.dropItems(dropLocation, new ItemStack(block.getType()), stackedBlock.getStackSize());
+                stackedBlock.setStackSize(0);
+                block.setType(Material.AIR);
+            } else {
+                if (player.getGameMode() != GameMode.CREATIVE)
+                    dropLocation.getWorld().dropItemNaturally(dropLocation, new ItemStack(block.getType()));
+                stackedBlock.increaseStackSize(-1);
+            }
+
+            if (stackedBlock.getStackSize() <= 1)
+                stackManager.removeBlock(block);
+        }
+
+        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -90,11 +133,12 @@ public class BlockListener implements Listener {
         // TODO: max stack size
         // TODO: pre-stacked ItemStacks to place large amounts in one go
 
+        Player player = event.getPlayer();
         Block block = event.getBlock();
         Block against = event.getBlockAgainst();
 
         // Only stack similar types
-        if (against.getType() != block.getType())
+        if (!stackManager.isBlockTypeStackable(against) || against.getType() != block.getType() || player.isSneaking())
             return;
 
         // Handle spawner stacking
@@ -107,20 +151,38 @@ public class BlockListener implements Listener {
                 return;
 
             // TODO: Handle stacked spawners
+        } else {
+            // Handle normal block stacking
+            StackedBlock stackedBlock = stackManager.getStackedBlock(against);
+            if (stackedBlock == null)
+                stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
 
-            event.setCancelled(true);
-            return;
+            stackedBlock.increaseStackSize(1);
         }
-
-        // Handle normal block stacking
-        StackedBlock stackedBlock = stackManager.getStackedBlock(against);
-        if (stackedBlock == null) {
-            stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
-        }
-
-        stackedBlock.increaseStackSize(1);
 
         event.setCancelled(true);
+
+        // Take an item from the player's hand
+        if (player.getGameMode() == GameMode.CREATIVE)
+            return;
+
+        ItemStack target = player.getInventory().getItemInMainHand();
+        boolean isOffHand = false;
+        if (!target.getType().isBlock()) {
+            target = player.getInventory().getItemInOffHand();
+            isOffHand = true;
+        }
+
+        int newAmount = target.getAmount() - 1;
+        if (newAmount <= 0) {
+            if (!isOffHand) {
+                player.getInventory().setItemInMainHand(null);
+            } else {
+                player.getInventory().setItemInOffHand(null);
+            }
+        } else {
+            target.setAmount(newAmount);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
