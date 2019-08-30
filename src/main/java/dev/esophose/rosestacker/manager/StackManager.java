@@ -3,24 +3,20 @@ package dev.esophose.rosestacker.manager;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.Stack;
+import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.StackedItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class StackManager extends Manager implements Runnable {
 
@@ -198,6 +194,8 @@ public class StackManager extends Manager implements Runnable {
                     return removed;
                 }
             }
+        } else if (stack instanceof StackedEntity) {
+
         }
 
         return null;

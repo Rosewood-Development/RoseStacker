@@ -3,6 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.rosestacker.RoseStacker
 api-version: 1.14
+softdepend: [HolographicDisplays, Holograms, CMI]
 commands:
   rosestacker:
     description: The RoseStacker command

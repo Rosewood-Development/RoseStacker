@@ -6,6 +6,7 @@ import dev.esophose.rosestacker.manager.CommandManager;
 import dev.esophose.rosestacker.manager.ConfigurationManager;
 import dev.esophose.rosestacker.manager.DataManager;
 import dev.esophose.rosestacker.manager.DataMigrationManager;
+import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.Manager;
 import dev.esophose.rosestacker.manager.StackManager;
@@ -29,6 +30,7 @@ public class RoseStacker extends JavaPlugin {
     private ConfigurationManager configurationManager;
     private DataManager dataManager;
     private DataMigrationManager dataMigrationManager;
+    private HologramManager hologramManager;
     private LocaleManager localeManager;
     private StackManager stackManager;
 
@@ -49,6 +51,7 @@ public class RoseStacker extends JavaPlugin {
         this.configurationManager = new ConfigurationManager(this);
         this.dataManager = new DataManager(this);
         this.dataMigrationManager = new DataMigrationManager(this);
+        this.hologramManager = this.registerManager(HologramManager.class);
         this.localeManager = this.registerManager(LocaleManager.class);
         this.stackManager = this.registerManager(StackManager.class);
 
@@ -129,6 +132,13 @@ public class RoseStacker extends JavaPlugin {
      */
     public DataMigrationManager getDataMigrationManager() {
         return this.dataMigrationManager;
+    }
+
+    /**
+     * @return the HologramManager instance
+     */
+    public HologramManager getHologramManager() {
+        return this.hologramManager;
     }
 
     /**
