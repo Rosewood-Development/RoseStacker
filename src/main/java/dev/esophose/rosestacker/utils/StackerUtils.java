@@ -1,8 +1,17 @@
 package dev.esophose.rosestacker.utils;
 
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Collections;
 
 public class StackerUtils {
 
@@ -40,6 +49,64 @@ public class StackerUtils {
             newItemStack.setAmount(toTake);
             amount -= toTake;
             location.getWorld().dropItemNaturally(location, newItemStack);
+        }
+    }
+
+    public static ItemStack getBlockAsStackedItemStack(Material material, int amount) {
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return itemStack;
+
+        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Stack: " + ChatColor.RED + amount + "x"));
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static ItemStack getSpawnerAsStackedItemStack(EntityType entityType, int amount) {
+        ItemStack itemStack = new ItemStack(Material.SPAWNER);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return itemStack;
+
+        itemMeta.setDisplayName(ChatColor.RESET + formatName(entityType.name() + "_" + Material.SPAWNER.name()));
+        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Stack: " + ChatColor.RED + amount + "x"));
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static int getStackedItemStackAmount(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null || itemMeta.getLore() == null || itemMeta.getLore().isEmpty())
+            return 1;
+
+        String lore = ChatColor.stripColor(itemMeta.getLore().get(0));
+        if (lore.contains("Stack: ")) {
+            try {
+                return Integer.parseInt(lore.substring(7, lore.length() - 1));
+            } catch (Exception ex) {
+                return 1;
+            }
+        }
+
+        return 1;
+    }
+
+    public static EntityType getStackedItemEntityType(ItemStack itemStack) {
+        if (itemStack.getType() != Material.SPAWNER)
+            return null;
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return null;
+
+        String name = ChatColor.stripColor(itemMeta.getDisplayName());
+        try {
+            return EntityType.valueOf((name.substring(0, name.length() - 8)).toUpperCase());
+        } catch (Exception ex) {
+            return null;
         }
     }
 

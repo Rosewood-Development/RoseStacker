@@ -10,12 +10,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
@@ -40,7 +42,9 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.roseStacker.getStackManager();
 
         Block block = event.getBlock();
-        if (!stackManager.isBlockStacked(block))
+        boolean isStacked = stackManager.isBlockStacked(block);
+        boolean isSpawner = block.getType() == Material.SPAWNER;
+        if (!isStacked && !isSpawner)
             return;
 
         Player player = event.getPlayer();
@@ -49,15 +53,29 @@ public class BlockListener implements Listener {
 
         // TODO: Make break-entire-stack-while-sneaking setting, default true
 
-        if (block.getType() == Material.SPAWNER) {
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
-            if (breakEverything) {
-                // TODO: Drop a pre-stacked itemstack of the spawner
-            } else {
-                // TODO: Drop a spawner with metadata to tell what type it is
+        if (isSpawner) {
+            // Always drop the correct spawner type even if it's not stackes
+            if (!isStacked) {
+                if (player.getGameMode() != GameMode.CREATIVE)
+                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), 1));
+                block.setType(Material.AIR);
+                event.setCancelled(true);
+                return;
             }
 
-            if (stackedSpawner.getStackSize() == 1)
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            if (breakEverything) {
+                if (player.getGameMode() != GameMode.CREATIVE)
+                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), stackedSpawner.getStackSize()));
+                stackedSpawner.setStackSize(0);
+                block.setType(Material.AIR);
+            } else {
+                if (player.getGameMode() != GameMode.CREATIVE)
+                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), 1));
+                stackedSpawner.increaseStackSize(-1);
+            }
+
+            if (stackedSpawner.getStackSize() <= 1)
                 stackManager.removeBlock(block);
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
@@ -131,49 +149,74 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.roseStacker.getStackManager();
         // TODO: auto stack range
         // TODO: max stack size
-        // TODO: pre-stacked ItemStacks to place large amounts in one go
 
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Block against = event.getBlockAgainst();
 
-        // Only stack similar types
-        if (!stackManager.isBlockTypeStackable(against) || against.getType() != block.getType() || player.isSneaking())
-            return;
-
-        // Handle spawner stacking
-        if (block.getType() == Material.SPAWNER) {
-            CreatureSpawner spawner = (CreatureSpawner) block.getState();
-            CreatureSpawner spawnerAgainst = (CreatureSpawner) against.getState();
-
-            // Only stack spawners of the same type
-            if (spawner.getSpawnedType() != spawnerAgainst.getSpawnedType())
-                return;
-
-            // TODO: Handle stacked spawners
-        } else {
-            // Handle normal block stacking
-            StackedBlock stackedBlock = stackManager.getStackedBlock(against);
-            if (stackedBlock == null)
-                stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
-
-            stackedBlock.increaseStackSize(1);
+        // Get the block in the player's hand that's being placed
+        ItemStack placedItem = player.getInventory().getItemInMainHand();
+        boolean isOffHand = false;
+        if (placedItem.getType() == Material.AIR || !placedItem.getType().isBlock()) {
+            placedItem = player.getInventory().getItemInOffHand();
+            isOffHand = true;
         }
 
-        event.setCancelled(true);
+        // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
+        boolean isAdditiveStack = against.getType() == block.getType();
+        if (isAdditiveStack && against.getType() == Material.SPAWNER)
+            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == StackerUtils.getStackedItemEntityType(placedItem);
+
+        int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
+        if (isAdditiveStack) {
+            if (!stackManager.isBlockTypeStackable(against) || player.isSneaking())
+                return;
+
+            if (block.getType() == Material.SPAWNER) {
+                // Handle spawner stacking
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
+                if (stackedSpawner == null)
+                    stackedSpawner = (StackedSpawner) stackManager.createStackFromBlock(against, 1);
+
+                stackedSpawner.increaseStackSize(stackAmount);
+            } else {
+                // Handle normal block stacking
+                StackedBlock stackedBlock = stackManager.getStackedBlock(against);
+                if (stackedBlock == null)
+                    stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
+
+                stackedBlock.increaseStackSize(stackAmount);
+            }
+
+            event.setCancelled(true);
+        } else {
+            // Handle placing spawners
+            if (placedItem.getType() == Material.SPAWNER) {
+                // Create a stacked spawner
+                CreatureSpawner spawner = (CreatureSpawner) block.getState();
+                EntityType spawnedType = StackerUtils.getStackedItemEntityType(placedItem);
+                if (spawnedType == null)
+                    return;
+
+                // Set the spawner type
+                spawner.setSpawnedType(spawnedType);
+                spawner.update();
+            } else {
+                event.setCancelled(true);
+            }
+
+            // Don't bother creating a stack if we're only placing 1 of them
+            if (stackAmount == 1)
+                return;
+
+            stackManager.createStackFromBlock(block, stackAmount);
+        }
 
         // Take an item from the player's hand
         if (player.getGameMode() == GameMode.CREATIVE)
             return;
 
-        ItemStack target = player.getInventory().getItemInMainHand();
-        boolean isOffHand = false;
-        if (target.getType() == Material.AIR || !target.getType().isBlock()) {
-            target = player.getInventory().getItemInOffHand();
-            isOffHand = true;
-        }
-
-        int newAmount = target.getAmount() - 1;
+        int newAmount = placedItem.getAmount() - 1;
         if (newAmount <= 0) {
             if (!isOffHand) {
                 player.getInventory().setItemInMainHand(null);
@@ -181,7 +224,7 @@ public class BlockListener implements Listener {
                 player.getInventory().setItemInOffHand(null);
             }
         } else {
-            target.setAmount(newAmount);
+            placedItem.setAmount(newAmount);
         }
     }
 
@@ -197,6 +240,13 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.roseStacker.getStackManager();
         if (stackManager.isBlockStacked(event.getBlock()))
             event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockExp(BlockExpEvent event) {
+        // Don't want to be able to get exp from stacked spawners, so just remove it all together
+        if (event.getBlock().getType() == Material.SPAWNER)
+            event.setExpToDrop(0);
     }
 
 }

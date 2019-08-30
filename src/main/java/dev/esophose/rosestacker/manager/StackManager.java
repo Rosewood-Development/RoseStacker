@@ -188,7 +188,7 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public Stack createStackFromBlock(Block block, int amount) {
-        Stack newStack = null;
+        Stack newStack;
 
         // Stack spawners
         if (block.getType() == Material.SPAWNER) {
