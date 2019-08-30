@@ -168,7 +168,7 @@ public class BlockListener implements Listener {
 
         ItemStack target = player.getInventory().getItemInMainHand();
         boolean isOffHand = false;
-        if (!target.getType().isBlock()) {
+        if (target.getType() == Material.AIR || !target.getType().isBlock()) {
             target = player.getInventory().getItemInOffHand();
             isOffHand = true;
         }
