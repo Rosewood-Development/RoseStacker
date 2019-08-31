@@ -5,6 +5,7 @@ import net.minecraft.server.v1_14_R1.Entity;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityTypes;
 import net.minecraft.server.v1_14_R1.EnumMobSpawn;
+import net.minecraft.server.v1_14_R1.IRegistry;
 import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import net.minecraft.server.v1_14_R1.NBTTagDouble;
@@ -21,7 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public class EntitySerializer {
 
@@ -40,7 +40,7 @@ public class EntitySerializer {
             craftEntity.save(nbt);
 
             // Write entity type
-            String entityType = craftEntity.cG().toString().replaceAll(Pattern.quote("entities/"), "");
+            String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
             dataOutput.writeUTF(entityType);
 
             // Write NBT

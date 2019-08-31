@@ -3,7 +3,6 @@ package dev.esophose.rosestacker.listener;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedEntity;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -14,6 +13,8 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 public class EntityListener implements Listener {
@@ -47,15 +48,13 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityDamage(EntityDamageEvent event) {
+    public void onEntityDeath(EntityDeathEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
 
-        if (!(event.getEntity() instanceof LivingEntity) || !stackManager.isEntityStacked(event.getEntity()))
+        if (!stackManager.isEntityStacked(event.getEntity()))
             return;
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
-        if (entity.getHealth() - event.getFinalDamage() > 0)
-            return;
+        LivingEntity entity = event.getEntity();
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity.getStackSize() == 1) {
@@ -63,10 +62,12 @@ public class EntityListener implements Listener {
             return;
         }
 
-        // TODO: Kill-all-stack for certain death types
-        if (event instanceof EntityDamageByBlockEvent) {
+        EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
 
-        } else if (event instanceof EntityDamageByEntityEvent) {
+        // TODO: Kill-all-stack for certain death types
+        if (lastDamageCause instanceof EntityDamageByBlockEvent) {
+
+        } else if (lastDamageCause instanceof EntityDamageByEntityEvent) {
 
         } else {
 
@@ -75,10 +76,8 @@ public class EntityListener implements Listener {
         // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
         entity.setCustomName(null);
         entity.setCustomNameVisible(false);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
-            this.ignoreNextCreatureSpawn = true;
-            stackedEntity.decreaseStackSize();
-        });
+        this.ignoreNextCreatureSpawn = true;
+        stackedEntity.decreaseStackSize();
     }
 
 }

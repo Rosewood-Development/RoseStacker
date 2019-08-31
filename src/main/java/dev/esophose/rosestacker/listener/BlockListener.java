@@ -5,7 +5,6 @@ import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;

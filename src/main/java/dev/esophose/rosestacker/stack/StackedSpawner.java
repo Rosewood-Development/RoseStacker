@@ -4,7 +4,6 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
 

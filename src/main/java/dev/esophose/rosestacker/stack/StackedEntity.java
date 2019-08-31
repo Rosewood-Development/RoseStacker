@@ -3,7 +3,6 @@ package dev.esophose.rosestacker.stack;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
