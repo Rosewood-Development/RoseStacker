@@ -21,6 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -70,7 +71,6 @@ public class StackManager extends Manager implements Runnable {
             if (disabledWorlds.contains(world.getName()))
                 continue;
 
-            // Handle item entity stacking
             world.getEntities().forEach(this::createStackFromEntity);
         }
     }
@@ -101,7 +101,7 @@ public class StackManager extends Manager implements Runnable {
         return null;
     }
 
-    public StackedEntity getStackedEntity(LivingEntity entity) {
+    public StackedEntity getStackedEntity(Entity entity) {
         for (StackedEntity stackedEntity : this.stackedEntities)
             if (stackedEntity.getEntity().getUniqueId().equals(entity.getUniqueId()))
                 return stackedEntity;
@@ -119,6 +119,16 @@ public class StackManager extends Manager implements Runnable {
     }
 
     /**
+     * Checks if a given entity is either part of an item stack or entity stack
+     *
+     * @param entity The entity to check
+     * @return true if the entity is part of an item stack or entity stack, otherwise false
+     */
+    public boolean isEntityStacked(Entity entity) {
+        return this.getStackedEntity(entity) != null || (entity instanceof Item && this.getStackedItem((Item) entity) != null);
+    }
+
+    /**
      * Checks if a given block type is able to be stacked
      *
      * @param block The block to check
@@ -130,6 +140,10 @@ public class StackManager extends Manager implements Runnable {
 
     public void removeItem(StackedItem stackedItem) {
         this.stackedItems.remove(stackedItem);
+    }
+
+    public void removeEntity(StackedEntity stackedEntity) {
+        this.stackedEntities.remove(stackedEntity);
     }
 
     public void removeBlock(Block block) {
@@ -179,6 +193,11 @@ public class StackManager extends Manager implements Runnable {
             StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
             this.stackedItems.add(newStackedItem);
             newStack = newStackedItem;
+        } else if (entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
+            StackedEntity newStackedEntity = new StackedEntity(livingEntity, new LinkedList<>());
+            this.stackedEntities.add(newStackedEntity);
+            newStack = newStackedEntity;
         }
 
         if (newStack != null)
@@ -234,6 +253,20 @@ public class StackManager extends Manager implements Runnable {
             if (removedStack != null)
                 removed.add(removedStack);
         }
+
+        for (StackedEntity stackedEntity : new ArrayList<>(this.stackedEntities)) {
+            if (removed.contains(stackedEntity))
+                continue;
+
+            if (!stackedEntity.getEntity().isValid()) {
+                this.stackedEntities.remove(stackedEntity);
+                continue;
+            }
+
+            Stack removedStack = this.tryStackEntity(stackedEntity);
+            if (removedStack != null)
+                removed.add(removedStack);
+        }
     }
 
     /**
@@ -243,8 +276,10 @@ public class StackManager extends Manager implements Runnable {
      * @return if a stack was deleted, the stack that was deleted, otherwise null
      */
     private Stack tryStackEntity(Stack stack) {
-        // Handle item entity stacking
-        double maxStackDistanceSqrd = 1.5 * 1.5; // How far away should we stack items? // TODO: Configurable
+        double maxItemStackDistanceSqrd = 1.5 * 1.5; // How far away should we stack items? // TODO: Configurable
+        double maxEntityStackDistanceSqrd = 3 * 3; // How far away should we stack entities? // TODO: Configurable
+
+        // TODO: Group by world
 
         if (stack instanceof StackedItem) {
             StackedItem stackedItem = (StackedItem) stack;
@@ -254,33 +289,16 @@ public class StackManager extends Manager implements Runnable {
 
             for (StackedItem other : this.stackedItems) {
                 if (stackedItem == other
+                        || !other.getItem().isValid()
                         || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                         || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
                         || other.getItem().getPickupDelay() > other.getItem().getTicksLived())
                     continue;
 
                 // Check if we should merge the stacks
-                if (stackedItem.getLocation().distanceSquared(other.getLocation()) <= maxStackDistanceSqrd) {
-                    StackedItem increased;
-                    StackedItem removed;
-
-                    // Merge whichever stack is bigger
-                    if (stackedItem.getStackSize() == other.getStackSize()) {
-                        // Pick whichever has lived the shortest amount
-                        if (stackedItem.getItem().getTicksLived() > other.getItem().getTicksLived()) {
-                            increased = stackedItem;
-                            removed = other;
-                        } else {
-                            increased = other;
-                            removed = stackedItem;
-                        }
-                    } else if (stackedItem.getStackSize() > other.getStackSize()) {
-                        increased = stackedItem;
-                        removed = other;
-                    } else {
-                        increased = other;
-                        removed = stackedItem;
-                    }
+                if (stackedItem.getLocation().distanceSquared(other.getLocation()) <= maxItemStackDistanceSqrd) {
+                    StackedItem increased = (StackedItem) this.getPreferredEntityStack(stackedItem, other);
+                    StackedItem removed = increased == stackedItem ? other : stackedItem;
 
                     increased.increaseStackSize(removed.getStackSize());
                     increased.getItem().setTicksLived(1);
@@ -291,10 +309,49 @@ public class StackManager extends Manager implements Runnable {
                 }
             }
         } else if (stack instanceof StackedEntity) {
+            StackedEntity stackedEntity = (StackedEntity) stack;
 
+            for (StackedEntity other : this.stackedEntities) {
+                if (stackedEntity == other
+                        || other.getEntity() == null
+                        || !other.getEntity().isValid()
+                        || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
+                        || stackedEntity.getEntity().getType() != other.getEntity().getType())
+                    continue;
+
+                // Check if we should merge the stacks
+                if (stackedEntity.getLocation().distanceSquared(other.getLocation()) <= maxEntityStackDistanceSqrd) {
+                    StackedEntity increased = (StackedEntity) this.getPreferredEntityStack(stackedEntity, other);
+                    StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
+
+                    increased.increaseStackSize(removed.getEntity());
+                    removed.getEntity().remove();
+                    this.stackedEntities.remove(removed);
+
+                    return removed;
+                }
+            }
         }
 
         return null;
+    }
+
+    private Stack getPreferredEntityStack(Stack stack1, Stack stack2) {
+        Entity entity1, entity2;
+        if (stack1 instanceof StackedItem) {
+            entity1 = ((StackedItem) stack1).getItem();
+            entity2 = ((StackedItem) stack2).getItem();
+        } else if (stack1 instanceof StackedEntity) {
+            entity1 = ((StackedEntity) stack1).getEntity();
+            entity2 = ((StackedEntity) stack2).getEntity();
+        } else {
+            return null;
+        }
+
+        if (stack1.getStackSize() == stack2.getStackSize())
+            return entity1.getTicksLived() > entity2.getTicksLived() ? stack1 : stack2;
+
+        return stack1.getStackSize() > stack2.getStackSize() ? stack1 : stack2;
     }
 
 }

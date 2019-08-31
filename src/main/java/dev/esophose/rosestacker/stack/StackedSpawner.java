@@ -25,9 +25,14 @@ public class StackedSpawner implements Stack {
         return this.spawner;
     }
 
-    @Override
     public void increaseStackSize(int amount) {
         this.size += amount;
+        this.updateDisplay();
+        this.updateSpawnCount();
+    }
+
+    public void setStackSize(int size) {
+        this.size = size;
         this.updateDisplay();
         this.updateSpawnCount();
     }
@@ -35,13 +40,6 @@ public class StackedSpawner implements Stack {
     @Override
     public int getStackSize() {
         return this.size;
-    }
-
-    @Override
-    public void setStackSize(int size) {
-        this.size = size;
-        this.updateDisplay();
-        this.updateSpawnCount();
     }
 
     @Override

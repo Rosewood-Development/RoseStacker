@@ -23,21 +23,19 @@ public class StackedBlock implements Stack {
         return this.block;
     }
 
-    @Override
     public void increaseStackSize(int amount) {
         this.size += amount;
+        this.updateDisplay();
+    }
+
+    public void setStackSize(int size) {
+        this.size = size;
         this.updateDisplay();
     }
 
     @Override
     public int getStackSize() {
         return this.size;
-    }
-
-    @Override
-    public void setStackSize(int size) {
-        this.size = size;
-        this.updateDisplay();
     }
 
     @Override

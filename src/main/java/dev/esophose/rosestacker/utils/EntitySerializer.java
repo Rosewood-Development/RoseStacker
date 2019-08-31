@@ -1,11 +1,15 @@
 package dev.esophose.rosestacker.utils;
 
 import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.Entity;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityTypes;
 import net.minecraft.server.v1_14_R1.EnumMobSpawn;
-import net.minecraft.server.v1_14_R1.NBTReadLimiter;
+import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_14_R1.NBTTagDouble;
+import net.minecraft.server.v1_14_R1.NBTTagList;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
@@ -16,7 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class EntitySerializer {
 
@@ -35,11 +41,11 @@ public class EntitySerializer {
             craftEntity.save(nbt);
 
             // Write entity type
-            String entityType = craftEntity.cG().toString();
+            String entityType = craftEntity.cG().toString().replaceAll(Pattern.quote("entities/"), "");
             dataOutput.writeUTF(entityType);
 
             // Write NBT
-            nbt.write(dataOutput);
+            NBTCompressedStreamTools.a(nbt, (OutputStream) dataOutput);
 
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
@@ -50,12 +56,12 @@ public class EntitySerializer {
     }
 
     /**
-     * Unserializes and spawns the entity at the given location
+     * Deserializes and spawns the entity at the given location
      *
      * @param serialized entity
      * @param location to spawn the entity at
      */
-    public static void deserialize(String serialized, Location location) {
+    public static LivingEntity deserialize(String serialized, Location location) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -63,23 +69,37 @@ public class EntitySerializer {
             String entityType = dataInput.readUTF();
 
             // Read NBT
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.load(dataInput, 512, NBTReadLimiter.a);
+            NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
             Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
-            optionalEntity.ifPresent(entityTypes -> entityTypes.spawnCreature(
-                    ((CraftWorld) location.getWorld()).getHandle(),
-                    nbt,
-                    null,
-                    null,
-                    new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                    EnumMobSpawn.TRIGGERED,
-                    true,
-                    false
-            ));
+            if (optionalEntity.isPresent()) {
+                Entity entity = optionalEntity.get().spawnCreature(
+                        ((CraftWorld) location.getWorld()).getHandle(),
+                        nbt,
+                        null,
+                        null,
+                        new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                        EnumMobSpawn.BREEDING,
+                        true,
+                        false
+                );
+
+                if (entity != null) {
+                    NBTTagList nbtTagList = nbt.getList("Pos", 6);
+                    nbtTagList.set(0, new NBTTagDouble(location.getX()));
+                    nbtTagList.set(1, new NBTTagDouble(location.getY()));
+                    nbtTagList.set(2, new NBTTagDouble(location.getZ()));
+                    nbt.set("Pos", nbtTagList);
+
+                    entity.f(nbt);
+                    return (LivingEntity) entity.getBukkitEntity();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
 }

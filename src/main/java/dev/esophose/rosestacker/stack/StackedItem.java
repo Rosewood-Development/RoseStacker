@@ -22,21 +22,19 @@ public class StackedItem implements Stack {
         return this.item;
     }
 
-    @Override
     public void increaseStackSize(int amount) {
         this.size += amount;
+        this.updateDisplay();
+    }
+
+    public void setStackSize(int size) {
+        this.size = size;
         this.updateDisplay();
     }
 
     @Override
     public int getStackSize() {
         return this.size;
-    }
-
-    @Override
-    public void setStackSize(int size) {
-        this.size = size;
-        this.updateDisplay();
     }
 
     @Override
