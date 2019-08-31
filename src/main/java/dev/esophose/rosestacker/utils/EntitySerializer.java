@@ -20,6 +20,12 @@ import java.util.Optional;
 
 public class EntitySerializer {
 
+    /**
+     * Serializes a LivingEntity to a base64 string
+     *
+     * @param entity to serialize
+     * @return base64 string of the entity
+     */
     public static String serialize(LivingEntity entity) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
@@ -49,7 +55,7 @@ public class EntitySerializer {
      * @param serialized entity
      * @param location to spawn the entity at
      */
-    public static void unserialize(String serialized, Location location) {
+    public static void deserialize(String serialized, Location location) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
