@@ -10,12 +10,14 @@ import java.util.function.Consumer;
 public abstract class GenericEntityData<T extends LivingEntity> implements EntityData {
 
     private Collection<PotionEffect> activePotionEffects;
+    private boolean ai;
     private boolean canPickupItems;
     private boolean collidable;
     private String customName;
     private boolean customNameVisible;
     private int fireTicks;
     private boolean glowing;
+    private boolean gravity;
     private double health;
     private boolean invulnerable;
     private int maximumAir;
@@ -29,12 +31,14 @@ public abstract class GenericEntityData<T extends LivingEntity> implements Entit
 
     public GenericEntityData(T entity) {
         this.activePotionEffects = entity.getActivePotionEffects();
+        this.ai = entity.hasAI();
         this.canPickupItems = entity.getCanPickupItems();
         this.collidable = entity.isCollidable();
         this.customName = entity.getCustomName();
         this.customNameVisible = entity.isCustomNameVisible();
         this.fireTicks = entity.getFireTicks();
         this.glowing = entity.isGlowing();
+        this.gravity = entity.hasGravity();
         this.health = entity.getHealth();
         this.invulnerable = entity.isInvulnerable();
         this.maximumAir = entity.getMaximumAir();
@@ -50,12 +54,14 @@ public abstract class GenericEntityData<T extends LivingEntity> implements Entit
     public T spawnAt(Location location) {
         return this.spawnAtInternal(location, (entity) -> {
             this.activePotionEffects.forEach(entity::addPotionEffect);
+            entity.setAI(this.ai);
             entity.setCanPickupItems(this.canPickupItems);
             entity.setCollidable(this.collidable);
             entity.setCustomName(this.customName);
             entity.setCustomNameVisible(this.customNameVisible);
             entity.setFireTicks(this.fireTicks);
             entity.setGlowing(this.glowing);
+            entity.setGravity(this.gravity);
             entity.setHealth(this.health);
             entity.setInvulnerable(this.invulnerable);
             entity.setMaximumAir(this.maximumAir);
