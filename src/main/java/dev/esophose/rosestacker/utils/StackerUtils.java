@@ -5,15 +5,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.Lootable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
 public class StackerUtils {
+
+    private static Random random = new Random();
 
     /**
      * Formats a string from THIS_FORMAT to This Format
@@ -49,6 +58,33 @@ public class StackerUtils {
             newItemStack.setAmount(toTake);
             amount -= toTake;
             location.getWorld().dropItemNaturally(location, newItemStack);
+        }
+    }
+
+    /**
+     * Drops loot for a given entity 'amount' number of times
+     *
+     * @param entity The entity to drop loot for
+     * @param amount How many times to run the loot tables for the entity
+     */
+    public static void dropEntityLoot(LivingEntity entity, int amount) {
+        if (entity instanceof Lootable) {
+            Lootable lootable = (Lootable) entity;
+            if (lootable.getLootTable() == null)
+                return;
+
+            LootContext lootContext = new LootContext.Builder(entity.getLocation())
+                    .lootedEntity(entity)
+                    .killer(entity.getKiller())
+                    .build();
+
+            Location dropLocation = entity.getLocation();
+            Collection<ItemStack> loot = new ArrayList<>();
+
+            for (int i = 0; i < amount; i++)
+                loot.addAll(lootable.getLootTable().populateLoot(random, lootContext));
+
+            loot.forEach(item -> dropLocation.getWorld().dropItemNaturally(dropLocation, item));
         }
     }
 

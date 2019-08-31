@@ -57,6 +57,12 @@ public class EntityListener implements Listener {
         if (entity.getHealth() - event.getFinalDamage() > 0)
             return;
 
+        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        if (stackedEntity.getStackSize() == 1) {
+            stackManager.removeEntity(stackedEntity);
+            return;
+        }
+
         // TODO: Kill-all-stack for certain death types
         if (event instanceof EntityDamageByBlockEvent) {
 
@@ -66,15 +72,13 @@ public class EntityListener implements Listener {
 
         }
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-        if (stackedEntity.getStackSize() == 1) {
-            stackManager.removeEntity(stackedEntity);
-        } else {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
-                this.ignoreNextCreatureSpawn = true;
-                stackedEntity.decreaseStackSize();
-            });
-        }
+        // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
+        entity.setCustomName(null);
+        entity.setCustomNameVisible(false);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
+            this.ignoreNextCreatureSpawn = true;
+            stackedEntity.decreaseStackSize();
+        });
     }
 
 }
