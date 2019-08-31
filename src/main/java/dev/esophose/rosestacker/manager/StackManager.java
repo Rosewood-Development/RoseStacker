@@ -325,6 +325,7 @@ public class StackManager extends Manager implements Runnable {
                     StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
 
                     increased.increaseStackSize(removed.getEntity());
+                    increased.increaseStackSize(removed.getStackedEntityNBTStrings());
                     removed.getEntity().remove();
                     this.stackedEntities.remove(removed);
 

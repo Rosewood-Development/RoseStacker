@@ -6,6 +6,7 @@ import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
+import java.util.Collections;
 import java.util.List;
 
 public class StackedEntity implements Stack {
@@ -29,11 +30,20 @@ public class StackedEntity implements Stack {
         this.updateDisplay();
     }
 
+    public void increaseStackSize(List<String> entityNBTStrings) {
+        this.serializedStackedEntities.addAll(entityNBTStrings);
+        this.updateDisplay();
+    }
+
     public void decreaseStackSize() {
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), location);
         this.updateDisplay();
+    }
+
+    public List<String> getStackedEntityNBTStrings() {
+        return Collections.unmodifiableList(this.serializedStackedEntities);
     }
 
     @Override
