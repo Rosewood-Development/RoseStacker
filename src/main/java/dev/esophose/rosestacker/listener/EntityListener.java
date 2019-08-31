@@ -20,25 +20,25 @@ public class EntityListener implements Listener {
 
     private RoseStacker roseStacker;
 
-    private boolean ignoreNextCreatureSpawn;
-
     public EntityListener(RoseStacker roseStacker) {
         this.roseStacker = roseStacker;
-        this.ignoreNextCreatureSpawn = false;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntitySpawn(EntitySpawnEvent event) {
+        StackManager stackManager = this.roseStacker.getStackManager();
+        if (stackManager.isEntityStackingDisabled())
+            return;
+
         if (event.getEntity() instanceof Item)
-            this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
+            stackManager.createStackFromEntity(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (this.ignoreNextCreatureSpawn) {
-            this.ignoreNextCreatureSpawn = false;
+        StackManager stackManager = this.roseStacker.getStackManager();
+        if (stackManager.isEntityStackingDisabled())
             return;
-        }
 
         if (event.getEntityType() != EntityType.ARMOR_STAND)
             this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
@@ -75,8 +75,13 @@ public class EntityListener implements Listener {
         // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
         entity.setCustomName(null);
         entity.setCustomNameVisible(false);
-        this.ignoreNextCreatureSpawn = true;
+        stackManager.setEntityStackingDisabled(true);
         stackedEntity.decreaseStackSize();
+        stackManager.setEntityStackingDisabled(false);
+
+        // TODO
+        //stackedEntity.dropStackLoot();
+        //stackManager.removeEntity(stackedEntity);
     }
 
 }

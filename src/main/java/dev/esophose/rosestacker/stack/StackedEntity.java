@@ -1,11 +1,15 @@
 package dev.esophose.rosestacker.stack;
 
+import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +48,26 @@ public class StackedEntity implements Stack {
 
     public List<String> getStackedEntityNBTStrings() {
         return Collections.unmodifiableList(this.serializedStackedEntities);
+    }
+
+    /**
+     * Drops all loot for all internally-stacked entities.
+     * Does not include loot for the current entity.
+     */
+    public void dropStackLoot() {
+        Location location = this.entity.getLocation().clone();
+        location.setY(-50); // Out of sight, out of mind
+
+        Collection<ItemStack> loot = new ArrayList<>();
+        for (String entityNBT : this.serializedStackedEntities) {
+            LivingEntity entity = EntitySerializer.fromNBTString(entityNBT, location);
+            if (entity != null) {
+                loot.addAll(StackerUtils.getEntityLoot(entity, this.entity.getKiller(), this.entity.getLocation()));
+                entity.remove();
+            }
+        }
+
+        RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
     }
 
     @Override

@@ -9,6 +9,7 @@ import dev.esophose.rosestacker.stack.StackedItem;
 import dev.esophose.rosestacker.stack.StackedSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -20,9 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class StackManager extends Manager implements Runnable {
@@ -36,6 +41,8 @@ public class StackManager extends Manager implements Runnable {
 
     private Set<Material> stackableBlockMaterials;
 
+    private boolean isEntityStackingDisabled;
+
     public StackManager(RoseStacker roseStacker) {
         super(roseStacker);
 
@@ -45,6 +52,8 @@ public class StackManager extends Manager implements Runnable {
         this.stackedEntities = new HashSet<>();
 
         this.stackableBlockMaterials = new HashSet<>();
+
+        this.isEntityStackingDisabled = false;
     }
 
     @Override
@@ -223,6 +232,33 @@ public class StackManager extends Manager implements Runnable {
         return newStack;
     }
 
+    /**
+     * Pre-stacks a collection of ItemStacks and spawns StackedEntities at the given location
+     *
+     * @param items The items to stack and spawn
+     * @param location The location to spawn at
+     */
+    public void preStackItems(Collection<ItemStack> items, Location location) {
+        if (location.getWorld() == null)
+            return;
+
+        this.setEntityStackingDisabled(true);
+
+        Set<StackedItem> stackedItems = new HashSet<>();
+        for (ItemStack itemStack : items) {
+            Optional<StackedItem> matchingItem = stackedItems.stream().filter(x -> x.getItem().getItemStack().isSimilar(itemStack)).findFirst();
+            if (matchingItem.isPresent()) {
+                matchingItem.get().increaseStackSize(itemStack.getAmount());
+            } else {
+                Item item = location.getWorld().dropItemNaturally(location, itemStack);
+                stackedItems.add(new StackedItem(item.getItemStack().getAmount(), item));
+            }
+        }
+        this.stackedItems.addAll(stackedItems);
+
+        this.setEntityStackingDisabled(false);
+    }
+
     public void loadChunk(Chunk chunk) {
         for (Entity entity : chunk.getEntities())
             this.createStackFromEntity(entity);
@@ -353,6 +389,14 @@ public class StackManager extends Manager implements Runnable {
             return entity1.getTicksLived() > entity2.getTicksLived() ? stack1 : stack2;
 
         return stack1.getStackSize() > stack2.getStackSize() ? stack1 : stack2;
+    }
+
+    public void setEntityStackingDisabled(boolean disabled) {
+        this.isEntityStackingDisabled = disabled;
+    }
+
+    public boolean isEntityStackingDisabled() {
+        return this.isEntityStackingDisabled;
     }
 
 }

@@ -6,12 +6,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
@@ -48,6 +48,9 @@ public class StackerUtils {
      * @param amount The amount to drop
      */
     public static void dropItems(Location location, ItemStack itemStack, int amount) {
+        if (location.getWorld() == null)
+            return;
+
         while (amount > 0) {
             ItemStack newItemStack = itemStack.clone();
             int toTake = Math.min(amount, itemStack.getMaxStackSize());
@@ -58,30 +61,29 @@ public class StackerUtils {
     }
 
     /**
-     * Drops loot for a given entity 'amount' number of times
+     * Get loot for a given entity
      *
      * @param entity The entity to drop loot for
-     * @param amount How many times to run the loot tables for the entity
+     * @param killer The player who is killing that entity
+     * @param lootedLocation The location the entity is being looted at
+     * @return The loot
      */
-    public static void dropEntityLoot(LivingEntity entity, int amount) {
+    public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation) {
         if (entity instanceof Lootable) {
             Lootable lootable = (Lootable) entity;
-            if (lootable.getLootTable() == null)
-                return;
+            Location dropLocation = entity.getLocation();
+            if (lootable.getLootTable() == null || dropLocation.getWorld() == null)
+                return Collections.emptySet();
 
-            LootContext lootContext = new LootContext.Builder(entity.getLocation())
+            LootContext lootContext = new LootContext.Builder(lootedLocation)
                     .lootedEntity(entity)
-                    .killer(entity.getKiller())
+                    .killer(killer)
                     .build();
 
-            Location dropLocation = entity.getLocation();
-            Collection<ItemStack> loot = new ArrayList<>();
-
-            for (int i = 0; i < amount; i++)
-                loot.addAll(lootable.getLootTable().populateLoot(random, lootContext));
-
-            loot.forEach(item -> dropLocation.getWorld().dropItemNaturally(dropLocation, item));
+            return lootable.getLootTable().populateLoot(random, lootContext);
         }
+
+        return Collections.emptySet();
     }
 
     public static ItemStack getBlockAsStackedItemStack(Material material, int amount) {
