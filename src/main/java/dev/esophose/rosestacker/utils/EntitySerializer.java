@@ -1,37 +1,40 @@
 package dev.esophose.rosestacker.utils;
 
-import dev.esophose.rosestacker.entitydata.EntityData;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.EntityLiving;
+import net.minecraft.server.v1_14_R1.EntityTypes;
+import net.minecraft.server.v1_14_R1.EnumMobSpawn;
+import net.minecraft.server.v1_14_R1.NBTReadLimiter;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
+import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Optional;
 
 public class EntitySerializer {
 
-    /**
-     * A method to serialize an {@link EntityData} list to Base64 String.
-     *
-     * @param entityData to turn into a Base64 String.
-     * @return Base64 string of the items.
-     */
-    public static String toBase64(List<EntityData> entityData) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+    public static String serialize(LivingEntity entity) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
-            // Write the size of the data
-            dataOutput.writeInt(entityData.size());
+            NBTTagCompound nbt = new NBTTagCompound();
+            EntityLiving craftEntity = ((CraftLivingEntity) entity).getHandle();
+            craftEntity.save(nbt);
 
-            // Save every element in the list
-            for (EntityData data : entityData)
-                dataOutput.writeObject(data);
+            // Write entity type
+            String entityType = craftEntity.cG().toString();
+            dataOutput.writeUTF(entityType);
 
-            // Serialize that array
-            dataOutput.close();
+            // Write NBT
+            nbt.write(dataOutput);
+
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,29 +44,36 @@ public class EntitySerializer {
     }
 
     /**
-     * Gets a list of EntityDatas from Base64 string.
+     * Unserializes and spawns the entity at the given location
      *
-     * @param data Base64 string to convert to EntityData list.
-     * @return ItemStack array created from the Base64 string.
+     * @param serialized entity
+     * @param location to spawn the entity at
      */
-    public static List<EntityData> fromBase64(String data) {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            int length = dataInput.readInt();
-            List<EntityData> entityData = new ArrayList<>();
+    public static void unserialize(String serialized, Location location) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
+             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
-            // Read the serialized entitydata list
-            for (int i = 0; i < length; i++)
-                entityData.add((EntityData) dataInput.readObject());
+            // Read entity type
+            String entityType = dataInput.readUTF();
 
-            dataInput.close();
-            return entityData;
+            // Read NBT
+            NBTTagCompound nbt = new NBTTagCompound();
+            nbt.load(dataInput, 512, NBTReadLimiter.a);
+
+            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
+            optionalEntity.ifPresent(entityTypes -> entityTypes.spawnCreature(
+                    ((CraftWorld) location.getWorld()).getHandle(),
+                    nbt,
+                    null,
+                    null,
+                    new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                    EnumMobSpawn.TRIGGERED,
+                    true,
+                    false
+            ));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return null;
     }
 
 }
