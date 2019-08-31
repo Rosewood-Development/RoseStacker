@@ -25,14 +25,14 @@ public class StackedEntity implements Stack {
     }
 
     public void increaseStackSize(LivingEntity entity) {
-        this.serializedStackedEntities.add(EntitySerializer.serialize(entity));
+        this.serializedStackedEntities.add(EntitySerializer.toNBTString(entity));
         this.updateDisplay();
     }
 
     public void decreaseStackSize() {
         Location location = this.entity.getLocation();
-        this.entity = null;
-        this.entity = EntitySerializer.deserialize(this.serializedStackedEntities.remove(0), location);
+        this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
+        this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), location);
         this.updateDisplay();
     }
 

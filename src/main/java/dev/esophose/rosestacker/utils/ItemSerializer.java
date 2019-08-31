@@ -22,9 +22,8 @@ public class ItemSerializer {
      * @return Base64 string of the items.
      */
     public static String toBase64(List<ItemStack> items) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
 
             // Write the size of the items
             dataOutput.writeInt(items.size());
@@ -34,7 +33,6 @@ public class ItemSerializer {
                 dataOutput.writeObject(item);
 
             // Serialize that array
-            dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,12 +45,12 @@ public class ItemSerializer {
      * Gets a list of ItemStacks from Base64 string.
      *
      * @param data Base64 string to convert to ItemStack list.
-     * @return ItemStack array created from the Base64 string.
+     * @return ItemStack list created from the Base64 string.
      */
     public static List<ItemStack> fromBase64(String data) {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
+
             int length = dataInput.readInt();
             List<ItemStack> items = new ArrayList<>();
 
@@ -60,7 +58,6 @@ public class ItemSerializer {
             for (int i = 0; i < length; i++)
                 items.add((ItemStack) dataInput.readObject());
 
-            dataInput.close();
             return items;
         } catch (Exception e) {
             e.printStackTrace();

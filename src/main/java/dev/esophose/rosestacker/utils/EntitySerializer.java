@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 public class EntitySerializer {
@@ -31,7 +33,7 @@ public class EntitySerializer {
      * @param entity to serialize
      * @return base64 string of the entity
      */
-    public static String serialize(LivingEntity entity) {
+    public static String toNBTString(LivingEntity entity) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
@@ -60,7 +62,7 @@ public class EntitySerializer {
      * @param serialized entity
      * @param location to spawn the entity at
      */
-    public static LivingEntity deserialize(String serialized, Location location) {
+    public static LivingEntity fromNBTString(String serialized, Location location) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -94,6 +96,57 @@ public class EntitySerializer {
                     return (LivingEntity) entity.getBukkitEntity();
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * A method to serialize an NBT String list to Base64 String.
+     *
+     * @param nbtStrings to turn into a Base64 String.
+     * @return Base64 string of the items.
+     */
+    public static String toBase64(List<String> nbtStrings) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
+
+            // Write the size of the items
+            dataOutput.writeInt(nbtStrings.size());
+
+            // Save every element in the list
+            for (String nbtString : nbtStrings)
+                dataOutput.writeUTF(nbtString);
+
+            // Serialize that array
+            return Base64Coder.encodeLines(outputStream.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets a list of NBT Strings from Base64 string.
+     *
+     * @param data Base64 string to convert to NBT String list.
+     * @return NBT String list created from the Base64 string.
+     */
+    public static List<String> fromBase64(String data) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
+
+            int length = dataInput.readInt();
+            List<String> items = new LinkedList<>();
+
+            // Read the serialized itemstack list
+            for (int i = 0; i < length; i++)
+                items.add(dataInput.readUTF());
+
+            return items;
         } catch (Exception e) {
             e.printStackTrace();
         }
