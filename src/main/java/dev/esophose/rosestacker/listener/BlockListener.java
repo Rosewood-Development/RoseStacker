@@ -54,7 +54,7 @@ public class BlockListener implements Listener {
         // TODO: Make break-entire-stack-while-sneaking setting, default true
 
         if (isSpawner) {
-            // Always drop the correct spawner type even if it's not stackes
+            // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
                 if (player.getGameMode() != GameMode.CREATIVE)
                     dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), 1));

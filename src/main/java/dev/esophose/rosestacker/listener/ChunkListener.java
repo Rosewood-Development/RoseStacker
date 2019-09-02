@@ -1,6 +1,8 @@
 package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.StackManager;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -16,7 +18,14 @@ public class ChunkListener implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
-        this.roseStacker.getStackManager().loadChunk(event.getChunk());
+        StackManager stackManager = this.roseStacker.getStackManager();
+
+        if (event.isNewChunk()) {
+            for (Entity entity : event.getChunk().getEntities())
+                stackManager.createStackFromEntity(entity);
+        } else {
+            stackManager.loadChunk(event.getChunk());
+        }
     }
 
     @EventHandler
