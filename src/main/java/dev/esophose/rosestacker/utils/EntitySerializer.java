@@ -173,6 +173,7 @@ public class EntitySerializer {
                 dataOutput.writeUTF(nbtString);
 
             // Serialize that array
+            dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();

@@ -14,29 +14,36 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class StackManager extends Manager implements Runnable {
 
     private BukkitTask task;
 
-    private Set<StackedItem> stackedItems;
     private Set<StackedBlock> stackedBlocks;
-    private Set<StackedSpawner> stackedSpawners;
     private Set<StackedEntity> stackedEntities;
+    private Set<StackedItem> stackedItems;
+    private Set<StackedSpawner> stackedSpawners;
 
+    private Set<Stack> deletedStacks;
     private Set<Material> stackableBlockMaterials;
 
     private boolean isEntityStackingDisabled;
@@ -49,6 +56,7 @@ public class StackManager extends Manager implements Runnable {
         this.stackedSpawners = new HashSet<>();
         this.stackedEntities = new HashSet<>();
 
+        this.deletedStacks = new HashSet<>();
         this.stackableBlockMaterials = new HashSet<>();
 
         this.isEntityStackingDisabled = false;
@@ -61,10 +69,19 @@ public class StackManager extends Manager implements Runnable {
 
         this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 5);
 
-        this.stackedItems.clear();
+        DataManager dataManager = this.roseStacker.getDataManager();
+
+        // Save anything that's loaded
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks, false);
+        dataManager.createOrUpdateStackedEntities(this.stackedEntities, false);
+        dataManager.createOrUpdateStackedItems(this.stackedItems, false);
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners, false);
+
+        // Clear existing stacks
         this.stackedBlocks.clear();
-        this.stackedSpawners.clear();
         this.stackedEntities.clear();
+        this.stackedItems.clear();
+        this.stackedSpawners.clear();
 
         this.stackableBlockMaterials.clear();
 
@@ -72,14 +89,34 @@ public class StackManager extends Manager implements Runnable {
             this.stackableBlockMaterials.add(Material.matchMaterial(materialName));
         this.stackableBlockMaterials.add(Material.SPAWNER);
 
-        // Load all existing entities in the world
-        List<String> disabledWorlds = Setting.DISABLED_WORLDS.getStringList();
-        for (World world : Bukkit.getWorlds()) {
-            if (disabledWorlds.contains(world.getName()))
-                continue;
+        // Load all existing entities in the worlds that are saved
+        Set<Chunk> chunks = new HashSet<>();
+        for (World world : Bukkit.getWorlds())
+            chunks.addAll(Arrays.asList(world.getLoadedChunks()));
 
-            world.getEntities().forEach(this::createStackFromEntity);
-        }
+        dataManager.getStackedBlocks(chunks, false, this.stackedBlocks::addAll);
+        dataManager.getStackedSpawners(chunks, false, this.stackedSpawners::addAll);
+
+        // Due to using lambdas, we need to use an AtomicBoolean and listen for when both getting entities and items are finished
+        AtomicBoolean allEntitiesLoaded = new AtomicBoolean(false);
+        dataManager.getStackedEntities(chunks, false, (stacks) -> {
+            this.stackedEntities.addAll(stacks);
+            if (allEntitiesLoaded.getAndSet(true))
+                this.populateUnstackedEntities();
+        });
+        dataManager.getStackedItems(chunks, false, (stacks) -> {
+            this.stackedItems.addAll(stacks);
+            if (allEntitiesLoaded.getAndSet(true))
+                this.populateUnstackedEntities();
+        });
+    }
+
+    private void populateUnstackedEntities() {
+        // Create stacks of all existing entities that aren't stacks yet
+        for (World world : Bukkit.getWorlds())
+            for (Entity entity : world.getEntities())
+                if (!this.isEntityStacked(entity))
+                    this.createStackFromEntity(entity);
     }
 
     @Override
@@ -89,7 +126,7 @@ public class StackManager extends Manager implements Runnable {
 
     public StackedItem getStackedItem(Item item) {
         for (StackedItem stackedItem : this.stackedItems)
-            if (stackedItem.getItem().equals(item))
+            if (stackedItem.getItem().getUniqueId().equals(item.getUniqueId()))
                 return stackedItem;
         return null;
     }
@@ -132,7 +169,9 @@ public class StackManager extends Manager implements Runnable {
      * @return true if the entity is part of an item stack or entity stack, otherwise false
      */
     public boolean isEntityStacked(Entity entity) {
-        return this.getStackedEntity(entity) != null || (entity instanceof Item && this.getStackedItem((Item) entity) != null);
+        if (entity instanceof Item)
+            return this.getStackedItem((Item) entity) != null;
+        return this.getStackedEntity(entity) != null;
     }
 
     /**
@@ -147,10 +186,12 @@ public class StackManager extends Manager implements Runnable {
 
     public void removeItem(StackedItem stackedItem) {
         this.stackedItems.remove(stackedItem);
+        this.deletedStacks.add(stackedItem);
     }
 
     public void removeEntity(StackedEntity stackedEntity) {
         this.stackedEntities.remove(stackedEntity);
+        this.deletedStacks.add(stackedEntity);
     }
 
     public void removeBlock(Block block) {
@@ -158,9 +199,13 @@ public class StackManager extends Manager implements Runnable {
             return;
 
         if (block.getType() == Material.SPAWNER) {
-            this.stackedSpawners.remove(this.getStackedSpawner(block));
+            StackedSpawner stackedSpawner = this.getStackedSpawner(block);
+            this.stackedSpawners.remove(stackedSpawner);
+            this.deletedStacks.add(stackedSpawner);
         } else {
-            this.stackedBlocks.remove(this.getStackedBlock(block));
+            StackedBlock stackedBlock = this.getStackedBlock(block);
+            this.stackedBlocks.remove(stackedBlock);
+            this.deletedStacks.add(stackedBlock);
         }
     }
 
@@ -201,6 +246,9 @@ public class StackManager extends Manager implements Runnable {
             newStack = newStackedItem;
         } else if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
+            if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
+                return null;
+
             StackedEntity newStackedEntity = new StackedEntity(livingEntity, new LinkedList<>());
             this.stackedEntities.add(newStackedEntity);
             newStack = newStackedEntity;
@@ -256,31 +304,46 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public void loadChunk(Chunk chunk) {
-        for (Entity entity : chunk.getEntities())
-            this.createStackFromEntity(entity);
+        DataManager dataManager = this.roseStacker.getDataManager();
+
+        Set<Chunk> singletonChunk = Collections.singleton(chunk);
+
+        dataManager.getStackedBlocks(singletonChunk, true, this.stackedBlocks::addAll);
+        dataManager.getStackedEntities(singletonChunk, true, this.stackedEntities::addAll);
+        dataManager.getStackedItems(singletonChunk, true, this.stackedItems::addAll);
+        dataManager.getStackedSpawners(singletonChunk, true, this.stackedSpawners::addAll);
     }
 
     public void unloadChunk(Chunk chunk) {
-        for (Entity entity : chunk.getEntities()) {
-            // Unload items
-            if (entity instanceof Item)
-                this.stackedItems.remove(entity);
+        DataManager dataManager = this.roseStacker.getDataManager();
 
-            if (entity instanceof LivingEntity)
-                this.stackedEntities.remove(entity);
-        }
+        Set<Stack> stackedBlocks = this.stackedBlocks.stream().filter(x -> x.getLocation().getChunk() == chunk).collect(Collectors.toSet());
+        Set<StackedEntity> stackedEntities = this.stackedEntities.stream().filter(x -> x.getLocation().getChunk() == chunk).collect(Collectors.toSet());
+        Set<StackedItem> stackedItems = this.stackedItems.stream().filter(x -> x.getLocation().getChunk() == chunk).collect(Collectors.toSet());
+        Set<Stack> stackedSpawners = this.stackedSpawners.stream().filter(x -> x.getLocation().getChunk() == chunk).collect(Collectors.toSet());
+
+        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks, true);
+        dataManager.createOrUpdateStackedEntities(stackedEntities, true);
+        dataManager.createOrUpdateStackedItems(stackedItems, true);
+        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners, true);
+
+        this.stackedBlocks.removeAll(stackedBlocks);
+        this.stackedEntities.removeAll(stackedEntities);
+        this.stackedItems.removeAll(stackedItems);
+        this.stackedSpawners.removeAll(stackedSpawners);
     }
 
     @Override
     public void run() {
         Set<Stack> removed = new HashSet<>();
 
+        // Auto stack items
         for (StackedItem stackedItem : new ArrayList<>(this.stackedItems)) {
             if (removed.contains(stackedItem))
                 continue;
 
             if (!stackedItem.getItem().isValid()) {
-                this.stackedItems.remove(stackedItem);
+                this.removeItem(stackedItem);
                 continue;
             }
 
@@ -289,12 +352,13 @@ public class StackManager extends Manager implements Runnable {
                 removed.add(removedStack);
         }
 
+        // Auto stack entities
         for (StackedEntity stackedEntity : new ArrayList<>(this.stackedEntities)) {
             if (removed.contains(stackedEntity))
                 continue;
 
             if (!stackedEntity.getEntity().isValid()) {
-                this.stackedEntities.remove(stackedEntity);
+                this.removeEntity(stackedEntity);
                 continue;
             }
 
@@ -302,6 +366,10 @@ public class StackManager extends Manager implements Runnable {
             if (removedStack != null)
                 removed.add(removedStack);
         }
+
+        // Delete removed stacks
+        this.roseStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks));
+        this.deletedStacks.clear();
     }
 
     /**
@@ -338,7 +406,7 @@ public class StackManager extends Manager implements Runnable {
                     increased.increaseStackSize(removed.getStackSize());
                     increased.getItem().setTicksLived(1);
                     removed.getItem().remove();
-                    this.stackedItems.remove(removed);
+                    this.removeItem(removed);
 
                     return removed;
                 }
@@ -362,7 +430,7 @@ public class StackManager extends Manager implements Runnable {
                     increased.increaseStackSize(removed.getEntity());
                     increased.increaseStackSize(removed.getStackedEntityNBTStrings());
                     removed.getEntity().remove();
-                    this.stackedEntities.remove(removed);
+                    this.removeEntity(removed);
 
                     return removed;
                 }

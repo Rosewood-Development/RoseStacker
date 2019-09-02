@@ -53,8 +53,7 @@ public class EntityListener implements Listener {
                 movementAttribute.setBaseValue(0);
         }
 
-        if (event.getEntityType() != EntityType.ARMOR_STAND)
-            this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
+        this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
