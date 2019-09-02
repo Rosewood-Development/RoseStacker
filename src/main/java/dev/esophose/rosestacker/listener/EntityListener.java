@@ -3,6 +3,8 @@ package dev.esophose.rosestacker.listener;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedEntity;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -10,11 +12,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 public class EntityListener implements Listener {
 
@@ -40,10 +45,27 @@ public class EntityListener implements Listener {
         if (stackManager.isEntityStackingDisabled())
             return;
 
+        // TODO: Custom spawner mob properties
+        if (event.getSpawnReason() == SpawnReason.SPAWNER) {
+            AttributeInstance movementAttribute = event.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            if (movementAttribute != null)
+                movementAttribute.setBaseValue(0);
+        }
+
         if (event.getEntityType() != EntityType.ARMOR_STAND)
             this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
+    }
 
-        // TODO: Custom spawner mob properties
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityTarget(EntityTargetEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+
+        AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (movementAttribute != null && movementAttribute.getBaseValue() == 0)
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -64,12 +86,13 @@ public class EntityListener implements Listener {
         EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
 
         // TODO: Kill-all-stack for certain death types
-        if (lastDamageCause instanceof EntityDamageByBlockEvent) {
-
-        } else if (lastDamageCause instanceof EntityDamageByEntityEvent) {
-
-        } else {
-
+        if (lastDamageCause != null) {
+            if (lastDamageCause.getCause() == DamageCause.FALL) {
+                stackedEntity.dropStackLoot();
+                stackManager.removeEntity(stackedEntity);
+                event.setDroppedExp(event.getDroppedExp() * stackedEntity.getStackSize());
+                return;
+            }
         }
 
         // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
@@ -78,10 +101,6 @@ public class EntityListener implements Listener {
         stackManager.setEntityStackingDisabled(true);
         stackedEntity.decreaseStackSize();
         stackManager.setEntityStackingDisabled(false);
-
-        // TODO
-        //stackedEntity.dropStackLoot();
-        //stackManager.removeEntity(stackedEntity);
     }
 
 }

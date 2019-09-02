@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.utils;
 
 import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.DamageSource;
 import net.minecraft.server.v1_14_R1.Entity;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityTypes;
@@ -12,6 +13,7 @@ import net.minecraft.server.v1_14_R1.NBTTagDouble;
 import net.minecraft.server.v1_14_R1.NBTTagList;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -21,11 +23,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 public class EntitySerializer {
+
+    private static Method entityLiving_a;
+
+    static {
+        try {
+            entityLiving_a = EntityLiving.class.getDeclaredMethod("a", DamageSource.class, boolean.class);
+            entityLiving_a.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Serializes a LivingEntity to a base64 string
@@ -86,13 +100,7 @@ public class EntitySerializer {
                 );
 
                 if (entity != null) {
-                    NBTTagList nbtTagList = nbt.getList("Pos", 6);
-                    nbtTagList.set(0, new NBTTagDouble(location.getX()));
-                    nbtTagList.set(1, new NBTTagDouble(location.getY()));
-                    nbtTagList.set(2, new NBTTagDouble(location.getZ()));
-                    nbt.set("Pos", nbtTagList);
-
-                    entity.f(nbt);
+                    setNBT(entity, nbt, location);
                     return (LivingEntity) entity.getBukkitEntity();
                 }
             }
@@ -101,6 +109,50 @@ public class EntitySerializer {
         }
 
         return null;
+    }
+
+    /**
+     * Applies a serialized NBT string to an existing entity
+     *
+     * @param targetEntity The entity to apply properties to
+     * @param serialized The serialized entity NBT data
+     */
+    public static void applyNBTStringToEntity(LivingEntity targetEntity, String serialized) {
+        EntityLiving entity = (EntityLiving) ((CraftEntity) targetEntity).getHandle();
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
+             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
+
+            // Read entity type, don't need the value
+            dataInput.readUTF();
+
+            // Read NBT
+            NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
+
+            // Set NBT
+            setNBT(entity, nbt, targetEntity.getLocation());
+
+            // Update loot table
+            entityLiving_a.invoke(entity, DamageSource.GENERIC, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets the NBT data for an entity
+     *
+     * @param entity The entity to apply NBT data to
+     * @param nbt The NBT data
+     * @param desiredLocation The location of the entity
+     */
+    private static void setNBT(Entity entity, NBTTagCompound nbt, Location desiredLocation) {
+        NBTTagList nbtTagList = nbt.getList("Pos", 6);
+        nbtTagList.set(0, new NBTTagDouble(desiredLocation.getX()));
+        nbtTagList.set(1, new NBTTagDouble(desiredLocation.getY()));
+        nbtTagList.set(2, new NBTTagDouble(desiredLocation.getZ()));
+        nbt.set("Pos", nbtTagList);
+        entity.f(nbt);
     }
 
     /**
