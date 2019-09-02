@@ -7,17 +7,23 @@ import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
 
-public class StackedSpawner implements Stack {
+public class StackedSpawner extends Stack {
 
     private int size;
     private CreatureSpawner spawner;
 
-    public StackedSpawner(int size, CreatureSpawner spawner) {
+    public StackedSpawner(int id, int size, CreatureSpawner spawner) {
+        super(id);
+
         this.size = size;
         this.spawner = spawner;
 
         this.updateDisplay();
         this.updateSpawnCount();
+    }
+
+    public StackedSpawner(int size, CreatureSpawner spawner) {
+        this(-1, size, spawner);
     }
 
     public CreatureSpawner getSpawner() {

@@ -2,12 +2,22 @@ package dev.esophose.rosestacker.stack;
 
 import org.bukkit.Location;
 
-public interface Stack {
+public abstract class Stack {
 
-    int getStackSize();
+    private int id;
 
-    Location getLocation();
+    public Stack(int id) {
+        this.id = id;
+    }
 
-    void updateDisplay();
+    public int getId() {
+        return this.id;
+    }
+
+    public abstract int getStackSize();
+
+    public abstract Location getLocation();
+
+    public abstract void updateDisplay();
 
 }

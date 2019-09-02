@@ -7,16 +7,22 @@ import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public class StackedBlock implements Stack {
+public class StackedBlock extends Stack {
 
     private int size;
     private Block block;
 
-    public StackedBlock(int size, Block block) {
+    public StackedBlock(int id, int size, Block block) {
+        super(id);
+
         this.size = size;
         this.block = block;
 
         this.updateDisplay();
+    }
+
+    public StackedBlock(int size, Block block) {
+        this(-1, size, block);
     }
 
     public Block getBlock() {

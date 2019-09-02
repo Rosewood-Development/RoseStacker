@@ -13,16 +13,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class StackedEntity implements Stack {
+public class StackedEntity extends Stack {
 
     private LivingEntity entity;
     private List<String> serializedStackedEntities;
 
-    public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {
+    public StackedEntity(int id, LivingEntity entity, List<String> serializedStackedEntities) {
+        super(id);
+
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
 
         this.updateDisplay();
+    }
+
+    public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {
+        this(-1, entity, serializedStackedEntities);
     }
 
     public LivingEntity getEntity() {

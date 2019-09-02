@@ -165,7 +165,7 @@ public class StackManager extends Manager implements Runnable {
     }
 
     /**
-     * Splits a StackedItem into two stacked
+     * Splits a StackedItem into two stacks
      *
      * @param stackedItem The StackedItem to split
      * @param newSize The size of the new StackedItem to create
@@ -194,7 +194,6 @@ public class StackManager extends Manager implements Runnable {
     public Stack createStackFromEntity(Entity entity) {
         Stack newStack = null;
 
-        // Stack items
         if (entity instanceof Item) {
             Item item = (Item) entity;
             StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
@@ -216,7 +215,6 @@ public class StackManager extends Manager implements Runnable {
     public Stack createStackFromBlock(Block block, int amount) {
         Stack newStack;
 
-        // Stack spawners
         if (block.getType() == Material.SPAWNER) {
             StackedSpawner stackedSpawner = new StackedSpawner(amount, (CreatureSpawner) block.getState());
             this.stackedSpawners.add(stackedSpawner);
@@ -267,6 +265,9 @@ public class StackManager extends Manager implements Runnable {
             // Unload items
             if (entity instanceof Item)
                 this.stackedItems.remove(entity);
+
+            if (entity instanceof LivingEntity)
+                this.stackedEntities.remove(entity);
         }
     }
 

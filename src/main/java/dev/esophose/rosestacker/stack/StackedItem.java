@@ -6,16 +6,22 @@ import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
-public class StackedItem implements Stack {
+public class StackedItem extends Stack {
 
     private int size;
     private Item item;
 
-    public StackedItem(int size, Item item) {
+    public StackedItem(int id, int size, Item item) {
+        super(id);
+
         this.size = size;
         this.item = item;
 
         this.updateDisplay();
+    }
+
+    public StackedItem(int size, Item item) {
+        this(-1, size, item);
     }
 
     public Item getItem() {
