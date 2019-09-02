@@ -22,12 +22,13 @@ public class _1_InitialMigration extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_block (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "stack_size INTEGER, " +
-                    "chunk_x INTEGER, " +
-                    "chunk_z INTEGER, " +
-                    "block_x INTEGER, " +
-                    "block_y INTEGER, " +
-                    "block_z INTEGER" +
+                    "stack_size INTEGER NOT NULL, " +
+                    "world TEXT NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "block_x INTEGER NOT NULL, " +
+                    "block_y INTEGER NOT NULL, " +
+                    "block_z INTEGER NOT NULL" +
                     ")");
         }
 
@@ -35,11 +36,12 @@ public class _1_InitialMigration extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_entity (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "stack_size INTEGER, " +
-                    "stack_entities TEXT, " +
-                    "chunk_x INTEGER, " +
-                    "chunk_z INTEGER, " +
-                    "entity_uuid VARCHAR(36), " +
+                    "stack_size INTEGER NOT NULL, " +
+                    "entity_uuid VARCHAR(36) NOT NULL, " +
+                    "stack_entities TEXT NOT NULL, " +
+                    "world TEXT NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL" +
                     ")");
         }
 
@@ -47,10 +49,11 @@ public class _1_InitialMigration extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_item (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "stack_size INTEGER, " +
-                    "chunk_x INTEGER, " +
-                    "chunk_z INTEGER, " +
-                    "entity_uuid VARCHAR(36), " +
+                    "stack_size INTEGER NOT NULL, " +
+                    "entity_uuid VARCHAR(36) NOT NULL, " +
+                    "world TEXT NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL" +
                     ")");
         }
 
@@ -58,12 +61,13 @@ public class _1_InitialMigration extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_spawner (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "stack_size INTEGER, " +
-                    "chunk_x INTEGER, " +
-                    "chunk_z INTEGER, " +
-                    "block_x INTEGER, " +
-                    "block_y INTEGER, " +
-                    "block_z INTEGER" +
+                    "stack_size INTEGER NOT NULL, " +
+                    "world TEXT NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "block_x INTEGER NOT NULL, " +
+                    "block_y INTEGER NOT NULL, " +
+                    "block_z INTEGER NOT NULL" +
                     ")");
         }
 
