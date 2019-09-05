@@ -3,8 +3,6 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Donkey;
 import org.bukkit.entity.EntityType;
 
 public class DonkeyStackSettings extends EntityStackSettings {

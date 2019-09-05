@@ -4,9 +4,7 @@ import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.TropicalFish;
-import org.bukkit.entity.Turtle;
 
 public class TropicalFishStackSettings extends EntityStackSettings {
 

@@ -5,7 +5,6 @@ import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Endermite;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.IronGolem;
 
 public class EndermiteStackSettings extends EntityStackSettings {
 

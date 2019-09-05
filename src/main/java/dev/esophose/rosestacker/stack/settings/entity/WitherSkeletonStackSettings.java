@@ -2,7 +2,6 @@ package dev.esophose.rosestacker.stack.settings.entity;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Wolf;
 
 public class WitherSkeletonStackSettings extends SkeletonStackSettings {
 

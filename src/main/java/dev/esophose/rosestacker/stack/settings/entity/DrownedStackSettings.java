@@ -1,7 +1,6 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.ElderGuardian;
 import org.bukkit.entity.EntityType;
 
 public class DrownedStackSettings extends ZombieStackSettings {

@@ -3,10 +3,8 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Cat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Wolf;
-import org.bukkit.entity.ZombieHorse;
 
 public class WolfStackSettings extends EntityStackSettings {
 
