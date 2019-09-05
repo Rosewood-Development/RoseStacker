@@ -6,12 +6,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.PigZombie;
 
-public class ZombiePigmanStackSettings extends EntityStackSettings {
+public class PigZombieStackSettings extends EntityStackSettings {
 
     protected boolean dontStackIfAngry;
     protected boolean dontStackIfDifferentAge;
 
-    public ZombiePigmanStackSettings(YamlConfiguration entitySettingsConfiguration) {
+    public PigZombieStackSettings(YamlConfiguration entitySettingsConfiguration) {
         super(entitySettingsConfiguration);
 
         this.dontStackIfAngry = entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
@@ -20,13 +20,13 @@ public class ZombiePigmanStackSettings extends EntityStackSettings {
 
     @Override
     protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
-        PigZombie zombiePigman1 = (PigZombie) stack1.getEntity();
-        PigZombie zombiePigman2 = (PigZombie) stack2.getEntity();
+        PigZombie pigZombie1 = (PigZombie) stack1.getEntity();
+        PigZombie pigZombie2 = (PigZombie) stack2.getEntity();
 
-        if (this.dontStackIfAngry && (zombiePigman1.isAngry() || zombiePigman2.isAngry()))
+        if (this.dontStackIfAngry && (pigZombie1.isAngry() || pigZombie2.isAngry()))
             return false;
 
-        return !this.dontStackIfDifferentAge || zombiePigman1.isBaby() != zombiePigman2.isBaby();
+        return !this.dontStackIfDifferentAge || pigZombie1.isBaby() != pigZombie2.isBaby();
     }
 
     @Override
