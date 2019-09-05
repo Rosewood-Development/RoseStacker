@@ -58,7 +58,7 @@ public class RoseStacker extends JavaPlugin {
         this.hologramManager = this.registerManager(HologramManager.class);
         this.localeManager = new LocaleManager(this);
         this.stackManager = this.registerManager(StackManager.class);
-        this.stackSettingManager = this.registerManager(StackSettingManager.class);
+        this.stackSettingManager = new StackSettingManager(this);;
 
         // Load managers
         this.reload();
@@ -83,6 +83,7 @@ public class RoseStacker extends JavaPlugin {
         this.localeManager.reload();
         this.dataManager.reload();
         this.dataMigrationManager.reload();
+        this.stackSettingManager.reload();
         this.managers.forEach(Manager::reload); // The order doesn't matter for the rest
     }
 
@@ -94,6 +95,7 @@ public class RoseStacker extends JavaPlugin {
         this.localeManager.disable();
         this.dataManager.disable();
         this.dataMigrationManager.disable();
+        this.stackManager.disable();
         this.managers.forEach(Manager::disable);
     }
 

@@ -2,8 +2,10 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -18,11 +20,15 @@ public class StackedEntity extends Stack {
     private LivingEntity entity;
     private List<String> serializedStackedEntities;
 
+    private EntityStackSettings stackSettings;
+
     public StackedEntity(int id, LivingEntity entity, List<String> serializedStackedEntities) {
         super(id);
 
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
+
+        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity.getType());
 
         this.updateDisplay();
     }
@@ -96,9 +102,9 @@ public class StackedEntity extends Stack {
     @Override
     public void updateDisplay() {
         if (this.getStackSize() > 1) {
-            String displayString = Locale.STACK_DISPLAY.get()
+            String displayString = ChatColor.translateAlternateColorCodes('&', Locale.STACK_DISPLAY.get()
                     .replaceAll("%amount%", String.valueOf(this.getStackSize()))
-                    .replaceAll("%name%", StackerUtils.formatName(this.entity.getType().name()));
+                    .replaceAll("%name%", StackerUtils.formatName(this.stackSettings.getDisplayName())));
 
             this.entity.setCustomNameVisible(true);
             this.entity.setCustomName(displayString);

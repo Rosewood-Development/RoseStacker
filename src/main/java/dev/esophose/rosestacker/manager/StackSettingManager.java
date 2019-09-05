@@ -20,7 +20,7 @@ public class StackSettingManager extends Manager {
     private YamlConfiguration itemSettingsConfiguration;
     private YamlConfiguration spawnerSettingsConfiguration;
 
-    public Map<EntityType, EntityStackSettings> entitySettings;
+    private Map<EntityType, EntityStackSettings> entitySettings;
 
     public StackSettingManager(RoseStacker roseStacker) {
         super(roseStacker);
@@ -33,16 +33,15 @@ public class StackSettingManager extends Manager {
         this.entitySettings.clear();
 
         File file = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");
-        if (this.entitySettingsConfiguration == null) {
-            if (!file.exists()) {
-                try {
-                    file.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            this.entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
         }
+
+        this.entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
 
         try {
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, "dev.esophose.rosestacker.stack.settings.entity", EntityStackSettings.class);
