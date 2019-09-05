@@ -47,6 +47,9 @@ public class StackManager extends Manager implements Runnable {
 
     private boolean isEntityStackingDisabled;
 
+    // Cached, as we will be using it a lot
+    private StackSettingManager stackSettingManager;
+
     public StackManager(RoseStacker roseStacker) {
         super(roseStacker);
 
@@ -67,6 +70,7 @@ public class StackManager extends Manager implements Runnable {
             this.task.cancel();
 
         this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 5);
+        this.stackSettingManager = this.roseStacker.getStackSettingManager();
 
         DataManager dataManager = this.roseStacker.getDataManager();
 
@@ -418,11 +422,12 @@ public class StackManager extends Manager implements Runnable {
                         || other.getEntity() == null
                         || !other.getEntity().isValid()
                         || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
-                        || stackedEntity.getEntity().getType() != other.getEntity().getType())
+                        || stackedEntity.getEntity().getType() != other.getEntity().getType()
+                        || stackedEntity.getLocation().distanceSquared(other.getLocation()) > maxEntityStackDistanceSqrd)
                     continue;
 
                 // Check if we should merge the stacks
-                if (stackedEntity.getLocation().distanceSquared(other.getLocation()) <= maxEntityStackDistanceSqrd) {
+                if (this.stackSettingManager.canEntitiesBeStacked(stackedEntity, other)) {
                     StackedEntity increased = (StackedEntity) this.getPreferredEntityStack(stackedEntity, other);
                     StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
 

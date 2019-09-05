@@ -11,10 +11,12 @@ import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import net.minecraft.server.v1_14_R1.NBTTagDouble;
 import net.minecraft.server.v1_14_R1.NBTTagList;
+import net.minecraft.server.v1_14_R1.World;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
@@ -113,13 +115,19 @@ public class EntitySerializer {
     }
 
     /**
-     * Applies a serialized NBT string to an existing entity
+     * Gets a LivingEntity from an NBT string without spawning the entity into the world
      *
-     * @param targetEntity The entity to apply properties to
+     * @param entityType The type of the entity to spawn
+     * @param location The location that the entity would normally be spawned in
      * @param serialized The serialized entity NBT data
+     * @return A LivingEntity instance, not in the world
      */
-    public static void applyNBTStringToEntity(LivingEntity targetEntity, String serialized) {
-        EntityLiving entity = (EntityLiving) ((CraftEntity) targetEntity).getHandle();
+    public static LivingEntity getNBTStringAsEntity(EntityType entityType, Location location, String serialized) {
+        if (location.getWorld() == null)
+            return null;
+
+        CraftWorld craftWorld = (CraftWorld) location.getWorld();
+        Entity entity = craftWorld.createEntity(location, entityType.getEntityClass());
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
@@ -131,13 +139,15 @@ public class EntitySerializer {
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
             // Set NBT
-            setNBT(entity, nbt, targetEntity.getLocation());
+            setNBT(entity, nbt, location);
 
             // Update loot table
             entityLiving_a.invoke(entity, DamageSource.GENERIC, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return (LivingEntity) entity.getBukkitEntity();
     }
 
     /**

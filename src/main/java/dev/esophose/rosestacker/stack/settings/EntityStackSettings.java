@@ -133,8 +133,9 @@ public abstract class EntityStackSettings {
         if (!this.enabled)
             return false;
 
-        if (stack1.getStackSize() + stack2.getStackSize() > this.maxStackSize)
-            return false;
+        // TODO: Implement global max stack setting
+//        if (stack1.getStackSize() + stack2.getStackSize() > this.maxStackSize)
+//            return false;
 
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();

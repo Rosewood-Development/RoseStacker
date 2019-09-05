@@ -67,24 +67,11 @@ public class StackedEntity extends Stack {
      * Does not include loot for the current entity.
      */
     public void dropStackLoot() {
-        Location location = this.entity.getLocation().clone();
-        location.setY(-50); // Out of sight, out of mind
-
-        if (location.getWorld() == null)
-            return;
-
-        // Spawn a temporary entity for getting the loot
-        LivingEntity dummyEntity = (LivingEntity) location.getWorld().spawnEntity(location, this.entity.getType());
-
-        // Get loot
         Collection<ItemStack> loot = new ArrayList<>();
         for (String entityNBT : this.serializedStackedEntities) {
-            EntitySerializer.applyNBTStringToEntity(dummyEntity, entityNBT);
-            loot.addAll(StackerUtils.getEntityLoot(dummyEntity, this.entity.getKiller(), this.entity.getLocation()));
+            LivingEntity entity = EntitySerializer.getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), entityNBT);
+            loot.addAll(StackerUtils.getEntityLoot(entity, this.entity.getKiller(), this.entity.getLocation()));
         }
-
-        // Clean up temporary entity
-        dummyEntity.remove();
 
         RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
     }

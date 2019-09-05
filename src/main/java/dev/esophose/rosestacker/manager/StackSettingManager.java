@@ -15,11 +15,6 @@ import java.util.Map;
 
 public class StackSettingManager extends Manager {
 
-    private YamlConfiguration blockSettingsConfiguration;
-    private YamlConfiguration entitySettingsConfiguration;
-    private YamlConfiguration itemSettingsConfiguration;
-    private YamlConfiguration spawnerSettingsConfiguration;
-
     private Map<EntityType, EntityStackSettings> entitySettings;
 
     public StackSettingManager(RoseStacker roseStacker) {
@@ -30,6 +25,10 @@ public class StackSettingManager extends Manager {
 
     @Override
     public void reload() {
+        // Load block settings
+        // TODO
+
+        // Load entity settings
         this.entitySettings.clear();
 
         File file = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");
@@ -41,12 +40,12 @@ public class StackSettingManager extends Manager {
             }
         }
 
-        this.entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
 
         try {
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, "dev.esophose.rosestacker.stack.settings.entity", EntityStackSettings.class);
             for (Class<EntityStackSettings> clazz : classes) {
-                EntityStackSettings entityStackSetting = clazz.getConstructor(YamlConfiguration.class).newInstance(this.entitySettingsConfiguration);
+                EntityStackSettings entityStackSetting = clazz.getConstructor(YamlConfiguration.class).newInstance(entitySettingsConfiguration);
                 this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
             }
         } catch (Exception e) {
@@ -54,10 +53,16 @@ public class StackSettingManager extends Manager {
         }
 
         try {
-            this.entitySettingsConfiguration.save(file);
+            entitySettingsConfiguration.save(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Load item settings
+        // TODO
+
+        // Load spawner settings
+        // TODO
     }
 
     @Override
