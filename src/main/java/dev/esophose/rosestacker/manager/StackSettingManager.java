@@ -1,23 +1,26 @@
 package dev.esophose.rosestacker.manager;
 
-import com.google.common.reflect.ClassPath;
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.stack.setting.EntityStackSetting;
-import org.bukkit.configuration.file.FileConfiguration;
+import dev.esophose.rosestacker.stack.StackedEntity;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import dev.esophose.rosestacker.utils.ClassUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StackSettingManager extends Manager {
 
+    private YamlConfiguration blockSettingsConfiguration;
     private YamlConfiguration entitySettingsConfiguration;
     private YamlConfiguration itemSettingsConfiguration;
     private YamlConfiguration spawnerSettingsConfiguration;
-    private YamlConfiguration blockSettingsConfiguration;
 
-    public Map<EntityType, EntityStackSetting> entitySettings;
+    public Map<EntityType, EntityStackSettings> entitySettings;
 
     public StackSettingManager(RoseStacker roseStacker) {
         super(roseStacker);
@@ -29,19 +32,31 @@ public class StackSettingManager extends Manager {
     public void reload() {
         this.entitySettings.clear();
 
-        // Load all entity settings using a ClassLoader instead of adding them all to the map manually
-        try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-            for (ClassPath.ClassInfo info : ClassPath.from(loader).getTopLevelClasses()) {
-                if (info.getName().startsWith("dev.esophose.rosestacker.stack.setting.entity")) {
-                    Class<?> clazz = info.load();
-                    Object obj = clazz.getConstructor(FileConfiguration.class).newInstance(this.entitySettingsConfiguration);
-                    EntityStackSetting entityStackSetting = (EntityStackSetting) obj;
-                    this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
+        File file = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");
+        if (this.entitySettingsConfiguration == null) {
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+            this.entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
+        }
+
+        try {
+            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, "dev.esophose.rosestacker.stack.settings.entity", EntityStackSettings.class);
+            for (Class<EntityStackSettings> clazz : classes) {
+                EntityStackSettings entityStackSetting = clazz.getConstructor(YamlConfiguration.class).newInstance(this.entitySettingsConfiguration);
+                this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
+            }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            this.entitySettingsConfiguration.save(file);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -49,6 +64,15 @@ public class StackSettingManager extends Manager {
     @Override
     public void disable() {
 
+    }
+
+    public boolean canEntitiesBeStacked(StackedEntity entity1, StackedEntity entity2) {
+        EntityStackSettings stackSettings = this.entitySettings.get(entity1.getEntity().getType());
+        return stackSettings.canStackWith(entity1, entity2);
+    }
+
+    public EntityStackSettings getEntityStackSettings(EntityType entityType) {
+        return this.entitySettings.get(entityType);
     }
 
 }

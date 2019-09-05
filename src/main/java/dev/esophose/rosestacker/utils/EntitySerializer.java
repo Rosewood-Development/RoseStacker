@@ -75,6 +75,7 @@ public class EntitySerializer {
      *
      * @param serialized entity
      * @param location to spawn the entity at
+     * @return the entity spawned from the NBT string
      */
     public static LivingEntity fromNBTString(String serialized, Location location) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));

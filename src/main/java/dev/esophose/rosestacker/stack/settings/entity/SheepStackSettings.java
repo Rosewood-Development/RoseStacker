@@ -1,21 +1,19 @@
-package dev.esophose.rosestacker.stack.setting.entity;
+package dev.esophose.rosestacker.stack.settings.entity;
 
 import dev.esophose.rosestacker.stack.StackedEntity;
-import dev.esophose.rosestacker.stack.setting.EntityStackSetting;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
 
-public class SheepStackSetting extends EntityStackSetting {
+public class SheepStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfSheared;
-    private boolean onlyStackSimilarColors;
 
-    public SheepStackSetting(YamlConfiguration entitySettingsConfiguration) {
+    public SheepStackSettings(YamlConfiguration entitySettingsConfiguration) {
         super(entitySettingsConfiguration);
 
         this.dontStackIfSheared = entitySettingsConfiguration.getBoolean("dont-stack-if-sheared");
-        this.onlyStackSimilarColors = entitySettingsConfiguration.getBoolean("only-stack-similar-colors");
     }
 
     @Override
@@ -23,16 +21,12 @@ public class SheepStackSetting extends EntityStackSetting {
         Sheep sheep1 = (Sheep) stack1.getEntity();
         Sheep sheep2 = (Sheep) stack2.getEntity();
 
-        if (dontStackIfSheared && (sheep1.isSheared() || sheep2.isSheared()))
-            return false;
-
-        return !onlyStackSimilarColors || (sheep1.getColor() == sheep2.getColor());
+        return !this.dontStackIfSheared || (!sheep1.isSheared() && !sheep2.isSheared());
     }
 
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-sheared", false);
-        this.setIfNotExists("only-stack-similar-colors", false);
     }
 
     @Override
