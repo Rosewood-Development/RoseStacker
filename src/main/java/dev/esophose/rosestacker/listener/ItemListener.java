@@ -28,7 +28,7 @@ public class ItemListener implements Listener {
         this.roseStacker = roseStacker;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
 

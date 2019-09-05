@@ -10,7 +10,6 @@ import java.util.List;
 public class ConfigurationManager extends Manager {
 
     public enum Setting {
-        SERVER_TYPE(SettingType.STRING),
         LOCALE(SettingType.STRING),
         DISABLED_WORLDS(SettingType.STRING_LIST),
 
@@ -161,9 +160,7 @@ public class ConfigurationManager extends Manager {
     }
 
     /**
-     * Gets the config.yml as a YamlConfiguration
-     *
-     * @return The YamlConfiguration of the config.yml
+     * @return the config.yml as a YamlConfiguration
      */
     public YamlConfiguration getConfig() {
         return this.configuration;

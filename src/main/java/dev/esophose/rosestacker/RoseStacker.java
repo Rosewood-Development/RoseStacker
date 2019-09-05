@@ -12,6 +12,7 @@ import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.Manager;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.utils.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,6 +36,7 @@ public class RoseStacker extends JavaPlugin {
     private HologramManager hologramManager;
     private LocaleManager localeManager;
     private StackManager stackManager;
+    private StackSettingManager stackSettingManager;
 
     public static RoseStacker getInstance() {
         return INSTANCE;
@@ -56,6 +58,7 @@ public class RoseStacker extends JavaPlugin {
         this.hologramManager = this.registerManager(HologramManager.class);
         this.localeManager = new LocaleManager(this);
         this.stackManager = this.registerManager(StackManager.class);
+        this.stackSettingManager = this.registerManager(StackSettingManager.class);
 
         // Load managers
         this.reload();
@@ -148,6 +151,13 @@ public class RoseStacker extends JavaPlugin {
     }
 
     /**
+     * @return the LocaleManager instance
+     */
+    public LocaleManager getLocaleManager() {
+        return this.localeManager;
+    }
+
+    /**
      * @return the StackManager instance
      */
     public StackManager getStackManager() {
@@ -155,10 +165,10 @@ public class RoseStacker extends JavaPlugin {
     }
 
     /**
-     * @return the LocaleManager instance
+     * @return the StackSettingManager instance
      */
-    public LocaleManager getLocaleManager() {
-        return this.localeManager;
+    public StackSettingManager getStackSettingManager() {
+        return this.stackSettingManager;
     }
 
 }
