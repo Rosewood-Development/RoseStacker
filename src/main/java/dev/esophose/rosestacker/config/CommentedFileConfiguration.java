@@ -154,6 +154,7 @@ public class CommentedFileConfiguration {
             field_yamlOptions.setAccessible(true);
             DumperOptions yamlOptions = (DumperOptions) field_yamlOptions.get(yamlConfiguration);
             yamlOptions.setWidth(Integer.MAX_VALUE);
+            yamlOptions.setIndicatorIndent(2);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }

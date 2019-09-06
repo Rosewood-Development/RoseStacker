@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import org.bukkit.attribute.Attribute;
@@ -81,15 +82,16 @@ public class EntityListener implements Listener {
         }
 
         EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
+        if (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
+                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))) {
 
-        // TODO: Kill-all-stack for certain death types
-        if (lastDamageCause != null) {
-            if (lastDamageCause.getCause() == DamageCause.FALL) {
+            if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean())
                 stackedEntity.dropStackLoot();
-                stackManager.removeEntity(stackedEntity);
+            if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean())
                 event.setDroppedExp(event.getDroppedExp() * stackedEntity.getStackSize());
-                return;
-            }
+
+            stackManager.removeEntity(stackedEntity);
+            return;
         }
 
         // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once

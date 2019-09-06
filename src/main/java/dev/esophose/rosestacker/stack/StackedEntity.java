@@ -105,6 +105,10 @@ public class StackedEntity extends Stack {
         return new StackedEntity(oldEntity, new LinkedList<>());
     }
 
+    public EntityStackSettings getStackSettings() {
+        return this.stackSettings;
+    }
+
     @Override
     public int getStackSize() {
         return this.serializedStackedEntities.size() + 1;
