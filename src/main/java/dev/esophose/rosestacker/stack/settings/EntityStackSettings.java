@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack.settings;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -133,12 +134,19 @@ public abstract class EntityStackSettings {
     }
 
     public boolean canStackWith(StackedEntity stack1, StackedEntity stack2) {
+        return this.canStackWith(stack1, stack2, false);
+    }
+
+    public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean ignoreMaxStackSize) {
         if (!this.enabled)
             return false;
 
-        // TODO: Implement global max stack setting
-//        if (stack1.getStackSize() + stack2.getStackSize() > this.maxStackSize)
-//            return false;
+        int maxStackSize = Setting.ENTITY_MAX_STACK_SIZE.getInt();
+        if (this.maxStackSize != -1)
+            maxStackSize = this.maxStackSize;
+
+        if (!ignoreMaxStackSize && stack1.getStackSize() + stack2.getStackSize() > maxStackSize)
+            return false;
 
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();

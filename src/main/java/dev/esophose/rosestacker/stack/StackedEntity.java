@@ -87,7 +87,7 @@ public class StackedEntity extends Stack {
 
         LivingEntity entity = EntitySerializer.getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
-        return this.stackSettings.canStackWith(this, stackedEntity);
+        return this.stackSettings.canStackWith(this, stackedEntity, true);
     }
 
     public StackedEntity split() {
