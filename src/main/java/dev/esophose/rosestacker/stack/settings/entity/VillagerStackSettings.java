@@ -31,7 +31,7 @@ public class VillagerStackSettings extends EntityStackSettings {
         if (this.dontStackIfDifferentType && villager1.getType() != villager2.getType())
             return false;
 
-        return !this.dontStackIfDifferentLevel || (villager1.getVillagerLevel() == villager2.getVillagerLevel());
+        return !this.dontStackIfDifferentLevel || villager1.getVillagerLevel() == villager2.getVillagerLevel();
     }
 
     @Override

@@ -21,7 +21,7 @@ public class EndermanStackSettings extends EntityStackSettings {
         Enderman enderman1 = (Enderman) stack1.getEntity();
         Enderman enderman2 = (Enderman) stack2.getEntity();
 
-        return !this.dontStackIfHoldingBlock || (enderman1.getCarriedBlock() != null && enderman2.getCarriedBlock() != null);
+        return !this.dontStackIfHoldingBlock || (enderman1.getCarriedBlock() == null && enderman2.getCarriedBlock() == null);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class CatStackSettings extends EntityStackSettings {
         if (this.dontStackIfDifferentType && cat1.getCatType() != cat2.getCatType())
             return false;
 
-        return this.dontStackIfDifferentCollarColor || cat1.getCollarColor() == cat2.getCollarColor();
+        return !this.dontStackIfDifferentCollarColor || cat1.getCollarColor() == cat2.getCollarColor();
     }
 
     @Override

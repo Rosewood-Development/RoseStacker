@@ -438,6 +438,7 @@ public class StackManager extends Manager implements Runnable {
                         || other.getEntity() == null
                         || !other.getEntity().isValid()
                         || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
+                        || stackedEntity.getEntity() == other.getEntity()
                         || stackedEntity.getEntity().getType() != other.getEntity().getType()
                         || stackedEntity.getLocation().distanceSquared(other.getLocation()) > maxEntityStackDistanceSqrd)
                     continue;

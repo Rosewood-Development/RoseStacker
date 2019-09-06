@@ -19,7 +19,7 @@ public class HuskStackSettings extends ZombieStackSettings {
         if (this.dontStackIfConverting && (husk1.isConverting() || husk2.isConverting()))
             return false;
 
-        return !this.dontStackIfDifferentAge || husk1.isBaby() != husk2.isBaby();
+        return !this.dontStackIfDifferentAge || husk1.isBaby() == husk2.isBaby();
     }
 
     @Override

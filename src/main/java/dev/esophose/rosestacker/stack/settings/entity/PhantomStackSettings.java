@@ -21,7 +21,7 @@ public class PhantomStackSettings extends EntityStackSettings {
         Phantom phantom1 = (Phantom) stack1.getEntity();
         Phantom phantom2 = (Phantom) stack2.getEntity();
 
-        return !this.dontStackIfDifferentSize || (phantom1.getSize() == phantom2.getSize());
+        return !this.dontStackIfDifferentSize || phantom1.getSize() == phantom2.getSize();
     }
 
     @Override

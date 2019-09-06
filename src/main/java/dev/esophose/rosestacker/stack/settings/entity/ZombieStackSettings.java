@@ -26,7 +26,7 @@ public class ZombieStackSettings extends EntityStackSettings {
         if (this.dontStackIfConverting && (zombie1.isConverting() || zombie2.isConverting()))
             return false;
 
-        return !this.dontStackIfDifferentAge || zombie1.isBaby() != zombie2.isBaby();
+        return !this.dontStackIfDifferentAge || zombie1.isBaby() == zombie2.isBaby();
     }
 
     @Override

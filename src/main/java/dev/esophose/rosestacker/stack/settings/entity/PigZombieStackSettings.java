@@ -27,7 +27,7 @@ public class PigZombieStackSettings extends EntityStackSettings {
         if (this.dontStackIfAngry && (pigZombie1.isAngry() || pigZombie2.isAngry()))
             return false;
 
-        return !this.dontStackIfDifferentAge || pigZombie1.isBaby() != pigZombie2.isBaby();
+        return !this.dontStackIfDifferentAge || pigZombie1.isBaby() == pigZombie2.isBaby();
     }
 
     @Override

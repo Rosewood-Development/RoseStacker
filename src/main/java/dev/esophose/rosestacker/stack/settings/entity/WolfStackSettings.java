@@ -26,7 +26,7 @@ public class WolfStackSettings extends EntityStackSettings {
         if (this.dontStackIfAngry && (wolf1.isAngry() || wolf2.isAngry()))
             return false;
 
-        return this.dontStackIfDifferentCollarColor || wolf1.getCollarColor() == wolf2.getCollarColor();
+        return !this.dontStackIfDifferentCollarColor || wolf1.getCollarColor() == wolf2.getCollarColor();
     }
 
     @Override

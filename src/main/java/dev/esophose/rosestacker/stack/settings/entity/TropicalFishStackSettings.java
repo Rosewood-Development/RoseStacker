@@ -31,7 +31,7 @@ public class TropicalFishStackSettings extends EntityStackSettings {
         if (this.dontStackIfDifferentPattern && tropicalFish1.getPattern() != tropicalFish2.getPattern())
             return false;
 
-        return !this.dontStackIfDifferentPatternColor || (tropicalFish1.getPatternColor() == tropicalFish2.getPatternColor());
+        return !this.dontStackIfDifferentPatternColor || tropicalFish1.getPatternColor() == tropicalFish2.getPatternColor();
     }
 
     @Override

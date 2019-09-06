@@ -21,7 +21,7 @@ public class PufferfishStackSettings extends EntityStackSettings {
         PufferFish pufferFish1 = (PufferFish) stack1.getEntity();
         PufferFish pufferFish2 = (PufferFish) stack2.getEntity();
 
-        return !this.dontStackIfDifferentInflation || (pufferFish1.getPuffState() == pufferFish2.getPuffState());
+        return !this.dontStackIfDifferentInflation || pufferFish1.getPuffState() == pufferFish2.getPuffState();
     }
 
     @Override
