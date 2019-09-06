@@ -3,18 +3,13 @@ package dev.esophose.rosestacker.config;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.file.YamlRepresenter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.DumperOptions.FlowStyle;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.Reader;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 
 public class CommentedFileConfiguration {
@@ -109,9 +104,12 @@ public class CommentedFileConfiguration {
     }
 
     public void set(String path, Object value, String... comments) {
-        for (String comment : comments) {
-            if (!this.config.contains(path)) {
-                this.config.set(this.helper.getPluginName() + "_COMMENT_" + this.comments, " " + comment);
+        if (!this.config.contains(path)) {
+            int subpathIndex = path.lastIndexOf('.');
+            String subpath = subpathIndex == -1 ? "" : path.substring(0, subpathIndex) + '.';
+
+            for (String comment : comments) {
+                this.config.set(subpath + this.helper.getPluginName() + "_COMMENT_" + this.comments, " " + comment);
                 this.comments++;
             }
         }
@@ -119,10 +117,11 @@ public class CommentedFileConfiguration {
         this.config.set(path, value);
     }
 
-    public void setHeader(String... headerComments) {
-        this.helper.setHeader(this.file, headerComments);
-        this.comments = headerComments.length + 2;
-        this.reloadConfig();
+    public void addComments(String... comments) {
+        for (String comment : comments) {
+            this.config.set(this.helper.getPluginName() + "_COMMENT_" + this.comments, " " + comment);
+            this.comments++;
+        }
     }
 
     public void reloadConfig() {
@@ -158,6 +157,8 @@ public class CommentedFileConfiguration {
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
+
+        System.out.println(this.config.saveToString());
 
         return this.config.saveToString();
     }

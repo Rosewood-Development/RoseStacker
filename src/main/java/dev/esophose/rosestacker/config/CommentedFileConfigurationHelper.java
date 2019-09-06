@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CommentedFileConfigurationHelper {
 
@@ -44,58 +41,6 @@ public class CommentedFileConfigurationHelper {
         }
 
         return new CommentedFileConfiguration(this.getConfigContent(file), file, this.getCommentsNum(file), this.plugin);
-    }
-
-    /**
-     * Adds header block to config
-     *
-     * @param file - Config file
-     * @param header - Header lines
-     */
-    public void setHeader(File file, String[] header) {
-        if (!file.exists())
-            return;
-
-        try {
-            String currentLine;
-            StringBuilder config = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-
-            while ((currentLine = reader.readLine()) != null)
-                config.append(currentLine).append("\n");
-
-            reader.close();
-            config.append("# +----------------------------------------------------+ #\n");
-
-            for (String line : header) {
-                if (line.length() > 50)
-                    continue;
-
-                int length = (50 - line.length()) / 2;
-                StringBuilder finalLine = new StringBuilder(line);
-
-                for (int i = 0; i < length; i++) {
-                    finalLine.append(" ");
-                    finalLine.reverse();
-                    finalLine.append(" ");
-                    finalLine.reverse();
-                }
-
-                if (line.length() % 2 != 0)
-                    finalLine.append(" ");
-
-                config.append("# < ").append(finalLine.toString()).append(" > #\n");
-            }
-
-            config.append("# +----------------------------------------------------+ #");
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.write(this.prepareConfigString(config.toString()));
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -169,7 +114,6 @@ public class CommentedFileConfigurationHelper {
 
     private String prepareConfigString(String configString) {
         boolean lastLine = false;
-        boolean headerLine = false;
 
         String[] lines = configString.split("\n");
         StringBuilder config = new StringBuilder();
@@ -179,37 +123,22 @@ public class CommentedFileConfigurationHelper {
                 int whitespaceIndex = line.indexOf(line.trim());
                 String comment = line.substring(0, whitespaceIndex) + "#" + line.substring(line.indexOf(":") + 3, line.length() - 1);
 
-                if (comment.trim().startsWith("# +-")) {
-                    if (!headerLine) {
-                        config.append(comment).append("\n");
-
-                        lastLine = false;
-                        headerLine = true;
-                    } else {
-                        config.append(comment).append("\n\n");
-
-                        lastLine = false;
-                        headerLine = false;
-                    }
+                String normalComment;
+                if (comment.trim().startsWith("#'")) {
+                    normalComment = comment.substring(0, comment.length() - 1).replaceFirst("#'", "# ");
                 } else {
-                    String normalComment;
-
-                    if (comment.trim().startsWith("#'")) {
-                        normalComment = comment.substring(0, comment.length() - 1).replaceFirst("#'", "# ");
-                    } else {
-                        normalComment = comment;
-                    }
-
-                    normalComment = normalComment.replaceAll("''", "'");
-
-                    if (!lastLine) {
-                        config.append(normalComment).append("\n");
-                    } else {
-                        config.append("\n").append(normalComment).append("\n");
-                    }
-
-                    lastLine = false;
+                    normalComment = comment;
                 }
+
+                normalComment = normalComment.replaceAll("''", "'");
+
+                if (!lastLine) {
+                    config.append(normalComment).append("\n");
+                } else {
+                    config.append("\n").append(normalComment).append("\n");
+                }
+
+                lastLine = false;
             } else {
                 config.append(line).append("\n");
                 lastLine = true;
