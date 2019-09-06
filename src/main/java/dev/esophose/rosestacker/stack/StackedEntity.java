@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
+import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class StackedEntity extends Stack {
@@ -74,6 +76,33 @@ public class StackedEntity extends Stack {
         }
 
         RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
+    }
+
+    /**
+     * @return true if this entity should stay stacked, otherwise false
+     */
+    public boolean shouldStayStacked() {
+        if (this.serializedStackedEntities.isEmpty())
+            return true;
+
+        LivingEntity entity = EntitySerializer.getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
+        StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
+        return this.stackSettings.canStackWith(this, stackedEntity);
+    }
+
+    public StackedEntity split() {
+        if (this.serializedStackedEntities.isEmpty())
+            throw new IllegalStateException();
+
+        StackManager stackManager = RoseStacker.getInstance().getStackManager();
+
+        LivingEntity oldEntity = this.entity;
+        stackManager.setEntityStackingDisabled(true);
+        this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
+        stackManager.setEntityStackingDisabled(false);
+        this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
+        this.updateDisplay();
+        return new StackedEntity(oldEntity, new LinkedList<>());
     }
 
     @Override

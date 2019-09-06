@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -339,9 +338,10 @@ public class StackManager extends Manager implements Runnable {
     @Override
     public void run() {
         Set<Stack> removed = new HashSet<>();
+        Set<StackedEntity> addedEntities = new HashSet<>();
 
         // Auto stack items
-        for (StackedItem stackedItem : new ArrayList<>(this.stackedItems)) {
+        for (StackedItem stackedItem : new HashSet<>(this.stackedItems)) {
             if (removed.contains(stackedItem))
                 continue;
 
@@ -356,7 +356,7 @@ public class StackManager extends Manager implements Runnable {
         }
 
         // Auto stack entities
-        for (StackedEntity stackedEntity : new ArrayList<>(this.stackedEntities)) {
+        for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities)) {
             if (removed.contains(stackedEntity))
                 continue;
 
@@ -372,7 +372,23 @@ public class StackManager extends Manager implements Runnable {
 
         // Delete removed stacks
         this.roseStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks));
+        for (Stack stack : this.deletedStacks) {
+            if (stack instanceof StackedBlock) {
+                this.stackedBlocks.remove(stack);
+            } else if (stack instanceof StackedEntity) {
+                this.stackedEntities.remove(stack);
+            } else if (stack instanceof StackedItem) {
+                this.stackedItems.remove(stack);
+            } else if (stack instanceof StackedSpawner) {
+                this.stackedSpawners.remove(stack);
+            }
+        }
         this.deletedStacks.clear();
+
+        // Auto unstack entities
+        for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities))
+            if (!stackedEntity.shouldStayStacked())
+                this.stackedEntities.add(stackedEntity.split());
     }
 
     /**

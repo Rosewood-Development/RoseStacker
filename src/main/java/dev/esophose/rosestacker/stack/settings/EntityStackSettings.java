@@ -341,6 +341,16 @@ public abstract class EntityStackSettings {
 
     protected abstract boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2);
 
+    /**
+     * Applies special properties to an entity when it unstacks
+     *
+     * @param stacked The entity that's still stacked
+     * @param unstacked The unstacked entity
+     */
+    public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        // Does nothing by default, override in a subclass to add functionality
+    }
+
     public abstract EntityType getEntityType();
 
 }

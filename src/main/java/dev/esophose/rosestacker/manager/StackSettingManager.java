@@ -32,14 +32,6 @@ public class StackSettingManager extends Manager {
         this.entitySettings.clear();
 
         File file = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, file);
 
         try {

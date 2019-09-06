@@ -67,8 +67,8 @@ public class CommentedFileConfigurationHelper {
             while ((currentLine = reader.readLine()) != null) {
                 // Convert comments into keys
                 if (currentLine.trim().startsWith("#")) {
-                    String addLine = (currentLine.replaceAll(Pattern.quote("'"), Matcher.quoteReplacement("''"))
-                            .replaceFirst("#", pluginName + "_COMMENT_" + commentNum++ + ": '") + "'");
+                    String addLine = currentLine.replaceAll(Pattern.quote("'"), Matcher.quoteReplacement("''"))
+                            .replaceFirst("#", pluginName + "_COMMENT_" + commentNum++ + ": '") + "'";
                     whole.append(addLine).append("\n");
                 } else {
                     whole.append(currentLine).append("\n");

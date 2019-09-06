@@ -4,6 +4,7 @@ import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
 
 public class PigZombieStackSettings extends EntityStackSettings {
@@ -33,6 +34,14 @@ public class PigZombieStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-angry", false);
         this.setIfNotExists("dont-stack-if-different-age", false);
+    }
+
+    @Override
+    public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        PigZombie stackedPigZombie = (PigZombie) stacked;
+        PigZombie unstackedPigZombie = (PigZombie) unstacked;
+
+        stackedPigZombie.setAnger(unstackedPigZombie.getAnger());
     }
 
     @Override
