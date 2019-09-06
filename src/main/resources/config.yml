@@ -13,40 +13,65 @@ locale: en_US
 # Default:
 # - disabled_world_name
 disabled-worlds:
-  - disabled_world_name
+- disabled_world_name
 
 stackable-blocks:
-  - DIAMOND_BLOCK
-  - GOLD_BLOCK
-  - DIAMOND_BLOCK
-  - EMERALD_BLOCK
-  - LAPIS_BLOCK
+- DIAMOND_BLOCK
+- GOLD_BLOCK
+- DIAMOND_BLOCK
+- EMERALD_BLOCK
+- LAPIS_BLOCK
 
-# Enable MySQL
-# Default: false
-mysql-enabled: false
+# Global entity settings
+# Changed values in entity_settings.yml will override these values
+global-entity-settings:
 
-# MySQL Database Hostname
-# Default: ''
-mysql-hostname: ''
+  # Should entity stacking be enabled at all?
+  # Default: true
+  stacking-enabled: true
 
-# MySQL Database Port
-# Default: 3306
-mysql-port: 3306
+  # The minumum number of nearby entities required to form a stack
+  # Do not set this lower than 2
+  # Default: 2
+  min-stack-size: 2
 
-# MySQL Database Name
-# Default: ''
-mysql-database-name: ''
+  # The maximum number of entities that can be in a single stack
+  # Default: 128
+  max-stack-size: 128
 
-# MySQL Database User Name
-# Default: ''
-mysql-user-name: ''
+  # Should the entire stack of entities be killed when the main entity dies?
+  # Default: false
+  kill-entire-stack-on-death: false
 
-# MySQL Database User Password
-# Default: ''
-mysql-user-password: ''
+# Settings for if you want to use MySQL for data mangement
+mysql-settings:
 
-# If the database connection should use SSL
-# You should enable this if your database supports SSL
-# Default: false
-mysql-use-ssl: false
+  # Enable MySQL
+  # If false, SQLite will be used instead
+  # Default: false
+  enabled: false
+
+  # MySQL Database Hostname
+  # Default: ''
+  hostname: ''
+
+  # MySQL Database Port
+  # Default: 3306
+  port: 3306
+
+  # MySQL Database Name
+  # Default: ''
+  database-name: ''
+
+  # MySQL Database User Name
+  # Default: ''
+  user-name: ''
+
+  # MySQL Database User Password
+  # Default: ''
+  user-password: ''
+
+  # If the database connection should use SSL
+  # You should enable this if your database supports SSL
+  # Default: false
+  use-ssl: false

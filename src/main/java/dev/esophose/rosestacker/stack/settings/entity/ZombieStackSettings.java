@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 
@@ -11,11 +11,11 @@ public class ZombieStackSettings extends EntityStackSettings {
     protected boolean dontStackIfConverting;
     protected boolean dontStackIfDifferentAge;
 
-    public ZombieStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public ZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfConverting = entitySettingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
+        this.dontStackIfConverting = this.entitySettingsConfiguration.getBoolean("dont-stack-if-converting");
+        this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override

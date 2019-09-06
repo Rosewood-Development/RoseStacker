@@ -1,14 +1,14 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Husk;
 
 public class HuskStackSettings extends ZombieStackSettings {
 
-    public HuskStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public HuskStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
     }
 
     @Override

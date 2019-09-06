@@ -1,8 +1,7 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 
 import java.io.File;
 import java.util.List;
@@ -95,7 +94,7 @@ public class ConfigurationManager extends Manager {
             if (this.value != null)
                 return;
 
-            FileConfiguration config = RoseStacker.getInstance().getConfigurationManager().getConfig();
+            CommentedFileConfiguration config = RoseStacker.getInstance().getConfigurationManager().getConfig();
             switch (this.settingType) {
                 case BOOLEAN:
                     this.value = config.getBoolean(this.getNameAsKey());
@@ -133,7 +132,7 @@ public class ConfigurationManager extends Manager {
         STRING_LIST
     }
 
-    private YamlConfiguration configuration;
+    private CommentedFileConfiguration configuration;
 
     public ConfigurationManager(RoseStacker roseStacker) {
         super(roseStacker);
@@ -147,7 +146,7 @@ public class ConfigurationManager extends Manager {
         if (!configFile.exists())
             this.roseStacker.saveResource("config.yml", false);
 
-        this.configuration = YamlConfiguration.loadConfiguration(configFile);
+        this.configuration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, configFile);
 
         for (Setting setting : Setting.values())
             setting.reset();
@@ -160,9 +159,9 @@ public class ConfigurationManager extends Manager {
     }
 
     /**
-     * @return the config.yml as a YamlConfiguration
+     * @return the config.yml as a CommentedFileConfiguration
      */
-    public YamlConfiguration getConfig() {
+    public CommentedFileConfiguration getConfig() {
         return this.configuration;
     }
 

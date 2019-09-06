@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
 
@@ -10,10 +10,10 @@ public class SheepStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfSheared;
 
-    public SheepStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfSheared = entitySettingsConfiguration.getBoolean("dont-stack-if-sheared");
+        this.dontStackIfSheared = this.entitySettingsConfiguration.getBoolean("dont-stack-if-sheared");
     }
 
     @Override

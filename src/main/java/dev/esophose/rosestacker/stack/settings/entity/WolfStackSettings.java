@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Wolf;
 
@@ -11,11 +11,11 @@ public class WolfStackSettings extends EntityStackSettings {
     private boolean dontStackIfAngry;
     private boolean dontStackIfDifferentCollarColor;
 
-    public WolfStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public WolfStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfAngry = entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfDifferentCollarColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
+        this.dontStackIfAngry = this.entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
+        this.dontStackIfDifferentCollarColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
     }
 
     @Override

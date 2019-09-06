@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.PufferFish;
 
@@ -10,10 +10,10 @@ public class PufferfishStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfDifferentInflation;
 
-    public PufferfishStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public PufferfishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentInflation = entitySettingsConfiguration.getBoolean("dont-stack-if-different-inflation");
+        this.dontStackIfDifferentInflation = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-inflation");
     }
 
     @Override

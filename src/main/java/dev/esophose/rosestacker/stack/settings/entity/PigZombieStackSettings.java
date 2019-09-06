@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.PigZombie;
 
@@ -11,11 +11,11 @@ public class PigZombieStackSettings extends EntityStackSettings {
     protected boolean dontStackIfAngry;
     protected boolean dontStackIfDifferentAge;
 
-    public PigZombieStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public PigZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfAngry = entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfDifferentAge = entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
+        this.dontStackIfAngry = this.entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
+        this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override

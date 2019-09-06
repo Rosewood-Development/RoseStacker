@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TropicalFish;
 
@@ -12,12 +12,12 @@ public class TropicalFishStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentPattern;
     private boolean dontStackIfDifferentPatternColor;
 
-    public TropicalFishStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public TropicalFishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentBodyColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-body-color");
-        this.dontStackIfDifferentPattern = entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern");
-        this.dontStackIfDifferentPatternColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern-color");
+        this.dontStackIfDifferentBodyColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-body-color");
+        this.dontStackIfDifferentPattern = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern");
+        this.dontStackIfDifferentPatternColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern-color");
     }
 
     @Override

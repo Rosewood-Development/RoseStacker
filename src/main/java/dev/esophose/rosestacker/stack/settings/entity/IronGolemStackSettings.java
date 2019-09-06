@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.IronGolem;
 
@@ -10,10 +10,10 @@ public class IronGolemStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfPlayerCreated;
 
-    public IronGolemStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public IronGolemStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfPlayerCreated = entitySettingsConfiguration.getBoolean("dont-stack-if-player-created");
+        this.dontStackIfPlayerCreated = this.entitySettingsConfiguration.getBoolean("dont-stack-if-player-created");
     }
 
     @Override

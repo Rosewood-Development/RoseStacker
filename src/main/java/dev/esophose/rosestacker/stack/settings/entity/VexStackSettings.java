@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Vex;
 
@@ -10,10 +10,10 @@ public class VexStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfCharging;
 
-    public VexStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public VexStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfCharging = entitySettingsConfiguration.getBoolean("dont-stack-if-charging");
+        this.dontStackIfCharging = this.entitySettingsConfiguration.getBoolean("dont-stack-if-charging");
     }
 
     @Override

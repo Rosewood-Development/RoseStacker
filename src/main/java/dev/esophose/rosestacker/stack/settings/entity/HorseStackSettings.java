@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 
@@ -12,12 +12,12 @@ public class HorseStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentStyle;
     private boolean dontStackIfDifferentColor;
 
-    public HorseStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public HorseStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfArmored = entitySettingsConfiguration.getBoolean("dont-stack-if-armored");
-        this.dontStackIfDifferentStyle = entitySettingsConfiguration.getBoolean("dont-stack-if-different-style");
-        this.dontStackIfDifferentColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
+        this.dontStackIfArmored = this.entitySettingsConfiguration.getBoolean("dont-stack-if-armored");
+        this.dontStackIfDifferentStyle = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-style");
+        this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
     }
 
     @Override

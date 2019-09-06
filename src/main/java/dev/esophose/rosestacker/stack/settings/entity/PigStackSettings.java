@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 
@@ -10,10 +10,10 @@ public class PigStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfSaddled;
 
-    public PigStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public PigStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfSaddled = entitySettingsConfiguration.getBoolean("dont-stack-if-saddled");
+        this.dontStackIfSaddled = this.entitySettingsConfiguration.getBoolean("dont-stack-if-saddled");
     }
 
     @Override

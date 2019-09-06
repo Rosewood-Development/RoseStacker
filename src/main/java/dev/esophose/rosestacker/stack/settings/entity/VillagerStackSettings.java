@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
@@ -12,12 +12,12 @@ public class VillagerStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentType;
     private boolean dontStackIfDifferentLevel;
 
-    public VillagerStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public VillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentProfession = entitySettingsConfiguration.getBoolean("dont-stack-if-different-profession");
-        this.dontStackIfDifferentType = entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentLevel = entitySettingsConfiguration.getBoolean("dont-stack-if-different-level");
+        this.dontStackIfDifferentProfession = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-profession");
+        this.dontStackIfDifferentType = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentLevel = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-level");
     }
 
     @Override

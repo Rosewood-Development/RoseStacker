@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
-import org.bukkit.configuration.file.YamlConfiguration;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import org.bukkit.entity.EntityType;
 
 public class ElderGuardianStackSettings extends GuardianStackSettings {
 
-    public ElderGuardianStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public ElderGuardianStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 
@@ -10,10 +10,10 @@ public class CreeperStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfCharged;
 
-    public CreeperStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public CreeperStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfCharged = entitySettingsConfiguration.getBoolean("dont-stack-if-charged");
+        this.dontStackIfCharged = this.entitySettingsConfiguration.getBoolean("dont-stack-if-charged");
     }
 
     @Override

@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 
@@ -10,10 +10,10 @@ public class EndermanStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfHoldingBlock;
 
-    public EndermanStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public EndermanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfHoldingBlock = entitySettingsConfiguration.getBoolean("dont-stack-if-holding-block");
+        this.dontStackIfHoldingBlock = this.entitySettingsConfiguration.getBoolean("dont-stack-if-holding-block");
     }
 
     @Override

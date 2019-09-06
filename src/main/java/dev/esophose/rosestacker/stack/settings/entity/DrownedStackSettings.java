@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
-import org.bukkit.configuration.file.YamlConfiguration;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import org.bukkit.entity.EntityType;
 
 public class DrownedStackSettings extends ZombieStackSettings {
 
-    public DrownedStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public DrownedStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
     }
 
     @Override

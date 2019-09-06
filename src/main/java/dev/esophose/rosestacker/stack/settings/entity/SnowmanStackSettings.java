@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Snowman;
 
@@ -10,10 +10,10 @@ public class SnowmanStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfNoPumpkin;
 
-    public SnowmanStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public SnowmanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfNoPumpkin = entitySettingsConfiguration.getBoolean("dont-stack-if-no-pumpkin");
+        this.dontStackIfNoPumpkin = this.entitySettingsConfiguration.getBoolean("dont-stack-if-no-pumpkin");
     }
 
     @Override

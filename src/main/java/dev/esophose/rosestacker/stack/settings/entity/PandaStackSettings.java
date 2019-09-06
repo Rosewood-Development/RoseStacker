@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Panda;
 
@@ -11,11 +11,11 @@ public class PandaStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentMainGene;
     private boolean dontStackIfDifferentRecessiveGene;
 
-    public PandaStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public PandaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentMainGene = entitySettingsConfiguration.getBoolean("dont-stack-if-different-main-gene");
-        this.dontStackIfDifferentRecessiveGene = entitySettingsConfiguration.getBoolean("dont-stack-if-different-recessive-gene");
+        this.dontStackIfDifferentMainGene = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-main-gene");
+        this.dontStackIfDifferentRecessiveGene = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-recessive-gene");
     }
 
     @Override

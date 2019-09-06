@@ -1,9 +1,9 @@
 package dev.esophose.rosestacker.stack.settings;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
@@ -18,13 +18,14 @@ import org.bukkit.material.Colorable;
 
 public abstract class EntityStackSettings {
 
-    private ConfigurationSection entitySettingsConfiguration;
+    protected ConfigurationSection entitySettingsConfiguration;
 
     // Settings that apply to every entity
     private boolean enabled;
     private String displayName;
     private int minStackSize;
     private int maxStackSize;
+    private boolean killEntireStackOnDeath;
 
     // Settings that apply to multiple entities through interfaces
     private boolean dontStackIfDifferentColor;
@@ -49,10 +50,10 @@ public abstract class EntityStackSettings {
     private Boolean isRaider;
     private Boolean isMerchant;
 
-    public EntityStackSettings(YamlConfiguration entitySettingsYamlConfiguration) {
-        this.entitySettingsConfiguration = entitySettingsYamlConfiguration.getConfigurationSection(this.getEntityType().name());
+    public EntityStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        this.entitySettingsConfiguration = entitySettingsFileConfiguration.getConfigurationSection(this.getEntityType().name());
         if (this.entitySettingsConfiguration == null)
-            this.entitySettingsConfiguration = entitySettingsYamlConfiguration.createSection(this.getEntityType().name());
+            this.entitySettingsConfiguration = entitySettingsFileConfiguration.createSection(this.getEntityType().name());
 
         this.setDefaults();
 
@@ -60,6 +61,7 @@ public abstract class EntityStackSettings {
         this.displayName = this.entitySettingsConfiguration.getString("display-name");
         this.minStackSize = this.entitySettingsConfiguration.getInt("min-stack-size");
         this.maxStackSize = this.entitySettingsConfiguration.getInt("max-stack-size");
+        this.killEntireStackOnDeath = this.entitySettingsConfiguration.getBoolean("kill-entire-stack-on-death");
 
         if (this.isEntityColorable())
             this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
@@ -96,6 +98,7 @@ public abstract class EntityStackSettings {
         this.setIfNotExists("display-name", StackerUtils.formatName(this.getEntityType().name()));
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);
+        this.setIfNotExists("kill-entire-stack-on-death", false);
 
         if (this.isEntityColorable())
             this.setIfNotExists("dont-stack-if-different-color", false);
@@ -328,6 +331,10 @@ public abstract class EntityStackSettings {
 
     public int getMaxStackSize() {
         return this.maxStackSize;
+    }
+
+    public boolean shouldKillEntireStackOnDeath() {
+        return this.killEntireStackOnDeath;
     }
 
     protected abstract void setDefaultsInternal();

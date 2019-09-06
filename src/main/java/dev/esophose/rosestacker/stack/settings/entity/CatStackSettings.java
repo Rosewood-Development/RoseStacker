@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.EntityType;
 
@@ -11,11 +11,11 @@ public class CatStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentType;
     private boolean dontStackIfDifferentCollarColor;
 
-    public CatStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public CatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentType = entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentCollarColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
+        this.dontStackIfDifferentType = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentCollarColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
     }
 
     @Override

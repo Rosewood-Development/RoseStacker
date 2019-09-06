@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
-import org.bukkit.configuration.file.YamlConfiguration;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import org.bukkit.entity.EntityType;
 
 public class TraderLlamaStackSettings extends LlamaStackSettings {
 
-    public TraderLlamaStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public TraderLlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
     }
 
     @Override

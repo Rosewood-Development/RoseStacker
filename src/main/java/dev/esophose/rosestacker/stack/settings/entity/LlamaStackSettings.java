@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Llama;
 
@@ -11,11 +11,11 @@ public class LlamaStackSettings extends EntityStackSettings {
     private boolean dontStackIfDifferentDecor;
     private boolean dontStackIfDifferentColor;
 
-    public LlamaStackSettings(YamlConfiguration entitySettingsConfiguration) {
-        super(entitySettingsConfiguration);
+    public LlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+        super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentDecor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-decor");
-        this.dontStackIfDifferentColor = entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
+        this.dontStackIfDifferentDecor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-decor");
+        this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
     }
 
     @Override

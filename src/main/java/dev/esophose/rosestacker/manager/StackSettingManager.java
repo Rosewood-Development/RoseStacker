@@ -1,10 +1,10 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.ClassUtils;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
 import java.io.File;
@@ -40,23 +40,19 @@ public class StackSettingManager extends Manager {
             }
         }
 
-        YamlConfiguration entitySettingsConfiguration = YamlConfiguration.loadConfiguration(file);
+        CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, file);
 
         try {
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, "dev.esophose.rosestacker.stack.settings.entity", EntityStackSettings.class);
             for (Class<EntityStackSettings> clazz : classes) {
-                EntityStackSettings entityStackSetting = clazz.getConstructor(YamlConfiguration.class).newInstance(entitySettingsConfiguration);
+                EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
                 this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try {
-            entitySettingsConfiguration.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        entitySettingsConfiguration.save(true);
 
         // Load item settings
         // TODO
