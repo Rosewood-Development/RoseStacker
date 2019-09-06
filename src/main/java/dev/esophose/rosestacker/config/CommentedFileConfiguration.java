@@ -158,8 +158,6 @@ public class CommentedFileConfiguration {
             e.printStackTrace();
         }
 
-        System.out.println(this.config.saveToString());
-
         return this.config.saveToString();
     }
 

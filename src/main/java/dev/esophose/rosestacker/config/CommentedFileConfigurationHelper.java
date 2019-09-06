@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommentedFileConfigurationHelper {
 
@@ -56,18 +58,18 @@ public class CommentedFileConfigurationHelper {
         try {
             int commentNum = 0;
 
-            String addLine;
-            String currentLine;
             String pluginName = this.getPluginName();
 
             StringBuilder whole = new StringBuilder();
             BufferedReader reader = new BufferedReader(new FileReader(file));
 
+            String currentLine;
             while ((currentLine = reader.readLine()) != null) {
+                // Convert comments into keys
                 if (currentLine.trim().startsWith("#")) {
-                    addLine = (currentLine.replaceFirst("#", pluginName + "_COMMENT_" + commentNum + ": '") + "'");
+                    String addLine = (currentLine.replaceAll(Pattern.quote("'"), Matcher.quoteReplacement("''"))
+                            .replaceFirst("#", pluginName + "_COMMENT_" + commentNum++ + ": '") + "'");
                     whole.append(addLine).append("\n");
-                    commentNum++;
                 } else {
                     whole.append(currentLine).append("\n");
                 }
