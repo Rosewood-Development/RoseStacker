@@ -4,6 +4,7 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -11,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
+import org.bukkit.util.BlockIterator;
+import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -142,6 +145,26 @@ public class StackerUtils {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public static boolean hasLineOfSight(LivingEntity entity1, LivingEntity entity2) {
+        Location location1 = entity1.getLocation().clone().add(0, entity1.getEyeHeight(), 0);
+        Location location2 = entity2.getLocation().clone().add(0, entity2.getEyeHeight(), 0);
+
+        if (location1.getWorld() == null)
+            return false;
+
+        Vector direction = location2.toVector().subtract(location1.toVector()).normalize();
+        int distance = (int) Math.round(location1.distance(location2));
+
+        BlockIterator blockIterator = new BlockIterator(location1.getWorld(), location1.toVector(), direction, 0, distance);
+        while (blockIterator.hasNext()) {
+            Block block = blockIterator.next();
+            if (block.getType() != Material.AIR && block.getType() != Material.WATER)
+                return false;
+        }
+
+        return true;
     }
 
 }

@@ -7,6 +7,7 @@ import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.StackedItem;
 import dev.esophose.rosestacker.stack.StackedSpawner;
+import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -445,6 +446,9 @@ public class StackManager extends Manager implements Runnable {
 
                 // Check if we should merge the stacks
                 if (this.stackSettingManager.canEntitiesBeStacked(stackedEntity, other)) {
+                    if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity()))
+                        return null;
+
                     StackedEntity increased = (StackedEntity) this.getPreferredEntityStack(stackedEntity, other);
                     StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
 

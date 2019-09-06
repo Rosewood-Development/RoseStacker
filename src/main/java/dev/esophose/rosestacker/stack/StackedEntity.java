@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
@@ -44,12 +45,20 @@ public class StackedEntity extends Stack {
     }
 
     public void increaseStackSize(LivingEntity entity) {
-        this.serializedStackedEntities.add(EntitySerializer.toNBTString(entity));
+        if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
+            this.serializedStackedEntities.add(EntitySerializer.toNBTString(entity));
+        } else {
+            this.serializedStackedEntities.add(0, EntitySerializer.toNBTString(entity));
+        }
         this.updateDisplay();
     }
 
     public void increaseStackSize(List<String> entityNBTStrings) {
-        this.serializedStackedEntities.addAll(entityNBTStrings);
+        if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
+            this.serializedStackedEntities.addAll(entityNBTStrings);
+        } else {
+            this.serializedStackedEntities.addAll(0, entityNBTStrings);
+        }
         this.updateDisplay();
     }
 
