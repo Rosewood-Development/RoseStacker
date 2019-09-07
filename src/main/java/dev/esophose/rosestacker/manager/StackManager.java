@@ -235,6 +235,12 @@ public class StackManager extends Manager implements Runnable {
         return newStackedItem;
     }
 
+    public StackedEntity splitEntity(StackedEntity stackedEntity) {
+        StackedEntity newlySplit = stackedEntity.split();
+        this.stackedEntities.add(newlySplit);
+        return newlySplit;
+    }
+
     public Stack createStackFromEntity(Entity entity) {
         Stack newStack = null;
 
@@ -385,7 +391,7 @@ public class StackManager extends Manager implements Runnable {
         // Auto unstack entities
         for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities))
             if (!stackedEntity.shouldStayStacked())
-                this.stackedEntities.add(stackedEntity.split());
+                this.splitEntity(stackedEntity);
     }
 
     /**

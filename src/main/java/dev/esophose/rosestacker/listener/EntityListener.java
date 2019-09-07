@@ -4,9 +4,14 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedEntity;
+import dev.esophose.rosestacker.utils.EntitySerializer;
+import net.minecraft.server.v1_14_R1.EntityZombie;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,6 +23,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.PigZapEvent;
 
 public class EntityListener implements Listener {
 
@@ -68,7 +75,6 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
-
         if (!stackManager.isEntityStacked(event.getEntity()))
             return;
 
@@ -106,6 +112,40 @@ public class EntityListener implements Listener {
     public void onEntityTeleport(EntityTeleportEvent event) {
         // TODO: Unload an entity if it teleports into an unloaded chunk
 
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityTransform(EntityTransformEvent event) {
+        this.handleEntityTransformation(event);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPigZap(PigZapEvent event) {
+        this.handleEntityTransformation(event);
+    }
+
+    private void handleEntityTransformation(EntityTransformEvent event) {
+        StackManager stackManager = this.roseStacker.getStackManager();
+        if (!(event.getEntity() instanceof LivingEntity)
+                || event.getEntity().getType() == event.getTransformedEntity().getType()
+                || !stackManager.isEntityStacked(event.getEntity()))
+            return;
+
+        StackedEntity stackedEntity = stackManager.getStackedEntity(event.getEntity());
+        if (stackedEntity.getStackSize() == 1)
+            return;
+
+        Entity transformedEntity = event.getTransformedEntity();
+        if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
+                StackedEntity newStack = stackManager.getStackedEntity(transformedEntity);
+                for (String serializedEntity : stackedEntity.getStackedEntityNBTStrings())
+                    newStack.increaseStackSize(EntitySerializer.getNBTStringAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
+            });
+        } else {
+            // Wait for potential lightning to go away
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, stackedEntity::decreaseStackSize, 20);
+        }
     }
 
 }

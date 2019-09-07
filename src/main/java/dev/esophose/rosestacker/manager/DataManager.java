@@ -369,6 +369,9 @@ public class DataManager extends Manager {
             Set<StackedSpawner> stackedSpawners = new HashSet<>();
 
             for (Stack stack : stacks) {
+                if (stack.getId() == -1)
+                    continue;
+
                 if (stack instanceof StackedBlock) {
                     stackedBlocks.add((StackedBlock) stack);
                 } else if (stack instanceof StackedEntity) {
