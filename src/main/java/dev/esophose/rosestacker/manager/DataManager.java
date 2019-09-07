@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -97,8 +98,10 @@ public class DataManager extends Manager {
                 }
             }
 
-            stackedBlocks.forEach(StackedBlock::updateDisplay);
-            this.sync(() -> callback.accept(stackedBlocks));
+            this.sync(() -> {
+                stackedBlocks.forEach(StackedBlock::updateDisplay);
+                callback.accept(stackedBlocks);
+            });
         };
 
         if (async) {
@@ -130,8 +133,10 @@ public class DataManager extends Manager {
                 }
             }
 
-            stackedEntities.forEach(StackedEntity::updateDisplay);
-            this.sync(() -> callback.accept(stackedEntities));
+            this.sync(() -> {
+                stackedEntities.forEach(StackedEntity::updateDisplay);
+                callback.accept(stackedEntities);
+            });
         };
 
         if (async) {
@@ -163,8 +168,10 @@ public class DataManager extends Manager {
                 }
             }
 
-            stackedItems.forEach(StackedItem::updateDisplay);
-            this.sync(() -> callback.accept(stackedItems));
+            this.sync(() -> {
+                stackedItems.forEach(StackedItem::updateDisplay);
+                callback.accept(stackedItems);
+            });
         };
 
         if (async) {
@@ -186,21 +193,27 @@ public class DataManager extends Manager {
                     statement.setInt(3, chunk.getZ());
 
                     ResultSet result = statement.executeQuery();
-                    while (result.next()) {
-                        int id = result.getInt("id");
-                        int stackSize = result.getInt("stack_size");
-                        int blockX = result.getInt("block_x");
-                        int blockY = result.getInt("block_y");
-                        int blockZ = result.getInt("block_z");
-                        Block block = chunk.getBlock(blockX, blockY, blockZ);
-                        if (block.getType() == Material.SPAWNER)
-                            stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
-                    }
+                    this.sync(() -> { // Getting a block state must be done synchronously
+                        try {
+                            while (result.next()) {
+                                int id = result.getInt("id");
+                                int stackSize = result.getInt("stack_size");
+                                int blockX = result.getInt("block_x");
+                                int blockY = result.getInt("block_y");
+                                int blockZ = result.getInt("block_z");
+                                Block block = chunk.getBlock(blockX, blockY, blockZ);
+                                if (block.getType() == Material.SPAWNER)
+                                    stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+
+                        stackedSpawners.forEach(StackedSpawner::updateDisplay);
+                        callback.accept(stackedSpawners);
+                    });
                 }
             }
-
-            stackedSpawners.forEach(StackedSpawner::updateDisplay);
-            this.sync(() -> callback.accept(stackedSpawners));
         };
 
         if (async) {

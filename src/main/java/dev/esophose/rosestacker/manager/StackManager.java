@@ -143,7 +143,7 @@ public class StackManager extends Manager implements Runnable {
 
     public StackedSpawner getStackedSpawner(Block block) {
         for (StackedSpawner stackedSpawner : this.stackedSpawners)
-            if (stackedSpawner.getSpawner().equals(block.getState()))
+            if (stackedSpawner.getSpawner().getBlock().equals(block))
                 return stackedSpawner;
         return null;
     }
@@ -188,12 +188,10 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public void removeItem(StackedItem stackedItem) {
-        this.stackedItems.remove(stackedItem);
         this.deletedStacks.add(stackedItem);
     }
 
     public void removeEntity(StackedEntity stackedEntity) {
-        this.stackedEntities.remove(stackedEntity);
         this.deletedStacks.add(stackedEntity);
     }
 
@@ -203,11 +201,9 @@ public class StackManager extends Manager implements Runnable {
 
         if (block.getType() == Material.SPAWNER) {
             StackedSpawner stackedSpawner = this.getStackedSpawner(block);
-            this.stackedSpawners.remove(stackedSpawner);
             this.deletedStacks.add(stackedSpawner);
         } else {
             StackedBlock stackedBlock = this.getStackedBlock(block);
-            this.stackedBlocks.remove(stackedBlock);
             this.deletedStacks.add(stackedBlock);
         }
     }

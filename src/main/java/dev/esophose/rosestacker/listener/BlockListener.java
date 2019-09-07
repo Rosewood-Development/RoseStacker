@@ -5,10 +5,12 @@ import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -25,6 +27,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -114,6 +117,15 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        StackManager stackManager = this.roseStacker.getStackManager();
+
+        for (Block block : new ArrayList<>(event.blockList()))
+            if (stackManager.isBlockStacked(block))
+                event.blockList().remove(block); // TODO: Configurable setting to destroy entire stack instead of protecting it
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
         if (stackManager.isBlockStacked(event.getBlock()))
@@ -153,6 +165,9 @@ public class BlockListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Block against = event.getBlockAgainst();
+
+        if (against.equals(block))
+            against = against.getRelative(BlockFace.DOWN);
 
         // Get the block in the player's hand that's being placed
         ItemStack placedItem = player.getInventory().getItemInMainHand();

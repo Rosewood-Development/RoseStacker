@@ -4,6 +4,7 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -143,7 +144,7 @@ public class StackerUtils {
         try {
             return EntityType.valueOf((name.substring(0, name.length() - 8)).toUpperCase());
         } catch (Exception ex) {
-            return null;
+            return EntityType.PIG;
         }
     }
 
@@ -151,17 +152,27 @@ public class StackerUtils {
         Location location1 = entity1.getLocation().clone().add(0, entity1.getEyeHeight(), 0);
         Location location2 = entity2.getLocation().clone().add(0, entity2.getEyeHeight(), 0);
 
-        if (location1.getWorld() == null)
+        World world = location1.getWorld();
+
+        if (world == null)
             return false;
 
         Vector direction = location2.toVector().subtract(location1.toVector()).normalize();
+        if (Double.isNaN(direction.getX()) || Double.isNaN(direction.getY()) || Double.isNaN(direction.getZ()) ||
+            Double.isInfinite(direction.getX()) || Double.isInfinite(direction.getY()) || Double.isInfinite(direction.getZ()))
+            return false;
+
         int distance = (int) Math.round(location1.distance(location2));
 
-        BlockIterator blockIterator = new BlockIterator(location1.getWorld(), location1.toVector(), direction, 0, distance);
+        int maxChecks = distance * 2;
+        int currentChecks = 0;
+        BlockIterator blockIterator = new BlockIterator(world, location1.toVector(), direction, 0, distance);
         while (blockIterator.hasNext()) {
             Block block = blockIterator.next();
-            if (block.getType() != Material.AIR && block.getType() != Material.WATER)
+            if (block.getType().isSolid())
                 return false;
+            if (currentChecks++ > maxChecks)
+                break;
         }
 
         return true;

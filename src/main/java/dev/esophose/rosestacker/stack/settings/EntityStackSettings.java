@@ -1,10 +1,10 @@
 package dev.esophose.rosestacker.stack.settings;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.config.CommentedConfigurationSection;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
@@ -19,14 +19,14 @@ import org.bukkit.material.Colorable;
 
 public abstract class EntityStackSettings {
 
-    protected ConfigurationSection entitySettingsConfiguration;
+    protected CommentedConfigurationSection entitySettingsConfiguration;
 
     // Settings that apply to every entity
     private boolean enabled;
     private String displayName;
     private int minStackSize;
     private int maxStackSize;
-    private boolean killEntireStackOnDeath;
+    private Boolean killEntireStackOnDeath;
 
     // Settings that apply to multiple entities through interfaces
     private boolean dontStackIfDifferentColor;
@@ -62,7 +62,7 @@ public abstract class EntityStackSettings {
         this.displayName = this.entitySettingsConfiguration.getString("display-name");
         this.minStackSize = this.entitySettingsConfiguration.getInt("min-stack-size");
         this.maxStackSize = this.entitySettingsConfiguration.getInt("max-stack-size");
-        this.killEntireStackOnDeath = this.entitySettingsConfiguration.getBoolean("kill-entire-stack-on-death");
+        this.killEntireStackOnDeath = this.entitySettingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
 
         if (this.isEntityColorable())
             this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
@@ -99,7 +99,7 @@ public abstract class EntityStackSettings {
         this.setIfNotExists("display-name", StackerUtils.formatName(this.getEntityType().name()));
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);
-        this.setIfNotExists("kill-entire-stack-on-death", false);
+        this.setIfNotExists("kill-entire-stack-on-death", "default");
 
         if (this.isEntityColorable())
             this.setIfNotExists("dont-stack-if-different-color", false);
@@ -342,7 +342,9 @@ public abstract class EntityStackSettings {
     }
 
     public boolean shouldKillEntireStackOnDeath() {
-        return this.killEntireStackOnDeath;
+        if (this.killEntireStackOnDeath != null)
+            return this.killEntireStackOnDeath;
+        return Setting.ENTITY_KILL_ENTIRE_STACK_ON_DEATH.getBoolean();
     }
 
     protected abstract void setDefaultsInternal();

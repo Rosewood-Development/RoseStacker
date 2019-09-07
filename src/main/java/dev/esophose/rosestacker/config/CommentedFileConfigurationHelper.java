@@ -34,6 +34,9 @@ public class CommentedFileConfigurationHelper {
      * @return - New SimpleConfig
      */
     public CommentedFileConfiguration getNewConfig(File file) {
+        if (!this.plugin.getDataFolder().exists())
+            this.plugin.getDataFolder().mkdir();
+
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -53,7 +56,7 @@ public class CommentedFileConfigurationHelper {
      */
     public Reader getConfigContent(File file) {
         if (!file.exists())
-            return null;
+            return new InputStreamReader(new ByteArrayInputStream(new byte[0]));
 
         try {
             int commentNum = 0;
