@@ -4,6 +4,7 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
 
@@ -18,8 +19,10 @@ public class StackedSpawner extends Stack {
         this.size = size;
         this.spawner = spawner;
 
-        this.updateDisplay();
-        this.updateSpawnCount();
+        if (Bukkit.isPrimaryThread()) {
+            this.updateDisplay();
+            this.updateSpawnCount();
+        }
     }
 
     public StackedSpawner(int size, CreatureSpawner spawner) {

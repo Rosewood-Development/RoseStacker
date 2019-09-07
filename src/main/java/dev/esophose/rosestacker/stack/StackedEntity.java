@@ -7,6 +7,7 @@ import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -33,7 +34,8 @@ public class StackedEntity extends Stack {
 
         this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity.getType());
 
-        this.updateDisplay();
+        if (Bukkit.isPrimaryThread())
+            this.updateDisplay();
     }
 
     public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {

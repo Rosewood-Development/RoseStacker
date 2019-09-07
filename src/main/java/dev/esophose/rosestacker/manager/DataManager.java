@@ -127,7 +127,7 @@ public class DataManager extends Manager {
                         int id = result.getInt("id");
                         UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
                         List<String> stackEntities = EntitySerializer.fromBase64(result.getString("stack_entities"));
-                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x.getUniqueId().equals(entityUUID)).findFirst();
+                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
                         entity.ifPresent(x -> stackedEntities.add(new StackedEntity(id, (LivingEntity) x, stackEntities)));
                     }
                 }
@@ -162,7 +162,7 @@ public class DataManager extends Manager {
                         int id = result.getInt("id");
                         int stackSize = result.getInt("stack_size");
                         UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x.getUniqueId().equals(entityUUID)).findFirst();
+                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
                         entity.ifPresent(x -> stackedItems.add(new StackedItem(id, stackSize, (Item) x)));
                     }
                 }

@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,8 @@ public class StackedItem extends Stack {
         this.size = size;
         this.item = item;
 
-        this.updateDisplay();
+        if (Bukkit.isPrimaryThread())
+            this.updateDisplay();
     }
 
     public StackedItem(int size, Item item) {

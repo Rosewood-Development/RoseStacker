@@ -4,6 +4,7 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -18,7 +19,8 @@ public class StackedBlock extends Stack {
         this.size = size;
         this.block = block;
 
-        this.updateDisplay();
+        if (Bukkit.isPrimaryThread())
+            this.updateDisplay();
     }
 
     public StackedBlock(int size, Block block) {
