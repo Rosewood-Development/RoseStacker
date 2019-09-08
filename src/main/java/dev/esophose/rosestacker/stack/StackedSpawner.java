@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -57,6 +58,9 @@ public class StackedSpawner extends Stack {
 
     @Override
     public void updateDisplay() {
+        if (!Setting.SPAWNER_DISPLAY_TAGS.getBoolean())
+            return;
+
         HologramManager hologramManager = RoseStacker.getInstance().getHologramManager();
 
         Location location = this.spawner.getLocation().clone().add(0.5, 0.75, 0.5);

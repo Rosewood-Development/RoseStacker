@@ -133,12 +133,15 @@ public class StackedEntity extends Stack {
 
     @Override
     public void updateDisplay() {
+        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean())
+            return;
+
         if (this.getStackSize() > 1) {
             String displayString = ChatColor.translateAlternateColorCodes('&', Locale.STACK_DISPLAY.get()
                     .replaceAll("%amount%", String.valueOf(this.getStackSize()))
                     .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
 
-            this.entity.setCustomNameVisible(true);
+            this.entity.setCustomNameVisible(!Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean());
             this.entity.setCustomName(displayString);
         } else {
             this.entity.setCustomNameVisible(false);

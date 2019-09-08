@@ -1,5 +1,6 @@
 package dev.esophose.rosestacker.stack;
 
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
@@ -52,16 +53,19 @@ public class StackedItem extends Stack {
 
     @Override
     public void updateDisplay() {
+        ItemStack itemStack = this.item.getItemStack();
+        itemStack.setAmount(Math.min(this.size, itemStack.getMaxStackSize()));
+        this.item.setItemStack(itemStack);
+
+        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean())
+            return;
+
         String displayString = Locale.STACK_DISPLAY.get()
                 .replaceAll("%amount%", String.valueOf(this.size))
                 .replaceAll("%name%", StackerUtils.formatName(this.item.getItemStack().getType().name()));
 
         this.item.setCustomNameVisible(this.size > 1);
         this.item.setCustomName(displayString);
-
-        ItemStack itemStack = this.item.getItemStack();
-        itemStack.setAmount(Math.min(this.size, itemStack.getMaxStackSize()));
-        this.item.setItemStack(itemStack);
     }
 
     /**
