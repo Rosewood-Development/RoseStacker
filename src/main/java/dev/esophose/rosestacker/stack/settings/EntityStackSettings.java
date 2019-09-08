@@ -10,10 +10,12 @@ import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.WaterMob;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -137,7 +139,7 @@ public abstract class EntityStackSettings {
         return this.canStackWith(stack1, stack2, false);
     }
 
-    public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean ignoreMaxStackSize) {
+    public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
         if (!this.enabled)
             return false;
 
@@ -145,11 +147,16 @@ public abstract class EntityStackSettings {
         if (this.maxStackSize != -1)
             maxStackSize = this.maxStackSize;
 
-        if (!ignoreMaxStackSize && stack1.getStackSize() + stack2.getStackSize() > maxStackSize)
+        if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > maxStackSize)
             return false;
 
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
+
+        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
+            if (!entity1.isOnGround() || !entity2.isOnGround())
+                return false;
+        }
 
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;

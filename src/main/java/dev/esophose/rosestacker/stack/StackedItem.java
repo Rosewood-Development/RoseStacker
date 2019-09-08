@@ -4,9 +4,11 @@ import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class StackedItem extends Stack {
 
@@ -60,11 +62,23 @@ public class StackedItem extends Stack {
         if (!Setting.ITEM_DISPLAY_TAGS.getBoolean())
             return;
 
+        String displayName;
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null && itemMeta.hasDisplayName() && Setting.ITEM_DISPLAY_CUSTOM_NAMES.getBoolean()) {
+            if (Setting.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.getBoolean()) {
+                displayName = itemMeta.getDisplayName();
+            } else {
+                displayName = ChatColor.stripColor(itemMeta.getDisplayName());
+            }
+        } else {
+            displayName = StackerUtils.formatName(this.item.getItemStack().getType().name());
+        }
+
         String displayString = Locale.STACK_DISPLAY.get()
                 .replaceAll("%amount%", String.valueOf(this.size))
-                .replaceAll("%name%", StackerUtils.formatName(this.item.getItemStack().getType().name()));
+                .replaceAll("%name%", displayName);
 
-        this.item.setCustomNameVisible(this.size > 1);
+        this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
         this.item.setCustomName(displayString);
     }
 
