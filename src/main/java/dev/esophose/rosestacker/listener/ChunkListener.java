@@ -22,7 +22,7 @@ public class ChunkListener implements Listener {
 
         if (event.isNewChunk()) {
             for (Entity entity : event.getChunk().getEntities())
-                stackManager.createStackFromEntity(entity);
+                stackManager.createStackFromEntity(entity, true);
         } else {
             stackManager.loadChunk(event.getChunk());
         }

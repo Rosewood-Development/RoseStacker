@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class StackedEntity extends Stack {
 
@@ -135,7 +136,7 @@ public class StackedEntity extends Stack {
         if (this.getStackSize() > 1) {
             String displayString = ChatColor.translateAlternateColorCodes('&', Locale.STACK_DISPLAY.get()
                     .replaceAll("%amount%", String.valueOf(this.getStackSize()))
-                    .replaceAll("%name%", this.stackSettings.getDisplayName()));
+                    .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
 
             this.entity.setCustomNameVisible(true);
             this.entity.setCustomName(displayString);

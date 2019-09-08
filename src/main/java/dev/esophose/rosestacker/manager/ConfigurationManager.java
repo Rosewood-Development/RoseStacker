@@ -31,13 +31,27 @@ public class ConfigurationManager extends Manager {
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),
         ENTITY_MIN_STACK_SIZE("global-entity-settings.min-stack-size", 2, "The minimum number of nearby entities required to form a stack", "Do not set this lower than 2"),
         ENTITY_MAX_STACK_SIZE("global-entity-settings.max-stack-size", 128, "The maximum number of entities that can be in a single stack"),
+        ENTITY_MERGE_RADIUS("global-entity-settings.merge-radius", 5, "How close to entities need to be to merge with each other?"),
         ENTITY_KILL_ENTIRE_STACK_ON_DEATH("global-entity-settings.kill-entire-stack-on-death", false, "Should the entire stack of entities always be killed when the main entity dies?"),
         ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", Collections.singletonList("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_STACK_TO_BOTTOM("global-entity-settings.stack-to-bottom", false, "Should newly stacked entities be put on the bottom of the stack?"),
         ENTITY_REQUIRE_LINE_OF_SIGHT("global-entity-settings.require-line-of-sight", true, "Do entities need to be able to see each other to be able to stack?", "Setting this to true will prevent entities from stacking through walls"),
-        ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, ect"),
+        ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, etc"),
+
+        GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
+        ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
+        ITEM_MAX_STACK_SIZE("global-item-settings.max-stack-size", 1024, "The maximum number of items that can be in a single stack"),
+        ITEM_MERGE_RADIUS("global-item-settings.merge-radius", 2.5, "How close do items need to be to merge with each other?"),
+
+        GLOBAL_BLOCK_SETTINGS("global-block-settings", null, "Global block settings", "Changed values in block_settings.yml will override these values"),
+        BLOCK_STACKING_ENABLED("global-block-settings.stacking-enabled", true, "Should block stacking be enabled at all?"),
+        BLOCK_MAX_STACK_SIZE("global-block-settings.max-stack-size", 512, "The maximum number of blocks that can be in a single stack"),
+
+        GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml willw override these values"),
+        SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should spawner stacking be enabled at all?"),
+        SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 64, "The maximum number of spawners that can be in a single stack"),
 
         MYSQL_SETTINGS("mysql-settings", null, "Settings for if you want to use MySQL for data management"),
         MYSQL_ENABLED("mysql-settings.enabled", false, "Enable MySQL", "If false, SQLite will be used instead"),
@@ -74,7 +88,7 @@ public class ConfigurationManager extends Manager {
          */
         public int getInt() {
             this.loadValue();
-            return (int) this.value;
+            return (int) this.getNumber();
         }
 
         /**
@@ -82,7 +96,7 @@ public class ConfigurationManager extends Manager {
          */
         public long getLong() {
             this.loadValue();
-            return (long) this.value;
+            return (long) this.getNumber();
         }
 
         /**
@@ -90,7 +104,7 @@ public class ConfigurationManager extends Manager {
          */
         public double getDouble() {
             this.loadValue();
-            return (double) this.value;
+            return this.getNumber();
         }
 
         /**
@@ -99,6 +113,20 @@ public class ConfigurationManager extends Manager {
         public String getString() {
             this.loadValue();
             return (String) this.value;
+        }
+
+        private double getNumber() {
+            if (this.value instanceof Integer) {
+                return (int) this.value;
+            } else if (this.value instanceof Short) {
+                return (short) this.value;
+            } else if (this.value instanceof Byte) {
+                return (byte) this.value;
+            } else if (this.value instanceof Float) {
+                return (float) this.value;
+            }
+
+            return (double) this.value;
         }
 
         /**

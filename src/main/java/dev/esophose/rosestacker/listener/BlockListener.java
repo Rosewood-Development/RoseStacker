@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedSpawner;
@@ -193,12 +194,22 @@ public class BlockListener implements Listener {
                 if (stackedSpawner == null)
                     stackedSpawner = (StackedSpawner) stackManager.createStackFromBlock(against, 1);
 
+                if (stackedSpawner.getStackSize() + stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
                 stackedSpawner.increaseStackSize(stackAmount);
             } else {
                 // Handle normal block stacking
                 StackedBlock stackedBlock = stackManager.getStackedBlock(against);
                 if (stackedBlock == null)
                     stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
+
+                if (stackedBlock.getStackSize() + stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+                    event.setCancelled(true);
+                    return;
+                }
 
                 stackedBlock.increaseStackSize(stackAmount);
             }
@@ -227,6 +238,11 @@ public class BlockListener implements Listener {
             // Don't bother creating a stack if we're only placing 1 of them
             if (stackAmount == 1)
                 return;
+
+            if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+                event.setCancelled(true);
+                return;
+            }
 
             stackManager.createStackFromBlock(block, stackAmount);
         }

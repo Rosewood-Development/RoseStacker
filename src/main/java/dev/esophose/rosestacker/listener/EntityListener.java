@@ -41,7 +41,7 @@ public class EntityListener implements Listener {
             return;
 
         if (event.getEntity() instanceof Item)
-            stackManager.createStackFromEntity(event.getEntity());
+            stackManager.createStackFromEntity(event.getEntity(), true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -57,7 +57,7 @@ public class EntityListener implements Listener {
                 movementAttribute.setBaseValue(0);
         }
 
-        this.roseStacker.getStackManager().createStackFromEntity(event.getEntity());
+        this.roseStacker.getStackManager().createStackFromEntity(event.getEntity(), true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -127,6 +127,7 @@ public class EntityListener implements Listener {
     private void handleEntityTransformation(EntityTransformEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
         if (!(event.getEntity() instanceof LivingEntity)
+                || !(event.getTransformedEntity() instanceof LivingEntity)
                 || event.getEntity().getType() == event.getTransformedEntity().getType()
                 || !stackManager.isEntityStacked(event.getEntity()))
             return;
@@ -135,10 +136,18 @@ public class EntityListener implements Listener {
         if (stackedEntity.getStackSize() == 1)
             return;
 
-        Entity transformedEntity = event.getTransformedEntity();
+        LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
+            String serialized = EntitySerializer.toNBTString(transformedEntity);
+            event.setCancelled(true);
+            event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
-                StackedEntity newStack = stackManager.getStackedEntity(transformedEntity);
+                stackManager.setEntityStackingDisabled(true);
+                StackedEntity newStack = (StackedEntity) stackManager.createStackFromEntity(EntitySerializer.fromNBTString(serialized, transformedEntity.getLocation()), false);
+                stackManager.setEntityStackingDisabled(false);
+                if (newStack == null)
+                    return;
+
                 for (String serializedEntity : stackedEntity.getStackedEntityNBTStrings())
                     newStack.increaseStackSize(EntitySerializer.getNBTStringAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
             });

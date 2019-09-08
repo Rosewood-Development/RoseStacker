@@ -53,10 +53,10 @@ public class StackManager extends Manager implements Runnable {
     public StackManager(RoseStacker roseStacker) {
         super(roseStacker);
 
-        this.stackedItems = new HashSet<>();
-        this.stackedBlocks = new HashSet<>();
-        this.stackedSpawners = new HashSet<>();
-        this.stackedEntities = new HashSet<>();
+        this.stackedItems = Collections.synchronizedSet(new HashSet<>());
+        this.stackedBlocks = Collections.synchronizedSet(new HashSet<>());
+        this.stackedSpawners = Collections.synchronizedSet(new HashSet<>());
+        this.stackedEntities = Collections.synchronizedSet(new HashSet<>());
 
         this.deletedStacks = new HashSet<>();
         this.stackableBlockMaterials = new HashSet<>();
@@ -119,7 +119,7 @@ public class StackManager extends Manager implements Runnable {
         for (World world : Bukkit.getWorlds())
             for (Entity entity : world.getEntities())
                 if (!this.isEntityStacked(entity))
-                    this.createStackFromEntity(entity);
+                    this.createStackFromEntity(entity, true);
     }
 
     @Override
@@ -128,6 +128,9 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public StackedItem getStackedItem(Item item) {
+        if (!Setting.ITEM_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(item))
+            return null;
+
         for (StackedItem stackedItem : this.stackedItems)
             if (stackedItem.getItem().getUniqueId().equals(item.getUniqueId()))
                 return stackedItem;
@@ -135,6 +138,9 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public StackedBlock getStackedBlock(Block block) {
+        if (!Setting.BLOCK_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block))
+            return null;
+
         for (StackedBlock stackedBlock : this.stackedBlocks)
             if (stackedBlock.getBlock().equals(block))
                 return stackedBlock;
@@ -142,6 +148,9 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public StackedSpawner getStackedSpawner(Block block) {
+        if (!Setting.SPAWNER_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block))
+            return null;
+
         for (StackedSpawner stackedSpawner : this.stackedSpawners)
             if (stackedSpawner.getSpawner().getBlock().equals(block))
                 return stackedSpawner;
@@ -149,6 +158,9 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public StackedEntity getStackedEntity(Entity entity) {
+        if (!Setting.ENTITY_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(entity))
+            return null;
+
         for (StackedEntity stackedEntity : this.stackedEntities)
             if (stackedEntity.getEntity().getUniqueId().equals(entity.getUniqueId()))
                 return stackedEntity;
@@ -185,6 +197,24 @@ public class StackManager extends Manager implements Runnable {
      */
     public boolean isBlockTypeStackable(Block block) {
         return this.stackableBlockMaterials.contains(block.getType());
+    }
+
+    public boolean isWorldDisabled(Entity entity) {
+        return this.isWorldDisabled(entity.getLocation().getWorld());
+    }
+
+    public boolean isWorldDisabled(Block block) {
+        return this.isWorldDisabled(block.getLocation());
+    }
+
+    public boolean isWorldDisabled(Location location) {
+        return this.isWorldDisabled(location.getWorld());
+    }
+
+    public boolean isWorldDisabled(World world) {
+        if (world == null)
+            return true;
+        return Setting.DISABLED_WORLDS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(world.getName()));
     }
 
     public void removeItem(StackedItem stackedItem) {
@@ -241,15 +271,31 @@ public class StackManager extends Manager implements Runnable {
         return newlySplit;
     }
 
-    public Stack createStackFromEntity(Entity entity) {
+    /**
+     * Creates a StackedEntity or StackedItem from the given entity
+     *
+     * @param entity The entity to create a stack from
+     * @param tryStack Whether or not to try to stack the mob instantly
+     * @return The newly created stack, or null if one wasn't created
+     */
+    public Stack createStackFromEntity(Entity entity, boolean tryStack) {
+        if (this.isWorldDisabled(entity))
+            return null;
+
         Stack newStack = null;
 
         if (entity instanceof Item) {
+            if (!Setting.ITEM_STACKING_ENABLED.getBoolean())
+                return null;
+
             Item item = (Item) entity;
             StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
             this.stackedItems.add(newStackedItem);
             newStack = newStackedItem;
         } else if (entity instanceof LivingEntity) {
+            if (!Setting.ENTITY_STACKING_ENABLED.getBoolean())
+                return null;
+
             LivingEntity livingEntity = (LivingEntity) entity;
             if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
                 return null;
@@ -259,20 +305,29 @@ public class StackManager extends Manager implements Runnable {
             newStack = newStackedEntity;
         }
 
-        if (newStack != null)
+        if (newStack != null && tryStack)
             this.tryStackEntity(newStack);
 
         return newStack;
     }
 
     public Stack createStackFromBlock(Block block, int amount) {
+        if (this.isWorldDisabled(block))
+            return null;
+
         Stack newStack;
 
         if (block.getType() == Material.SPAWNER) {
+            if (!Setting.SPAWNER_STACKING_ENABLED.getBoolean())
+                return null;
+
             StackedSpawner stackedSpawner = new StackedSpawner(amount, (CreatureSpawner) block.getState());
             this.stackedSpawners.add(stackedSpawner);
             newStack = stackedSpawner;
         } else {
+            if (!Setting.BLOCK_STACKING_ENABLED.getBoolean())
+                return null;
+
             StackedBlock stackedBlock = new StackedBlock(amount, block);
             this.stackedBlocks.add(stackedBlock);
             newStack = stackedBlock;
@@ -341,7 +396,6 @@ public class StackManager extends Manager implements Runnable {
     @Override
     public void run() {
         Set<Stack> removed = new HashSet<>();
-        Set<StackedEntity> addedEntities = new HashSet<>();
 
         // Auto stack items
         for (StackedItem stackedItem : new HashSet<>(this.stackedItems)) {
@@ -401,9 +455,6 @@ public class StackManager extends Manager implements Runnable {
      * @return if a stack was deleted, the stack that was deleted, otherwise null
      */
     private Stack tryStackEntity(Stack stack) {
-        double maxItemStackDistanceSqrd = 1.5 * 1.5; // How far away should we stack items? // TODO: Configurable
-        double maxEntityStackDistanceSqrd = 3 * 3; // How far away should we stack entities? // TODO: Configurable
-
         // TODO: Group by world
 
         if (stack instanceof StackedItem) {
@@ -412,12 +463,15 @@ public class StackManager extends Manager implements Runnable {
             if (stackedItem.getItem().getPickupDelay() > stackedItem.getItem().getPickupDelay())
                 return null;
 
+            double maxItemStackDistanceSqrd = Setting.ITEM_MERGE_RADIUS.getDouble() * Setting.ITEM_MERGE_RADIUS.getDouble();
+
             for (StackedItem other : this.stackedItems) {
                 if (stackedItem == other
                         || !other.getItem().isValid()
                         || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                         || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
-                        || other.getItem().getPickupDelay() > other.getItem().getTicksLived())
+                        || other.getItem().getPickupDelay() > other.getItem().getTicksLived()
+                        || stackedItem.getStackSize() + other.getStackSize() > Setting.ITEM_MAX_STACK_SIZE.getInt())
                     continue;
 
                 // Check if we should merge the stacks
@@ -435,6 +489,8 @@ public class StackManager extends Manager implements Runnable {
             }
         } else if (stack instanceof StackedEntity) {
             StackedEntity stackedEntity = (StackedEntity) stack;
+
+            double maxEntityStackDistanceSqrd = Setting.ENTITY_MERGE_RADIUS.getDouble() * Setting.ENTITY_MERGE_RADIUS.getDouble();
 
             for (StackedEntity other : this.stackedEntities) {
                 if (stackedEntity == other
