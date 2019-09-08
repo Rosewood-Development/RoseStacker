@@ -37,13 +37,13 @@ public class StackManager extends Manager implements Runnable {
 
     private BukkitTask task;
 
-    private Set<StackedBlock> stackedBlocks;
-    private Set<StackedEntity> stackedEntities;
-    private Set<StackedItem> stackedItems;
-    private Set<StackedSpawner> stackedSpawners;
+    private final Set<StackedBlock> stackedBlocks;
+    private final Set<StackedEntity> stackedEntities;
+    private final Set<StackedItem> stackedItems;
+    private final Set<StackedSpawner> stackedSpawners;
 
-    private Set<Stack> deletedStacks;
-    private Set<Material> stackableBlockMaterials;
+    private final Set<Stack> deletedStacks;
+    private final Set<Material> stackableBlockMaterials;
 
     private boolean isEntityStackingDisabled;
 
@@ -125,6 +125,13 @@ public class StackManager extends Manager implements Runnable {
     @Override
     public void disable() {
         this.task.cancel();
+
+        // Save anything that's loaded
+        DataManager dataManager = this.roseStacker.getDataManager();
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks, false);
+        dataManager.createOrUpdateStackedEntities(this.stackedEntities, false);
+        dataManager.createOrUpdateStackedItems(this.stackedItems, false);
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners, false);
     }
 
     public StackedItem getStackedItem(Item item) {

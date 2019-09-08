@@ -91,12 +91,12 @@ public class RoseStacker extends JavaPlugin {
      * Disables most of the plugin
      */
     public void disable() {
+        this.managers.forEach(Manager::disable);
         this.configurationManager.disable();
         this.localeManager.disable();
         this.dataManager.disable();
         this.dataMigrationManager.disable();
         this.stackSettingManager.disable();
-        this.managers.forEach(Manager::disable);
     }
 
     /**
