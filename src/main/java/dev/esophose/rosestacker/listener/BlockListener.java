@@ -81,7 +81,7 @@ public class BlockListener implements Listener {
             }
 
             if (stackedSpawner.getStackSize() <= 1)
-                stackManager.removeBlock(block);
+                stackManager.removeSpawner(stackedSpawner);
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
             if (breakEverything) {
@@ -96,7 +96,7 @@ public class BlockListener implements Listener {
             }
 
             if (stackedBlock.getStackSize() <= 1)
-                stackManager.removeBlock(block);
+                stackManager.removeBlock(stackedBlock);
         }
 
         event.setCancelled(true);
@@ -162,7 +162,6 @@ public class BlockListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         StackManager stackManager = this.roseStacker.getStackManager();
         // TODO: auto stack range
-        // TODO: max stack size
 
         Player player = event.getPlayer();
         Block block = event.getBlock();

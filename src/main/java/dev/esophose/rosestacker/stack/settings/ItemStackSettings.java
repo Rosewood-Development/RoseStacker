@@ -25,7 +25,7 @@ public class ItemStackSettings extends StackSettings<StackedItem> {
         if (!this.enabled)
             return false;
 
-        return false;
+        return true;
     }
 
     @Override

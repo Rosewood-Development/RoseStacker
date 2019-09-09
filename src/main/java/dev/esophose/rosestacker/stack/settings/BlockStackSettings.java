@@ -30,7 +30,7 @@ public class BlockStackSettings extends StackSettings<StackedBlock> {
         if (!this.enabled)
             return false;
 
-        return false;
+        return true;
     }
 
     @Override

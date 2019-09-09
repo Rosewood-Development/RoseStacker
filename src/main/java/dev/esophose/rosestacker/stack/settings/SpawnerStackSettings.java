@@ -28,7 +28,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         if (!this.enabled)
             return false;
 
-        return false;
+        return true;
     }
 
     @Override

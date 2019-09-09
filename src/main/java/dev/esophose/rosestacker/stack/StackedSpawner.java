@@ -85,9 +85,11 @@ public class StackedSpawner extends Stack {
     }
 
     private void updateSpawnCount() {
+        int delay = this.spawner.getDelay();
         this.spawner.setSpawnCount(this.size * 4);
         this.spawner.setMaxNearbyEntities(6 + (this.size - 1) * 4);
         this.spawner.update();
+        this.spawner.setDelay(delay);
     }
 
 }

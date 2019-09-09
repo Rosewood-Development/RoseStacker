@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 public class EntityListener implements Listener {
 
@@ -65,6 +66,9 @@ public class EntityListener implements Listener {
             if (movementAttribute != null)
                 movementAttribute.setBaseValue(0);
         }
+
+        // Tag the entity as spawned from a spawner
+        entity.setMetadata("spawner_spawned", new FixedMetadataValue(this.roseStacker, true));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

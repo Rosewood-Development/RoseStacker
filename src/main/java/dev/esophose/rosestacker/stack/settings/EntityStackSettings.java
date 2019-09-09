@@ -157,6 +157,9 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
                 return false;
         }
 
+        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean() && (!entity1.hasMetadata("spawner_spawned") || !entity2.hasMetadata("spawner_spawned")))
+            return false;
+
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;
             Colorable colorable2 = (Colorable) entity2;

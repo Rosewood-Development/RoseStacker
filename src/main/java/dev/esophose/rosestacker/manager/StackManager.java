@@ -216,7 +216,7 @@ public class StackManager extends Manager implements Runnable {
      */
     public boolean isBlockTypeStackable(Block block) {
         BlockStackSettings blockStackSettings = this.roseStacker.getStackSettingManager().getBlockStackSettings(block);
-        return blockStackSettings.isStackingEnabled();
+        return blockStackSettings.isStackingEnabled() || block.getType() == Material.SPAWNER;
     }
 
     public boolean isWorldDisabled(Entity entity) {
@@ -238,24 +238,31 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public void removeItem(StackedItem stackedItem) {
+        if (!this.isEntityStacked(stackedItem.getItem()))
+            return;
+
         this.deletedStacks.add(stackedItem);
     }
 
     public void removeEntity(StackedEntity stackedEntity) {
+        if (!this.isEntityStacked(stackedEntity.getEntity()))
+            return;
+
         this.deletedStacks.add(stackedEntity);
     }
 
-    public void removeBlock(Block block) {
-        if (!this.isBlockStacked(block))
+    public void removeBlock(StackedBlock stackedBlock) {
+        if (!this.isBlockStacked(stackedBlock.getBlock()))
             return;
 
-        if (block.getType() == Material.SPAWNER) {
-            StackedSpawner stackedSpawner = this.getStackedSpawner(block);
-            this.deletedStacks.add(stackedSpawner);
-        } else {
-            StackedBlock stackedBlock = this.getStackedBlock(block);
-            this.deletedStacks.add(stackedBlock);
-        }
+        this.deletedStacks.add(stackedBlock);
+    }
+
+    public void removeSpawner(StackedSpawner stackedSpawner) {
+        if (!this.isBlockStacked(stackedSpawner.getSpawner().getBlock()))
+            return;
+
+        this.deletedStacks.add(stackedSpawner);
     }
 
     /**
