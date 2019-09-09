@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 public class StackManager extends Manager implements Runnable {
 
     private BukkitTask task;
+    private BukkitTask cleanupTask;
 
     private final Set<StackedBlock> stackedBlocks;
     private final Set<StackedEntity> stackedEntities;
@@ -69,6 +70,9 @@ public class StackManager extends Manager implements Runnable {
     public void reload() {
         if (this.task != null)
             this.task.cancel();
+
+        if (this.cleanupTask != null)
+            this.cleanupTask.cancel();
 
         this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, Setting.STACK_FREQUENCY.getInt());
         this.stackSettingManager = this.roseStacker.getStackSettingManager();
@@ -107,6 +111,18 @@ public class StackManager extends Manager implements Runnable {
             if (allEntitiesLoaded.getAndSet(true))
                 this.populateUnstackedEntities();
         });
+
+        // Cleans up entities that aren't stacked
+        this.cleanupTask = Bukkit.getScheduler().runTaskTimer(this.roseStacker, () -> {
+            for (World world : Bukkit.getWorlds()) {
+                if (this.isWorldDisabled(world))
+                    continue;
+
+                for (LivingEntity entity : world.getLivingEntities())
+                    if (!this.isEntityStacked(entity))
+                        this.createStackFromEntity(entity, true);
+            }
+        }, 100L, 100L);
     }
 
     private void populateUnstackedEntities() {
