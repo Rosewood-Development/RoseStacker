@@ -20,6 +20,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Flying;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -556,6 +557,9 @@ public class StackManager extends Manager implements Runnable {
         } else {
             return null;
         }
+
+        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && entity1 instanceof Flying)
+            return entity1.getLocation().getY() < entity2.getLocation().getY() ? stack1 : stack2;
 
         if (stack1.getStackSize() == stack2.getStackSize())
             return entity1.getTicksLived() > entity2.getTicksLived() ? stack1 : stack2;
