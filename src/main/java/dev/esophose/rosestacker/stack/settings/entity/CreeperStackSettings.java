@@ -13,7 +13,7 @@ public class CreeperStackSettings extends EntityStackSettings {
     public CreeperStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfCharged = this.entitySettingsConfiguration.getBoolean("dont-stack-if-charged");
+        this.dontStackIfCharged = this.settingsConfiguration.getBoolean("dont-stack-if-charged");
     }
 
     @Override

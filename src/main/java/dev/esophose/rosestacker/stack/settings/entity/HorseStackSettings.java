@@ -15,9 +15,9 @@ public class HorseStackSettings extends EntityStackSettings {
     public HorseStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfArmored = this.entitySettingsConfiguration.getBoolean("dont-stack-if-armored");
-        this.dontStackIfDifferentStyle = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-style");
-        this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
+        this.dontStackIfArmored = this.settingsConfiguration.getBoolean("dont-stack-if-armored");
+        this.dontStackIfDifferentStyle = this.settingsConfiguration.getBoolean("dont-stack-if-different-style");
+        this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
     }
 
     @Override

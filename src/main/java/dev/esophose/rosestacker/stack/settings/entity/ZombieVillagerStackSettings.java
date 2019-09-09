@@ -15,9 +15,9 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     public ZombieVillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentProfession = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-profession");
-        this.dontStackIfConverting = this.entitySettingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
+        this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
+        this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
+        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override

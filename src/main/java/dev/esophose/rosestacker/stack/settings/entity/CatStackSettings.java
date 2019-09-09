@@ -14,8 +14,8 @@ public class CatStackSettings extends EntityStackSettings {
     public CatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentType = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentCollarColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
+        this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentCollarColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
     }
 
     @Override

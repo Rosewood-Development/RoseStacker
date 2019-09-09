@@ -7,6 +7,9 @@ import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.StackedItem;
 import dev.esophose.rosestacker.stack.StackedSpawner;
+import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -43,7 +46,6 @@ public class StackManager extends Manager implements Runnable {
     private final Set<StackedSpawner> stackedSpawners;
 
     private final Set<Stack> deletedStacks;
-    private final Set<Material> stackableBlockMaterials;
 
     private boolean isEntityStackingDisabled;
 
@@ -59,7 +61,6 @@ public class StackManager extends Manager implements Runnable {
         this.stackedEntities = Collections.synchronizedSet(new HashSet<>());
 
         this.deletedStacks = new HashSet<>();
-        this.stackableBlockMaterials = new HashSet<>();
 
         this.isEntityStackingDisabled = false;
     }
@@ -85,12 +86,6 @@ public class StackManager extends Manager implements Runnable {
         this.stackedEntities.clear();
         this.stackedItems.clear();
         this.stackedSpawners.clear();
-
-        this.stackableBlockMaterials.clear();
-
-        for (String materialName : Setting.STACKABLE_BLOCKS.getStringList())
-            this.stackableBlockMaterials.add(Material.matchMaterial(materialName));
-        this.stackableBlockMaterials.add(Material.SPAWNER);
 
         // Load all existing entities in the worlds that are saved
         Set<Chunk> chunks = new HashSet<>();
@@ -203,7 +198,8 @@ public class StackManager extends Manager implements Runnable {
      * @return true if the block is stackable, otherwise false
      */
     public boolean isBlockTypeStackable(Block block) {
-        return this.stackableBlockMaterials.contains(block.getType());
+        BlockStackSettings blockStackSettings = this.roseStacker.getStackSettingManager().getBlockStackSettings(block);
+        return blockStackSettings.isStackingEnabled();
     }
 
     public boolean isWorldDisabled(Entity entity) {
@@ -478,11 +474,13 @@ public class StackManager extends Manager implements Runnable {
                         || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                         || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
                         || other.getItem().getPickupDelay() > other.getItem().getTicksLived()
-                        || stackedItem.getStackSize() + other.getStackSize() > Setting.ITEM_MAX_STACK_SIZE.getInt())
+                        || stackedItem.getStackSize() + other.getStackSize() > Setting.ITEM_MAX_STACK_SIZE.getInt()
+                        || stackedItem.getLocation().distanceSquared(other.getLocation()) > maxItemStackDistanceSqrd)
                     continue;
 
                 // Check if we should merge the stacks
-                if (stackedItem.getLocation().distanceSquared(other.getLocation()) <= maxItemStackDistanceSqrd) {
+                ItemStackSettings stackSettings = this.stackSettingManager.getItemStackSettings(stackedItem.getItem());
+                if (stackSettings.canStackWith(stackedItem, other, false)) {
                     StackedItem increased = (StackedItem) this.getPreferredEntityStack(stackedItem, other);
                     StackedItem removed = increased == stackedItem ? other : stackedItem;
 
@@ -510,7 +508,8 @@ public class StackManager extends Manager implements Runnable {
                     continue;
 
                 // Check if we should merge the stacks
-                if (this.stackSettingManager.canEntitiesBeStacked(stackedEntity, other)) {
+                EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
+                if (stackSettings.canStackWith(stackedEntity, other, false)) {
                     if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity()))
                         return null;
 

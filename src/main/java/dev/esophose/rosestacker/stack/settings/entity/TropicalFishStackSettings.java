@@ -15,9 +15,9 @@ public class TropicalFishStackSettings extends EntityStackSettings {
     public TropicalFishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentBodyColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-body-color");
-        this.dontStackIfDifferentPattern = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern");
-        this.dontStackIfDifferentPatternColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-pattern-color");
+        this.dontStackIfDifferentBodyColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-body-color");
+        this.dontStackIfDifferentPattern = this.settingsConfiguration.getBoolean("dont-stack-if-different-pattern");
+        this.dontStackIfDifferentPatternColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-pattern-color");
     }
 
     @Override

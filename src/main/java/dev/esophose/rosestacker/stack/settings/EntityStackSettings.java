@@ -1,7 +1,6 @@
 package dev.esophose.rosestacker.stack.settings;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
-import dev.esophose.rosestacker.config.CommentedConfigurationSection;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -19,9 +18,7 @@ import org.bukkit.entity.WaterMob;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
-public abstract class EntityStackSettings {
-
-    protected CommentedConfigurationSection entitySettingsConfiguration;
+public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
 
     // Settings that apply to every entity
     private boolean enabled;
@@ -53,50 +50,50 @@ public abstract class EntityStackSettings {
     private Boolean isRaider;
     private Boolean isMerchant;
 
-    public EntityStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        this.entitySettingsConfiguration = entitySettingsFileConfiguration.getConfigurationSection(this.getEntityType().name());
-        if (this.entitySettingsConfiguration == null)
-            this.entitySettingsConfiguration = entitySettingsFileConfiguration.createSection(this.getEntityType().name());
-
+    public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration) {
+        super(settingsFileConfiguration);
         this.setDefaults();
 
-        this.enabled = this.entitySettingsConfiguration.getBoolean("enabled");
-        this.displayName = this.entitySettingsConfiguration.getString("display-name");
-        this.minStackSize = this.entitySettingsConfiguration.getInt("min-stack-size");
-        this.maxStackSize = this.entitySettingsConfiguration.getInt("max-stack-size");
-        this.killEntireStackOnDeath = this.entitySettingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
+        this.enabled = this.settingsConfiguration.getBoolean("enabled");
+        this.displayName = this.settingsConfiguration.getString("display-name");
+        this.minStackSize = this.settingsConfiguration.getInt("min-stack-size");
+        this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
+        this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
 
         if (this.isEntityColorable())
-            this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
+            this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
 
         if (this.isEntitySittable())
-            this.dontStackIfSitting = this.entitySettingsConfiguration.getBoolean("dont-stack-if-sitting");
+            this.dontStackIfSitting = this.settingsConfiguration.getBoolean("dont-stack-if-sitting");
 
         if (this.isEntityTameable()) {
-            this.dontStackIfTamed = this.entitySettingsConfiguration.getBoolean("dont-stack-if-tamed");
-            this.dontStackIfDifferentOwners = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-owners");
+            this.dontStackIfTamed = this.settingsConfiguration.getBoolean("dont-stack-if-tamed");
+            this.dontStackIfDifferentOwners = this.settingsConfiguration.getBoolean("dont-stack-if-different-owners");
         }
 
         if (this.isEntityAnimals()) {
-            this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
-            this.dontStackIfBaby = this.entitySettingsConfiguration.getBoolean("dont-stack-if-baby");
-            this.dontStackIfBreeding = this.entitySettingsConfiguration.getBoolean("dont-stack-if-breeding");
+            this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
+            this.dontStackIfBaby = this.settingsConfiguration.getBoolean("dont-stack-if-baby");
+            this.dontStackIfBreeding = this.settingsConfiguration.getBoolean("dont-stack-if-breeding");
         }
 
         if (this.isEntityAbstractHorse())
-            this.dontStackIfSaddled = this.entitySettingsConfiguration.getBoolean("dont-stack-if-saddled");
+            this.dontStackIfSaddled = this.settingsConfiguration.getBoolean("dont-stack-if-saddled");
 
         if (this.isEntityChestedHorse())
-            this.dontStackIfChested = this.entitySettingsConfiguration.getBoolean("dont-stack-if-chested");
+            this.dontStackIfChested = this.settingsConfiguration.getBoolean("dont-stack-if-chested");
 
         if (this.isEntityRaider())
-            this.dontStackIfPatrolLeader = this.entitySettingsConfiguration.getBoolean("dont-stack-if-patrol-leader");
+            this.dontStackIfPatrolLeader = this.settingsConfiguration.getBoolean("dont-stack-if-patrol-leader");
 
         if (this.isEntityMerchant())
-            this.dontStackIfTrading = this.entitySettingsConfiguration.getBoolean("dont-stack-if-trading");
+            this.dontStackIfTrading = this.settingsConfiguration.getBoolean("dont-stack-if-trading");
     }
 
-    private void setDefaults() {
+    @Override
+    protected void setDefaults() {
+        super.setDefaults();
+
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.getEntityType().name()));
         this.setIfNotExists("min-stack-size", -1);
@@ -135,10 +132,7 @@ public abstract class EntityStackSettings {
         this.setDefaultsInternal();
     }
 
-    public boolean canStackWith(StackedEntity stack1, StackedEntity stack2) {
-        return this.canStackWith(stack1, stack2, false);
-    }
-
+    @Override
     public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
         if (!this.enabled)
             return false;
@@ -224,7 +218,7 @@ public abstract class EntityStackSettings {
             Raider raider1 = (Raider) entity1;
             Raider raider2 = (Raider) entity2;
 
-            if (this.dontStackIfPatrolLeader && raider1.isPatrolLeader() || raider2.isPatrolLeader())
+            if (this.dontStackIfPatrolLeader && (raider1.isPatrolLeader() || raider2.isPatrolLeader()))
                 return false;
         }
 
@@ -239,9 +233,9 @@ public abstract class EntityStackSettings {
         return this.canStackWithInternal(stack1, stack2);
     }
 
-    protected void setIfNotExists(String setting, Object value) {
-        if (this.entitySettingsConfiguration.get(setting) == null)
-            this.entitySettingsConfiguration.set(setting, value);
+    @Override
+    public String getConfigurationSectionKey() {
+        return this.getEntityType().name();
     }
 
     private boolean isEntityColorable() {

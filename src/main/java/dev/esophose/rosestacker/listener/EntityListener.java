@@ -4,20 +4,17 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedEntity;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
-import net.minecraft.server.v1_14_R1.EntityZombie;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -25,6 +22,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PigZapEvent;
+import org.bukkit.event.entity.SpawnerSpawnEvent;
 
 public class EntityListener implements Listener {
 
@@ -50,14 +48,23 @@ public class EntityListener implements Listener {
         if (stackManager.isEntityStackingDisabled())
             return;
 
+        this.roseStacker.getStackManager().createStackFromEntity(event.getEntity(), true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSpawnerSpawn(SpawnerSpawnEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        SpawnerStackSettings spawnerStackSettings = this.roseStacker.getStackSettingManager().getSpawnerStackSettings(event.getSpawner());
+
         // TODO: Custom spawner mob properties
-        if (event.getSpawnReason() == SpawnReason.SPAWNER) {
-            AttributeInstance movementAttribute = event.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (spawnerStackSettings.isMobAIDisabled()) {
+            AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
             if (movementAttribute != null)
                 movementAttribute.setBaseValue(0);
         }
-
-        this.roseStacker.getStackManager().createStackFromEntity(event.getEntity(), true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

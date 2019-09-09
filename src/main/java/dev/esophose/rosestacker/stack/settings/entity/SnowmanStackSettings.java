@@ -13,7 +13,7 @@ public class SnowmanStackSettings extends EntityStackSettings {
     public SnowmanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfNoPumpkin = this.entitySettingsConfiguration.getBoolean("dont-stack-if-no-pumpkin");
+        this.dontStackIfNoPumpkin = this.settingsConfiguration.getBoolean("dont-stack-if-no-pumpkin");
     }
 
     @Override

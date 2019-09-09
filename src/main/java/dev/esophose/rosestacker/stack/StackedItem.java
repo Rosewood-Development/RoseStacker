@@ -1,8 +1,9 @@
 package dev.esophose.rosestacker.stack;
 
+import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
-import dev.esophose.rosestacker.utils.StackerUtils;
+import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -10,16 +11,22 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.regex.Matcher;
+
 public class StackedItem extends Stack {
 
     private int size;
     private Item item;
+
+    private ItemStackSettings stackSettings;
 
     public StackedItem(int id, int size, Item item) {
         super(id);
 
         this.size = size;
         this.item = item;
+
+        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getItemStackSettings(this.item);
 
         if (Bukkit.isPrimaryThread())
             this.updateDisplay();
@@ -71,12 +78,12 @@ public class StackedItem extends Stack {
                 displayName = ChatColor.stripColor(itemMeta.getDisplayName());
             }
         } else {
-            displayName = StackerUtils.formatName(this.item.getItemStack().getType().name());
+            displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = Locale.STACK_DISPLAY.get()
-                .replaceAll("%amount%", String.valueOf(this.size))
-                .replaceAll("%name%", displayName);
+        String displayString = ChatColor.translateAlternateColorCodes('&', Locale.ITEM_STACK_DISPLAY.get()
+                .replaceAll("%amount%", String.valueOf(this.getStackSize()))
+                .replaceAll("%name%", Matcher.quoteReplacement(displayName)));
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
         this.item.setCustomName(displayString);

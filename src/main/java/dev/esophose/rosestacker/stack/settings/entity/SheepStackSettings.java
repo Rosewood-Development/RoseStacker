@@ -13,7 +13,7 @@ public class SheepStackSettings extends EntityStackSettings {
     public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfSheared = this.entitySettingsConfiguration.getBoolean("dont-stack-if-sheared");
+        this.dontStackIfSheared = this.settingsConfiguration.getBoolean("dont-stack-if-sheared");
     }
 
     @Override

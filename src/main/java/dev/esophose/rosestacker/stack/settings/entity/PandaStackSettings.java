@@ -14,8 +14,8 @@ public class PandaStackSettings extends EntityStackSettings {
     public PandaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentMainGene = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-main-gene");
-        this.dontStackIfDifferentRecessiveGene = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-recessive-gene");
+        this.dontStackIfDifferentMainGene = this.settingsConfiguration.getBoolean("dont-stack-if-different-main-gene");
+        this.dontStackIfDifferentRecessiveGene = this.settingsConfiguration.getBoolean("dont-stack-if-different-recessive-gene");
     }
 
     @Override

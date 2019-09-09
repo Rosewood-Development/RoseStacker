@@ -14,8 +14,8 @@ public class WolfStackSettings extends EntityStackSettings {
     public WolfStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfAngry = this.entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfDifferentCollarColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
+        this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
+        this.dontStackIfDifferentCollarColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-collar-color");
     }
 
     @Override

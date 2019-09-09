@@ -13,7 +13,7 @@ public class EndermanStackSettings extends EntityStackSettings {
     public EndermanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfHoldingBlock = this.entitySettingsConfiguration.getBoolean("dont-stack-if-holding-block");
+        this.dontStackIfHoldingBlock = this.settingsConfiguration.getBoolean("dont-stack-if-holding-block");
     }
 
     @Override

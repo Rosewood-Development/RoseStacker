@@ -13,7 +13,7 @@ public class PufferfishStackSettings extends EntityStackSettings {
     public PufferfishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentInflation = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-inflation");
+        this.dontStackIfDifferentInflation = this.settingsConfiguration.getBoolean("dont-stack-if-different-inflation");
     }
 
     @Override

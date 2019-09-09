@@ -13,7 +13,7 @@ public class VexStackSettings extends EntityStackSettings {
     public VexStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfCharging = this.entitySettingsConfiguration.getBoolean("dont-stack-if-charging");
+        this.dontStackIfCharging = this.settingsConfiguration.getBoolean("dont-stack-if-charging");
     }
 
     @Override

@@ -15,8 +15,8 @@ public class PigZombieStackSettings extends EntityStackSettings {
     public PigZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfAngry = this.entitySettingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
+        this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
+        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override

@@ -33,7 +33,7 @@ public class StackedEntity extends Stack {
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
 
-        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity.getType());
+        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
 
         if (Bukkit.isPrimaryThread())
             this.updateDisplay();
@@ -137,7 +137,7 @@ public class StackedEntity extends Stack {
             return;
 
         if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
-            String displayString = ChatColor.translateAlternateColorCodes('&', Locale.STACK_DISPLAY.get()
+            String displayString = ChatColor.translateAlternateColorCodes('&', Locale.ENTITY_STACK_DISPLAY.get()
                     .replaceAll("%amount%", String.valueOf(this.getStackSize()))
                     .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
 

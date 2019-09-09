@@ -5,8 +5,9 @@ import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.stack.StackedSpawner;
+import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -169,6 +170,17 @@ public class BlockListener implements Listener {
 
         if (against.equals(block))
             against = against.getRelative(BlockFace.DOWN);
+
+        if (block.getType() == Material.SPAWNER) {
+            CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
+            SpawnerStackSettings spawnerStackSettings = this.roseStacker.getStackSettingManager().getSpawnerStackSettings(creatureSpawner);
+            if (!spawnerStackSettings.isStackingEnabled())
+                return;
+        } else {
+            BlockStackSettings blockStackSettings = this.roseStacker.getStackSettingManager().getBlockStackSettings(block);
+            if (!blockStackSettings.isStackingEnabled())
+                return;
+        }
 
         // Get the block in the player's hand that's being placed
         ItemStack placedItem = player.getInventory().getItemInMainHand();

@@ -4,21 +4,28 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
-import dev.esophose.rosestacker.utils.StackerUtils;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
+
+import java.util.regex.Matcher;
 
 public class StackedSpawner extends Stack {
 
     private int size;
     private CreatureSpawner spawner;
 
+    private SpawnerStackSettings stackSettings;
+
     public StackedSpawner(int id, int size, CreatureSpawner spawner) {
         super(id);
 
         this.size = size;
         this.spawner = spawner;
+
+        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
 
         if (Bukkit.isPrimaryThread()) {
             this.updateDisplay();
@@ -70,9 +77,9 @@ public class StackedSpawner extends Stack {
             return;
         }
 
-        String displayString = Locale.STACK_DISPLAY.get()
-                .replaceAll("%amount%", String.valueOf(this.size))
-                .replaceAll("%name%", StackerUtils.formatName(this.spawner.getSpawnedType().name() + "_" + this.spawner.getType().name()));
+        String displayString = ChatColor.translateAlternateColorCodes('&', Locale.SPAWNER_STACK_DISPLAY.get()
+                .replaceAll("%amount%", String.valueOf(this.getStackSize()))
+                .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

@@ -25,7 +25,10 @@ public class LocaleManager extends Manager {
         PREFIX,
         NO_PERMISSION,
 
-        STACK_DISPLAY,
+        ENTITY_STACK_DISPLAY,
+        ITEM_STACK_DISPLAY,
+        BLOCK_STACK_DISPLAY,
+        SPAWNER_STACK_DISPLAY,
 
         COMMAND_RELOAD_DESCRIPTION,
         COMMAND_RELOAD_RELOADED;

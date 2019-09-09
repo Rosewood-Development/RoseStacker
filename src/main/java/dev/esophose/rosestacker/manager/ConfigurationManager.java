@@ -25,8 +25,6 @@ public class ConfigurationManager extends Manager {
         LOCALE("locale", "en_US", "The locale to use in the /locale folder"),
         DISABLED_WORLDS("disabled-worlds", Collections.singletonList("disabled_world_name"), "A list of worlds that the plugin is disabled in"),
 
-        STACKABLE_BLOCKS("stackable-blocks", Arrays.asList("DIAMOND_BLOCK", "GOLD_BLOCK", "IRON_BLOCK", "EMERALD_BLOCK", "LAPIS_BLOCK"), "Which blocks should be stackable?"),
-
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),
         ENTITY_MIN_STACK_SIZE("global-entity-settings.min-stack-size", 2, "The minimum number of nearby entities required to form a stack", "Do not set this lower than 2"),

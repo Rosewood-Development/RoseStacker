@@ -13,7 +13,7 @@ public class IronGolemStackSettings extends EntityStackSettings {
     public IronGolemStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfPlayerCreated = this.entitySettingsConfiguration.getBoolean("dont-stack-if-player-created");
+        this.dontStackIfPlayerCreated = this.settingsConfiguration.getBoolean("dont-stack-if-player-created");
     }
 
     @Override

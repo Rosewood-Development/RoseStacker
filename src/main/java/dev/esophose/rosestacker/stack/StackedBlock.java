@@ -4,21 +4,28 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
-import dev.esophose.rosestacker.utils.StackerUtils;
+import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+
+import java.util.regex.Matcher;
 
 public class StackedBlock extends Stack {
 
     private int size;
     private Block block;
 
+    private BlockStackSettings stackSettings;
+
     public StackedBlock(int id, int size, Block block) {
         super(id);
 
         this.size = size;
         this.block = block;
+
+        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getBlockStackSettings(this.block);
 
         if (Bukkit.isPrimaryThread())
             this.updateDisplay();
@@ -66,9 +73,9 @@ public class StackedBlock extends Stack {
             return;
         }
 
-        String displayString = Locale.STACK_DISPLAY.get()
-                .replaceAll("%amount%", String.valueOf(this.size))
-                .replaceAll("%name%", StackerUtils.formatName(this.block.getType().name()));
+        String displayString = ChatColor.translateAlternateColorCodes('&', Locale.BLOCK_STACK_DISPLAY.get()
+                .replaceAll("%amount%", String.valueOf(this.getStackSize()))
+                .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

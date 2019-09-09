@@ -13,7 +13,7 @@ public class EndermiteStackSettings extends EntityStackSettings {
     public EndermiteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfPlayerSpawned = this.entitySettingsConfiguration.getBoolean("dont-stack-if-player-spawned");
+        this.dontStackIfPlayerSpawned = this.settingsConfiguration.getBoolean("dont-stack-if-player-spawned");
     }
 
     @Override

@@ -81,9 +81,9 @@ public class RoseStacker extends JavaPlugin {
     public void reload() {
         this.configurationManager.reload();
         this.localeManager.reload();
+        this.stackSettingManager.reload();
         this.dataManager.reload();
         this.dataMigrationManager.reload();
-        this.stackSettingManager.reload();
         this.managers.forEach(Manager::reload); // The order doesn't matter for the rest
     }
 
@@ -94,9 +94,9 @@ public class RoseStacker extends JavaPlugin {
         this.managers.forEach(Manager::disable);
         this.configurationManager.disable();
         this.localeManager.disable();
+        this.stackSettingManager.disable();
         this.dataManager.disable();
         this.dataMigrationManager.disable();
-        this.stackSettingManager.disable();
     }
 
     /**

@@ -13,7 +13,7 @@ public class PigStackSettings extends EntityStackSettings {
     public PigStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfSaddled = this.entitySettingsConfiguration.getBoolean("dont-stack-if-saddled");
+        this.dontStackIfSaddled = this.settingsConfiguration.getBoolean("dont-stack-if-saddled");
     }
 
     @Override

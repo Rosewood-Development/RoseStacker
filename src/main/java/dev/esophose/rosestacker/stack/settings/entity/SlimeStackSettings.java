@@ -13,7 +13,7 @@ public class SlimeStackSettings extends EntityStackSettings {
     public SlimeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentSize = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-size");
+        this.dontStackIfDifferentSize = this.settingsConfiguration.getBoolean("dont-stack-if-different-size");
     }
 
     @Override

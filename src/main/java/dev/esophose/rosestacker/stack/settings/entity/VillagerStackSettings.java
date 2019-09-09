@@ -15,9 +15,9 @@ public class VillagerStackSettings extends EntityStackSettings {
     public VillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentProfession = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-profession");
-        this.dontStackIfDifferentType = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentLevel = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-level");
+        this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
+        this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
     }
 
     @Override

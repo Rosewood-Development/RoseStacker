@@ -14,8 +14,8 @@ public class LlamaStackSettings extends EntityStackSettings {
     public LlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentDecor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-decor");
-        this.dontStackIfDifferentColor = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-color");
+        this.dontStackIfDifferentDecor = this.settingsConfiguration.getBoolean("dont-stack-if-different-decor");
+        this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
     }
 
     @Override

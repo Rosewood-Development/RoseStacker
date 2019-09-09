@@ -14,8 +14,8 @@ public class ZombieStackSettings extends EntityStackSettings {
     public ZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfConverting = this.entitySettingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.entitySettingsConfiguration.getBoolean("dont-stack-if-different-age");
+        this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
+        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override
