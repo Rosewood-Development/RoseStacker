@@ -4,6 +4,7 @@ import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
@@ -147,8 +148,12 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
 
-        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
-            if (!entity1.isOnGround() || !entity2.isOnGround())
+        if (!comparingForUnstack && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
+            if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
+                return false;
+
+            if (Setting.ENTITY_DONT_STACK_IN_WATER.getBoolean() &&
+                    (entity1.getLocation().getBlock().getType() == Material.WATER || entity2.getLocation().getBlock().getType() == Material.WATER))
                 return false;
         }
 
@@ -194,7 +199,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
             if (this.dontStackIfBaby && (!animals1.isAdult() || !animals2.isAdult()))
                 return false;
 
-            if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || !animals1.canBreed() || !animals2.canBreed()))
+            if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || (!animals1.canBreed() && animals1.isAdult()) || (!animals2.canBreed() && animals2.isAdult())))
                 return false;
         }
 
