@@ -25,11 +25,13 @@ public class StackedSpawner extends Stack {
         this.size = size;
         this.spawner = spawner;
 
-        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
+        if (this.spawner != null) {
+            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
 
-        if (Bukkit.isPrimaryThread()) {
-            this.updateDisplay();
-            this.updateSpawnCount();
+            if (Bukkit.isPrimaryThread()) {
+                this.updateDisplay();
+                this.updateSpawnCount();
+            }
         }
     }
 

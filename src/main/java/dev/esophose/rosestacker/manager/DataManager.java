@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -76,31 +77,43 @@ public class DataManager extends Manager {
     public void getStackedBlocks(Set<Chunk> chunks, boolean async, Consumer<Set<StackedBlock>> callback) {
         ConnectionCallback query = connection -> {
             Set<StackedBlock> stackedBlocks = new HashSet<>();
+            Set<Stack> cleanup = new HashSet<>();
 
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_block WHERE world = ? AND chunk_x = ? AND chunk_z = ?";
-            try (PreparedStatement statement = connection.prepareStatement(select)) {
-                for (Chunk chunk : chunks) {
-                    statement.setString(1, chunk.getWorld().getName());
-                    statement.setInt(2, chunk.getX());
-                    statement.setInt(3, chunk.getZ());
+            for (Chunk chunk : chunks) {
+                PreparedStatement statement = connection.prepareStatement(select);
+                statement.setString(1, chunk.getWorld().getName());
+                statement.setInt(2, chunk.getX());
+                statement.setInt(3, chunk.getZ());
 
-                    ResultSet result = statement.executeQuery();
-                    while (result.next()) {
-                        int id = result.getInt("id");
-                        int stackSize = result.getInt("stack_size");
-                        int blockX = result.getInt("block_x");
-                        int blockY = result.getInt("block_y");
-                        int blockZ = result.getInt("block_z");
-                        Block block = chunk.getBlock(blockX, blockY, blockZ);
-                        stackedBlocks.add(new StackedBlock(id, stackSize, block));
+                ResultSet result = statement.executeQuery();
+                this.sync(() -> {
+                    try {
+                        while (result.next()) {
+                            int id = result.getInt("id");
+                            int stackSize = result.getInt("stack_size");
+                            int blockX = result.getInt("block_x");
+                            int blockY = result.getInt("block_y");
+                            int blockZ = result.getInt("block_z");
+                            Block block = chunk.getBlock(blockX, blockY, blockZ);
+                            if (block.getType() != Material.AIR) {
+                                stackedBlocks.add(new StackedBlock(id, stackSize, block));
+                            } else {
+                                cleanup.add(new StackedBlock(id, 0, null));
+                            }
+                        }
+
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-                }
-            }
 
-            this.sync(() -> {
-                stackedBlocks.forEach(StackedBlock::updateDisplay);
-                callback.accept(stackedBlocks);
-            });
+                    callback.accept(stackedBlocks);
+
+                    if (!cleanup.isEmpty())
+                        this.async(() -> this.deleteStacks(cleanup));
+                });
+            }
         };
 
         if (async) {
@@ -113,29 +126,42 @@ public class DataManager extends Manager {
     public void getStackedEntities(Set<Chunk> chunks, boolean async, Consumer<Set<StackedEntity>> callback) {
         ConnectionCallback query = connection -> {
             Set<StackedEntity> stackedEntities = new HashSet<>();
+            Set<Stack> cleanup = new HashSet<>();
 
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE world = ? AND chunk_x = ? AND chunk_z = ?";
-            try (PreparedStatement statement = connection.prepareStatement(select)) {
-                for (Chunk chunk : chunks) {
-                    statement.setString(1, chunk.getWorld().getName());
-                    statement.setInt(2, chunk.getX());
-                    statement.setInt(3, chunk.getZ());
+            for (Chunk chunk : chunks) {
+                PreparedStatement statement = connection.prepareStatement(select);
+                statement.setString(1, chunk.getWorld().getName());
+                statement.setInt(2, chunk.getX());
+                statement.setInt(3, chunk.getZ());
 
-                    ResultSet result = statement.executeQuery();
-                    while (result.next()) {
-                        int id = result.getInt("id");
-                        UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-                        List<String> stackEntities = EntitySerializer.fromBase64(result.getString("stack_entities"));
-                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
-                        entity.ifPresent(x -> stackedEntities.add(new StackedEntity(id, (LivingEntity) x, stackEntities)));
+                ResultSet result = statement.executeQuery();
+                this.sync(() -> {
+                    try {
+                        while (result.next()) {
+                            int id = result.getInt("id");
+                            UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
+                            List<String> stackEntities = EntitySerializer.fromBase64(result.getString("stack_entities"));
+
+                            Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
+                            if (entity.isPresent()) {
+                                stackedEntities.add(new StackedEntity(id, (LivingEntity) entity.get(), stackEntities));
+                            } else {
+                                cleanup.add(new StackedEntity(id, null, null));
+                            }
+                        }
+
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-                }
-            }
 
-            this.sync(() -> {
-                stackedEntities.forEach(StackedEntity::updateDisplay);
-                callback.accept(stackedEntities);
-            });
+                    callback.accept(stackedEntities);
+
+                    if (!cleanup.isEmpty())
+                        this.async(() -> this.deleteStacks(cleanup));
+                });
+            }
         };
 
         if (async) {
@@ -148,29 +174,41 @@ public class DataManager extends Manager {
     public void getStackedItems(Set<Chunk> chunks, boolean async, Consumer<Set<StackedItem>> callback) {
         ConnectionCallback query = connection -> {
             Set<StackedItem> stackedItems = new HashSet<>();
+            Set<Stack> cleanup = new HashSet<>();
 
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE world = ? AND chunk_x = ? AND chunk_z = ?";
-            try (PreparedStatement statement = connection.prepareStatement(select)) {
-                for (Chunk chunk : chunks) {
-                    statement.setString(1, chunk.getWorld().getName());
-                    statement.setInt(2, chunk.getX());
-                    statement.setInt(3, chunk.getZ());
+            for (Chunk chunk : chunks) {
+                PreparedStatement statement = connection.prepareStatement(select);
+                statement.setString(1, chunk.getWorld().getName());
+                statement.setInt(2, chunk.getX());
+                statement.setInt(3, chunk.getZ());
 
-                    ResultSet result = statement.executeQuery();
-                    while (result.next()) {
-                        int id = result.getInt("id");
-                        int stackSize = result.getInt("stack_size");
-                        UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-                        Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
-                        entity.ifPresent(x -> stackedItems.add(new StackedItem(id, stackSize, (Item) x)));
+                ResultSet result = statement.executeQuery();
+                this.sync(() -> {
+                    try {
+                        while (result.next()) {
+                            int id = result.getInt("id");
+                            int stackSize = result.getInt("stack_size");
+                            UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
+                            Optional<Entity> entity = Stream.of(chunk.getEntities()).filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
+                            if (entity.isPresent()) {
+                                stackedItems.add(new StackedItem(id, stackSize, (Item) entity.get()));
+                            } else {
+                                cleanup.add(new StackedItem(id, 0, null));
+                            }
+                        }
+
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-                }
-            }
 
-            this.sync(() -> {
-                stackedItems.forEach(StackedItem::updateDisplay);
-                callback.accept(stackedItems);
-            });
+                    callback.accept(stackedItems);
+
+                    if (!cleanup.isEmpty())
+                        this.async(() -> this.deleteStacks(cleanup));
+                });
+            }
         };
 
         if (async) {
@@ -183,35 +221,42 @@ public class DataManager extends Manager {
     public void getStackedSpawners(Set<Chunk> chunks, boolean async, Consumer<Set<StackedSpawner>> callback) {
         ConnectionCallback query = connection -> {
             Set<StackedSpawner> stackedSpawners = new HashSet<>();
+            Set<Stack> cleanup = new HashSet<>();
 
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_spawner WHERE world = ? AND chunk_x = ? AND chunk_z = ?";
-            try (PreparedStatement statement = connection.prepareStatement(select)) {
-                for (Chunk chunk : chunks) {
-                    statement.setString(1, chunk.getWorld().getName());
-                    statement.setInt(2, chunk.getX());
-                    statement.setInt(3, chunk.getZ());
+            PreparedStatement statement = connection.prepareStatement(select);
+            for (Chunk chunk : chunks) {
+                statement.setString(1, chunk.getWorld().getName());
+                statement.setInt(2, chunk.getX());
+                statement.setInt(3, chunk.getZ());
 
-                    ResultSet result = statement.executeQuery();
-                    this.sync(() -> { // Getting a block state must be done synchronously
-                        try {
-                            while (result.next()) {
-                                int id = result.getInt("id");
-                                int stackSize = result.getInt("stack_size");
-                                int blockX = result.getInt("block_x");
-                                int blockY = result.getInt("block_y");
-                                int blockZ = result.getInt("block_z");
-                                Block block = chunk.getBlock(blockX, blockY, blockZ);
-                                if (block.getType() == Material.SPAWNER)
-                                    stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
+                ResultSet result = statement.executeQuery();
+                this.sync(() -> {
+                    try {
+                        while (result.next()) {
+                            int id = result.getInt("id");
+                            int stackSize = result.getInt("stack_size");
+                            int blockX = result.getInt("block_x");
+                            int blockY = result.getInt("block_y");
+                            int blockZ = result.getInt("block_z");
+                            Block block = chunk.getBlock(blockX, blockY, blockZ);
+                            if (block.getType() == Material.SPAWNER) {
+                                stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
+                            } else {
+                                cleanup.add(new StackedSpawner(id, 0, null));
                             }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
                         }
 
-                        stackedSpawners.forEach(StackedSpawner::updateDisplay);
-                        callback.accept(stackedSpawners);
-                    });
-                }
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    callback.accept(stackedSpawners);
+
+                    if (!cleanup.isEmpty())
+                        this.deleteStacks(cleanup);
+                });
             }
         };
 
@@ -222,7 +267,7 @@ public class DataManager extends Manager {
         }
     }
 
-    public <T extends Stack> void createOrUpdateStackedBlocksOrSpawners(Set<T> stacks, boolean async) {
+    public <T extends Stack> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks, boolean async) {
         if (stacks.isEmpty())
             return;
 
@@ -269,13 +314,26 @@ public class DataManager extends Manager {
         }
     }
 
-    public void createOrUpdateStackedEntities(Set<StackedEntity> stackedEntities, boolean async) {
+    public void createOrUpdateStackedEntities(Collection<StackedEntity> stackedEntities, boolean async) {
         if (stackedEntities.isEmpty())
             return;
 
         ConnectionCallback query = connection -> {
-            Set<StackedEntity> insert = stackedEntities.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
             Set<StackedEntity> update = stackedEntities.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
+            Set<StackedEntity> insert = stackedEntities.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
+
+            if (!update.isEmpty()) {
+                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_entity SET entity_uuid = ?, stack_entities = ? WHERE id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
+                    for (StackedEntity stack : update) {
+                        statement.setString(1, stack.getEntity().getUniqueId().toString());
+                        statement.setString(2, EntitySerializer.toBase64(stack.getStackedEntityNBTStrings()));
+                        statement.setInt(3, stack.getId());
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                }
+            }
 
             if (!insert.isEmpty()) {
                 String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
@@ -291,19 +349,6 @@ public class DataManager extends Manager {
                     statement.executeBatch();
                 }
             }
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_entity SET entity_uuid = ?, stack_entities = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedEntity stack : update) {
-                        statement.setString(1, stack.getEntity().getUniqueId().toString());
-                        statement.setString(2, EntitySerializer.toBase64(stack.getStackedEntityNBTStrings()));
-                        statement.setInt(3, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                }
-            }
         };
 
         if (async) {
@@ -313,7 +358,7 @@ public class DataManager extends Manager {
         }
     }
 
-    public void createOrUpdateStackedItems(Set<StackedItem> stackedItems, boolean async) {
+    public void createOrUpdateStackedItems(Collection<StackedItem> stackedItems, boolean async) {
         if (stackedItems.isEmpty())
             return;
 

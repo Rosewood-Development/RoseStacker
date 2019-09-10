@@ -143,7 +143,7 @@ public class EntityListener implements Listener {
                 || !stackManager.isEntityStacked(event.getEntity()))
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(event.getEntity());
+        StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getEntity());
         if (stackedEntity.getStackSize() == 1)
             return;
 

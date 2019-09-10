@@ -25,10 +25,12 @@ public class StackedBlock extends Stack {
         this.size = size;
         this.block = block;
 
-        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getBlockStackSettings(this.block);
+        if (this.block != null) {
+            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getBlockStackSettings(this.block);
 
-        if (Bukkit.isPrimaryThread())
-            this.updateDisplay();
+            if (Bukkit.isPrimaryThread())
+                this.updateDisplay();
+        }
     }
 
     public StackedBlock(int size, Block block) {

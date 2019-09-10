@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.database.migrations;
 import dev.esophose.rosestacker.database.DataMigration;
 import dev.esophose.rosestacker.database.DatabaseConnector;
 import dev.esophose.rosestacker.database.MySQLConnector;
+import dev.esophose.rosestacker.database.SQLiteConnector;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +29,8 @@ public class _1_InitialMigration extends DataMigration {
                     "chunk_z INTEGER NOT NULL, " +
                     "block_x INTEGER NOT NULL, " +
                     "block_y INTEGER NOT NULL, " +
-                    "block_z INTEGER NOT NULL" +
+                    "block_z INTEGER NOT NULL, " +
+                    "UNIQUE (world, block_x, block_y, block_z)" +
                     ")");
         }
 
@@ -40,7 +42,8 @@ public class _1_InitialMigration extends DataMigration {
                     "stack_entities TEXT NOT NULL, " +
                     "world TEXT NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
-                    "chunk_z INTEGER NOT NULL" +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "UNIQUE (entity_uuid)" +
                     ")");
         }
 
@@ -52,7 +55,8 @@ public class _1_InitialMigration extends DataMigration {
                     "entity_uuid VARCHAR(36) NOT NULL, " +
                     "world TEXT NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
-                    "chunk_z INTEGER NOT NULL" +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "UNIQUE (entity_uuid)" +
                     ")");
         }
 
@@ -66,7 +70,8 @@ public class _1_InitialMigration extends DataMigration {
                     "chunk_z INTEGER NOT NULL, " +
                     "block_x INTEGER NOT NULL, " +
                     "block_y INTEGER NOT NULL, " +
-                    "block_z INTEGER NOT NULL" +
+                    "block_z INTEGER NOT NULL, " +
+                    "UNIQUE (world, block_x, block_y, block_z)" +
                     ")");
         }
 

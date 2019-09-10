@@ -26,10 +26,12 @@ public class StackedItem extends Stack {
         this.size = size;
         this.item = item;
 
-        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getItemStackSettings(this.item);
+        if (this.item != null) {
+            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getItemStackSettings(this.item);
 
-        if (Bukkit.isPrimaryThread())
-            this.updateDisplay();
+            if (Bukkit.isPrimaryThread())
+                this.updateDisplay();
+        }
     }
 
     public StackedItem(int size, Item item) {

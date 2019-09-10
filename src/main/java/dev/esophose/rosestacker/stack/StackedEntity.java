@@ -33,10 +33,12 @@ public class StackedEntity extends Stack {
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
 
-        this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
+        if (this.entity != null) {
+            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
 
-        if (Bukkit.isPrimaryThread())
-            this.updateDisplay();
+            if (Bukkit.isPrimaryThread())
+                this.updateDisplay();
+        }
     }
 
     public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {
@@ -66,9 +68,11 @@ public class StackedEntity extends Stack {
     }
 
     public void decreaseStackSize() {
+        LivingEntity oldEntity = this.entity;
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), location);
+        RoseStacker.getInstance().getStackManager().updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
     }
 
@@ -113,6 +117,7 @@ public class StackedEntity extends Stack {
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
         stackManager.setEntityStackingDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
+        stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
         return new StackedEntity(oldEntity, new LinkedList<>());
     }
