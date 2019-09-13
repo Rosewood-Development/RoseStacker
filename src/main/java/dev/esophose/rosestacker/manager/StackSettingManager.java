@@ -7,6 +7,7 @@ import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.ClassUtils;
+import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -19,9 +20,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StackSettingManager extends Manager {
+
+    private static final String PACKAGE_PATH = "dev.esophose.rosestacker.stack.settings.entity";
 
     private Map<Material, BlockStackSettings> blockSettings;
     private Map<EntityType, EntityStackSettings> entitySettings;
@@ -61,7 +66,7 @@ public class StackSettingManager extends Manager {
         // Load entity settings
         CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, entitySettingsFile);
         try {
-            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, "dev.esophose.rosestacker.stack.settings.entity", EntityStackSettings.class);
+            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, PACKAGE_PATH, EntityStackSettings.class);
             for (Class<EntityStackSettings> clazz : classes) {
                 EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
                 this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
@@ -79,10 +84,7 @@ public class StackSettingManager extends Manager {
 
         // Load spawner settings
         CommentedFileConfiguration spawnerSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, spawnerSettingsFile);
-        Stream.of(EntityType.values()).filter(EntityType::isSpawnable).filter(EntityType::isAlive).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
-            if (x == EntityType.PLAYER || x == EntityType.ARMOR_STAND)
-                return;
-
+        StackerUtils.getStackableEntityTypes().forEach(x -> {
             SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, x);
             this.spawnerSettings.put(x, spawnerStackSettings);
         });
@@ -116,6 +118,10 @@ public class StackSettingManager extends Manager {
 
     public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
         return this.spawnerSettings.get(creatureSpawner.getSpawnedType());
+    }
+
+    public Set<Material> getStackableBlockTypes() {
+        return this.blockSettings.values().stream().filter(BlockStackSettings::isStackingEnabled).map(BlockStackSettings::getType).collect(Collectors.toSet());
     }
 
 }

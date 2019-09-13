@@ -452,13 +452,13 @@ public class StackManager extends Manager implements Runnable {
         this.roseStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks));
         for (Stack stack : this.deletedStacks) {
             if (stack instanceof StackedBlock) {
-                this.stackedBlocks.remove(stack);
+                this.stackedBlocks.remove(((StackedBlock) stack).getBlock());
             } else if (stack instanceof StackedEntity) {
-                this.stackedEntities.remove(stack);
+                this.stackedEntities.remove(((StackedEntity) stack).getEntity().getUniqueId());
             } else if (stack instanceof StackedItem) {
-                this.stackedItems.remove(stack);
+                this.stackedItems.remove(((StackedItem) stack).getItem().getUniqueId());
             } else if (stack instanceof StackedSpawner) {
-                this.stackedSpawners.remove(stack);
+                this.stackedSpawners.remove(((StackedSpawner) stack).getSpawner().getBlock());
             }
         }
         this.deletedStacks.clear();

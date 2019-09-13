@@ -19,6 +19,9 @@ import org.bukkit.util.Vector;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StackerUtils {
 
@@ -164,18 +167,30 @@ public class StackerUtils {
 
         int distance = (int) Math.round(location1.distance(location2));
 
-        int maxChecks = distance * 2;
-        int currentChecks = 0;
-        BlockIterator blockIterator = new BlockIterator(world, location1.toVector(), direction, 0, distance);
-        while (blockIterator.hasNext()) {
-            Block block = blockIterator.next();
-            if (block.getType().isSolid())
-                return false;
-            if (currentChecks++ > maxChecks)
-                break;
+        try {
+            int maxChecks = distance * 2;
+            int currentChecks = 0;
+            BlockIterator blockIterator = new BlockIterator(world, location1.toVector(), direction, 0, distance);
+            while (blockIterator.hasNext()) {
+                Block block = blockIterator.next();
+                if (block.getType().isSolid())
+                    return false;
+                if (currentChecks++ > maxChecks)
+                    break;
+            }
+        } catch (Exception e) {
+            return false;
         }
 
         return true;
+    }
+
+    public static Set<EntityType> getStackableEntityTypes() {
+        return Stream.of(EntityType.values())
+                .filter(EntityType::isAlive)
+                .filter(EntityType::isSpawnable)
+                .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
+                .collect(Collectors.toSet());
     }
 
 }

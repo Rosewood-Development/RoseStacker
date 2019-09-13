@@ -6,6 +6,7 @@ plugins {
 }
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 group = 'dev.esophose.rosestacker'
 version = '1.0.0'
 
@@ -13,22 +14,18 @@ repositories {
     mavenCentral()
     jcenter()
 
-    maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-
-    maven {
-        url = 'https://repo.codemc.org/repository/maven-public'
-    }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://repo.codemc.org/repository/maven-public' }
+    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
 
     // Need to find a better maven host for Holograms and CMI
-    maven {
-        url = 'https://repo.songoda.com/artifactory/private/'
-    }
+    maven { url = 'https://repo.songoda.com/artifactory/private/' }
 }
 
-shadowJar {
-    archiveClassifier.set(null)
+compileJava {
+    options.compilerArgs += ['-parameters']
+    options.fork = true
+    options.forkOptions.executable = 'javac'
 }
 
 dependencies {
@@ -36,9 +33,17 @@ dependencies {
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.3.2'
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
     shadow 'com.zrips:CMI:8.0.8.1'
+    compile 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     compile 'com.zaxxer:HikariCP:3.2.0'
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'org.slf4j:slf4j-nop:1.7.25'
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
+    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
+    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf')
 }
 
 processResources {
@@ -47,3 +52,5 @@ processResources {
         filter ReplaceTokens, tokens: ["version": project.property("version")]
     }
 }
+
+build.dependsOn shadowJar

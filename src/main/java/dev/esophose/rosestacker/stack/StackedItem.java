@@ -91,29 +91,4 @@ public class StackedItem extends Stack {
         this.item.setCustomName(displayString);
     }
 
-    /**
-     * Checks if this StackedItem's item is equal to another item
-     *
-     * @param other The other StackedItem or Item to compare
-     * @return true if this StackedItem's item is equal, otherwise false
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof StackedItem)
-            return this.item.equals(((StackedItem) other).item);
-
-        if (other instanceof Item)
-            return this.item.equals(other);
-
-        return false;
-    }
-
-    /**
-     * @return a hash code identical to this item for easier look up by entity
-     */
-    @Override
-    public int hashCode() {
-        return this.item.hashCode();
-    }
-
 }

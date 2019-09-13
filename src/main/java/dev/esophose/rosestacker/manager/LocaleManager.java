@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.manager;
 import dev.esophose.rosestacker.RoseStacker;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -23,7 +24,6 @@ public class LocaleManager extends Manager {
 
     public enum Locale {
         PREFIX,
-        NO_PERMISSION,
 
         ENTITY_STACK_DISPLAY,
         ITEM_STACK_DISPLAY,
@@ -31,7 +31,9 @@ public class LocaleManager extends Manager {
         SPAWNER_STACK_DISPLAY,
 
         COMMAND_RELOAD_DESCRIPTION,
-        COMMAND_RELOAD_RELOADED;
+        COMMAND_RELOAD_RELOADED,
+
+        ACF_CORE;
 
         private String message;
 
@@ -44,6 +46,10 @@ public class LocaleManager extends Manager {
             if (this.message == null)
                 this.loadMessage();
             return this.message;
+        }
+
+        public ConfigurationSection getConfigurationSection() {
+            return RoseStacker.getInstance().getLocaleManager().getLocale().getConfigurationSection(this.getNameAsKey());
         }
 
         /**
