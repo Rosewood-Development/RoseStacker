@@ -17,6 +17,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
@@ -84,12 +86,22 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        this.handleEntityDeath(event, (LivingEntity) event.getEntity(), false);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
+        this.handleEntityDeath(event, event.getEntity(), true);
+    }
+
+    private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
         StackManager stackManager = this.roseStacker.getStackManager();
         if (!stackManager.isEntityStacked(event.getEntity()))
             return;
-
-        LivingEntity entity = event.getEntity();
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity.getStackSize() == 1) {
@@ -99,13 +111,16 @@ public class EntityListener implements Listener {
 
         // Should we kill the entire stack at once?
         EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
-        if (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
-                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))) {
+        if (useLastDamageCause && (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
+                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name()))))) {
 
             if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean())
                 stackedEntity.dropStackLoot();
-            if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean())
-                event.setDroppedExp(event.getDroppedExp() * stackedEntity.getStackSize());
+
+            if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && event instanceof EntityDeathEvent) {
+                EntityDeathEvent deathEvent = (EntityDeathEvent) event;
+                deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
+            }
 
             stackManager.removeEntity(stackedEntity);
             return;

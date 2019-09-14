@@ -146,7 +146,7 @@ public class LocaleManager extends Manager {
     public Map<String, String> getAcfCoreMessages() {
         return Stream.of(Locale.values())
                 .filter(x -> x.name().startsWith("ACF_CORE"))
-                .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_CORE_", "").replaceAll("_", "-").toLowerCase(), Locale::get));
+                .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_CORE_", "").toLowerCase(), Locale::get));
     }
 
     /**

@@ -243,9 +243,9 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey) {
-        StackedEntity value = this.stackedEntities.get(oldKey);
+        StackedEntity value = this.stackedEntities.get(oldKey.getUniqueId());
         if (value != null) {
-            this.stackedEntities.remove(oldKey);
+            this.stackedEntities.remove(oldKey.getUniqueId());
             this.stackedEntities.put(newKey.getUniqueId(), value);
         }
     }
