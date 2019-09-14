@@ -13,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandManager extends Manager {
@@ -31,9 +32,9 @@ public class CommandManager extends Manager {
             commandManager.registerCommand(new RoseCommand(this.roseStacker));
 
             // Load custom message strings
-            ConfigurationSection modifiedMessages = LocaleManager.Locale.ACF_CORE.getConfigurationSection();
-            for (String key : modifiedMessages.getKeys(false))
-                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), LocaleManager.Locale.PREFIX.get() + this.parse(modifiedMessages.getString(key)));
+            Map<String, String> acfCoreMessages = this.roseStacker.getLocaleManager().getAcfCoreMessages();
+            for (String key : acfCoreMessages.keySet())
+                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), LocaleManager.Locale.PREFIX.get() + acfCoreMessages.get(key));
 
             commandManager.getCommandCompletions().registerAsyncCompletion("amount", (ctx) -> Arrays.asList("5", "16", "64", "256", "<amount>"));
             commandManager.getCommandCompletions().registerAsyncCompletion("stackableBlockMaterial", (ctx) -> this.roseStacker.getStackSettingManager().getStackableBlockTypes().stream().map(x -> x.name().toLowerCase()).collect(Collectors.toSet()));
