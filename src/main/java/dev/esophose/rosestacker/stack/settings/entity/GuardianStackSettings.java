@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class GuardianStackSettings extends EntityStackSettings {
@@ -24,6 +25,11 @@ public class GuardianStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.GUARDIAN;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.GUARDIAN_SPAWN_EGG;
     }
 
 }

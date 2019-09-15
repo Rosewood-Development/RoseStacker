@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Phantom;
 
@@ -32,6 +33,11 @@ public class PhantomStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.PHANTOM;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.PHANTOM_SPAWN_EGG;
     }
 
 }

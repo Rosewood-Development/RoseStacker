@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 
@@ -32,6 +33,11 @@ public class PigStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.PIG;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.PIG_SPAWN_EGG;
     }
 
 }

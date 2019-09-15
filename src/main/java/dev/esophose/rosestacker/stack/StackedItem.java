@@ -2,16 +2,14 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
-import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
+import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.regex.Matcher;
 
 public class StackedItem extends Stack {
 
@@ -83,9 +81,9 @@ public class StackedItem extends Stack {
             displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', Locale.ITEM_STACK_DISPLAY.get()
-                .replaceAll("%amount%", String.valueOf(this.getStackSize()))
-                .replaceAll("%name%", Matcher.quoteReplacement(displayName)));
+        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+                .addPlaceholder("name", this.stackSettings.getDisplayName())
+                .apply(displayName));
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
         this.item.setCustomName(displayString);

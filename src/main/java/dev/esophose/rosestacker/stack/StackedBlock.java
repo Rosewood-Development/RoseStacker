@@ -5,12 +5,11 @@ import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
+import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-
-import java.util.regex.Matcher;
 
 public class StackedBlock extends Stack {
 
@@ -75,9 +74,9 @@ public class StackedBlock extends Stack {
             return;
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', Locale.BLOCK_STACK_DISPLAY.get()
-                .replaceAll("%amount%", String.valueOf(this.getStackSize()))
-                .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
+        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+                .addPlaceholder("name", this.stackSettings.getDisplayName())
+                .apply(Locale.BLOCK_STACK_DISPLAY.get()));
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

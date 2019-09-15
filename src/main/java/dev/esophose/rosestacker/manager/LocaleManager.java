@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,8 +23,12 @@ public class LocaleManager extends Manager {
         BLOCK_STACK_DISPLAY("&c%amount%x &7%name%"),
         SPAWNER_STACK_DISPLAY("&c%amount%x &7%name%"),
 
-        COMMAND_RELOAD_DESCRIPTION("&8 - &d/rs reload &7- Reloads the plugin."),
-        COMMAND_RELOAD_RELOADED("&7Configuration and locale files were reloaded."),
+        COMMAND_RELOAD_DESCRIPTION("&8 - &d/rs reload &7- Reloads the plugin"),
+        COMMAND_RELOAD_RELOADED("&eConfiguration and locale files were reloaded."),
+
+        COMMAND_GIVE_DESCRIPTION("&8 - &d/rs give &7- Give pre-stacked items"),
+        COMMAND_GIVE_USAGE("&cUsage: &e/rs give <block|spawner|entity> <player> <type> <amount>"),
+        COMMAND_GIVE_GIVEN("&eGave &b%player% &e[%display%&e]."),
 
         ACF_CORE_PERMISSION_DENIED("&cYou don't have permission for that!"),
         ACF_CORE_PERMISSION_DENIED_PARAMETER("&cYou don't have permission for that!"),
@@ -32,12 +37,12 @@ public class LocaleManager extends Manager {
         ACF_CORE_INVALID_SYNTAX("&cUsage: &e{command}&7 {syntax}"),
         ACF_CORE_ERROR_PREFIX("&cError: {message}"),
         ACF_CORE_INFO_MESSAGE("&e{message}"),
-        ACF_CORE_PLEASE_SPECIFY_ONE_OF("&cError: Please specify one of (&b{valid}&c)."),
+        ACF_CORE_PLEASE_SPECIFY_ONE_OF("&cError: An invalid argument was given."),
         ACF_CORE_MUST_BE_A_NUMBER("&cError: &b{num}&c must be a number."),
         ACF_CORE_MUST_BE_MIN_LENGTH("&cError: Must be at least &b{min}&c characters long."),
         ACF_CORE_MUST_BE_MAX_LENGTH("&cError: Must be at most &b{max}&c characters long."),
-        ACF_CORE_PLEASE_SPECIFY_AT_MOST("&cError: Please specify a value at most &b{max}&c."),
-        ACF_CORE_PLEASE_SPECIFY_AT_LEAST("&cError: Please specify a value at least &b{min}&c."),
+        ACF_CORE_PLEASE_SPECIFY_AT_MOST("&cError: Please specify a value of at most &b{max}&c."),
+        ACF_CORE_PLEASE_SPECIFY_AT_LEAST("&cError: Please specify a value of at least &b{min}&c."),
         ACF_CORE_NOT_ALLOWED_ON_CONSOLE("&cOnly players may execute this command."),
         ACF_CORE_COULD_NOT_FIND_PLAYER("&cError: Could not find a player by the name: &b{search}"),
         ACF_CORE_NO_COMMAND_MATCHED_SEARCH("&cNo command matched &b{search}&c.");
@@ -150,13 +155,35 @@ public class LocaleManager extends Manager {
     }
 
     /**
+     * Sends a message to a CommandSender with the prefix with placeholders applied
+     *
+     * @param sender The CommandSender to send to
+     * @param locale The Locale to send
+     * @param stringPlaceholders The placeholders to apply
+     */
+    public void sendPrefixedMessage(CommandSender sender, Locale locale, StringPlaceholders stringPlaceholders) {
+        sender.sendMessage(Locale.PREFIX.get() + stringPlaceholders.apply(locale.get()));
+    }
+
+    /**
      * Sends a message to a CommandSender with the prefix
      *
      * @param sender The CommandSender to send to
      * @param locale The Locale to send
      */
     public void sendPrefixedMessage(CommandSender sender, Locale locale) {
-        sender.sendMessage(Locale.PREFIX.get() + locale.get());
+        this.sendPrefixedMessage(sender, locale, new StringPlaceholders());
+    }
+
+    /**
+     * Sends a message to a CommandSender with placeholders applied
+     *
+     * @param sender The CommandSender to send to
+     * @param locale The Locale to send
+     * @param stringPlaceholders The placeholders to apply
+     */
+    public void sendMessage(CommandSender sender, Locale locale, StringPlaceholders stringPlaceholders) {
+        sender.sendMessage(stringPlaceholders.apply(locale.get()));
     }
 
     /**
@@ -166,7 +193,7 @@ public class LocaleManager extends Manager {
      * @param locale The Locale to send
      */
     public void sendMessage(CommandSender sender, Locale locale) {
-        sender.sendMessage(locale.get());
+        this.sendMessage(sender, locale, new StringPlaceholders());
     }
 
 }

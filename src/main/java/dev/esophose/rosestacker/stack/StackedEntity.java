@@ -7,6 +7,7 @@ import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -18,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 public class StackedEntity extends Stack {
 
@@ -142,9 +142,9 @@ public class StackedEntity extends Stack {
             return;
 
         if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
-            String displayString = ChatColor.translateAlternateColorCodes('&', Locale.ENTITY_STACK_DISPLAY.get()
-                    .replaceAll("%amount%", String.valueOf(this.getStackSize()))
-                    .replaceAll("%name%", Matcher.quoteReplacement(this.stackSettings.getDisplayName())));
+            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+                    .addPlaceholder("name", this.stackSettings.getDisplayName())
+                    .apply(Locale.ENTITY_STACK_DISPLAY.get()));
 
             this.entity.setCustomNameVisible(!Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean());
             this.entity.setCustomName(displayString);

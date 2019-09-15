@@ -104,20 +104,49 @@ public class StackSettingManager extends Manager {
         this.spawnerSettings.clear();
     }
 
+    public BlockStackSettings getBlockStackSettings(Material material) {
+        return this.blockSettings.get(material);
+    }
+
     public BlockStackSettings getBlockStackSettings(Block block) {
-        return this.blockSettings.get(block.getType());
+        return this.getBlockStackSettings(block.getType());
+    }
+
+    public EntityStackSettings getEntityStackSettings(EntityType entityType) {
+        return this.entitySettings.get(entityType);
     }
 
     public EntityStackSettings getEntityStackSettings(LivingEntity entity) {
-        return this.entitySettings.get(entity.getType());
+        return this.getEntityStackSettings(entity.getType());
+    }
+
+    public EntityStackSettings getEntityStackSettings(Material material) {
+        if (!StackerUtils.isSpawnEgg(material))
+            return null;
+
+        for (EntityType key : this.entitySettings.keySet()) {
+            EntityStackSettings settings = this.entitySettings.get(key);
+            if (settings.getSpawnEggMaterial() == material)
+                return settings;
+        }
+
+        return null;
+    }
+
+    public ItemStackSettings getItemStackSettings(Material material) {
+        return this.itemSettings.get(material);
     }
 
     public ItemStackSettings getItemStackSettings(Item item) {
-        return this.itemSettings.get(item.getItemStack().getType());
+        return this.getItemStackSettings(item.getItemStack().getType());
+    }
+
+    public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
+        return this.spawnerSettings.get(entityType);
     }
 
     public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
-        return this.spawnerSettings.get(creatureSpawner.getSpawnedType());
+        return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
     }
 
     public Set<Material> getStackableBlockTypes() {

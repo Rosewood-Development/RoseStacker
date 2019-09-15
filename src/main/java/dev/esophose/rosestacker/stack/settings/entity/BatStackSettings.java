@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.EntityType;
 
@@ -32,6 +33,11 @@ public class BatStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.BAT;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.BAT_SPAWN_EGG;
     }
 
 }

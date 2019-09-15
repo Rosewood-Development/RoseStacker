@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 
@@ -38,6 +39,11 @@ public class ZombieStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.ZOMBIE;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.ZOMBIE_SPAWN_EGG;
     }
 
 }

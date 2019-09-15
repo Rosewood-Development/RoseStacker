@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class EntitySerializer {
+public final class EntitySerializer {
 
     private static Method entityLiving_a;
 
@@ -146,6 +146,21 @@ public class EntitySerializer {
         }
 
         return (LivingEntity) entity.getBukkitEntity();
+    }
+
+    /**
+     * Creates a LivingEntity instance where the actual entity has not been added to the world
+     *
+     * @param entityType The type of the entity to spawn
+     * @param location The location the entity would have spawned at
+     * @return The newly created LivingEntity instance
+     */
+    public static LivingEntity createEntityUnspawned(EntityType entityType, Location location) {
+        if (location.getWorld() == null)
+            return null;
+
+        CraftWorld craftWorld = (CraftWorld) location.getWorld();
+        return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
     }
 
     /**

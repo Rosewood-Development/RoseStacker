@@ -1,7 +1,10 @@
 package dev.esophose.rosestacker.utils;
 
+import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -9,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
@@ -23,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StackerUtils {
+public final class StackerUtils {
 
     private static Random random = new Random();
 
@@ -105,6 +109,10 @@ public class StackerUtils {
         return itemStack;
     }
 
+    public static boolean isSpawnEgg(Material material) {
+        return material.name().endsWith("_SPAWN_EGG");
+    }
+
     public static ItemStack getSpawnerAsStackedItemStack(EntityType entityType, int amount) {
         ItemStack itemStack = new ItemStack(Material.SPAWNER);
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -112,6 +120,23 @@ public class StackerUtils {
             return itemStack;
 
         itemMeta.setDisplayName(ChatColor.RESET + formatName(entityType.name() + "_" + Material.SPAWNER.name()));
+        itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Stack: " + ChatColor.RED + amount + "x"));
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static ItemStack getEntityAsStackedItemStack(EntityType entityType, int amount) {
+        EntityStackSettings stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(entityType);
+        Material spawnEggMaterial = stackSettings.getSpawnEggMaterial();
+        if (spawnEggMaterial == null)
+            return new ItemStack(Material.AIR);
+
+        ItemStack itemStack = new ItemStack(spawnEggMaterial);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return itemStack;
+
         itemMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Stack: " + ChatColor.RED + amount + "x"));
 
         itemStack.setItemMeta(itemMeta);
@@ -141,7 +166,7 @@ public class StackerUtils {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
-            return null;
+            return EntityType.PIG;
 
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
         try {
@@ -191,6 +216,23 @@ public class StackerUtils {
                 .filter(EntityType::isSpawnable)
                 .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
                 .collect(Collectors.toSet());
+    }
+
+    public static void takeOneItem(Player player, EquipmentSlot handType) {
+        if (player.getGameMode() == GameMode.CREATIVE)
+            return;
+
+        ItemStack itemStack = handType == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
+        int newAmount = itemStack.getAmount() - 1;
+        if (newAmount <= 0) {
+            if (handType == EquipmentSlot.HAND) {
+                player.getInventory().setItemInMainHand(null);
+            } else {
+                player.getInventory().setItemInOffHand(null);
+            }
+        } else {
+            itemStack.setAmount(newAmount);
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package dev.esophose.rosestacker;
 import dev.esophose.rosestacker.listener.BlockListener;
 import dev.esophose.rosestacker.listener.ChunkListener;
 import dev.esophose.rosestacker.listener.EntityListener;
+import dev.esophose.rosestacker.listener.InteractListener;
 import dev.esophose.rosestacker.listener.ItemListener;
 import dev.esophose.rosestacker.manager.CommandManager;
 import dev.esophose.rosestacker.manager.ConfigurationManager;
@@ -15,6 +16,7 @@ import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.utils.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashSet;
@@ -64,10 +66,12 @@ public class RoseStacker extends JavaPlugin {
         this.reload();
 
         // Register listeners
-        Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new EntityListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new ItemListener(this), this);
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.registerEvents(new BlockListener(this), this);
+        pluginManager.registerEvents(new ChunkListener(this), this);
+        pluginManager.registerEvents(new EntityListener(this), this);
+        pluginManager.registerEvents(new InteractListener(this), this);
+        pluginManager.registerEvents(new ItemListener(this), this);
     }
 
     @Override

@@ -343,11 +343,15 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     }
 
     public int getMinStackSize() {
-        return this.minStackSize;
+        if (this.minStackSize != -1)
+            return this.minStackSize;
+        return Setting.ENTITY_MIN_STACK_SIZE.getInt();
     }
 
     public int getMaxStackSize() {
-        return this.maxStackSize;
+        if (this.maxStackSize != -1)
+            return this.maxStackSize;
+        return Setting.ENTITY_MAX_STACK_SIZE.getInt();
     }
 
     public boolean shouldKillEntireStackOnDeath() {
@@ -371,5 +375,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     }
 
     public abstract EntityType getEntityType();
+
+    public abstract Material getSpawnEggMaterial();
 
 }

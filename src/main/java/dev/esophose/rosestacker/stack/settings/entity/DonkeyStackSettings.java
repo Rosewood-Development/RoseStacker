@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class DonkeyStackSettings extends EntityStackSettings {
@@ -24,6 +25,11 @@ public class DonkeyStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.DONKEY;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.DONKEY_SPAWN_EGG;
     }
 
 }

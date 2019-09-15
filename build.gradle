@@ -29,10 +29,13 @@ compileJava {
 }
 
 dependencies {
+    // Referenced dependencies
     shadow 'org.spigotmc:spigot:1.14.4'
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.3.2'
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
     shadow 'com.zrips:CMI:8.0.8.1'
+
+    // Dependencies that will be shaded into the jar
     compile 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     compile 'com.zaxxer:HikariCP:3.2.0'
     compile 'org.slf4j:slf4j-api:1.7.25'
@@ -41,9 +44,12 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set(null)
+
     relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
     relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
     relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf')
+
+    exclude 'acf-*.properties'
 }
 
 processResources {

@@ -30,6 +30,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -227,8 +228,8 @@ public class BlockListener implements Listener {
 
             event.setCancelled(true);
         } else {
-            // Only create stacks from matching types
-            if (against.getType() != block.getType())
+            // Only create stacks from matching types or if the stack amount is greater than 1
+            if (against.getType() != block.getType() && stackAmount <= 1)
                 return;
 
             // Handle placing spawners
@@ -242,8 +243,6 @@ public class BlockListener implements Listener {
                 // Set the spawner type
                 spawner.setSpawnedType(spawnedType);
                 spawner.update();
-            } else {
-                event.setCancelled(true);
             }
 
             // Don't bother creating a stack if we're only placing 1 of them
@@ -259,19 +258,7 @@ public class BlockListener implements Listener {
         }
 
         // Take an item from the player's hand
-        if (player.getGameMode() == GameMode.CREATIVE)
-            return;
-
-        int newAmount = placedItem.getAmount() - 1;
-        if (newAmount <= 0) {
-            if (!isOffHand) {
-                player.getInventory().setItemInMainHand(null);
-            } else {
-                player.getInventory().setItemInOffHand(null);
-            }
-        } else {
-            placedItem.setAmount(newAmount);
-        }
+        StackerUtils.takeOneItem(player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

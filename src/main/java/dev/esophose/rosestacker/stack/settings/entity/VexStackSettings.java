@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.stack.settings.entity;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Vex;
 
@@ -32,6 +33,11 @@ public class VexStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.VEX;
+    }
+
+    @Override
+    public Material getSpawnEggMaterial() {
+        return Material.VEX_SPAWN_EGG;
     }
 
 }
