@@ -84,11 +84,18 @@ public class StackedEntity extends Stack {
      * Drops all loot for all internally-stacked entities.
      * Does not include loot for the current entity.
      */
-    public void dropStackLoot() {
+    public void dropStackLoot(Collection<ItemStack> existingLoot) {
         Collection<ItemStack> loot = new ArrayList<>();
+        if (existingLoot != null)
+            loot.addAll(existingLoot);
+
+        int fireTicks = this.entity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
         for (String entityNBT : this.serializedStackedEntities) {
             LivingEntity entity = EntitySerializer.getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), entityNBT);
-            loot.addAll(StackerUtils.getEntityLoot(entity, this.entity.getKiller(), this.entity.getLocation()));
+            if (entity != null) {
+                entity.setFireTicks(fireTicks);
+                loot.addAll(StackerUtils.getEntityLoot(entity, this.entity.getKiller(), this.entity.getLocation()));
+            }
         }
 
         RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());

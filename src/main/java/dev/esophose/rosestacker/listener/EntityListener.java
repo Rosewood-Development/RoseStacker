@@ -114,8 +114,15 @@ public class EntityListener implements Listener {
         if (useLastDamageCause && (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
                 || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name()))))) {
 
-            if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean())
-                stackedEntity.dropStackLoot();
+            if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+                if (event instanceof EntityDeathEvent) {
+                    EntityDeathEvent deathEvent = (EntityDeathEvent) event;
+                    stackedEntity.dropStackLoot(deathEvent.getDrops());
+                    deathEvent.getDrops().clear();
+                } else {
+                    stackedEntity.dropStackLoot(null);
+                }
+            }
 
             if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && event instanceof EntityDeathEvent) {
                 EntityDeathEvent deathEvent = (EntityDeathEvent) event;
