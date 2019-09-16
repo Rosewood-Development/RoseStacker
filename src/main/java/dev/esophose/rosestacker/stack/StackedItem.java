@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
@@ -82,8 +83,8 @@ public class StackedItem extends Stack {
         }
 
         String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
-                .addPlaceholder("name", this.stackSettings.getDisplayName())
-                .apply(displayName));
+                .addPlaceholder("name", displayName)
+                .apply(Locale.ITEM_STACK_DISPLAY.get()));
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
         this.item.setCustomName(displayString);
