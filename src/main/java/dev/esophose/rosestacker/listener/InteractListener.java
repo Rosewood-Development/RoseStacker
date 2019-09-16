@@ -43,8 +43,12 @@ public class InteractListener implements Listener {
             return;
 
         EntityStackSettings stackSettings = this.roseStacker.getStackSettingManager().getEntityStackSettings(itemStack.getType());
-        EntityType entityType = stackSettings.getEntityType();
+        if (spawnAmount > stackSettings.getMaxStackSize()) {
+            event.setCancelled(true);
+            return;
+        }
 
+        EntityType entityType = stackSettings.getEntityType();
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();
         if (spawnLocation.getWorld() == null)
             return;
@@ -80,8 +84,12 @@ public class InteractListener implements Listener {
             return;
 
         EntityStackSettings stackSettings = this.roseStacker.getStackSettingManager().getEntityStackSettings(itemStack.getType());
-        EntityType entityType = stackSettings.getEntityType();
+        if (spawnAmount > stackSettings.getMaxStackSize()) {
+            event.setCancelled(true);
+            return;
+        }
 
+        EntityType entityType = stackSettings.getEntityType();
         if (event.getRightClicked().getType() != entityType)
             return;
 

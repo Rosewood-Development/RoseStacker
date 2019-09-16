@@ -55,7 +55,7 @@ public class RoseCommand extends BaseCommand {
         @Default
         @CatchUnknown
         public void onCommand(CommandSender sender) {
-            roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_GIVE_USAGE);
+            RoseCommand.this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_GIVE_USAGE);
         }
 
         @Subcommand("block")
@@ -65,11 +65,11 @@ public class RoseCommand extends BaseCommand {
             player.getInventory().addItem(StackerUtils.getBlockAsStackedItemStack(material, amount));
 
             String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(amount))
-                    .addPlaceholder("name", roseStacker.getStackSettingManager().getBlockStackSettings(material).getDisplayName())
+                    .addPlaceholder("name", RoseCommand.this.roseStacker.getStackSettingManager().getBlockStackSettings(material).getDisplayName())
                     .apply(Locale.BLOCK_STACK_DISPLAY.get()));
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            RoseCommand.this.roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
         }
 
         @Subcommand("spawner")
@@ -79,11 +79,11 @@ public class RoseCommand extends BaseCommand {
             target.getPlayer().getInventory().addItem(StackerUtils.getSpawnerAsStackedItemStack(entityType, amount));
 
             String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(amount))
-                    .addPlaceholder("name", roseStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName())
+                    .addPlaceholder("name", RoseCommand.this.roseStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName())
                     .apply(Locale.SPAWNER_STACK_DISPLAY.get()));
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            RoseCommand.this.roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
         }
 
         @Subcommand("entity")
@@ -93,11 +93,11 @@ public class RoseCommand extends BaseCommand {
             target.getPlayer().getInventory().addItem(StackerUtils.getEntityAsStackedItemStack(entityType, amount));
 
             String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(amount))
-                    .addPlaceholder("name", roseStacker.getStackSettingManager().getEntityStackSettings(entityType).getDisplayName())
+                    .addPlaceholder("name", RoseCommand.this.roseStacker.getStackSettingManager().getEntityStackSettings(entityType).getDisplayName())
                     .apply(Locale.ENTITY_STACK_DISPLAY.get()));
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            RoseCommand.this.roseStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
         }
 
     }

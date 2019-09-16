@@ -180,12 +180,12 @@ public final class EntitySerializer {
     }
 
     /**
-     * A method to serialize an NBT String list to Base64 String.
+     * A method to serialize an NBT String list to a byte array.
      *
-     * @param nbtStrings to turn into a Base64 String.
-     * @return Base64 string of the items.
+     * @param nbtStrings to turn into a byte array.
+     * @return byte array of the items.
      */
-    public static String toBase64(List<String> nbtStrings) {
+    public static byte[] toBlob(List<String> nbtStrings) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
@@ -198,7 +198,7 @@ public final class EntitySerializer {
 
             // Serialize that array
             dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
+            return outputStream.toByteArray();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -207,13 +207,13 @@ public final class EntitySerializer {
     }
 
     /**
-     * Gets a list of NBT Strings from Base64 string.
+     * Gets a list of NBT Strings from a byte array.
      *
-     * @param data Base64 string to convert to NBT String list.
-     * @return NBT String list created from the Base64 string.
+     * @param data byte array to convert to NBT String list.
+     * @return NBT String list created from the byte array.
      */
-    public static List<String> fromBase64(String data) {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+    public static List<String> fromBlob(byte[] data) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
             int length = dataInput.readInt();

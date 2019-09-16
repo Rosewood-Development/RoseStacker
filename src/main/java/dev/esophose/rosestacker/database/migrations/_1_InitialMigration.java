@@ -38,7 +38,7 @@ public class _1_InitialMigration extends DataMigration {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_entity (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
                     "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "stack_entities TEXT NOT NULL, " +
+                    "stack_entities BLOB NOT NULL, " +
                     "world TEXT NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
                     "chunk_z INTEGER NOT NULL, " +
@@ -72,6 +72,15 @@ public class _1_InitialMigration extends DataMigration {
                     "block_z INTEGER NOT NULL, " +
                     "UNIQUE (world, block_x, block_y, block_z)" +
                     ")");
+        }
+
+        // Index the tables by world, chunk_x, and chunk_z
+        try (Statement statement = connection.createStatement()) {
+            statement.addBatch("CREATE INDEX " + tablePrefix + "stacked_block_index ON " + tablePrefix + "stacked_block (world, chunk_x, chunk_z)");
+            statement.addBatch("CREATE INDEX " + tablePrefix + "stacked_entity_index ON " + tablePrefix + "stacked_entity (world, chunk_x, chunk_z)");
+            statement.addBatch("CREATE INDEX " + tablePrefix + "stacked_item_index ON " + tablePrefix + "stacked_item (world, chunk_x, chunk_z)");
+            statement.addBatch("CREATE INDEX " + tablePrefix + "stacked_spawner_index ON " + tablePrefix + "stacked_spawner (world, chunk_x, chunk_z)");
+            statement.executeBatch();
         }
 
     }
