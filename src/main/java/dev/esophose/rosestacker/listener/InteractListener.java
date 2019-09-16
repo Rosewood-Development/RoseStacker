@@ -6,6 +6,7 @@ import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -58,12 +59,21 @@ public class InteractListener implements Listener {
         LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
         stackManager.setEntityStackingDisabled(false);
 
-        StackedEntity stackedEntity = (StackedEntity) stackManager.createStackFromEntity(initialEntity, false);
+        // Make invulnerable so it doesn't get removed while we are stacking it
+        initialEntity.setInvulnerable(true);
 
-        for (int i = 0; i < spawnAmount - 1; i++) {
-            LivingEntity newEntity = EntitySerializer.createEntityUnspawned(entityType, spawnLocation);
-            stackedEntity.increaseStackSize(newEntity);
-        }
+        StackedEntity stackedEntity = (StackedEntity) stackManager.createStackFromEntity(initialEntity, false);
+        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
+            for (int i = 0; i < spawnAmount - 1; i++) {
+                LivingEntity newEntity = EntitySerializer.createEntityUnspawned(entityType, spawnLocation);
+                stackedEntity.increaseStackSize(newEntity, false);
+            }
+
+            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+                stackedEntity.updateDisplay();
+                initialEntity.setInvulnerable(false); // Make damageable again
+            });
+        });
 
         StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
         event.setCancelled(true);
@@ -108,12 +118,21 @@ public class InteractListener implements Listener {
             return;
         }
 
-        String entityNbt = EntitySerializer.toNBTString(entity);
+        // Make invulnerable so it doesn't get removed while we are stacking it
+        entity.setInvulnerable(true);
 
-        for (int i = 0; i < spawnAmount; i++) {
-            LivingEntity newEntity = EntitySerializer.getNBTStringAsEntity(entity.getType(), spawnLocation, entityNbt);
-            stackedEntity.increaseStackSize(newEntity);
-        }
+        String entityNbt = EntitySerializer.toNBTString(entity);
+        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
+            for (int i = 0; i < spawnAmount - 1; i++) {
+                LivingEntity newEntity = EntitySerializer.getNBTStringAsEntity(entity.getType(), spawnLocation, entityNbt);
+                stackedEntity.increaseStackSize(newEntity, false);
+            }
+
+            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+                stackedEntity.updateDisplay();
+                stackedEntity.getEntity().setInvulnerable(false); // Make damageable again
+            });
+        });
 
         StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
         event.setCancelled(true);

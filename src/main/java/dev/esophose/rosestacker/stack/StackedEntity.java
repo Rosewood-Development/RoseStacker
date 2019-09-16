@@ -50,12 +50,18 @@ public class StackedEntity extends Stack {
     }
 
     public void increaseStackSize(LivingEntity entity) {
+        this.increaseStackSize(entity, true);
+    }
+
+    public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
             this.serializedStackedEntities.add(EntitySerializer.toNBTString(entity));
         } else {
             this.serializedStackedEntities.add(0, EntitySerializer.toNBTString(entity));
         }
-        this.updateDisplay();
+
+        if (updateDisplay)
+            this.updateDisplay();
     }
 
     public void increaseStackSize(List<String> entityNBTStrings) {
@@ -83,22 +89,27 @@ public class StackedEntity extends Stack {
     /**
      * Drops all loot for all internally-stacked entities.
      * Does not include loot for the current entity.
+     *
+     * @param existingLoot The loot from this.entity, nullable
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot) {
+        LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
         if (existingLoot != null)
             loot.addAll(existingLoot);
 
-        int fireTicks = this.entity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
-        for (String entityNBT : this.serializedStackedEntities) {
-            LivingEntity entity = EntitySerializer.getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), entityNBT);
-            if (entity != null) {
-                entity.setFireTicks(fireTicks);
-                loot.addAll(StackerUtils.getEntityLoot(entity, this.entity.getKiller(), this.entity.getLocation()));
+        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+            int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
+            for (String entityNBT : this.serializedStackedEntities) {
+                LivingEntity entity = EntitySerializer.getNBTStringAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
+                if (entity != null) {
+                    entity.setFireTicks(fireTicks);
+                    loot.addAll(StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+                }
             }
-        }
 
-        RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation()));
+        });
     }
 
     /**
