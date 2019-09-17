@@ -59,7 +59,7 @@ public class InteractListener implements Listener {
         LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
         stackManager.setEntityStackingDisabled(false);
 
-        // Make invulnerable so it doesn't get removed while we are stacking it
+        initialEntity.setAI(false);
         initialEntity.setInvulnerable(true);
 
         StackedEntity stackedEntity = (StackedEntity) stackManager.createStackFromEntity(initialEntity, false);
@@ -71,7 +71,8 @@ public class InteractListener implements Listener {
 
             Bukkit.getScheduler().runTask(this.roseStacker, () -> {
                 stackedEntity.updateDisplay();
-                initialEntity.setInvulnerable(false); // Make damageable again
+                initialEntity.setAI(true);
+                initialEntity.setInvulnerable(false);
             });
         });
 
@@ -118,7 +119,7 @@ public class InteractListener implements Listener {
             return;
         }
 
-        // Make invulnerable so it doesn't get removed while we are stacking it
+        entity.setAI(false);
         entity.setInvulnerable(true);
 
         String entityNbt = EntitySerializer.toNBTString(entity);
@@ -130,7 +131,8 @@ public class InteractListener implements Listener {
 
             Bukkit.getScheduler().runTask(this.roseStacker, () -> {
                 stackedEntity.updateDisplay();
-                stackedEntity.getEntity().setInvulnerable(false); // Make damageable again
+                entity.setAI(true);
+                entity.setInvulnerable(false);
             });
         });
 

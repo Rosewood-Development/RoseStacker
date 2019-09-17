@@ -17,7 +17,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.v1_14_R1.CraftChunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -146,7 +145,9 @@ public class DataManager extends Manager {
             Iterator<Chunk> chunkIterator = chunks.iterator();
             while (chunkIterator.hasNext()) {
                 Chunk chunk = chunkIterator.next();
-                Collections.addAll(chunkEntities, chunk.getEntities());
+                try {
+                    Collections.addAll(chunkEntities, chunk.getEntities());
+                } catch (Exception ignored) { }
                 if (compoundSelect.length() > 0)
                     compoundSelect.append(" UNION ALL ");
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
@@ -206,7 +207,9 @@ public class DataManager extends Manager {
             Iterator<Chunk> chunkIterator = chunks.iterator();
             while (chunkIterator.hasNext()) {
                 Chunk chunk = chunkIterator.next();
-                Collections.addAll(chunkEntities, chunk.getEntities());
+                try {
+                    Collections.addAll(chunkEntities, chunk.getEntities());
+                } catch (Exception ignored) { }
                 if (compoundSelect.length() > 0)
                     compoundSelect.append(" UNION ALL ");
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
