@@ -221,13 +221,13 @@ public class BlockListener implements Listener {
         }
 
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
-        boolean isAdditiveStack = against.getType() == block.getType();
+        boolean isAdditiveStack = against.getType() == block.getType() && !player.isSneaking();
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == StackerUtils.getStackedItemEntityType(placedItem);
 
         int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
         if (isAdditiveStack) {
-            if (!stackManager.isBlockTypeStackable(against) || player.isSneaking())
+            if (!stackManager.isBlockTypeStackable(against))
                 return;
 
             if (block.getType() == Material.SPAWNER) {
@@ -258,25 +258,19 @@ public class BlockListener implements Listener {
 
             event.setCancelled(true);
         } else {
-            // Only create stacks from matching types or if the stack amount is greater than 1
-            if (against.getType() != block.getType() && stackAmount <= 1)
-                return;
-
-            // Handle placing spawners
-            if (placedItem.getType() == Material.SPAWNER) {
-                // Create a stacked spawner
+            // Set the spawner type
+            if (stackAmount == 1 && placedItem.getType() == Material.SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = StackerUtils.getStackedItemEntityType(placedItem);
                 if (spawnedType == null)
                     return;
 
-                // Set the spawner type
                 spawner.setSpawnedType(spawnedType);
                 spawner.update();
             }
 
-            // Don't bother creating a stack if we're only placing 1 of them
-            if (stackAmount == 1)
+            // Only create stacks from matching types and if we're stacking more than 1
+            if (against.getType() != block.getType() || stackAmount <= 1)
                 return;
 
             if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
