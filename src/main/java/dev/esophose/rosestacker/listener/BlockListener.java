@@ -8,6 +8,7 @@ import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,6 +32,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -305,6 +307,27 @@ public class BlockListener implements Listener {
         // We will handle dropping experience ourselves for when spawners actually break
         if (event.getBlock().getType() == Material.SPAWNER)
             event.setExpToDrop(0);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onInteract(PlayerInteractEvent event) {
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null
+                || clickedBlock.getType() != Material.SPAWNER
+                || event.getItem() == null
+                || !event.getItem().getType().name().endsWith("_SPAWN_EGG"))
+            return;
+
+        Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+            StackManager stackManager = this.roseStacker.getStackManager();
+            if (!stackManager.isBlockStacked(clickedBlock))
+                return;
+
+            // Make sure spawners convert and update their display properly
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+            stackedSpawner.updateSpawnCount();
+            stackedSpawner.updateDisplay();
+        });
     }
 
 }

@@ -9,7 +9,9 @@ import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
 
 public class StackedSpawner extends Stack {
 
@@ -28,8 +30,8 @@ public class StackedSpawner extends Stack {
             this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
 
             if (Bukkit.isPrimaryThread()) {
-                this.updateDisplay();
                 this.updateSpawnCount();
+                this.updateDisplay();
             }
         }
     }
@@ -44,14 +46,14 @@ public class StackedSpawner extends Stack {
 
     public void increaseStackSize(int amount) {
         this.size += amount;
-        this.updateDisplay();
         this.updateSpawnCount();
+        this.updateDisplay();
     }
 
     public void setStackSize(int size) {
         this.size = size;
-        this.updateDisplay();
         this.updateSpawnCount();
+        this.updateDisplay();
     }
 
     @Override
@@ -85,7 +87,16 @@ public class StackedSpawner extends Stack {
         hologramManager.createOrUpdateHologram(location, displayString);
     }
 
-    private void updateSpawnCount() {
+    public void updateSpawnCount() {
+        if (this.spawner.getBlock().getType() != Material.SPAWNER)
+            return;
+
+        // Handle the entity type changing
+        EntityType oldEntityType = this.spawner.getSpawnedType();
+        this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
+        if (oldEntityType != this.spawner.getSpawnedType())
+            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
+
         int delay = this.spawner.getDelay();
         this.spawner.setSpawnCount(this.size * 4);
         this.spawner.setMaxNearbyEntities(6 + (this.size - 1) * 4);

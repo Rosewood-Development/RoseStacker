@@ -13,6 +13,7 @@ import dev.esophose.rosestacker.manager.DataMigrationManager;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.Manager;
+import dev.esophose.rosestacker.manager.SpawnerSpawnManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.utils.Metrics;
@@ -41,6 +42,7 @@ public class RoseStacker extends JavaPlugin {
     private LocaleManager localeManager;
     private StackManager stackManager;
     private StackSettingManager stackSettingManager;
+    private SpawnerSpawnManager spawnerSpawnManager;
 
     public static RoseStacker getInstance() {
         return INSTANCE;
@@ -64,6 +66,7 @@ public class RoseStacker extends JavaPlugin {
         this.localeManager = new LocaleManager(this);
         this.stackManager = this.registerManager(StackManager.class);
         this.stackSettingManager = new StackSettingManager(this);
+        this.spawnerSpawnManager = this.registerManager(SpawnerSpawnManager.class);
 
         // Load managers
         this.reload();
@@ -185,6 +188,13 @@ public class RoseStacker extends JavaPlugin {
      */
     public StackSettingManager getStackSettingManager() {
         return this.stackSettingManager;
+    }
+
+    /**
+     * @return the SpawnerSpawnManager instance
+     */
+    public SpawnerSpawnManager getSpawnerSpawnManager() {
+        return this.spawnerSpawnManager;
     }
 
 }

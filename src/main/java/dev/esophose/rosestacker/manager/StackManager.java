@@ -122,6 +122,7 @@ public class StackManager extends Manager implements Runnable {
     @Override
     public void disable() {
         this.task.cancel();
+        this.cleanupTask.cancel();
 
         this.deleteStacks();
 
@@ -606,6 +607,10 @@ public class StackManager extends Manager implements Runnable {
 
     public boolean isEntityStackingDisabled() {
         return this.isEntityStackingDisabled;
+    }
+
+    protected Map<Block, StackedSpawner> getStackedSpawners() {
+        return Collections.unmodifiableMap(this.stackedSpawners);
     }
 
 }
