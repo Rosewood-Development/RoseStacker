@@ -562,7 +562,36 @@ public class StackManager extends Manager implements Runnable {
                 EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
                 if (stackSettings.canStackWith(stackedEntity, other, false)) {
                     if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity()))
-                        return null;
+                        continue;
+
+                    int minStackSize = stackSettings.getMinStackSize();
+                    if (minStackSize > 2) {
+                        int nearbyEntities = 0;
+                        if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
+                            for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
+                                if (this.deletedStacks.contains(nearbyStackedEntity))
+                                    continue;
+
+                                if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
+                                        && stackedEntity.getLocation().distanceSquared(nearbyStackedEntity.getLocation()) <= maxEntityStackDistanceSqrd
+                                        && stackSettings.canStackWith(stackedEntity, nearbyStackedEntity, false))
+                                    nearbyEntities += nearbyStackedEntity.getStackSize();
+                            }
+                        } else {
+                            for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
+                                if (this.deletedStacks.contains(nearbyStackedEntity))
+                                    continue;
+
+                                if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
+                                        && nearbyStackedEntity.getLocation().getChunk() == stackedEntity.getLocation().getChunk()
+                                        && stackSettings.canStackWith(stackedEntity, nearbyStackedEntity, false))
+                                    nearbyEntities += nearbyStackedEntity.getStackSize();
+                            }
+                        }
+
+                        if (nearbyEntities < minStackSize)
+                            continue;
+                    }
 
                     StackedEntity increased = (StackedEntity) this.getPreferredEntityStack(stackedEntity, other);
                     StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
