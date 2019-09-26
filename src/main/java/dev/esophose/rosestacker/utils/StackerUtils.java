@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -265,6 +266,13 @@ public final class StackerUtils {
             ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
             orb.setExperience(experience);
         }
+    }
+
+    public static void dropToInventory(Player player, ItemStack itemStack) {
+        Map<Integer, ItemStack> remaining = player.getInventory().addItem(itemStack);
+        ItemStack remainingItem = remaining.get(0);
+        if (remainingItem != null)
+            player.getWorld().dropItemNaturally(player.getLocation(), remainingItem);
     }
 
 }

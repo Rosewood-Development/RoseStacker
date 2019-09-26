@@ -125,13 +125,24 @@ public class BlockListener implements Listener {
             }
             int destroyAmount = amount - dropAmount;
 
-            if (dropAmount > 0)
-                dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(spawnedType, dropAmount));
+            if (dropAmount > 0) {
+                ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, dropAmount);
+                if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
+                    StackerUtils.dropToInventory(player, spawnerItem);
+                } else {
+                    dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
+                }
+            }
 
             if (destroyAmount > 0)
                 StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 10);
         } else {
-            dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
+            ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount);
+            if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
+                StackerUtils.dropToInventory(player, spawnerItem);
+            } else {
+                dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
+            }
         }
     }
 
