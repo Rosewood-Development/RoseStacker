@@ -30,14 +30,14 @@ public class LocaleManager extends Manager {
         COMMAND_GIVE_USAGE("&cUsage: &e/rs give <block|spawner|entity> <player> <type> <amount>"),
         COMMAND_GIVE_GIVEN("&eGave &b%player% &e[%display%&e]."),
 
-        COMMAND_KILLALL_DESCRIPTION("&8 - &d/rs killall &7- Kills all of a stack type"),
-        COMMAND_KILLALL_USAGE("&cUsage: &e/rs killall <entity|item>"),
-        COMMAND_KILLALL_KILLED_ENTITIES("&eKilled &b%amount% &eentities"),
-        COMMAND_KILLALL_KILLED_ITEMS("&eKilled &b%amount% &eitems"),
+        COMMAND_CLEARALL_DESCRIPTION("&8 - &d/rs clearall &7- Clears all of a stack type"),
+        COMMAND_CLEARALL_USAGE("&cUsage: &e/rs clearall <entity|item>"),
+        COMMAND_CLEARALL_KILLED_ENTITIES("&eCleared &b%amount% &eentities."),
+        COMMAND_CLEARALL_KILLED_ITEMS("&eCleared &b%amount% &eitems."),
 
         COMMAND_CONVERT_DESCRIPTION("&8 - &d/rs convert &7- Converts data from another stacking plugin"),
         COMMAND_CONVERT_USAGE("&cUsage: &e/rs convert <plugin>"),
-        COMMAND_CONVERT_CONVERTED("&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled."),
+        COMMAND_CONVERT_CONVERTED("&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder."),
         COMMAND_CONVERT_FAILED("&cFailed to convert &b%plugin%&c, plugin is not enabled."),
 
         ACF_CORE_PERMISSION_DENIED("&cYou don't have permission for that!"),
@@ -162,6 +162,15 @@ public class LocaleManager extends Manager {
         return Stream.of(Locale.values())
                 .filter(x -> x.name().startsWith("ACF_CORE"))
                 .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_CORE_", "").toLowerCase(), Locale::get));
+    }
+
+    /**
+     * @return a map of acf-core minecraft and their values
+     */
+    public Map<String, String> getAcfMinecraftMessages() {
+        return Stream.of(Locale.values())
+                .filter(x -> x.name().startsWith("ACF_MINECRAFT"))
+                .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_MINECRAFT_", "").toLowerCase(), Locale::get));
     }
 
     /**

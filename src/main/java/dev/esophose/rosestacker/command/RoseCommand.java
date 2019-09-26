@@ -41,7 +41,7 @@ public class RoseCommand extends BaseCommand {
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.get() + "&7Version " + this.roseStacker.getDescription().getVersion() + " created by &5" + this.roseStacker.getDescription().getAuthors().get(0)));
         localeManager.sendMessage(sender, Locale.COMMAND_RELOAD_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_GIVE_DESCRIPTION);
-        localeManager.sendMessage(sender, Locale.COMMAND_KILLALL_DESCRIPTION);
+        localeManager.sendMessage(sender, Locale.COMMAND_CLEARALL_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_CONVERT_DESCRIPTION);
         sender.sendMessage("");
     }
@@ -54,31 +54,31 @@ public class RoseCommand extends BaseCommand {
         this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_RELOAD_RELOADED);
     }
 
-    @Subcommand("killall")
-    @Description("Kills all stacked entities or items")
-    @CommandPermission("rosestacker.killall")
-    @CommandCompletion("@killallType")
-    public void onKillall(CommandSender sender, KillallType killallType) {
+    @Subcommand("clearall")
+    @Description("Clears all stacked entities or items")
+    @CommandPermission("rosestacker.clearall")
+    @CommandCompletion("@clearallType")
+    public void onClearall(CommandSender sender, ClearallType clearallType) {
         StackManager stackManager = this.roseStacker.getStackManager();
         LocaleManager localeManager = this.roseStacker.getLocaleManager();
 
         int amount;
-        switch (killallType) {
+        switch (clearallType) {
             case ENTITY:
                 amount = stackManager.removeAllEntities();
-                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_KILLALL_KILLED_ENTITIES, StringPlaceholders.single("amount", amount));
+                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_KILLED_ENTITIES, StringPlaceholders.single("amount", amount));
                 break;
             case ITEM:
                 amount = stackManager.removeAllItems();
-                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_KILLALL_KILLED_ITEMS, StringPlaceholders.single("amount", amount));
+                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_KILLED_ITEMS, StringPlaceholders.single("amount", amount));
                 break;
         }
     }
 
-    @Subcommand("killall")
+    @Subcommand("clearall")
     @Default
-    public void onKillall(CommandSender sender) {
-        this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_KILLALL_USAGE);
+    public void onClearall(CommandSender sender) {
+        this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_USAGE);
     }
 
     @Subcommand("convert")
@@ -154,7 +154,7 @@ public class RoseCommand extends BaseCommand {
 
     }
 
-    public enum KillallType {
+    public enum ClearallType {
         ENTITY,
         ITEM
     }

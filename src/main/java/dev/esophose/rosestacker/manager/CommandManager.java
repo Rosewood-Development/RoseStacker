@@ -6,7 +6,7 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.locales.MessageKey;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.command.RoseCommand;
-import dev.esophose.rosestacker.command.RoseCommand.KillallType;
+import dev.esophose.rosestacker.command.RoseCommand.ClearallType;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -60,7 +60,7 @@ public class CommandManager extends Manager {
                 }
                 return Collections.emptySet();
             });
-            completions.registerAsyncCompletion("killallType", ctx -> Stream.of(KillallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
+            completions.registerAsyncCompletion("clearallType", ctx -> Stream.of(ClearallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
             completions.registerAsyncCompletion("conversionType", ctx -> this.roseStacker.getConversionManager().getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
 
             this.loaded = true;
