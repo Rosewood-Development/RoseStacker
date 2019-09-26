@@ -6,7 +6,7 @@ public abstract class Manager {
 
     protected RoseStacker roseStacker;
 
-    Manager(RoseStacker roseStacker) {
+    public Manager(RoseStacker roseStacker) {
         this.roseStacker = roseStacker;
     }
 

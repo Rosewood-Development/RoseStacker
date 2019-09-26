@@ -10,6 +10,7 @@ import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConversionManager.StackPlugin;
 import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.LocaleManager.Locale;
 import dev.esophose.rosestacker.manager.StackManager;
@@ -41,6 +42,7 @@ public class RoseCommand extends BaseCommand {
         localeManager.sendMessage(sender, Locale.COMMAND_RELOAD_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_GIVE_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_KILLALL_DESCRIPTION);
+        localeManager.sendMessage(sender, Locale.COMMAND_CONVERT_DESCRIPTION);
         sender.sendMessage("");
     }
 
@@ -77,6 +79,24 @@ public class RoseCommand extends BaseCommand {
     @Default
     public void onKillall(CommandSender sender) {
         this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_KILLALL_USAGE);
+    }
+
+    @Subcommand("convert")
+    @Description("Converts a stack plugin's data to this one")
+    @CommandPermission("rosestacker.convert")
+    @CommandCompletion("@conversionType")
+    public void onConvert(CommandSender sender, StackPlugin stackPlugin) {
+        if (this.roseStacker.getConversionManager().convert(stackPlugin)) {
+            this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_CONVERTED, StringPlaceholders.single("plugin", stackPlugin.name()));
+        } else {
+            this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_FAILED, StringPlaceholders.single("plugin", stackPlugin.name()));
+        }
+    }
+
+    @Subcommand("convert")
+    @Default
+    public void onConvert(CommandSender sender) {
+        this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_USAGE);
     }
 
     @Subcommand("give")

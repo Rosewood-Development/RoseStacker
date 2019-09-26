@@ -35,6 +35,11 @@ dependencies {
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
     shadow 'com.zrips:CMI:8.0.8.1'
 
+    // Referenced stack plugin dependencies
+    shadow 'com.songoda:UltimateStacker:1.9.6'
+    shadow 'com.bgsoftware:WildStacker:2.9.0'
+    shadow 'uk.antiperson:stackmob:4-0-2'
+
     // Dependencies that will be shaded into the jar
     compile 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     compile 'com.zaxxer:HikariCP:3.2.0'

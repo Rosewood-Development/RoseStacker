@@ -10,7 +10,6 @@ import dev.esophose.rosestacker.command.RoseCommand.KillallType;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 
 import java.util.Arrays;
@@ -62,6 +61,7 @@ public class CommandManager extends Manager {
                 return Collections.emptySet();
             });
             completions.registerAsyncCompletion("killallType", ctx -> Stream.of(KillallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
+            completions.registerAsyncCompletion("conversionType", ctx -> this.roseStacker.getConversionManager().getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
 
             this.loaded = true;
         }

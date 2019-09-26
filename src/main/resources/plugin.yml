@@ -9,14 +9,21 @@ permissions:
     description: Inherits all plugin permissions
     children:
       rosestacker.reload: true
+      rosestacker.give: true
+      rosestacker.killall: true
+      rosestacker.convert: true
+      rosestacker.silktouch: true
   rosestacker.reload:
-    description: Allows reloading of the plugin
+    description: Allows using the reload command
     default: op
   rosestacker.give:
-    description: Allows using the given command
+    description: Allows using the give command
     default: op
   rosestacker.killall:
     description: Allows using the killall command
+    default: op
+  rosestacker.convert:
+    description: Allows using the convert command
     default: op
   rosestacker.silktouch:
     description: Allows picking up spawners with silk touch

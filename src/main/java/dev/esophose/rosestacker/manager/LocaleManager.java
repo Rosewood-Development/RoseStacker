@@ -35,6 +35,11 @@ public class LocaleManager extends Manager {
         COMMAND_KILLALL_KILLED_ENTITIES("&eKilled &b%amount% &eentities"),
         COMMAND_KILLALL_KILLED_ITEMS("&eKilled &b%amount% &eitems"),
 
+        COMMAND_CONVERT_DESCRIPTION("&8 - &d/rs convert &7- Converts data from another stacking plugin"),
+        COMMAND_CONVERT_USAGE("&cUsage: &e/rs convert <plugin>"),
+        COMMAND_CONVERT_CONVERTED("&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled."),
+        COMMAND_CONVERT_FAILED("&cFailed to convert &b%plugin%&c, plugin is not enabled."),
+
         ACF_CORE_PERMISSION_DENIED("&cYou don't have permission for that!"),
         ACF_CORE_PERMISSION_DENIED_PARAMETER("&cYou don't have permission for that!"),
         ACF_CORE_ERROR_GENERIC_LOGGED("&cAn error occurred. Please report to the plugin author."),
