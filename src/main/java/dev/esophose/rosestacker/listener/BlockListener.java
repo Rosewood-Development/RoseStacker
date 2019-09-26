@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,8 +63,7 @@ public class BlockListener implements Listener {
         if (isSpawner) {
             // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
-                if (player.getGameMode() != GameMode.CREATIVE)
-                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), 1));
+                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
                 block.setType(Material.AIR);
                 event.setCancelled(true);
                 return;
@@ -71,13 +71,11 @@ public class BlockListener implements Listener {
 
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
             if (breakEverything) {
-                if (player.getGameMode() != GameMode.CREATIVE)
-                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), stackedSpawner.getStackSize()));
+                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), stackedSpawner.getStackSize());
                 stackedSpawner.setStackSize(0);
                 block.setType(Material.AIR);
             } else {
-                if (player.getGameMode() != GameMode.CREATIVE)
-                    dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(((CreatureSpawner) block.getState()).getSpawnedType(), 1));
+                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
                 stackedSpawner.increaseStackSize(-1);
             }
 
@@ -101,6 +99,38 @@ public class BlockListener implements Listener {
         }
 
         event.setCancelled(true);
+    }
+
+    private void tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
+        ItemStack itemInHand = player.getInventory().getItemInMainHand();
+        if (player.getGameMode() == GameMode.CREATIVE
+                || dropLocation.getWorld() == null
+                || !itemInHand.getType().name().endsWith("PICKAXE"))
+            return;
+
+        if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean()) {
+            if (Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch"))
+                return;
+
+            int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
+            int dropAmount = amount;
+            if (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2) {
+                for (int i = 0; i < amount; i++) {
+                    boolean passesChance = StackerUtils.passesChance(Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt() / 100D);
+                    if (!passesChance || silkTouchLevel == 0)
+                        dropAmount--;
+                }
+            }
+            int destroyAmount = amount - dropAmount;
+
+            if (dropAmount > 0)
+                dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(spawnedType, dropAmount));
+
+            if (destroyAmount > 0)
+                StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 10);
+        } else {
+            dropLocation.getWorld().dropItemNaturally(dropLocation, StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -278,6 +308,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExp(BlockExpEvent event) {
         // Don't want to be able to get exp from stacked spawners, so just remove it all together
+        // We will handle dropping experience ourselves for when spawners actually break
         if (event.getBlock().getType() == Material.SPAWNER)
             event.setExpToDrop(0);
     }

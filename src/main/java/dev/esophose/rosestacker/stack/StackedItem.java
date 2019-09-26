@@ -82,7 +82,7 @@ public class StackedItem extends Stack {
             displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", displayName)
                 .apply(Locale.ITEM_STACK_DISPLAY.get()));
 

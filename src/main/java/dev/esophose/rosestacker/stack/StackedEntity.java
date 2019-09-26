@@ -160,7 +160,7 @@ public class StackedEntity extends Stack {
             return;
 
         if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
-            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
                     .addPlaceholder("name", this.stackSettings.getDisplayName())
                     .apply(Locale.ENTITY_STACK_DISPLAY.get()));
 

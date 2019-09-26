@@ -78,7 +78,7 @@ public class StackedSpawner extends Stack {
             return;
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", this.stackSettings.getDisplayName())
                 .apply(Locale.SPAWNER_STACK_DISPLAY.get()));
 
@@ -89,8 +89,8 @@ public class StackedSpawner extends Stack {
         int delay = this.spawner.getDelay();
         this.spawner.setSpawnCount(this.size * 4);
         this.spawner.setMaxNearbyEntities(6 + (this.size - 1) * 4);
-        this.spawner.update();
         this.spawner.setDelay(delay);
+        this.spawner.update();
     }
 
 }

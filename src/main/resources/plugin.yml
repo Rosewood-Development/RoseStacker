@@ -3,7 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.rosestacker.RoseStacker
 api-version: 1.14
-softdepend: [HolographicDisplays, Holograms, CMI]
+softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob]
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions
@@ -14,4 +14,10 @@ permissions:
     default: op
   rosestacker.give:
     description: Allows using the given command
+    default: op
+  rosestacker.killall:
+    description: Allows using the killall command
+    default: op
+  rosestacker.silktouch:
+    description: Allows picking up spawners with silk touch
     default: op

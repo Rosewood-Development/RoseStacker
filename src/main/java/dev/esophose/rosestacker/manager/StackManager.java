@@ -242,6 +242,36 @@ public class StackManager extends Manager implements Runnable {
         this.deletedStacks.add(stackedSpawner);
     }
 
+    /**
+     * Removes all stacked entities
+     *
+     * @return the number of entities removed
+     */
+    public int removeAllEntities() {
+        int removed = 0;
+        for (StackedEntity stackedEntity : this.stackedEntities.values()) {
+            stackedEntity.getEntity().remove();
+            this.removeEntity(stackedEntity);
+            removed++;
+        }
+        return removed;
+    }
+
+    /**
+     * Removes all stacked items
+     *
+     * @return the number of items removed
+     */
+    public int removeAllItems() {
+        int removed = 0;
+        for (StackedItem stackedItem : this.stackedItems.values()) {
+            stackedItem.getItem().remove();
+            this.removeItem(stackedItem);
+            removed++;
+        }
+        return removed;
+    }
+
     public void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey) {
         StackedEntity value = this.stackedEntities.get(oldKey.getUniqueId());
         if (value != null) {

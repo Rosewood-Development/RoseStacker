@@ -14,8 +14,8 @@ public final class StringPlaceholders {
         this.placeholders = new HashMap<>();
     }
 
-    public void addPlaceholder(String placeholder, String value) {
-        this.placeholders.put(placeholder, value);
+    public void addPlaceholder(String placeholder, Object value) {
+        this.placeholders.put(placeholder, objectToString(value));
     }
 
     public String apply(String string) {
@@ -32,8 +32,16 @@ public final class StringPlaceholders {
         return new Builder();
     }
 
-    public static Builder builder(String placeholder, String value) {
-        return new Builder(placeholder, value);
+    public static Builder builder(String placeholder, Object value) {
+        return new Builder(placeholder, objectToString(value));
+    }
+
+    public static StringPlaceholders single(String placeholder, Object value) {
+        return builder(placeholder, value).build();
+    }
+
+    private static String objectToString(Object object) {
+        return object != null ? object.toString() : "null";
     }
 
     public static class Builder {
@@ -44,13 +52,13 @@ public final class StringPlaceholders {
             this.stringPlaceholders = new StringPlaceholders();
         }
 
-        private Builder(String placeholder, String value) {
+        private Builder(String placeholder, Object value) {
             this();
-            this.stringPlaceholders.addPlaceholder(placeholder, value);
+            this.stringPlaceholders.addPlaceholder(placeholder, objectToString(value));
         }
 
-        public Builder addPlaceholder(String placeholder, String value) {
-            this.stringPlaceholders.addPlaceholder(placeholder, value);
+        public Builder addPlaceholder(String placeholder, Object value) {
+            this.stringPlaceholders.addPlaceholder(placeholder, objectToString(value));
             return this;
         }
 

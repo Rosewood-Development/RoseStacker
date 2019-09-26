@@ -74,7 +74,7 @@ public class StackedBlock extends Stack {
             return;
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", String.valueOf(this.getStackSize()))
+        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", this.stackSettings.getDisplayName())
                 .apply(Locale.BLOCK_STACK_DISPLAY.get()));
 

@@ -30,6 +30,11 @@ public class LocaleManager extends Manager {
         COMMAND_GIVE_USAGE("&cUsage: &e/rs give <block|spawner|entity> <player> <type> <amount>"),
         COMMAND_GIVE_GIVEN("&eGave &b%player% &e[%display%&e]."),
 
+        COMMAND_KILLALL_DESCRIPTION("&8 - &d/rs killall &7- Kills all of a stack type"),
+        COMMAND_KILLALL_USAGE("&cUsage: &e/rs killall <entity|item>"),
+        COMMAND_KILLALL_KILLED_ENTITIES("&eKilled &b%amount% &eentities"),
+        COMMAND_KILLALL_KILLED_ITEMS("&eKilled &b%amount% &eitems"),
+
         ACF_CORE_PERMISSION_DENIED("&cYou don't have permission for that!"),
         ACF_CORE_PERMISSION_DENIED_PARAMETER("&cYou don't have permission for that!"),
         ACF_CORE_ERROR_GENERIC_LOGGED("&cAn error occurred. Please report to the plugin author."),

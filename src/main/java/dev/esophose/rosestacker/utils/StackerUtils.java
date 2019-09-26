@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -232,6 +233,37 @@ public final class StackerUtils {
             }
         } else {
             itemStack.setAmount(newAmount);
+        }
+    }
+
+    public static boolean passesChance(double chance) {
+        return random.nextDouble() <= chance;
+    }
+
+    /**
+     * Drops experience at a given location
+     *
+     * @param location to spawn experience
+     * @param lowerBound minimum amount to drop
+     * @param upperBound maximum amount to drop
+     * @param step the max size an orb can be, will drop multiple orbs if this is exceeded
+     */
+    public static void dropExperience(Location location, int lowerBound, int upperBound, int step) {
+        World world = location.getWorld();
+        if (world == null)
+            return;
+
+        int experience = random.nextInt(upperBound - lowerBound + 1) + lowerBound;
+
+        while (experience > step) {
+            ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
+            orb.setExperience(experience);
+            experience -= step;
+        }
+
+        if (experience > 0) {
+            ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
+            orb.setExperience(experience);
         }
     }
 

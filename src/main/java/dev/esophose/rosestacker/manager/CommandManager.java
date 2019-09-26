@@ -6,6 +6,7 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.locales.MessageKey;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.command.RoseCommand;
+import dev.esophose.rosestacker.command.RoseCommand.KillallType;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CommandManager extends Manager {
 
@@ -39,18 +41,18 @@ public class CommandManager extends Manager {
                 commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), LocaleManager.Locale.PREFIX.get() + acfCoreMessages.get(key));
 
             CommandCompletions<BukkitCommandCompletionContext> completions = commandManager.getCommandCompletions();
-            completions.registerAsyncCompletion("amount", (ctx) -> Arrays.asList("5", "16", "64", "256", "<amount>"));
-            completions.registerAsyncCompletion("stackableBlockMaterial", (ctx) -> this.roseStacker.getStackSettingManager().getStackableBlockTypes().stream().map(x -> x.name().toLowerCase()).collect(Collectors.toSet()));
-            completions.registerAsyncCompletion("spawnableEntityType", (ctx) -> StackerUtils.getStackableEntityTypes().stream().map(x -> x.name().toLowerCase()).collect(Collectors.toSet()));
-            completions.registerAsyncCompletion("blockStackAmounts", (ctx) -> {
+            completions.registerAsyncCompletion("amount", ctx -> Arrays.asList("5", "16", "64", "256", "<amount>"));
+            completions.registerAsyncCompletion("stackableBlockMaterial", ctx -> this.roseStacker.getStackSettingManager().getStackableBlockTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
+            completions.registerAsyncCompletion("spawnableEntityType", ctx -> StackerUtils.getStackableEntityTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
+            completions.registerAsyncCompletion("blockStackAmounts", ctx -> {
                 int maxStackAmount = Setting.BLOCK_MAX_STACK_SIZE.getInt();
                 return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
             });
-            completions.registerAsyncCompletion("spawnerStackAmounts", (ctx) -> {
+            completions.registerAsyncCompletion("spawnerStackAmounts", ctx -> {
                 int maxStackAmount = Setting.SPAWNER_MAX_STACK_SIZE.getInt();
                 return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
             });
-            completions.registerAsyncCompletion("entityStackAmounts", (ctx) -> {
+            completions.registerAsyncCompletion("entityStackAmounts", ctx -> {
                 EntityType entityType = ctx.getContextValue(EntityType.class);
                 if (entityType != null) {
                     EntityStackSettings entityStackSettings = this.roseStacker.getStackSettingManager().getEntityStackSettings(entityType);
@@ -59,6 +61,7 @@ public class CommandManager extends Manager {
                 }
                 return Collections.emptySet();
             });
+            completions.registerAsyncCompletion("killallType", ctx -> Stream.of(KillallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
 
             this.loaded = true;
         }
@@ -67,10 +70,6 @@ public class CommandManager extends Manager {
     @Override
     public void disable() {
 
-    }
-
-    private String parse(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
 }
