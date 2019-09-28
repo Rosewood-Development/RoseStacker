@@ -9,7 +9,6 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.craftbukkit.v1_14_R1.block.CraftBlock;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -82,6 +81,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
             // Spawn particles indicating the spawn occurred
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+
+            // Make sure we meet the nearby entity constraint
+            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), MAX_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities())
+                continue;
 
             // Spawn the mobs
             int minSpawnAmount = (spawner.getSpawnCount() / 4);

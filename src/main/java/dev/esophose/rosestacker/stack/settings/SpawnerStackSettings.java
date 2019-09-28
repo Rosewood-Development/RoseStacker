@@ -24,7 +24,6 @@ import static org.bukkit.Material.ACACIA_LEAVES;
 import static org.bukkit.Material.AIR;
 import static org.bukkit.Material.BIRCH_LEAVES;
 import static org.bukkit.Material.DARK_OAK_LEAVES;
-import static org.bukkit.Material.GRASS;
 import static org.bukkit.Material.GRASS_BLOCK;
 import static org.bukkit.Material.JUNGLE_LEAVES;
 import static org.bukkit.Material.MYCELIUM;
