@@ -23,6 +23,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -212,12 +214,13 @@ public final class StackerUtils {
         return true;
     }
 
-    public static Set<EntityType> getStackableEntityTypes() {
+    public static List<EntityType> getStackableEntityTypes() {
         return Stream.of(EntityType.values())
                 .filter(EntityType::isAlive)
                 .filter(EntityType::isSpawnable)
                 .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(Enum::name))
+                .collect(Collectors.toList());
     }
 
     public static void takeOneItem(Player player, EquipmentSlot handType) {

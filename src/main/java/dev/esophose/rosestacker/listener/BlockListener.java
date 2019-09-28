@@ -234,12 +234,12 @@ public class BlockListener implements Listener {
         }
 
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
-        boolean isAdditiveStack = against.getType() == block.getType() && !player.isSneaking();
+        boolean isAdditiveStack = against.getType() == block.getType();
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == StackerUtils.getStackedItemEntityType(placedItem);
 
         int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
-        if (isAdditiveStack) {
+        if (isAdditiveStack && !player.isSneaking()) {
             if (!stackManager.isBlockTypeStackable(against))
                 return;
 
@@ -272,7 +272,7 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
         } else {
             // Set the spawner type
-            if (stackAmount == 1 && placedItem.getType() == Material.SPAWNER) {
+            if (placedItem.getType() == Material.SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = StackerUtils.getStackedItemEntityType(placedItem);
                 if (spawnedType == null)
@@ -283,7 +283,7 @@ public class BlockListener implements Listener {
             }
 
             // Only create stacks from matching types and if we're stacking more than 1
-            if (against.getType() != block.getType() || stackAmount <= 1)
+            if (stackAmount <= 1)
                 return;
 
             if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
