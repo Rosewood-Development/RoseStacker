@@ -173,7 +173,7 @@ public final class StackerUtils {
 
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
         try {
-            return EntityType.valueOf((name.substring(0, name.length() - 8)).toUpperCase());
+            return EntityType.valueOf((name.substring(0, name.length() - 8)).toUpperCase().replaceAll(" ", "_"));
         } catch (Exception ex) {
             return EntityType.PIG;
         }

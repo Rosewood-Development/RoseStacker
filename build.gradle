@@ -19,7 +19,13 @@ repositories {
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
 
     // Need to find a better maven host for Holograms and CMI
-    maven { url = 'https://repo.songoda.com/artifactory/private/' }
+    maven {
+        credentials  {
+            username = mavenUser
+            password = mavenPassword
+        }
+        url = 'https://repo.songoda.com/artifactory/private/'
+    }
 }
 
 compileJava {
@@ -33,7 +39,7 @@ dependencies {
     shadow 'org.spigotmc:spigot:1.14.4'
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.3.2'
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
-    shadow 'com.zrips:CMI:8.0.8.1'
+    shadow 'com.zrips:CMI:8.4.0.2_1'
 
     // Referenced stack plugin dependencies
     shadow 'com.songoda:UltimateStacker:1.9.6'
