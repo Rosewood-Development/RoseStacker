@@ -8,6 +8,7 @@ import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -35,8 +36,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
 
 public class BlockListener implements Listener {
 

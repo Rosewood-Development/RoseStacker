@@ -3,11 +3,10 @@ package dev.esophose.rosestacker.hologram;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import dev.esophose.rosestacker.RoseStacker;
-import org.bukkit.Location;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import org.bukkit.Location;
 
 public class HolographicDisplaysHologramHandler implements HologramHandler {
 

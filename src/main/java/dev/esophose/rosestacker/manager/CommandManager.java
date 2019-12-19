@@ -10,14 +10,13 @@ import dev.esophose.rosestacker.command.RoseCommand.ClearallType;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.entity.EntityType;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.entity.EntityType;
 
 public class CommandManager extends Manager {
 

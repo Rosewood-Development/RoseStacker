@@ -3,7 +3,6 @@ package dev.esophose.rosestacker.database.migrations;
 import dev.esophose.rosestacker.database.DataMigration;
 import dev.esophose.rosestacker.database.DatabaseConnector;
 import dev.esophose.rosestacker.database.MySQLConnector;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

@@ -3,6 +3,8 @@ package dev.esophose.rosestacker.listener;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.stack.StackedItem;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -16,9 +18,6 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ItemListener implements Listener {
 

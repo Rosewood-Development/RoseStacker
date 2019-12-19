@@ -6,12 +6,11 @@ import com.sainttx.holograms.api.HologramManager;
 import com.sainttx.holograms.api.line.HologramLine;
 import com.sainttx.holograms.api.line.TextLine;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Location;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import org.bukkit.Location;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class HologramsHologramHandler implements HologramHandler {
 

@@ -2,16 +2,15 @@ package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class LocaleManager extends Manager {
 

@@ -1,5 +1,14 @@
 package dev.esophose.rosestacker.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.DamageSource;
 import net.minecraft.server.v1_15_R1.Entity;
@@ -17,16 +26,6 @@ import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 
 public final class EntitySerializer {
 

@@ -17,12 +17,11 @@ import dev.esophose.rosestacker.manager.SpawnerSpawnManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.utils.Metrics;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Esophose

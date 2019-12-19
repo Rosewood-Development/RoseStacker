@@ -8,13 +8,6 @@ import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.ClassUtils;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-
 import java.io.File;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,6 +16,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 
 public class StackSettingManager extends Manager {
 

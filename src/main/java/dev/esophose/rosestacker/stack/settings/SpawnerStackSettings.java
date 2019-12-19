@@ -4,6 +4,12 @@ import com.google.common.collect.ImmutableSet;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
@@ -13,12 +19,6 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.NPC;
 import org.bukkit.entity.WaterMob;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.bukkit.Material.ACACIA_LEAVES;
 import static org.bukkit.Material.AIR;

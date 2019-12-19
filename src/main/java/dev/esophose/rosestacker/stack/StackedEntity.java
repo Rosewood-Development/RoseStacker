@@ -8,17 +8,16 @@ import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.utils.EntitySerializer;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 
 public class StackedEntity extends Stack {
 

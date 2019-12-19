@@ -1,5 +1,8 @@
 package dev.esophose.rosestacker.config;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -8,10 +11,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class CommentedConfigurationSection implements ConfigurationSection {
 

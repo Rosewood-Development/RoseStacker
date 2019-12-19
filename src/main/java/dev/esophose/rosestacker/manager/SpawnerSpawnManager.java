@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings.SpawnConditions;
+import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,8 +14,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.Random;
 
 public class SpawnerSpawnManager extends Manager implements Runnable {
 

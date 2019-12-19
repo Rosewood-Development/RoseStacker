@@ -1,7 +1,5 @@
 package dev.esophose.rosestacker.utils;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +9,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ClassUtils {
 

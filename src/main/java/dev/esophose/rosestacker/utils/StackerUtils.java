@@ -2,6 +2,14 @@ package dev.esophose.rosestacker.utils;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -20,15 +28,6 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class StackerUtils {
 

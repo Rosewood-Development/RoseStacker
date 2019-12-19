@@ -5,7 +5,6 @@ import dev.esophose.rosestacker.database.DataMigration;
 import dev.esophose.rosestacker.database.DatabaseConnector;
 import dev.esophose.rosestacker.database.SQLiteConnector;
 import dev.esophose.rosestacker.database.migrations._1_InitialMigration;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;

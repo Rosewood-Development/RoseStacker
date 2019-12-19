@@ -3,10 +3,9 @@ package dev.esophose.rosestacker.stack.settings;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.StackedBlock;
 import dev.esophose.rosestacker.utils.StackerUtils;
-import org.bukkit.Material;
-
 import java.util.Arrays;
 import java.util.List;
+import org.bukkit.Material;
 
 public class BlockStackSettings extends StackSettings<StackedBlock> {
 

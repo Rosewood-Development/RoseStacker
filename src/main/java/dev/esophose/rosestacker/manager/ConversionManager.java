@@ -5,7 +5,6 @@ import dev.esophose.rosestacker.converter.StackMobPluginConverter;
 import dev.esophose.rosestacker.converter.StackPluginConverter;
 import dev.esophose.rosestacker.converter.UltimateStackerPluginConverter;
 import dev.esophose.rosestacker.converter.WildStackerPluginConverter;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
