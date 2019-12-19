@@ -1,20 +1,20 @@
 package dev.esophose.rosestacker.config;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class CommentedFileConfigurationHelper {
 
@@ -64,7 +64,7 @@ public class CommentedFileConfigurationHelper {
             String pluginName = this.getPluginName();
 
             StringBuilder whole = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = Files.newBufferedReader(Paths.get(file.getAbsolutePath()), StandardCharsets.UTF_8);
 
             String currentLine;
             while ((currentLine = reader.readLine()) != null) {
@@ -79,7 +79,7 @@ public class CommentedFileConfigurationHelper {
             }
 
             String config = whole.toString();
-            Reader configStream = new InputStreamReader(new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8)));
+            Reader configStream = new StringReader(config);
 
             reader.close();
             return configStream;
@@ -103,7 +103,7 @@ public class CommentedFileConfigurationHelper {
             int comments = 0;
             String currentLine;
 
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = Files.newBufferedReader(Paths.get(file.getAbsolutePath()), StandardCharsets.UTF_8);
 
             while ((currentLine = reader.readLine()) != null)
                 if (currentLine.trim().startsWith("#"))
@@ -190,10 +190,12 @@ public class CommentedFileConfigurationHelper {
                         forceCompact = true;
                 }
 
-                if (!compactLines && !forceCompact && ((lastLineSpacing != -1 && lineSpacing != lastLineSpacing)
-                        || (commentSpacing != -1 && commentSpacing < lastCommentSpacing)
-                        || (lastLineHadContent && lineHadContent)
-                        || (lineWasComment && lastLineHadContent))) {
+                if (!compactLines && !forceCompact && (
+                        (lastLineSpacing != -1 && lineSpacing != lastLineSpacing)
+                                || (commentSpacing != -1 && commentSpacing < lastCommentSpacing)
+                                || (lastLineHadContent && lineHadContent)
+                                || (lineWasComment && lastLineHadContent))
+                        && !(lastLineHadContent && !lineWasComment)) {
                     stringBuilder.append('\n');
                 }
 
@@ -206,11 +208,9 @@ public class CommentedFileConfigurationHelper {
             }
         }
 
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(file.getAbsolutePath()), StandardCharsets.UTF_8)) {
             writer.write(stringBuilder.toString());
             writer.flush();
-            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

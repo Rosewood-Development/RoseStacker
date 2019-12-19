@@ -36,7 +36,6 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     private static Map<EntityType, SpawnConditions> defaultSpawnConditions;
 
     static {
-
         Map<EntityType, SpawnConditions> exceptions = new HashMap<>();
         exceptions.put(EntityType.BAT, new SpawnConditions(ImmutableSet.of(AIR), LightLevel.DARK));
         exceptions.put(EntityType.ELDER_GUARDIAN, new SpawnConditions(ImmutableSet.of(WATER), LightLevel.DARK));

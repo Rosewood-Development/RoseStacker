@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.config;
 
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -349,6 +350,21 @@ public class CommentedConfigurationSection implements ConfigurationSection {
     @Override
     public boolean isColor(String s) {
         return this.config.isColor(s);
+    }
+
+    @Override
+    public Location getLocation(String path) {
+        return this.getSerializable(path, Location.class);
+    }
+
+    @Override
+    public Location getLocation(String path, Location def) {
+        return this.getSerializable(path, Location.class, def);
+    }
+
+    @Override
+    public boolean isLocation(String path) {
+        return this.getSerializable(path, Location.class) != null;
     }
 
     @Override

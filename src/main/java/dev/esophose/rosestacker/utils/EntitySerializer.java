@@ -1,19 +1,19 @@
 package dev.esophose.rosestacker.utils;
 
-import net.minecraft.server.v1_14_R1.BlockPosition;
-import net.minecraft.server.v1_14_R1.DamageSource;
-import net.minecraft.server.v1_14_R1.Entity;
-import net.minecraft.server.v1_14_R1.EntityLiving;
-import net.minecraft.server.v1_14_R1.EntityTypes;
-import net.minecraft.server.v1_14_R1.EnumMobSpawn;
-import net.minecraft.server.v1_14_R1.IRegistry;
-import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagDouble;
-import net.minecraft.server.v1_14_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.DamageSource;
+import net.minecraft.server.v1_15_R1.Entity;
+import net.minecraft.server.v1_15_R1.EntityLiving;
+import net.minecraft.server.v1_15_R1.EntityTypes;
+import net.minecraft.server.v1_15_R1.EnumMobSpawn;
+import net.minecraft.server.v1_15_R1.IRegistry;
+import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagDouble;
+import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
@@ -172,9 +172,9 @@ public final class EntitySerializer {
      */
     private static void setNBT(Entity entity, NBTTagCompound nbt, Location desiredLocation) {
         NBTTagList nbtTagList = nbt.getList("Pos", 6);
-        nbtTagList.set(0, new NBTTagDouble(desiredLocation.getX()));
-        nbtTagList.set(1, new NBTTagDouble(desiredLocation.getY()));
-        nbtTagList.set(2, new NBTTagDouble(desiredLocation.getZ()));
+        nbtTagList.set(0, NBTTagDouble.a(desiredLocation.getX()));
+        nbtTagList.set(1, NBTTagDouble.a(desiredLocation.getY()));
+        nbtTagList.set(2, NBTTagDouble.a(desiredLocation.getZ()));
         nbt.set("Pos", nbtTagList);
         entity.f(nbt);
     }
