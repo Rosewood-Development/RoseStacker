@@ -67,8 +67,15 @@ public class StackSettingManager extends Manager {
         try {
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, PACKAGE_PATH, EntityStackSettings.class);
             for (Class<EntityStackSettings> clazz : classes) {
-                EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
-                this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
+                try {
+                    EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
+                    this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
+                } catch (Exception e) {
+                    // Log entity settings that failed to load
+                    // This should only be caused by version incompatibilities
+                    String className = clazz.getSimpleName();
+                    this.roseStacker.getLogger().warning("Ignored loading stack settings for entity: " + className.substring(0, className.length() - 13));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

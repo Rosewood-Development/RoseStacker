@@ -1,44 +1,31 @@
 package dev.esophose.rosestacker.utils;
 
+import dev.esophose.rosestacker.utils.reflection.nms.BlockPosition;
+import dev.esophose.rosestacker.utils.reflection.nms.DamageSource;
+import dev.esophose.rosestacker.utils.reflection.nms.EnumMobSpawn;
+import dev.esophose.rosestacker.utils.reflection.nms.Entity;
+import dev.esophose.rosestacker.utils.reflection.nms.EntityLiving;
+import dev.esophose.rosestacker.utils.reflection.nms.NBTTagCompound;
+import dev.esophose.rosestacker.utils.reflection.nms.NBTCompressedStreamTools;
+import dev.esophose.rosestacker.utils.reflection.nms.NBTTagList;
+import dev.esophose.rosestacker.utils.reflection.nms.NBTTagDouble;
+import dev.esophose.rosestacker.utils.reflection.nms.EntityTypes;
+import dev.esophose.rosestacker.utils.reflection.nms.IRegistry;
+import dev.esophose.rosestacker.utils.reflection.craft.CraftLivingEntity;
+import dev.esophose.rosestacker.utils.reflection.craft.CraftWorld;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.DamageSource;
-import net.minecraft.server.v1_15_R1.Entity;
-import net.minecraft.server.v1_15_R1.EntityLiving;
-import net.minecraft.server.v1_15_R1.EntityTypes;
-import net.minecraft.server.v1_15_R1.EnumMobSpawn;
-import net.minecraft.server.v1_15_R1.IRegistry;
-import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagDouble;
-import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public final class EntitySerializer {
-
-    private static Method entityLiving_a;
-
-    static {
-        try {
-            entityLiving_a = EntityLiving.class.getDeclaredMethod("a", DamageSource.class, boolean.class);
-            entityLiving_a.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Serializes a LivingEntity to a base64 string
@@ -51,15 +38,15 @@ public final class EntitySerializer {
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
             NBTTagCompound nbt = new NBTTagCompound();
-            EntityLiving craftEntity = ((CraftLivingEntity) entity).getHandle();
+            EntityLiving craftEntity = new CraftLivingEntity(entity).getHandle();
             craftEntity.save(nbt);
 
             // Write entity type
-            String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
+            String entityType = IRegistry.getRegistry("ENTITY_TYPE").getKey(craftEntity.getEntityType()).toString();
             dataOutput.writeUTF(entityType);
 
             // Write NBT
-            NBTCompressedStreamTools.a(nbt, (OutputStream) dataOutput);
+            NBTCompressedStreamTools.compress(nbt, dataOutput);
 
             return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
@@ -84,22 +71,19 @@ public final class EntitySerializer {
             String entityType = dataInput.readUTF();
 
             // Read NBT
-            NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
+            NBTTagCompound nbt = NBTCompressedStreamTools.decompress(dataInput);
 
-            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
+            Optional<EntityTypes> optionalEntity = EntityTypes.getTypeByName(entityType);
             if (optionalEntity.isPresent()) {
-                Entity entity = optionalEntity.get().spawnCreature(
-                        ((CraftWorld) location.getWorld()).getHandle(),
+                Object spawned = optionalEntity.get().spawnCreature(
+                        new CraftWorld(location.getWorld()).getHandle(),
                         nbt,
-                        null,
-                        null,
                         new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        EnumMobSpawn.TRIGGERED,
-                        true,
-                        false
+                        new EnumMobSpawn("TRIGGERED")
                 );
 
-                if (entity != null) {
+                if (spawned != null) {
+                    Entity entity = new Entity(spawned);
                     setNBT(entity, nbt, location);
                     return (LivingEntity) entity.getBukkitEntity();
                 }
@@ -123,8 +107,8 @@ public final class EntitySerializer {
         if (location.getWorld() == null)
             return null;
 
-        CraftWorld craftWorld = (CraftWorld) location.getWorld();
-        Entity entity = craftWorld.createEntity(location, entityType.getEntityClass());
+        CraftWorld craftWorld = new CraftWorld(location.getWorld());
+        EntityLiving entity = new EntityLiving(craftWorld.createEntity(location, entityType.getEntityClass()).getNMS());
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
@@ -133,13 +117,13 @@ public final class EntitySerializer {
             dataInput.readUTF();
 
             // Read NBT
-            NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
+            NBTTagCompound nbt = NBTCompressedStreamTools.decompress(dataInput);
 
             // Set NBT
             setNBT(entity, nbt, location);
 
             // Update loot table
-            entityLiving_a.invoke(entity, DamageSource.GENERIC, false);
+            entity.updateLootTable(new DamageSource("GENERIC"), false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,7 +142,7 @@ public final class EntitySerializer {
         if (location.getWorld() == null)
             return null;
 
-        CraftWorld craftWorld = (CraftWorld) location.getWorld();
+        CraftWorld craftWorld = new CraftWorld(location.getWorld());
         return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
     }
 
@@ -171,11 +155,11 @@ public final class EntitySerializer {
      */
     private static void setNBT(Entity entity, NBTTagCompound nbt, Location desiredLocation) {
         NBTTagList nbtTagList = nbt.getList("Pos", 6);
-        nbtTagList.set(0, NBTTagDouble.a(desiredLocation.getX()));
-        nbtTagList.set(1, NBTTagDouble.a(desiredLocation.getY()));
-        nbtTagList.set(2, NBTTagDouble.a(desiredLocation.getZ()));
+        nbtTagList.set(0, new NBTTagDouble(desiredLocation.getX()));
+        nbtTagList.set(1, new NBTTagDouble(desiredLocation.getY()));
+        nbtTagList.set(2, new NBTTagDouble(desiredLocation.getZ()));
         nbt.set("Pos", nbtTagList);
-        entity.f(nbt);
+        entity.setNBT(nbt);
     }
 
     /**
