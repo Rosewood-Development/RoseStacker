@@ -14,13 +14,13 @@ import dev.esophose.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -58,10 +58,10 @@ public class StackManager extends Manager implements Runnable {
     public StackManager(RoseStacker roseStacker) {
         super(roseStacker);
 
-        this.stackedItems = Collections.synchronizedMap(new HashMap<>());
-        this.stackedBlocks = Collections.synchronizedMap(new HashMap<>());
-        this.stackedSpawners = Collections.synchronizedMap(new HashMap<>());
-        this.stackedEntities = Collections.synchronizedMap(new HashMap<>());
+        this.stackedItems = new ConcurrentHashMap<>();
+        this.stackedBlocks = new ConcurrentHashMap<>();
+        this.stackedSpawners = new ConcurrentHashMap<>();
+        this.stackedEntities = new ConcurrentHashMap<>();
 
         this.deletedStacks = new HashSet<>();
 
@@ -82,6 +82,10 @@ public class StackManager extends Manager implements Runnable {
         DataManager dataManager = this.roseStacker.getDataManager();
 
         this.deleteStacks();
+
+        // Restore custom names
+        for (StackedEntity stackedEntity : this.stackedEntities.values())
+            stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
 
         // Save anything that's loaded
         dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks.values(), false);
@@ -124,6 +128,10 @@ public class StackManager extends Manager implements Runnable {
         this.cleanupTask.cancel();
 
         this.deleteStacks();
+
+        // Restore custom names
+        for (StackedEntity stackedEntity : this.stackedEntities.values())
+            stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
 
         // Save anything that's loaded
         DataManager dataManager = this.roseStacker.getDataManager();
@@ -424,6 +432,10 @@ public class StackManager extends Manager implements Runnable {
         Map<UUID, StackedItem> stackedItems = this.stackedItems.entrySet().stream().filter(x -> x.getValue().getLocation().getChunk() == chunk).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Map<Block, StackedSpawner> stackedSpawners = this.stackedSpawners.entrySet().stream().filter(x -> x.getValue().getLocation().getChunk() == chunk).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+        // Restore custom names
+        for (StackedEntity stackedEntity : stackedEntities.values())
+            stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
+
         dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks.values(), true);
         dataManager.createOrUpdateStackedEntities(stackedEntities.values(), true);
         dataManager.createOrUpdateStackedItems(stackedItems.values(), true);
@@ -595,6 +607,7 @@ public class StackManager extends Manager implements Runnable {
                     StackedEntity increased = (StackedEntity) this.getPreferredEntityStack(stackedEntity, other);
                     StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
 
+                    removed.getEntity().setCustomName(removed.getOriginalCustomName());
                     increased.increaseStackSize(removed.getEntity());
                     increased.increaseStackSize(removed.getStackedEntityNBTStrings());
                     removed.getEntity().remove();

@@ -18,6 +18,7 @@ public class LocaleManager extends Manager {
         PREFIX("&7[&cRoseStacker&7] "),
 
         ENTITY_STACK_DISPLAY("&c%amount%x &7%name%"),
+        ENTITY_STACK_DISPLAY_CUSTOM_NAME("%name% &7[&c%amount%x&7]"),
         ITEM_STACK_DISPLAY("&c%amount%x &7%name%"),
         BLOCK_STACK_DISPLAY("&c%amount%x &7%name%"),
         SPAWNER_STACK_DISPLAY("&c%amount%x &7%name%"),

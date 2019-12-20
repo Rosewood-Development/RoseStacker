@@ -385,7 +385,13 @@ public class DataManager extends Manager {
             }
 
             if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
+                String batchInsert;
+                if (this.databaseConnector instanceof SQLiteConnector) {
+                    batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?) ON CONFLICT(entity_uuid) DO UPDATE SET stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
+                } else {
+                    batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
+                }
+
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
                     for (StackedEntity stack : insert) {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
@@ -393,6 +399,10 @@ public class DataManager extends Manager {
                         statement.setString(3, stack.getLocation().getWorld().getName());
                         statement.setInt(4, stack.getLocation().getChunk().getX());
                         statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setBytes(6, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
+                        statement.setString(7, stack.getLocation().getWorld().getName());
+                        statement.setInt(8, stack.getLocation().getChunk().getX());
+                        statement.setInt(9, stack.getLocation().getChunk().getZ());
                         statement.addBatch();
                     }
                     statement.executeBatch();

@@ -145,6 +145,9 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > maxStackSize)
             return false;
 
+        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (stack1.getOriginalCustomName() != null || stack2.getOriginalCustomName() != null))
+            return false;
+
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
 

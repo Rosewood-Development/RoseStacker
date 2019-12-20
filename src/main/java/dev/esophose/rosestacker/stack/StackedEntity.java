@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 public class StackedEntity extends Stack {
 
     private LivingEntity entity;
+    private String originalCustomName;
     private List<String> serializedStackedEntities;
 
     private EntityStackSettings stackSettings;
@@ -33,6 +34,7 @@ public class StackedEntity extends Stack {
         this.serializedStackedEntities = serializedStackedEntities;
 
         if (this.entity != null) {
+            this.originalCustomName = entity.getCustomName();
             this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
 
             if (Bukkit.isPrimaryThread())
@@ -46,6 +48,10 @@ public class StackedEntity extends Stack {
 
     public LivingEntity getEntity() {
         return this.entity;
+    }
+
+    public String getOriginalCustomName() {
+        return this.originalCustomName;
     }
 
     public void increaseStackSize(LivingEntity entity) {
@@ -77,6 +83,7 @@ public class StackedEntity extends Stack {
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), location);
+        this.originalCustomName = this.entity.getCustomName();
         RoseStacker.getInstance().getStackManager().updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
     }
@@ -158,10 +165,20 @@ public class StackedEntity extends Stack {
         if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean())
             return;
 
-        if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
-            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
-                    .addPlaceholder("name", this.stackSettings.getDisplayName())
-                    .apply(Locale.ENTITY_STACK_DISPLAY.get()));
+        if (this.getStackSize() == 1 && this.originalCustomName != null) {
+            this.entity.setCustomNameVisible(true);
+            this.entity.setCustomName(this.originalCustomName);
+        } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
+            String displayString;
+            if (this.originalCustomName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
+                displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
+                        .addPlaceholder("name", this.originalCustomName)
+                        .apply(Locale.ENTITY_STACK_DISPLAY_CUSTOM_NAME.get()));
+            } else {
+                displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
+                        .addPlaceholder("name", this.stackSettings.getDisplayName())
+                        .apply(Locale.ENTITY_STACK_DISPLAY.get()));
+            }
 
             this.entity.setCustomNameVisible(!Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean());
             this.entity.setCustomName(displayString);
