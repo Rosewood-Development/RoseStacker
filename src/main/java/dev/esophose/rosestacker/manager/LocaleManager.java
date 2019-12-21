@@ -55,7 +55,8 @@ public class LocaleManager extends Manager {
         ACF_CORE_PLEASE_SPECIFY_AT_LEAST("&cError: Please specify a value of at least &b{min}&c."),
         ACF_CORE_NOT_ALLOWED_ON_CONSOLE("&cOnly players may execute this command."),
         ACF_CORE_COULD_NOT_FIND_PLAYER("&cError: Could not find a player by the name: &b{search}"),
-        ACF_CORE_NO_COMMAND_MATCHED_SEARCH("&cNo command matched &b{search}&c.");
+        ACF_CORE_NO_COMMAND_MATCHED_SEARCH("&cError: No command matched &b{search}&c."),
+        ACF_MINECRAFT_NO_PLAYER_FOUND_SERVER("&cError: Could not find a player by the name: &b{search}");
 
         private final String defaultMessage;
         private String message;

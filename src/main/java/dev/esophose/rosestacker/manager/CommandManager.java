@@ -35,8 +35,11 @@ public class CommandManager extends Manager {
 
             // Load custom message strings
             Map<String, String> acfCoreMessages = this.roseStacker.getLocaleManager().getAcfCoreMessages();
+            Map<String, String> acfMinecraftMessages = this.roseStacker.getLocaleManager().getAcfMinecraftMessages();
             for (String key : acfCoreMessages.keySet())
                 commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), LocaleManager.Locale.PREFIX.get() + acfCoreMessages.get(key));
+            for (String key : acfMinecraftMessages.keySet())
+                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), LocaleManager.Locale.PREFIX.get() + acfMinecraftMessages.get(key));
 
             CommandCompletions<BukkitCommandCompletionContext> completions = commandManager.getCommandCompletions();
             completions.registerAsyncCompletion("amount", ctx -> Arrays.asList("5", "16", "64", "256", "<amount>"));

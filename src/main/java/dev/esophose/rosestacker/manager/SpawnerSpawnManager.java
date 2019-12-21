@@ -86,7 +86,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 continue;
 
             // Spawn the mobs
-            int minSpawnAmount = (spawner.getSpawnCount() / 4);
+            int minSpawnAmount = spawner.getSpawnCount() / 4;
             int spawnAmount = this.random.nextInt(spawner.getSpawnCount() - minSpawnAmount + 1) + minSpawnAmount;
 
             for (int i = 0; i < spawnAmount; i++) {

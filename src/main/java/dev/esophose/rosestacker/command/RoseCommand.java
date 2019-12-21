@@ -38,7 +38,7 @@ public class RoseCommand extends BaseCommand {
         LocaleManager localeManager = this.roseStacker.getLocaleManager();
 
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.get() + "&7Version " + this.roseStacker.getDescription().getVersion() + " created by &5" + this.roseStacker.getDescription().getAuthors().get(0)));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.get() + "&7Plugin created by &5" + this.roseStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.roseStacker.getDescription().getVersion() + "&7)"));
         localeManager.sendMessage(sender, Locale.COMMAND_RELOAD_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_GIVE_DESCRIPTION);
         localeManager.sendMessage(sender, Locale.COMMAND_CLEARALL_DESCRIPTION);
@@ -76,7 +76,6 @@ public class RoseCommand extends BaseCommand {
     }
 
     @Subcommand("clearall")
-    @Default
     public void onClearall(CommandSender sender) {
         this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_USAGE);
     }
@@ -94,7 +93,6 @@ public class RoseCommand extends BaseCommand {
     }
 
     @Subcommand("convert")
-    @Default
     public void onConvert(CommandSender sender) {
         this.roseStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_USAGE);
     }
