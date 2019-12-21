@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -99,11 +100,23 @@ public class DataManager extends Manager {
                             while (result.next()) {
                                 int id = result.getInt("id");
                                 int stackSize = result.getInt("stack_size");
+                                int chunkX = result.getInt("chunk_x");
+                                int chunkZ = result.getInt("chunk_z");
                                 int blockX = result.getInt("block_x");
                                 int blockY = result.getInt("block_y");
                                 int blockZ = result.getInt("block_z");
-                                Block block = chunk.getBlock(blockX, blockY, blockZ);
-                                if (block.getType() != Material.AIR) {
+
+                                World world = Bukkit.getWorld(result.getString("world"));
+                                Block block = null;
+
+                                boolean invalid = world == null;
+                                if (!invalid) {
+                                    block = world.getBlockAt((chunkX << 4) + blockX, blockY, (chunkZ << 4) + blockZ);
+                                    if (block.getType() == Material.AIR)
+                                        invalid = true;
+                                }
+
+                                if (!invalid) {
                                     stackedBlocks.add(new StackedBlock(id, stackSize, block));
                                 } else {
                                     cleanup.add(new StackedBlock(id, 0, null));
@@ -281,14 +294,26 @@ public class DataManager extends Manager {
                             while (result.next()) {
                                 int id = result.getInt("id");
                                 int stackSize = result.getInt("stack_size");
+                                int chunkX = result.getInt("chunk_x");
+                                int chunkZ = result.getInt("chunk_z");
                                 int blockX = result.getInt("block_x");
                                 int blockY = result.getInt("block_y");
                                 int blockZ = result.getInt("block_z");
-                                Block block = chunk.getBlock(blockX, blockY, blockZ);
-                                if (block.getType() == Material.SPAWNER) {
+
+                                World world = Bukkit.getWorld(result.getString("world"));
+                                Block block = null;
+
+                                boolean invalid = world == null;
+                                if (!invalid) {
+                                    block = world.getBlockAt((chunkX << 4) + blockX, blockY, (chunkZ << 4) + blockZ);
+                                    if (block.getType() != Material.SPAWNER)
+                                        invalid = true;
+                                }
+
+                                if (!invalid) {
                                     stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
                                 } else {
-                                    cleanup.add(new StackedSpawner(id, 0, null));
+                                    cleanup.add(new StackedBlock(id, 0, null));
                                 }
                             }
 
@@ -321,27 +346,9 @@ public class DataManager extends Manager {
             return;
 
         String tableName = stacks.iterator().next() instanceof StackedBlock ? "stacked_block" : "stacked_spawner";
-
         ConnectionCallback query = connection -> {
-            Set<Stack> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
             Set<Stack> update = stacks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-
-            if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + tableName + " (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (Stack stack : stacks) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getLocation().getWorld().getName());
-                        statement.setInt(3, stack.getLocation().getChunk().getX());
-                        statement.setInt(4, stack.getLocation().getChunk().getZ());
-                        statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
-                        statement.setInt(6, stack.getLocation().getBlockY());
-                        statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                }
-            }
+            Set<Stack> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
             if (!update.isEmpty()) {
                 String batchUpdate = "UPDATE " + this.getTablePrefix() + tableName + " SET stack_size = ? WHERE id = ?";
@@ -352,6 +359,27 @@ public class DataManager extends Manager {
                         statement.addBatch();
                     }
                     statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (!insert.isEmpty()) {
+                String batchInsert = "INSERT INTO " + this.getTablePrefix() + tableName + " (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
+                    for (Stack stack : insert) {
+                        statement.setInt(1, stack.getStackSize());
+                        statement.setString(2, stack.getLocation().getWorld().getName());
+                        statement.setInt(3, stack.getLocation().getChunk().getX());
+                        statement.setInt(4, stack.getLocation().getChunk().getZ());
+                        statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
+                        statement.setInt(6, stack.getLocation().getBlockY());
+                        statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
             }
         };
@@ -372,26 +400,25 @@ public class DataManager extends Manager {
             Set<StackedEntity> insert = stackedEntities.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
             if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_entity SET entity_uuid = ?, stack_entities = ? WHERE id = ?";
+                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_entity SET entity_uuid = ?, stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ? WHERE id = ?";
                 try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
                     for (StackedEntity stack : update) {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
                         statement.setBytes(2, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
-                        statement.setInt(3, stack.getId());
+                        statement.setString(3, stack.getLocation().getWorld().getName());
+                        statement.setInt(4, stack.getLocation().getChunk().getX());
+                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(6, stack.getId());
                         statement.addBatch();
                     }
                     statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
             }
 
             if (!insert.isEmpty()) {
-                String batchInsert;
-                if (this.databaseConnector instanceof SQLiteConnector) {
-                    batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?) ON CONFLICT(entity_uuid) DO UPDATE SET stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                } else {
-                    batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                }
-
+                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
                     for (StackedEntity stack : insert) {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
@@ -399,13 +426,11 @@ public class DataManager extends Manager {
                         statement.setString(3, stack.getLocation().getWorld().getName());
                         statement.setInt(4, stack.getLocation().getChunk().getX());
                         statement.setInt(5, stack.getLocation().getChunk().getZ());
-                        statement.setBytes(6, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
-                        statement.setString(7, stack.getLocation().getWorld().getName());
-                        statement.setInt(8, stack.getLocation().getChunk().getX());
-                        statement.setInt(9, stack.getLocation().getChunk().getZ());
                         statement.addBatch();
                     }
                     statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
             }
         };
@@ -422,8 +447,26 @@ public class DataManager extends Manager {
             return;
 
         ConnectionCallback query = connection -> {
-            Set<StackedItem> insert = stackedItems.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
             Set<StackedItem> update = stackedItems.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
+            Set<StackedItem> insert = stackedItems.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
+
+            if (!update.isEmpty()) {
+                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_item SET stack_size = ?, entity_uuid = ?, world = ?, chunk_x = ?, chunk_z = ? WHERE id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
+                    for (StackedItem stack : update) {
+                        statement.setInt(1, stack.getStackSize());
+                        statement.setString(2, stack.getItem().getUniqueId().toString());
+                        statement.setString(3, stack.getLocation().getWorld().getName());
+                        statement.setInt(4, stack.getLocation().getChunk().getX());
+                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(6, stack.getId());
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
 
             if (!insert.isEmpty()) {
                 String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_item (stack_size, entity_uuid, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
@@ -437,19 +480,8 @@ public class DataManager extends Manager {
                         statement.addBatch();
                     }
                     statement.executeBatch();
-                }
-            }
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_item SET stack_size = ?, entity_uuid = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedItem stack : update) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getItem().getUniqueId().toString());
-                        statement.setInt(3, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
             }
         };
@@ -500,7 +532,7 @@ public class DataManager extends Manager {
         }));
     }
 
-    private <T extends Stack> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) throws SQLException {
+    private <T extends Stack> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {
         String batchDelete = "DELETE FROM " + this.getTablePrefix() + tableName + " WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(batchDelete)) {
             for (Stack stack : stacks) {
@@ -508,6 +540,8 @@ public class DataManager extends Manager {
                 statement.addBatch();
             }
             statement.executeBatch();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 

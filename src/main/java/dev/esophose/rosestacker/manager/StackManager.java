@@ -142,28 +142,28 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public StackedItem getStackedItem(Item item) {
-        if (!Setting.ITEM_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(item))
+        if (!Setting.ITEM_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(item.getLocation()))
             return null;
 
         return this.stackedItems.get(item.getUniqueId());
     }
 
     public StackedBlock getStackedBlock(Block block) {
-        if (!Setting.BLOCK_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block))
+        if (!Setting.BLOCK_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block.getLocation()))
             return null;
 
         return this.stackedBlocks.get(block);
     }
 
     public StackedSpawner getStackedSpawner(Block block) {
-        if (!Setting.SPAWNER_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block))
+        if (!Setting.SPAWNER_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(block.getLocation()))
             return null;
 
         return this.stackedSpawners.get(block);
     }
 
     public StackedEntity getStackedEntity(LivingEntity entity) {
-        if (!Setting.ENTITY_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(entity))
+        if (!Setting.ENTITY_STACKING_ENABLED.getBoolean() || this.isWorldDisabled(entity.getLocation()))
             return null;
 
         return this.stackedEntities.get(entity.getUniqueId());
@@ -202,14 +202,6 @@ public class StackManager extends Manager implements Runnable {
     public boolean isBlockTypeStackable(Block block) {
         BlockStackSettings blockStackSettings = this.roseStacker.getStackSettingManager().getBlockStackSettings(block);
         return blockStackSettings.isStackingEnabled() || block.getType() == Material.SPAWNER;
-    }
-
-    public boolean isWorldDisabled(Entity entity) {
-        return this.isWorldDisabled(entity.getLocation().getWorld());
-    }
-
-    public boolean isWorldDisabled(Block block) {
-        return this.isWorldDisabled(block.getLocation());
     }
 
     public boolean isWorldDisabled(Location location) {
@@ -329,7 +321,7 @@ public class StackManager extends Manager implements Runnable {
      * @return The newly created stack, or null if one wasn't created
      */
     public Stack createStackFromEntity(Entity entity, boolean tryStack) {
-        if (this.isWorldDisabled(entity))
+        if (this.isWorldDisabled(entity.getLocation()))
             return null;
 
         Stack newStack = null;
@@ -362,7 +354,7 @@ public class StackManager extends Manager implements Runnable {
     }
 
     public Stack createStackFromBlock(Block block, int amount) {
-        if (this.isWorldDisabled(block))
+        if (this.isWorldDisabled(block.getLocation()))
             return null;
 
         Stack newStack;

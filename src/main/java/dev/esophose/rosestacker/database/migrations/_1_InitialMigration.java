@@ -22,13 +22,13 @@ public class _1_InitialMigration extends DataMigration {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_block (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
                     "stack_size INTEGER NOT NULL, " +
-                    "world TEXT NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
                     "chunk_z INTEGER NOT NULL, " +
                     "block_x INTEGER NOT NULL, " +
                     "block_y INTEGER NOT NULL, " +
                     "block_z INTEGER NOT NULL, " +
-                    "UNIQUE (world, block_x, block_y, block_z)" +
+                    "UNIQUE (world, chunk_x, chunk_z, block_x, block_y, block_z)" +
                     ")");
         }
 
@@ -38,7 +38,7 @@ public class _1_InitialMigration extends DataMigration {
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
                     "entity_uuid VARCHAR(36) NOT NULL, " +
                     "stack_entities BLOB NOT NULL, " +
-                    "world TEXT NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
                     "chunk_z INTEGER NOT NULL, " +
                     "UNIQUE (entity_uuid)" +
@@ -51,7 +51,7 @@ public class _1_InitialMigration extends DataMigration {
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
                     "stack_size INTEGER NOT NULL, " +
                     "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "world TEXT NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
                     "chunk_z INTEGER NOT NULL, " +
                     "UNIQUE (entity_uuid)" +
@@ -63,13 +63,13 @@ public class _1_InitialMigration extends DataMigration {
             statement.execute("CREATE TABLE " + tablePrefix + "stacked_spawner (" +
                     "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
                     "stack_size INTEGER NOT NULL, " +
-                    "world TEXT NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
                     "chunk_x INTEGER NOT NULL, " +
                     "chunk_z INTEGER NOT NULL, " +
                     "block_x INTEGER NOT NULL, " +
                     "block_y INTEGER NOT NULL, " +
                     "block_z INTEGER NOT NULL, " +
-                    "UNIQUE (world, block_x, block_y, block_z)" +
+                    "UNIQUE (world, chunk_x, chunk_z, block_x, block_y, block_z)" +
                     ")");
         }
 
