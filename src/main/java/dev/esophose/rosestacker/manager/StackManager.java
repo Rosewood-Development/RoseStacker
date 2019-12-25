@@ -505,8 +505,6 @@ public class StackManager extends Manager implements Runnable {
      * @return if a stack was deleted, the stack that was deleted, otherwise null
      */
     private Stack tryStackEntity(Stack stack) {
-        // TODO: Group by world
-
         if (stack instanceof StackedItem) {
             StackedItem stackedItem = (StackedItem) stack;
 

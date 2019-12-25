@@ -40,9 +40,12 @@ import org.bukkit.entity.LivingEntity;
 public class DataManager extends Manager {
 
     private DatabaseConnector databaseConnector;
+    private boolean ranVacuum;
 
     public DataManager(RoseStacker roseStacker) {
         super(roseStacker);
+
+        this.ranVacuum = false;
     }
 
     @Override
@@ -68,6 +71,13 @@ public class DataManager extends Manager {
         } catch (Exception ex) {
             this.roseStacker.getLogger().severe("Fatal error trying to connect to database. Please make sure all your connection settings are correct and try again. Plugin has been disabled.");
             Bukkit.getPluginManager().disablePlugin(this.roseStacker);
+        }
+
+        // Vacuum the database to help compress it, only run once per plugin startup
+        if (!this.ranVacuum && this.databaseConnector instanceof SQLiteConnector) {
+            this.databaseConnector.connect((connection) -> {
+                connection.createStatement().execute("VACUUM");
+            });
         }
     }
 

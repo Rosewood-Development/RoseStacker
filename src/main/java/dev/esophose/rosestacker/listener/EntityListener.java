@@ -21,7 +21,6 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
@@ -139,12 +138,6 @@ public class EntityListener implements Listener {
         stackManager.setEntityStackingDisabled(true);
         stackedEntity.decreaseStackSize();
         stackManager.setEntityStackingDisabled(false);
-    }
-
-    @EventHandler
-    public void onEntityTeleport(EntityTeleportEvent event) {
-        // TODO: Unload an entity if it teleports into an unloaded chunk
-
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
