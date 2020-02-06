@@ -7,7 +7,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-group = 'dev.esophose.rosestacker'
+group = 'dev.esophose.sparkstacker'
 version = '1.0.0'
 
 repositories {
@@ -56,9 +56,9 @@ dependencies {
 shadowJar {
     archiveClassifier.set(null)
 
-    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
-    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
-    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf')
+    relocate('com.zaxxer.hikari', 'dev.esophose.sparkstacker.lib.hikaricp')
+    relocate('org.slf4j', 'dev.esophose.sparkstacker.lib.slf4j')
+    relocate('co.aikar.commands', 'dev.esophose.sparkstacker.lib.acf')
 
     exclude 'acf-*.properties'
 }

@@ -1,1 +1,1 @@
-RoseStacker: A stacker plugin created with performance in mind.
+SparkStacker: A stacker plugin created with performance in mind.
