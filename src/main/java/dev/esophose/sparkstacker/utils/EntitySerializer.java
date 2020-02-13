@@ -1,5 +1,6 @@
 package dev.esophose.sparkstacker.utils;
 
+import dev.esophose.sparkstacker.stack.StackedEntity;
 import dev.esophose.sparkstacker.utils.reflection.craft.CraftLivingEntity;
 import dev.esophose.sparkstacker.utils.reflection.craft.CraftWorld;
 import dev.esophose.sparkstacker.utils.reflection.nms.BlockPosition;
@@ -163,21 +164,26 @@ public final class EntitySerializer {
     }
 
     /**
-     * A method to serialize an NBT String list to a byte array.
+     * Serializes a stacked entity into a byte array
      *
-     * @param nbtStrings to turn into a byte array.
-     * @return byte array of the items.
+     * @param stackedEntity to turn into a byte array.
+     * @return byte array of the stacked entity dat
      */
-    public static byte[] toBlob(List<String> nbtStrings) {
+    public static byte[] toBlob(StackedEntity stackedEntity) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
             // Write the size of the items
+            List<String> nbtStrings = stackedEntity.getStackedEntityNBTStrings();
             dataOutput.writeInt(nbtStrings.size());
 
             // Save every element in the list
             for (String nbtString : nbtStrings)
                 dataOutput.writeUTF(nbtString);
+
+            // Write the original mob name
+            String originalCustomName = stackedEntity.getOriginalCustomName();
+            dataOutput.writeUTF(originalCustomName == null ? "" : originalCustomName);
 
             // Serialize that array
             dataOutput.close();
@@ -190,23 +196,29 @@ public final class EntitySerializer {
     }
 
     /**
-     * Gets a list of NBT Strings from a byte array.
+     * Deserializes a stacked entity from a byte array
      *
-     * @param data byte array to convert to NBT String list.
-     * @return NBT String list created from the byte array.
+     * @param id the id of the stacked entity
+     * @param livingEntity the living entity to attach the stack to
+     * @param data byte array to convert to a stacked entity
+     * @return the stacked entity
      */
-    public static List<String> fromBlob(byte[] data) {
+    public static StackedEntity fromBlob(int id, LivingEntity livingEntity, byte[] data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
+            // Read list length
             int length = dataInput.readInt();
-            List<String> items = new LinkedList<>();
+            List<String> stackNbtStrings = new LinkedList<>();
 
             // Read the serialized itemstack list
             for (int i = 0; i < length; i++)
-                items.add(dataInput.readUTF());
+                stackNbtStrings.add(dataInput.readUTF());
 
-            return items;
+            // Read original mob name, if any
+            String originalCustomName = dataInput.readUTF();
+
+            return new StackedEntity(id, livingEntity, stackNbtStrings, originalCustomName.isEmpty() ? null : originalCustomName);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -26,14 +25,14 @@ public class StackedEntity extends Stack {
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(int id, LivingEntity entity, List<String> serializedStackedEntities) {
+    public StackedEntity(int id, LivingEntity entity, List<String> serializedStackedEntities, String originalCustomName) {
         super(id);
 
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
 
         if (this.entity != null) {
-            this.originalCustomName = entity.getCustomName();
+            this.originalCustomName = originalCustomName;
             this.stackSettings = SparkStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
 
             if (Bukkit.isPrimaryThread())
@@ -42,7 +41,7 @@ public class StackedEntity extends Stack {
     }
 
     public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {
-        this(-1, entity, serializedStackedEntities);
+        this(-1, entity, serializedStackedEntities, null);
     }
 
     public LivingEntity getEntity() {
@@ -51,6 +50,11 @@ public class StackedEntity extends Stack {
 
     public String getOriginalCustomName() {
         return this.originalCustomName;
+    }
+
+    public void updateOriginalCustomName() {
+        this.originalCustomName = this.entity.getCustomName();
+        this.updateDisplay();
     }
 
     public void increaseStackSize(LivingEntity entity) {
@@ -82,9 +86,8 @@ public class StackedEntity extends Stack {
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), location);
-        this.originalCustomName = this.entity.getCustomName();
+        this.updateOriginalCustomName();
         SparkStacker.getInstance().getStackManager().updateStackedEntityKey(oldEntity, this.entity);
-        this.updateDisplay();
     }
 
     public List<String> getStackedEntityNBTStrings() {

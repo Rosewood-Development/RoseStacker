@@ -185,13 +185,12 @@ public class DataManager extends Manager {
                             while (result.next()) {
                                 int id = result.getInt("id");
                                 UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-                                List<String> stackEntities = EntitySerializer.fromBlob(result.getBytes("stack_entities"));
 
                                 Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
                                 if (entity.isPresent()) {
-                                    stackedEntities.add(new StackedEntity(id, (LivingEntity) entity.get(), stackEntities));
+                                    stackedEntities.add(EntitySerializer.fromBlob(id, (LivingEntity) entity.get(), result.getBytes("stack_entities")));
                                 } else {
-                                    cleanup.add(new StackedEntity(id, null, null));
+                                    cleanup.add(new StackedEntity(id, null, null, null));
                                 }
                             }
 
@@ -414,7 +413,7 @@ public class DataManager extends Manager {
                 try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
                     for (StackedEntity stack : update) {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
-                        statement.setBytes(2, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
+                        statement.setBytes(2, EntitySerializer.toBlob(stack));
                         statement.setString(3, stack.getLocation().getWorld().getName());
                         statement.setInt(4, stack.getLocation().getChunk().getX());
                         statement.setInt(5, stack.getLocation().getChunk().getZ());
@@ -439,11 +438,12 @@ public class DataManager extends Manager {
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
                     for (StackedEntity stack : insert) {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
-                        statement.setBytes(2, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
+                        statement.setBytes(2, EntitySerializer.toBlob(stack));
                         statement.setString(3, stack.getLocation().getWorld().getName());
                         statement.setInt(4, stack.getLocation().getChunk().getX());
                         statement.setInt(5, stack.getLocation().getChunk().getZ());
-                        statement.setBytes(6, EntitySerializer.toBlob(stack.getStackedEntityNBTStrings()));
+                        // On conflict
+                        statement.setBytes(6, EntitySerializer.toBlob(stack));
                         statement.setString(7, stack.getLocation().getWorld().getName());
                         statement.setInt(8, stack.getLocation().getChunk().getX());
                         statement.setInt(9, stack.getLocation().getChunk().getZ());
@@ -491,6 +491,13 @@ public class DataManager extends Manager {
 
             if (!insert.isEmpty()) {
                 String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_item (stack_size, entity_uuid, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
+
+                if (this.databaseConnector instanceof SQLiteConnector) {
+                    batchInsert += " ON CONFLICT(entity_uuid) DO UPDATE SET stack_size = ?, world = ?, chunk_x = ?, chunk_z = ?";
+                } else {
+                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?, world = ?, chunk_x = ?, chunk_z = ?";
+                }
+
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
                     for (StackedItem stack : insert) {
                         statement.setInt(1, stack.getStackSize());
@@ -498,6 +505,11 @@ public class DataManager extends Manager {
                         statement.setString(3, stack.getLocation().getWorld().getName());
                         statement.setInt(4, stack.getLocation().getChunk().getX());
                         statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        // On conflict
+                        statement.setInt(6, stack.getStackSize());
+                        statement.setString(7, stack.getLocation().getWorld().getName());
+                        statement.setInt(8, stack.getLocation().getChunk().getX());
+                        statement.setInt(9, stack.getLocation().getChunk().getZ());
                         statement.addBatch();
                     }
                     statement.executeBatch();

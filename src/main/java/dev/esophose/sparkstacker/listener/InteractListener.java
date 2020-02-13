@@ -8,6 +8,7 @@ import dev.esophose.sparkstacker.utils.EntitySerializer;
 import dev.esophose.sparkstacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -85,8 +86,19 @@ public class InteractListener implements Listener {
         if (!(event.getRightClicked() instanceof LivingEntity))
             return;
 
+        StackManager stackManager = this.sparkStacker.getStackManager();
         Player player = event.getPlayer();
+
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
+        if (itemStack.getType() == Material.NAME_TAG) {
+            if (!stackManager.isEntityStacked(event.getRightClicked()))
+                return;
+
+            StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getRightClicked());
+            Bukkit.getScheduler().runTask(this.sparkStacker, stackedEntity::updateOriginalCustomName);
+            return;
+        }
+
         if (!StackerUtils.isSpawnEgg(itemStack.getType()))
             return;
 
@@ -108,7 +120,6 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return;
 
-        StackManager stackManager = this.sparkStacker.getStackManager();
         LivingEntity entity = (LivingEntity) event.getRightClicked();
         if (!stackManager.isEntityStacked(entity))
             return;
