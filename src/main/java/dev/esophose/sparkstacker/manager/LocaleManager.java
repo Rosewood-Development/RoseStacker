@@ -176,7 +176,7 @@ public class LocaleManager extends Manager {
      * @param messageKey The message key of the Locale to send
      */
     public void sendSimpleMessage(CommandSender sender, String messageKey) {
-        this.sendMessage(sender, messageKey, StringPlaceholders.empty());
+        this.sendSimpleMessage(sender, messageKey, StringPlaceholders.empty());
     }
 
     /**

@@ -36,11 +36,11 @@ public class SparkCommand extends BaseCommand {
         LocaleManager localeManager = this.sparkStacker.getLocaleManager();
 
         sender.sendMessage("");
-        localeManager.sendMessage(sender, "&7Plugin created by &5" + this.sparkStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.sparkStacker.getDescription().getVersion() + "&7)");
-        localeManager.sendCustomMessage(sender, "command-reload-description");
-        localeManager.sendCustomMessage(sender, "command-give-description");
-        localeManager.sendCustomMessage(sender, "command-clearall-description");
-        localeManager.sendCustomMessage(sender, "command-convert-description");
+        localeManager.sendCustomMessage(sender, localeManager.getLocaleMessage("prefix") + "&7Plugin created by &5" + this.sparkStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.sparkStacker.getDescription().getVersion() + "&7)");
+        localeManager.sendSimpleMessage(sender, "command-reload-description");
+        localeManager.sendSimpleMessage(sender, "command-give-description");
+        localeManager.sendSimpleMessage(sender, "command-clearall-description");
+        localeManager.sendSimpleMessage(sender, "command-convert-description");
         sender.sendMessage("");
     }
 
