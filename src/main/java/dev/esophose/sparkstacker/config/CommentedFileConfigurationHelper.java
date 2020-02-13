@@ -22,6 +22,8 @@ public class CommentedFileConfigurationHelper {
 
     /**
      * Manage custom configurations and files
+     *
+     * @param plugin The JavaPlugin the configuration is for
      */
     public CommentedFileConfigurationHelper(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -192,7 +194,7 @@ public class CommentedFileConfigurationHelper {
 
                 if (!compactLines && !forceCompact && (
                         (lastLineSpacing != -1 && lineSpacing != lastLineSpacing)
-                                || (commentSpacing != -1 && commentSpacing <= 3 && lastCommentSpacing > 3)
+                                || (commentSpacing != -1 && commentSpacing < lastCommentSpacing)
                                 || (lastLineHadContent && lineHadContent)
                                 || (lineWasComment && lastLineHadContent))
                         && !(lastLineHadContent && !lineWasComment)) {

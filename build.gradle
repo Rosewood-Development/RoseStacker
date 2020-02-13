@@ -7,7 +7,7 @@ plugins {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-group = 'dev.esophose.sparkstacker'
+group = 'dev.esophose'
 version = '1.0.0'
 
 repositories {
@@ -16,6 +16,7 @@ repositories {
 
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://repo.codemc.org/repository/maven-public' }
+    maven { url = 'https://repo.codemc.org/repository/nms' }
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
 
     // Need to find a better maven host for Holograms and CMI
@@ -36,7 +37,7 @@ compileJava {
 
 dependencies {
     // Referenced dependencies
-    shadow 'org.spigotmc:spigot:1.15'
+    shadow 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.3.2'
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
     shadow 'com.zrips:CMI:8.4.0.2_1'
@@ -47,10 +48,10 @@ dependencies {
     shadow 'uk.antiperson:stackmob:4-0-2'
 
     // Dependencies that will be shaded into the jar
-    compile 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
-    compile 'com.zaxxer:HikariCP:3.2.0'
-    compile 'org.slf4j:slf4j-api:1.7.25'
-    compile 'org.slf4j:slf4j-nop:1.7.25'
+    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    implementation 'com.zaxxer:HikariCP:3.2.0'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'org.slf4j:slf4j-nop:1.7.25'
 }
 
 shadowJar {

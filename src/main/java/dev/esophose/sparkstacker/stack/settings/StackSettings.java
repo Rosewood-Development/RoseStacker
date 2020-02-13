@@ -7,6 +7,7 @@ import dev.esophose.sparkstacker.stack.Stack;
 public abstract class StackSettings<T extends Stack> {
 
     protected CommentedConfigurationSection settingsConfiguration;
+    private boolean hasChanges;
 
     public StackSettings(CommentedFileConfiguration settingsConfiguration) {
         this.settingsConfiguration = settingsConfiguration;
@@ -24,8 +25,14 @@ public abstract class StackSettings<T extends Stack> {
     protected abstract String getConfigurationSectionKey();
 
     protected void setIfNotExists(String setting, Object value) {
-        if (this.settingsConfiguration.get(setting) == null)
+        if (this.settingsConfiguration.get(setting) == null) {
             this.settingsConfiguration.set(setting, value);
+            this.hasChanges = true;
+        }
+    }
+
+    public boolean hasChanges() {
+        return this.hasChanges;
     }
 
 }

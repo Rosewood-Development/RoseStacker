@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bukkit.Material;
@@ -55,11 +56,19 @@ public class StackSettingManager extends Manager {
         File itemSettingsFile = new File(this.sparkStacker.getDataFolder(), "item_settings.yml");
         File spawnerSettingsFile = new File(this.sparkStacker.getDataFolder(), "spawner_settings.yml");
 
+        // Flags for if we should save the files
+        AtomicBoolean saveBlockSettingsFile = new AtomicBoolean(false);
+        AtomicBoolean saveEntitySettingsFile = new AtomicBoolean(false);
+        AtomicBoolean saveItemSettingsFile = new AtomicBoolean(false);
+        AtomicBoolean saveSpawnerSettingsFile = new AtomicBoolean(false);
+
         // Load block settings
         CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.sparkStacker, blockSettingsFile);
         Stream.of(Material.values()).filter(Material::isBlock).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
             BlockStackSettings blockStackSettings = new BlockStackSettings(blockSettingsConfiguration, x);
             this.blockSettings.put(x, blockStackSettings);
+            if (blockStackSettings.hasChanges())
+                saveBlockSettingsFile.set(true);
         });
 
         // Load entity settings
@@ -70,6 +79,8 @@ public class StackSettingManager extends Manager {
                 try {
                     EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
                     this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
+                    if (entityStackSetting.hasChanges())
+                        saveEntitySettingsFile.set(true);
                 } catch (Exception e) {
                     // Log entity settings that failed to load
                     // This should only be caused by version incompatibilities
@@ -86,6 +97,8 @@ public class StackSettingManager extends Manager {
         Stream.of(Material.values()).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
             ItemStackSettings itemStackSettings = new ItemStackSettings(itemSettingsConfiguration, x);
             this.itemSettings.put(x, itemStackSettings);
+            if (itemStackSettings.hasChanges())
+                saveItemSettingsFile.set(true);
         });
 
         // Load spawner settings
@@ -93,13 +106,19 @@ public class StackSettingManager extends Manager {
         StackerUtils.getStackableEntityTypes().forEach(x -> {
             SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, x);
             this.spawnerSettings.put(x, spawnerStackSettings);
+            if (spawnerStackSettings.hasChanges())
+                saveSpawnerSettingsFile.set(true);
         });
 
-        // Save files
-        blockSettingsConfiguration.save(true);
-        entitySettingsConfiguration.save(true);
-        itemSettingsConfiguration.save(true);
-        spawnerSettingsConfiguration.save(true);
+        // Save files if changes were made
+        if (saveBlockSettingsFile.get())
+            blockSettingsConfiguration.save(true);
+        if (saveEntitySettingsFile.get())
+            entitySettingsConfiguration.save(true);
+        if (saveItemSettingsFile.get())
+            itemSettingsConfiguration.save(true);
+        if (saveSpawnerSettingsFile.get())
+            spawnerSettingsConfiguration.save(true);
     }
 
     @Override
@@ -156,7 +175,10 @@ public class StackSettingManager extends Manager {
     }
 
     public Set<Material> getStackableBlockTypes() {
-        return this.blockSettings.values().stream().filter(BlockStackSettings::isStackingEnabled).map(BlockStackSettings::getType).collect(Collectors.toSet());
+        return this.blockSettings.values().stream()
+                .filter(BlockStackSettings::isStackingEnabled)
+                .map(BlockStackSettings::getType)
+                .collect(Collectors.toSet());
     }
 
 }
