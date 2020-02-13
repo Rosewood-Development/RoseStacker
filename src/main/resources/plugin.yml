@@ -3,7 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.sparkstacker.SparkStacker
 api-version: 1.14
-softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob]
+softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI]
 permissions:
   sparkstacker.*:
     description: Inherits all plugin permissions

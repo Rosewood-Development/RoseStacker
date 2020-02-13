@@ -30,6 +30,7 @@ public class CommandManager extends Manager {
     @Override
     public void reload() {
         if (!this.loaded) {
+            LocaleManager localeManager = this.sparkStacker.getLocaleManager();
             PaperCommandManager commandManager = new PaperCommandManager(this.sparkStacker);
             commandManager.registerCommand(new SparkCommand(this.sparkStacker));
 
@@ -37,9 +38,9 @@ public class CommandManager extends Manager {
             Map<String, String> acfCoreMessages = this.sparkStacker.getLocaleManager().getAcfCoreMessages();
             Map<String, String> acfMinecraftMessages = this.sparkStacker.getLocaleManager().getAcfMinecraftMessages();
             for (String key : acfCoreMessages.keySet())
-                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), LocaleManager.Locale.PREFIX.get() + acfCoreMessages.get(key));
+                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key));
             for (String key : acfMinecraftMessages.keySet())
-                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), LocaleManager.Locale.PREFIX.get() + acfMinecraftMessages.get(key));
+                commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key));
 
             CommandCompletions<BukkitCommandCompletionContext> completions = commandManager.getCommandCompletions();
             completions.registerAsyncCompletion("amount", ctx -> Arrays.asList("5", "16", "64", "256", "<amount>"));

@@ -12,11 +12,9 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConversionManager.StackPlugin;
 import dev.esophose.sparkstacker.manager.LocaleManager;
-import dev.esophose.sparkstacker.manager.LocaleManager.Locale;
 import dev.esophose.sparkstacker.manager.StackManager;
 import dev.esophose.sparkstacker.utils.StackerUtils;
 import dev.esophose.sparkstacker.utils.StringPlaceholders;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -38,11 +36,11 @@ public class SparkCommand extends BaseCommand {
         LocaleManager localeManager = this.sparkStacker.getLocaleManager();
 
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.get() + "&7Plugin created by &5" + this.sparkStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.sparkStacker.getDescription().getVersion() + "&7)"));
-        localeManager.sendMessage(sender, Locale.COMMAND_RELOAD_DESCRIPTION);
-        localeManager.sendMessage(sender, Locale.COMMAND_GIVE_DESCRIPTION);
-        localeManager.sendMessage(sender, Locale.COMMAND_CLEARALL_DESCRIPTION);
-        localeManager.sendMessage(sender, Locale.COMMAND_CONVERT_DESCRIPTION);
+        localeManager.sendMessage(sender, "&7Plugin created by &5" + this.sparkStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.sparkStacker.getDescription().getVersion() + "&7)");
+        localeManager.sendCustomMessage(sender, "command-reload-description");
+        localeManager.sendCustomMessage(sender, "command-give-description");
+        localeManager.sendCustomMessage(sender, "command-clearall-description");
+        localeManager.sendCustomMessage(sender, "command-convert-description");
         sender.sendMessage("");
     }
 
@@ -51,7 +49,7 @@ public class SparkCommand extends BaseCommand {
     @CommandPermission("sparkstacker.reload")
     public void onReload(CommandSender sender) {
         this.sparkStacker.reload();
-        this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_RELOAD_RELOADED);
+        this.sparkStacker.getLocaleManager().sendMessage(sender, "command-reload-reloaded");
     }
 
     @Subcommand("clearall")
@@ -66,18 +64,18 @@ public class SparkCommand extends BaseCommand {
         switch (clearallType) {
             case ENTITY:
                 amount = stackManager.removeAllEntities();
-                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_KILLED_ENTITIES, StringPlaceholders.single("amount", amount));
+                localeManager.sendMessage(sender, "command-clearall-killed-entities", StringPlaceholders.single("amount", amount));
                 break;
             case ITEM:
                 amount = stackManager.removeAllItems();
-                localeManager.sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_KILLED_ITEMS, StringPlaceholders.single("amount", amount));
+                localeManager.sendMessage(sender, "command-clearall-killed-items", StringPlaceholders.single("amount", amount));
                 break;
         }
     }
 
     @Subcommand("clearall")
     public void onClearall(CommandSender sender) {
-        this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CLEARALL_USAGE);
+        this.sparkStacker.getLocaleManager().sendMessage(sender, "command-clearall-usage");
     }
 
     @Subcommand("convert")
@@ -86,15 +84,15 @@ public class SparkCommand extends BaseCommand {
     @CommandCompletion("@conversionType")
     public void onConvert(CommandSender sender, StackPlugin stackPlugin) {
         if (this.sparkStacker.getConversionManager().convert(stackPlugin)) {
-            this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_CONVERTED, StringPlaceholders.single("plugin", stackPlugin.name()));
+            this.sparkStacker.getLocaleManager().sendMessage(sender, "command-convert-converted", StringPlaceholders.single("plugin", stackPlugin.name()));
         } else {
-            this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_FAILED, StringPlaceholders.single("plugin", stackPlugin.name()));
+            this.sparkStacker.getLocaleManager().sendMessage(sender, "command-convert-failed", StringPlaceholders.single("plugin", stackPlugin.name()));
         }
     }
 
     @Subcommand("convert")
     public void onConvert(CommandSender sender) {
-        this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_CONVERT_USAGE);
+        this.sparkStacker.getLocaleManager().sendMessage(sender, "command-convert-usage");
     }
 
     @Subcommand("give")
@@ -105,49 +103,52 @@ public class SparkCommand extends BaseCommand {
         @Default
         @CatchUnknown
         public void onCommand(CommandSender sender) {
-            SparkCommand.this.sparkStacker.getLocaleManager().sendPrefixedMessage(sender, Locale.COMMAND_GIVE_USAGE);
+            SparkCommand.this.sparkStacker.getLocaleManager().sendMessage(sender, "command-give-usage");
         }
 
         @Subcommand("block")
         @CommandCompletion("* @stackableBlockMaterial @blockStackAmounts")
         public void onBlock(OnlinePlayer target, Material material, int amount) {
+            LocaleManager localeManager = SparkCommand.this.sparkStacker.getLocaleManager();
+
             Player player = target.getPlayer();
             player.getInventory().addItem(StackerUtils.getBlockAsStackedItemStack(material, amount));
 
-            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getBlockStackSettings(material).getDisplayName())
-                    .apply(Locale.BLOCK_STACK_DISPLAY.get()));
+            String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getBlockStackSettings(material).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            SparkCommand.this.sparkStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            localeManager.sendMessage(player, "command-give-given", placeholders);
         }
 
         @Subcommand("spawner")
         @CommandCompletion("* @spawnableEntityType @spawnerStackAmounts")
         public void onSpawner(OnlinePlayer target, EntityType entityType, int amount) {
+            LocaleManager localeManager = SparkCommand.this.sparkStacker.getLocaleManager();
+
             Player player = target.getPlayer();
             target.getPlayer().getInventory().addItem(StackerUtils.getSpawnerAsStackedItemStack(entityType, amount));
 
-            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName())
-                    .apply(Locale.SPAWNER_STACK_DISPLAY.get()));
+            String displayString = localeManager.getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            SparkCommand.this.sparkStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            localeManager.sendMessage(player, "command-give-given", placeholders);
         }
 
         @Subcommand("entity")
         @CommandCompletion("* @spawnableEntityType @entityStackAmounts")
         public void onEntity(OnlinePlayer target, EntityType entityType, int amount) {
+            LocaleManager localeManager = SparkCommand.this.sparkStacker.getLocaleManager();
+
             Player player = target.getPlayer();
             target.getPlayer().getInventory().addItem(StackerUtils.getEntityAsStackedItemStack(entityType, amount));
 
-            String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getEntityStackSettings(entityType).getDisplayName())
-                    .apply(Locale.ENTITY_STACK_DISPLAY.get()));
+            String displayString = localeManager.getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            SparkCommand.this.sparkStacker.getLocaleManager().sendPrefixedMessage(player, Locale.COMMAND_GIVE_GIVEN, placeholders);
+            localeManager.sendMessage(player, "command-give-given", placeholders);
         }
 
     }

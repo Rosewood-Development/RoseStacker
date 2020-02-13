@@ -194,7 +194,7 @@ public class CommentedFileConfigurationHelper {
 
                 if (!compactLines && !forceCompact && (
                         (lastLineSpacing != -1 && lineSpacing != lastLineSpacing)
-                                || (commentSpacing != -1 && commentSpacing < lastCommentSpacing)
+                                || (commentSpacing != -1 && commentSpacing <= 3 && lastCommentSpacing > 3)
                                 || (lastLineHadContent && lineHadContent)
                                 || (lineWasComment && lastLineHadContent))
                         && !(lastLineHadContent && !lineWasComment)) {

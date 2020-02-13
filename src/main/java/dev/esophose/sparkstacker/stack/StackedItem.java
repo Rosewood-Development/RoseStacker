@@ -2,7 +2,6 @@ package dev.esophose.sparkstacker.stack;
 
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
-import dev.esophose.sparkstacker.manager.LocaleManager.Locale;
 import dev.esophose.sparkstacker.stack.settings.ItemStackSettings;
 import dev.esophose.sparkstacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
@@ -82,9 +81,8 @@ public class StackedItem extends Stack {
             displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
-                .addPlaceholder("name", displayName)
-                .apply(Locale.ITEM_STACK_DISPLAY.get()));
+        String displayString = SparkStacker.getInstance().getLocaleManager().getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                .addPlaceholder("name", displayName).build());
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
         this.item.setCustomName(displayString);

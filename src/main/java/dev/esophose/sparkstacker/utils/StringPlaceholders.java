@@ -36,6 +36,10 @@ public final class StringPlaceholders {
         return new Builder(placeholder, objectToString(value));
     }
 
+    public static StringPlaceholders empty() {
+        return builder().build();
+    }
+
     public static StringPlaceholders single(String placeholder, Object value) {
         return builder(placeholder, value).build();
     }

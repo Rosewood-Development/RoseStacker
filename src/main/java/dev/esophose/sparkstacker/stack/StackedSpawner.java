@@ -3,7 +3,6 @@ package dev.esophose.sparkstacker.stack;
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.manager.HologramManager;
-import dev.esophose.sparkstacker.manager.LocaleManager.Locale;
 import dev.esophose.sparkstacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.sparkstacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
@@ -80,9 +79,8 @@ public class StackedSpawner extends Stack {
             return;
         }
 
-        String displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
-                .addPlaceholder("name", this.stackSettings.getDisplayName())
-                .apply(Locale.SPAWNER_STACK_DISPLAY.get()));
+        String displayString = SparkStacker.getInstance().getLocaleManager().getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

@@ -2,7 +2,6 @@ package dev.esophose.sparkstacker.stack;
 
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
-import dev.esophose.sparkstacker.manager.LocaleManager.Locale;
 import dev.esophose.sparkstacker.manager.StackManager;
 import dev.esophose.sparkstacker.stack.settings.EntityStackSettings;
 import dev.esophose.sparkstacker.utils.EntitySerializer;
@@ -171,13 +170,11 @@ public class StackedEntity extends Stack {
         } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
             if (this.originalCustomName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
-                displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
-                        .addPlaceholder("name", this.originalCustomName)
-                        .apply(Locale.ENTITY_STACK_DISPLAY_CUSTOM_NAME.get()));
+                displayString = SparkStacker.getInstance().getLocaleManager().getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", this.getStackSize())
+                        .addPlaceholder("name", this.originalCustomName).build());
             } else {
-                displayString = ChatColor.translateAlternateColorCodes('&', StringPlaceholders.builder("amount", this.getStackSize())
-                        .addPlaceholder("name", this.stackSettings.getDisplayName())
-                        .apply(Locale.ENTITY_STACK_DISPLAY.get()));
+                displayString = SparkStacker.getInstance().getLocaleManager().getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                        .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
             }
 
             this.entity.setCustomNameVisible(!Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean());

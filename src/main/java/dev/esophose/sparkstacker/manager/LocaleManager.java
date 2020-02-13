@@ -1,145 +1,93 @@
 package dev.esophose.sparkstacker.manager;
 
 import dev.esophose.sparkstacker.SparkStacker;
+import dev.esophose.sparkstacker.config.CommentedFileConfiguration;
+import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
+import dev.esophose.sparkstacker.locale.EnglishLocale;
+import dev.esophose.sparkstacker.locale.Locale;
+import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.utils.StringPlaceholders;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 public class LocaleManager extends Manager {
 
-    public enum Locale {
-        PREFIX("&7[&bSparkStacker&7] "),
-
-        ENTITY_STACK_DISPLAY("&b%amount%x &7%name%"),
-        ENTITY_STACK_DISPLAY_CUSTOM_NAME("%name% &7[&b%amount%x&7]"),
-        ITEM_STACK_DISPLAY("&b%amount%x &7%name%"),
-        BLOCK_STACK_DISPLAY("&b%amount%x &7%name%"),
-        SPAWNER_STACK_DISPLAY("&b%amount%x &7%name%"),
-
-        COMMAND_RELOAD_DESCRIPTION("&8 - &d/ss reload &7- Reloads the plugin"),
-        COMMAND_RELOAD_RELOADED("&eConfiguration and locale files were reloaded."),
-
-        COMMAND_GIVE_DESCRIPTION("&8 - &d/ss give &7- Give pre-stacked items"),
-        COMMAND_GIVE_USAGE("&cUsage: &e/ss give <block|spawner|entity> <player> <type> <amount>"),
-        COMMAND_GIVE_GIVEN("&eGave &b%player% &e[%display%&e]."),
-
-        COMMAND_CLEARALL_DESCRIPTION("&8 - &d/ss clearall &7- Clears all of a stack type"),
-        COMMAND_CLEARALL_USAGE("&cUsage: &e/ss clearall <entity|item>"),
-        COMMAND_CLEARALL_KILLED_ENTITIES("&eCleared &b%amount% &eentities."),
-        COMMAND_CLEARALL_KILLED_ITEMS("&eCleared &b%amount% &eitems."),
-
-        COMMAND_CONVERT_DESCRIPTION("&8 - &d/ss convert &7- Converts data from another stacking plugin"),
-        COMMAND_CONVERT_USAGE("&cUsage: &e/ss convert <plugin>"),
-        COMMAND_CONVERT_CONVERTED("&eConverted data from &b%plugin% &eto SparkStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder."),
-        COMMAND_CONVERT_FAILED("&cFailed to convert &b%plugin%&c, plugin is not enabled."),
-
-        ACF_CORE_PERMISSION_DENIED("&cYou don't have permission for that!"),
-        ACF_CORE_PERMISSION_DENIED_PARAMETER("&cYou don't have permission for that!"),
-        ACF_CORE_ERROR_GENERIC_LOGGED("&cAn error occurred. Please report to the plugin author."),
-        ACF_CORE_UNKNOWN_COMMAND("&cUnknown command. Use &b/ss&c for commands."),
-        ACF_CORE_INVALID_SYNTAX("&cUsage: &e{command}&7 {syntax}"),
-        ACF_CORE_ERROR_PREFIX("&cError: {message}"),
-        ACF_CORE_INFO_MESSAGE("&e{message}"),
-        ACF_CORE_PLEASE_SPECIFY_ONE_OF("&cError: An invalid argument was given."),
-        ACF_CORE_MUST_BE_A_NUMBER("&cError: &b{num}&c must be a number."),
-        ACF_CORE_MUST_BE_MIN_LENGTH("&cError: Must be at least &b{min}&c characters long."),
-        ACF_CORE_MUST_BE_MAX_LENGTH("&cError: Must be at most &b{max}&c characters long."),
-        ACF_CORE_PLEASE_SPECIFY_AT_MOST("&cError: Please specify a value of at most &b{max}&c."),
-        ACF_CORE_PLEASE_SPECIFY_AT_LEAST("&cError: Please specify a value of at least &b{min}&c."),
-        ACF_CORE_NOT_ALLOWED_ON_CONSOLE("&cOnly players may execute this command."),
-        ACF_CORE_COULD_NOT_FIND_PLAYER("&cError: Could not find a player by the name: &b{search}"),
-        ACF_CORE_NO_COMMAND_MATCHED_SEARCH("&cError: No command matched &b{search}&c."),
-        ACF_MINECRAFT_NO_PLAYER_FOUND_SERVER("&cError: Could not find a player by the name: &b{search}");
-
-        private final String defaultMessage;
-        private String message;
-
-        Locale(String defaultMessage) {
-            this.defaultMessage = defaultMessage;
-        }
-
-        /**
-         * Gets a Locale message
-         *
-         * @return A message formatted for chat
-         */
-        public String get() {
-            if (this.message == null)
-                this.loadMessage();
-            return this.message;
-        }
-
-        /**
-         * Loads the locale message and caches it
-         */
-        private void loadMessage() {
-            String message = SparkStacker.getInstance().getLocaleManager().getLocale().getString(this.getNameAsKey());
-            if (message != null)
-                this.message = ChatColor.translateAlternateColorCodes('&', message);
-        }
-
-        /**
-         * Resets the cached message
-         */
-        private void reset() {
-            this.message = null;
-        }
-
-        /**
-         * Gets the name of this Setting as a FileConfiguration-compatible key
-         *
-         * @return The key for a FileConfiguration
-         */
-        private String getNameAsKey() {
-            return this.name().replace("_", "-").toLowerCase();
-        }
-    }
+    private CommentedFileConfiguration locale;
 
     public LocaleManager(SparkStacker sparkStacker) {
         super(sparkStacker);
     }
 
-    private FileConfiguration locale;
+    /**
+     * Creates a .lang file if one doesn't exist
+     * Cross merges values between files into the .lang file, the .lang values take priority
+     *
+     * @param locale The Locale to register
+     */
+    private void registerLocale(Locale locale) {
+        File file = new File(this.sparkStacker.getDataFolder() + "/locale", locale.getLocaleName() + ".lang");
+        boolean newFile = false;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                newFile = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-    @Override
-    public void reload() {
-        for (Locale value : Locale.values())
-            value.reset();
+        boolean changed = false;
+        CommentedFileConfiguration configuration = CommentedFileConfiguration.loadConfiguration(this.sparkStacker, file);
+        if (newFile) {
+            configuration.addComments(locale.getLocaleName() + " translation by " + locale.getTranslatorName());
+            Map<String, String> defaultLocaleStrings = locale.getDefaultLocaleStrings();
+            for (String key : defaultLocaleStrings.keySet()) {
+                String value = defaultLocaleStrings.get(key);
+                if (key.startsWith("#")) {
+                    configuration.addComments(value);
+                } else {
+                    configuration.set(key, value);
+                }
+            }
+            changed = true;
+        } else {
+            Map<String, String> defaultLocaleStrings = locale.getDefaultLocaleStrings();
+            for (String key : defaultLocaleStrings.keySet()) {
+                if (key.startsWith("#"))
+                    continue;
 
-        String targetLocaleName = ConfigurationManager.Setting.LOCALE.getString() + ".lang";
-        File targetLocaleFile = new File(this.sparkStacker.getDataFolder() + "/locale", targetLocaleName);
-        if (!targetLocaleFile.exists()) {
-            targetLocaleFile = new File(this.sparkStacker.getDataFolder() + "/locale", "en_US.lang");
-            if (!targetLocaleFile.exists()) {
-                try {
-                    this.sparkStacker.getDataFolder().mkdir();
-                    new File(this.sparkStacker.getDataFolder(), "locale").mkdir();
-                    targetLocaleFile.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String value = defaultLocaleStrings.get(key);
+                if (!configuration.contains(key)) {
+                    configuration.set(key, value);
+                    changed = true;
                 }
             }
         }
 
-        this.locale = YamlConfiguration.loadConfiguration(targetLocaleFile);
+        if (changed)
+            configuration.save();
+    }
 
-        // Create defaults
-        for (Locale locale : Locale.values())
-            if (!this.locale.contains(locale.getNameAsKey()))
-                this.locale.set(locale.getNameAsKey(), locale.defaultMessage);
+    @Override
+    public void reload() {
+        File localeDirectory = new File(this.sparkStacker.getDataFolder(), "locale");
+        if (!localeDirectory.exists())
+            localeDirectory.mkdirs();
 
-        try {
-            this.locale.save(targetLocaleFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+        this.registerLocale(new EnglishLocale());
+
+        File targetLocaleFile = new File(this.sparkStacker.getDataFolder() + "/locale", Setting.LOCALE.getString() + ".lang");
+        if (!targetLocaleFile.exists()) {
+            targetLocaleFile = new File(this.sparkStacker.getDataFolder() + "/locale", "en_US.lang");
+            this.sparkStacker.getLogger().severe("File " + targetLocaleFile.getName() + " does not exist. Defaulting to en_US.lang");
         }
+
+        this.locale = CommentedFileConfiguration.loadConfiguration(this.sparkStacker, targetLocaleFile);
     }
 
     @Override
@@ -148,72 +96,110 @@ public class LocaleManager extends Manager {
     }
 
     /**
-     * Gets the FileConfiguration that contains the locale messages
-     *
-     * @return A FileConfiguration of the messages
-     */
-    public FileConfiguration getLocale() {
-        return this.locale;
-    }
-
-    /**
      * @return a map of acf-core messages and their values
      */
     public Map<String, String> getAcfCoreMessages() {
-        return Stream.of(Locale.values())
-                .filter(x -> x.name().startsWith("ACF_CORE"))
-                .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_CORE_", "").toLowerCase(), Locale::get));
+        return this.locale.getKeys(false).stream()
+                .filter(x -> x.startsWith("acf-core"))
+                .collect(Collectors.toMap(x -> x.replaceFirst("acf-core-", "").replaceAll("-", "_"), x -> this.locale.getString(x)));
     }
 
     /**
-     * @return a map of acf-core minecraft and their values
+     * @return a map of acf-core minecraft messages and their values
      */
     public Map<String, String> getAcfMinecraftMessages() {
-        return Stream.of(Locale.values())
-                .filter(x -> x.name().startsWith("ACF_MINECRAFT"))
-                .collect(Collectors.toMap(x -> x.name().replaceFirst("ACF_MINECRAFT_", "").toLowerCase(), Locale::get));
+        return this.locale.getKeys(false).stream()
+                .filter(x -> x.startsWith("acf-minecraft"))
+                .collect(Collectors.toMap(x -> x.replaceFirst("acf-minecraft-", "").replaceAll("-", "_"), x -> this.locale.getString(x)));
+    }
+
+    /**
+     * Gets a locale message
+     *
+     * @param messageKey The key of the message to get
+     * @return The locale message
+     */
+    public String getLocaleMessage(String messageKey) {
+        return this.getLocaleMessage(messageKey, StringPlaceholders.empty());
+    }
+
+    /**
+     * Gets a locale message with the given placeholders applied
+     *
+     * @param messageKey The key of the message to get
+     * @param stringPlaceholders The placeholders to apply
+     * @return The locale message with the given placeholders applied
+     */
+    public String getLocaleMessage(String messageKey, StringPlaceholders stringPlaceholders) {
+        String message = this.locale.getString(messageKey);
+        if (message == null)
+            return ChatColor.RED + "Missing message in locale file: " + messageKey;
+        return ChatColor.translateAlternateColorCodes('&', stringPlaceholders.apply(message));
     }
 
     /**
      * Sends a message to a CommandSender with the prefix with placeholders applied
      *
      * @param sender The CommandSender to send to
-     * @param locale The Locale to send
+     * @param messageKey The message key of the Locale to send
      * @param stringPlaceholders The placeholders to apply
      */
-    public void sendPrefixedMessage(CommandSender sender, Locale locale, StringPlaceholders stringPlaceholders) {
-        sender.sendMessage(Locale.PREFIX.get() + stringPlaceholders.apply(locale.get()));
+    public void sendMessage(CommandSender sender, String messageKey, StringPlaceholders stringPlaceholders) {
+        sender.sendMessage(this.parsePlaceholders(sender, this.getLocaleMessage("prefix") + this.getLocaleMessage(messageKey, stringPlaceholders)));
     }
 
     /**
      * Sends a message to a CommandSender with the prefix
      *
      * @param sender The CommandSender to send to
-     * @param locale The Locale to send
+     * @param messageKey The message key of the Locale to send
      */
-    public void sendPrefixedMessage(CommandSender sender, Locale locale) {
-        this.sendPrefixedMessage(sender, locale, new StringPlaceholders());
+    public void sendMessage(CommandSender sender, String messageKey) {
+        this.sendMessage(sender, messageKey, StringPlaceholders.empty());
     }
 
     /**
      * Sends a message to a CommandSender with placeholders applied
      *
      * @param sender The CommandSender to send to
-     * @param locale The Locale to send
+     * @param messageKey The message key of the Locale to send
      * @param stringPlaceholders The placeholders to apply
      */
-    public void sendMessage(CommandSender sender, Locale locale, StringPlaceholders stringPlaceholders) {
-        sender.sendMessage(stringPlaceholders.apply(locale.get()));
+    public void sendSimpleMessage(CommandSender sender, String messageKey, StringPlaceholders stringPlaceholders) {
+        sender.sendMessage(this.parsePlaceholders(sender, this.getLocaleMessage(messageKey, stringPlaceholders)));
     }
 
     /**
      * Sends a message to a CommandSender
      *
      * @param sender The CommandSender to send to
-     * @param locale The Locale to send
+     * @param messageKey The message key of the Locale to send
      */
-    public void sendMessage(CommandSender sender, Locale locale) {
-        this.sendMessage(sender, locale, new StringPlaceholders());
+    public void sendSimpleMessage(CommandSender sender, String messageKey) {
+        this.sendMessage(sender, messageKey, StringPlaceholders.empty());
+    }
+
+    /**
+     * Sends a custom message to a CommandSender
+     *
+     * @param sender The CommandSender to send to
+     * @param message The message to send
+     */
+    public void sendCustomMessage(CommandSender sender, String message) {
+        sender.sendMessage(this.parsePlaceholders(sender, ChatColor.translateAlternateColorCodes('&', message)));
+    }
+
+    /**
+     * Replaces PlaceholderAPI placeholders if PlaceholderAPI is enabled
+     *
+     * @param sender The potential Player to replace with
+     * @param message The message
+     * @return A placeholder-replaced message
+     */
+    private String parsePlaceholders(CommandSender sender, String message) {
+        if (sender instanceof Player)
+            return PlaceholderAPIHook.applyPlaceholders((Player) sender, message);
+        return message;
     }
 
 }

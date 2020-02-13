@@ -2,6 +2,7 @@ package dev.esophose.sparkstacker.manager;
 
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.config.CommentedFileConfiguration;
+import dev.esophose.sparkstacker.utils.StackerUtils;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,11 @@ public class ConfigurationManager extends Manager {
             "    /        \\  |_> > __ \\|  | \\/    <  /        \\|  |  / __ \\\\  \\___|    <\\  ___/|  | \\/",
             "   /_______  /   __(____  /__|  |__|_ \\/_______  /|__| (____  /\\___  >__|_ \\\\___  >__|   ",
             "           \\/|__|       \\/           \\/        \\/           \\/     \\/     \\/    \\/       "
+    };
+
+    private static final String[] FOOTER = new String[] {
+            "That's everything! You reached the end of the configuration.",
+            "Enjoy the plugin!"
     };
 
     public enum Setting {
@@ -126,6 +132,14 @@ public class ConfigurationManager extends Manager {
         }
 
         /**
+         * @return the setting as a float
+         */
+        public float getFloat() {
+            this.loadValue();
+            return (float) this.getNumber();
+        }
+
+        /**
          * @return the setting a String
          */
         public String getString() {
@@ -156,7 +170,7 @@ public class ConfigurationManager extends Manager {
             return (List<String>) this.value;
         }
 
-        public void setIfNotExists(CommentedFileConfiguration fileConfiguration) {
+        public boolean setIfNotExists(CommentedFileConfiguration fileConfiguration) {
             this.loadValue();
 
             if (fileConfiguration.get(this.key) == null) {
@@ -164,7 +178,11 @@ public class ConfigurationManager extends Manager {
                 if (!(this.defaultValue instanceof List) && this.defaultValue != null) {
                     String defaultComment = "Default: ";
                     if (this.defaultValue instanceof String) {
-                        defaultComment += "'" + this.defaultValue + "'";
+                        if (StackerUtils.containsConfigSpecialCharacters((String) this.defaultValue)) {
+                            defaultComment += "'" + this.defaultValue + "'";
+                        } else {
+                            defaultComment += this.defaultValue;
+                        }
                     } else {
                         defaultComment += this.defaultValue;
                     }
@@ -176,7 +194,11 @@ public class ConfigurationManager extends Manager {
                 } else {
                     fileConfiguration.addComments(comments.toArray(new String[0]));
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         /**
@@ -213,19 +235,24 @@ public class ConfigurationManager extends Manager {
     @Override
     public void reload() {
         File configFile = new File(this.sparkStacker.getDataFolder(), "config.yml");
-        boolean setHeader = !configFile.exists();
+        boolean setHeaderFooter = !configFile.exists();
+        boolean changed = setHeaderFooter;
 
         this.configuration = CommentedFileConfiguration.loadConfiguration(this.sparkStacker, configFile);
 
-        if (setHeader)
+        if (setHeaderFooter)
             this.configuration.addComments(HEADER);
 
         for (Setting setting : Setting.values()) {
             setting.reset();
-            setting.setIfNotExists(this.configuration);
+            changed |= setting.setIfNotExists(this.configuration);
         }
 
-        this.configuration.save();
+        if (setHeaderFooter)
+            this.configuration.addComments(FOOTER);
+
+        if (changed)
+            this.configuration.save();
     }
 
     @Override

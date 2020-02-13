@@ -1,5 +1,7 @@
 package dev.esophose.sparkstacker;
 
+import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
+import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
 import dev.esophose.sparkstacker.listener.BlockListener;
 import dev.esophose.sparkstacker.listener.ChunkListener;
 import dev.esophose.sparkstacker.listener.EntityListener;
@@ -77,6 +79,10 @@ public class SparkStacker extends JavaPlugin {
         pluginManager.registerEvents(new EntityListener(this), this);
         pluginManager.registerEvents(new InteractListener(this), this);
         pluginManager.registerEvents(new ItemListener(this), this);
+
+        // Try to hook with PlaceholderAPI
+        if (PlaceholderAPIHook.enabled())
+            new SparkStackerPlaceholderExpansion(this).register();
     }
 
     @Override
