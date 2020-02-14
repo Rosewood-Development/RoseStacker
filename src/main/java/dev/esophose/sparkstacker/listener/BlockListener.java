@@ -8,7 +8,6 @@ import dev.esophose.sparkstacker.stack.StackedSpawner;
 import dev.esophose.sparkstacker.stack.settings.BlockStackSettings;
 import dev.esophose.sparkstacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.sparkstacker.utils.StackerUtils;
-import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -156,18 +155,16 @@ public class BlockListener implements Listener {
     public void onBlockExplode(BlockExplodeEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
-        for (Block block : new ArrayList<>(event.blockList()))
-            if (stackManager.isBlockStacked(block))
-                event.blockList().remove(block); // TODO: Configurable setting to destroy entire stack instead of protecting it
+        // TODO: Configurable setting to destroy entire stack instead of protecting it
+        event.blockList().removeIf(stackManager::isBlockStacked);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
-        for (Block block : new ArrayList<>(event.blockList()))
-            if (stackManager.isBlockStacked(block))
-                event.blockList().remove(block); // TODO: Configurable setting to destroy entire stack instead of protecting it
+        // TODO: Configurable setting to destroy entire stack instead of protecting it
+        event.blockList().removeIf(stackManager::isBlockStacked);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

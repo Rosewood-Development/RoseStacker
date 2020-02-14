@@ -14,7 +14,7 @@ public final class PlaceholderAPIHook {
     public static boolean enabled() {
         if (enabled != null)
             return enabled;
-        return enabled = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        return enabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
 
     /**

@@ -6,7 +6,6 @@ import dev.esophose.sparkstacker.manager.HologramManager;
 import dev.esophose.sparkstacker.stack.settings.BlockStackSettings;
 import dev.esophose.sparkstacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 

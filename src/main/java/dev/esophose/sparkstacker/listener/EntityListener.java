@@ -116,14 +116,12 @@ public class EntityListener implements Listener {
             if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
                 if (event instanceof EntityDeathEvent) {
                     EntityDeathEvent deathEvent = (EntityDeathEvent) event;
-                    stackedEntity.dropStackLoot(deathEvent.getDrops());
+                    stackedEntity.dropStackLoot(deathEvent.getDrops(), deathEvent.getDroppedExp());
                     deathEvent.getDrops().clear();
                 } else {
-                    stackedEntity.dropStackLoot(null);
+                    stackedEntity.dropStackLoot(null, 0);
                 }
-            }
-
-            if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && event instanceof EntityDeathEvent) {
+            } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && event instanceof EntityDeathEvent) {
                 EntityDeathEvent deathEvent = (EntityDeathEvent) event;
                 deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
             }

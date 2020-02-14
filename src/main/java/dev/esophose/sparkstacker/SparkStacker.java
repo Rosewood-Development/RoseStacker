@@ -86,7 +86,7 @@ public class SparkStacker extends JavaPlugin {
             new SparkStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus
-        if (ShopGuiPlusHook.enabled())
+        if (Bukkit.getPluginManager().isPluginEnabled("ShopGuiPlus"))
             ShopGuiPlusHook.setupSpawners(this);
     }
 

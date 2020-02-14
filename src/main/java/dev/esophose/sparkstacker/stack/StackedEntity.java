@@ -1,6 +1,7 @@
 package dev.esophose.sparkstacker.stack;
 
 import dev.esophose.sparkstacker.SparkStacker;
+import dev.esophose.sparkstacker.event.AsyncEntityDeathEvent;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.manager.StackManager;
 import dev.esophose.sparkstacker.stack.settings.EntityStackSettings;
@@ -14,7 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class StackedEntity extends Stack {
@@ -95,28 +99,50 @@ public class StackedEntity extends Stack {
     }
 
     /**
-     * Drops all loot for all internally-stacked entities.
+     * Drops all loot and experience for all internally-stacked entities.
      * Does not include loot for the current entity.
      *
      * @param existingLoot The loot from this.entity, nullable
+     * @param droppedExp The exp dropped from this.entity
      */
-    public void dropStackLoot(Collection<ItemStack> existingLoot) {
+    public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
         if (existingLoot != null)
             loot.addAll(existingLoot);
 
         Bukkit.getScheduler().runTaskAsynchronously(SparkStacker.getInstance(), () -> {
+            boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
+            int totalExp = droppedExp;
             for (String entityNBT : this.serializedStackedEntities) {
                 LivingEntity entity = EntitySerializer.getNBTStringAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
                 if (entity != null) {
                     entity.setFireTicks(fireTicks);
-                    loot.addAll(StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+                    Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                    if (callEvents) {
+                        EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                        Bukkit.getPluginManager().callEvent(deathEvent);
+                        totalExp += deathEvent.getDroppedExp();
+                        loot.addAll(deathEvent.getDrops());
+                    } else {
+                        loot.addAll(entityLoot);
+                        totalExp += droppedExp;
+                    }
                 }
             }
 
-            Bukkit.getScheduler().runTask(SparkStacker.getInstance(), () -> SparkStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation()));
+            int finalTotalExp = totalExp;
+            World world = this.entity.getLocation().getWorld();
+            if (world != null) {
+                Bukkit.getScheduler().runTask(SparkStacker.getInstance(), () -> {
+                    SparkStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
+                    if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0) {
+                        ExperienceOrb experienceOrb = world.spawn(this.entity.getLocation(), ExperienceOrb.class);
+                        experienceOrb.setExperience(finalTotalExp);
+                    }
+                });
+            }
         });
     }
 
