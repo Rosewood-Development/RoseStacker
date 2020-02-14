@@ -43,6 +43,7 @@ dependencies {
     shadow 'com.sainttx.holograms:Holograms:2.9.1'
     shadow 'com.zrips:CMI:8.4.0.2_1'
     shadow 'me.clip:placeholderapi:2.10.4'
+    shadow 'net.brcdev:ShopGUIPlus:1.19.5'
 
     // Referenced stack plugin dependencies
     shadow 'com.songoda:UltimateStacker:1.9.6'

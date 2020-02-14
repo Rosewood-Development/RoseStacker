@@ -1,6 +1,7 @@
 package dev.esophose.sparkstacker;
 
 import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
+import dev.esophose.sparkstacker.hook.ShopGuiPlusHook;
 import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
 import dev.esophose.sparkstacker.listener.BlockListener;
 import dev.esophose.sparkstacker.listener.ChunkListener;
@@ -83,6 +84,10 @@ public class SparkStacker extends JavaPlugin {
         // Try to hook with PlaceholderAPI
         if (PlaceholderAPIHook.enabled())
             new SparkStackerPlaceholderExpansion(this).register();
+
+        // Try to hook with ShopGuiPlus
+        if (ShopGuiPlusHook.enabled())
+            ShopGuiPlusHook.setupSpawners(this);
     }
 
     @Override
