@@ -1,69 +1,31 @@
 package dev.esophose.sparkstacker.hook;
 
 import dev.esophose.sparkstacker.SparkStacker;
-import dev.esophose.sparkstacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.sparkstacker.utils.StackerUtils;
-import net.brcdev.shopgui.provider.spawner.SpawnerProvider;
+import net.brcdev.shopgui.spawner.external.provider.ExternalSpawnerProvider;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
-@SuppressWarnings("deprecation")
-public class SparkStackerSpawnerProvider extends SpawnerProvider {
+public class SparkStackerSpawnerProvider implements ExternalSpawnerProvider {
 
     private SparkStacker sparkStacker;
 
     public SparkStackerSpawnerProvider(SparkStacker sparkStacker) {
         this.sparkStacker = sparkStacker;
-        this.hook(sparkStacker);
     }
 
     @Override
-    public SpawnerProvider hook(Plugin plugin) {
-        return this;
+    public String getName() {
+        return this.sparkStacker.getName();
     }
 
     @Override
-    public ItemStack getSpawnerItem(String entityId, String customName) {
-        try {
-            EntityType entityType = EntityType.fromName(entityId);
-            ItemStack itemStack = StackerUtils.getEntityAsStackedItemStack(entityType, 1);
-
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta != null && customName != null) {
-                itemMeta.setDisplayName(customName);
-                itemStack.setItemMeta(itemMeta);
-            }
-
-            return itemStack;
-        } catch (Exception ignored) { }
-
-        return null;
+    public ItemStack getSpawnerItem(EntityType entityType) {
+        return StackerUtils.getSpawnerAsStackedItemStack(entityType, 1);
     }
 
     @Override
-    public String getSpawnerEntityId(ItemStack itemStack) {
-        try {
-            EntityType entityType = StackerUtils.getStackedItemEntityType(itemStack);
-            if (entityType != null)
-                return entityType.getName();
-        } catch (Exception ignored) { }
-
-        return null;
+    public EntityType getSpawnerEntityType(ItemStack itemStack) {
+        return StackerUtils.getStackedItemEntityType(itemStack);
     }
-
-    @Override
-    public String getSpawnerEntityName(ItemStack itemStack) {
-        try {
-            EntityType entityType = StackerUtils.getStackedItemEntityType(itemStack);
-            if (entityType != null) {
-                SpawnerStackSettings stackSettings = this.sparkStacker.getStackSettingManager().getSpawnerStackSettings(entityType);
-                return stackSettings.getDisplayName();
-            }
-        } catch (Exception ignored) { }
-
-        return null;
-    }
-
 }

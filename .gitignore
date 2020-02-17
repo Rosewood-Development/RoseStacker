@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.settings
@@ -29,3 +28,4 @@ build/
 target/
 *.iml
 /bin/
+/libs/
