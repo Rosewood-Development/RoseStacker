@@ -9,6 +9,7 @@ import dev.esophose.sparkstacker.utils.EntitySerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,7 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
@@ -37,20 +39,38 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntitySpawn(EntitySpawnEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isEntityStackingDisabled())
+        if (stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
         if (event.getEntity() instanceof Item)
-            stackManager.createStackFromEntity(event.getEntity(), true);
+            stackManager.createItemStack((Item) event.getEntity(), true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isEntityStackingDisabled())
+        if (stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        this.sparkStacker.getStackManager().createStackFromEntity(event.getEntity(), true);
+        stackManager.createEntityStack(event.getEntity(), true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityTeleport(EntityTeleportEvent event) {
+        if (event.getTo() == null)
+            return;
+
+        StackManager stackManager = this.sparkStacker.getStackManager();
+        Entity entity = event.getEntity();
+        if (entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if (stackManager.isEntityStacked(livingEntity))
+                stackManager.changeStackingThread(livingEntity, event.getFrom().getWorld(), event.getTo().getWorld());
+        } else if (entity instanceof Item) {
+            Item item = (Item) entity;
+            if (stackManager.isItemStacked(item))
+                stackManager.changeStackingThread(item, event.getFrom().getWorld(), event.getTo().getWorld());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -99,12 +119,12 @@ public class EntityListener implements Listener {
 
     private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (!stackManager.isEntityStacked(event.getEntity()))
+        if (!stackManager.isEntityStacked(entity))
             return;
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity.getStackSize() == 1) {
-            stackManager.removeEntity(stackedEntity);
+            stackManager.removeEntityStack(stackedEntity);
             return;
         }
 
@@ -126,16 +146,16 @@ public class EntityListener implements Listener {
                 deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
             }
 
-            stackManager.removeEntity(stackedEntity);
+            stackManager.removeEntityStack(stackedEntity);
             return;
         }
 
         // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
         entity.setCustomName(null);
         entity.setCustomNameVisible(false);
-        stackManager.setEntityStackingDisabled(true);
+        stackManager.setEntityStackingTemporarilyDisabled(true);
         stackedEntity.decreaseStackSize();
-        stackManager.setEntityStackingDisabled(false);
+        stackManager.setEntityStackingTemporarilyDisabled(false);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -153,7 +173,7 @@ public class EntityListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity)
                 || !(event.getTransformedEntity() instanceof LivingEntity)
                 || event.getEntity().getType() == event.getTransformedEntity().getType()
-                || !stackManager.isEntityStacked(event.getEntity()))
+                || !stackManager.isEntityStacked((LivingEntity) event.getEntity()))
             return;
 
         StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getEntity());
@@ -166,9 +186,9 @@ public class EntityListener implements Listener {
             event.setCancelled(true);
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.sparkStacker, () -> {
-                stackManager.setEntityStackingDisabled(true);
-                StackedEntity newStack = (StackedEntity) stackManager.createStackFromEntity(EntitySerializer.fromNBTString(serialized, transformedEntity.getLocation()), false);
-                stackManager.setEntityStackingDisabled(false);
+                stackManager.setEntityStackingTemporarilyDisabled(true);
+                StackedEntity newStack = stackManager.createEntityStack(EntitySerializer.fromNBTString(serialized, transformedEntity.getLocation()), false);
+                stackManager.setEntityStackingTemporarilyDisabled(false);
                 if (newStack == null)
                     return;
 

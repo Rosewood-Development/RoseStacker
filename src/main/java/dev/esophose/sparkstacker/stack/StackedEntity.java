@@ -165,9 +165,9 @@ public class StackedEntity extends Stack {
         StackManager stackManager = SparkStacker.getInstance().getStackManager();
 
         LivingEntity oldEntity = this.entity;
-        stackManager.setEntityStackingDisabled(true);
+        stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = EntitySerializer.fromNBTString(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
-        stackManager.setEntityStackingDisabled(false);
+        stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();

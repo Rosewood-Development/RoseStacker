@@ -80,7 +80,7 @@ public class BlockListener implements Listener {
             }
 
             if (stackedSpawner.getStackSize() <= 1)
-                stackManager.removeSpawner(stackedSpawner);
+                stackManager.removeSpawnerStack(stackedSpawner);
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
             if (breakEverything) {
@@ -90,12 +90,12 @@ public class BlockListener implements Listener {
                 block.setType(Material.AIR);
             } else {
                 if (player.getGameMode() != GameMode.CREATIVE)
-                    dropLocation.getWorld().dropItemNaturally(dropLocation, new ItemStack(block.getType()));
+                    player.getWorld().dropItemNaturally(dropLocation, new ItemStack(block.getType()));
                 stackedBlock.increaseStackSize(-1);
             }
 
             if (stackedBlock.getStackSize() <= 1)
-                stackManager.removeBlock(stackedBlock);
+                stackManager.removeBlockStack(stackedBlock);
         }
 
         event.setCancelled(true);
@@ -243,7 +243,7 @@ public class BlockListener implements Listener {
                 // Handle spawner stacking
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
                 if (stackedSpawner == null)
-                    stackedSpawner = (StackedSpawner) stackManager.createStackFromBlock(against, 1);
+                    stackedSpawner = stackManager.createSpawnerStack(against, 1);
 
                 if (stackedSpawner.getStackSize() + stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
                     event.setCancelled(true);
@@ -255,7 +255,7 @@ public class BlockListener implements Listener {
                 // Handle normal block stacking
                 StackedBlock stackedBlock = stackManager.getStackedBlock(against);
                 if (stackedBlock == null)
-                    stackedBlock = (StackedBlock) stackManager.createStackFromBlock(against, 1);
+                    stackedBlock = stackManager.createBlockStack(against, 1);
 
                 if (stackedBlock.getStackSize() + stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
                     event.setCancelled(true);
@@ -276,18 +276,27 @@ public class BlockListener implements Listener {
 
                 spawner.setSpawnedType(spawnedType);
                 spawner.update();
+
+                if (stackAmount <= 1)
+                    return;
+
+                if (stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                stackManager.createSpawnerStack(block, stackAmount);
+            } else {
+                if (stackAmount <= 1)
+                    return;
+
+                if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                stackManager.createBlockStack(block, stackAmount);
             }
-
-            // Only create stacks from matching types and if we're stacking more than 1
-            if (stackAmount <= 1)
-                return;
-
-            if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
-                event.setCancelled(true);
-                return;
-            }
-
-            stackManager.createStackFromBlock(block, stackAmount);
         }
 
         // Take an item from the player's hand

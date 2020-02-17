@@ -3,16 +3,19 @@ package dev.esophose.sparkstacker.listener;
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.StackManager;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
-public class ChunkListener implements Listener {
+public class WorldListener implements Listener {
 
     private SparkStacker sparkStacker;
 
-    public ChunkListener(SparkStacker sparkStacker) {
+    public WorldListener(SparkStacker sparkStacker) {
         this.sparkStacker = sparkStacker;
     }
 
@@ -22,7 +25,8 @@ public class ChunkListener implements Listener {
 
         if (event.isNewChunk()) {
             for (Entity entity : event.getChunk().getEntities())
-                stackManager.createStackFromEntity(entity, true);
+                if (entity instanceof LivingEntity)
+                    stackManager.createEntityStack((LivingEntity) entity, true);
         } else {
             stackManager.loadChunk(event.getChunk());
         }
@@ -31,6 +35,17 @@ public class ChunkListener implements Listener {
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
         this.sparkStacker.getStackManager().unloadChunk(event.getChunk());
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        System.out.println("LOADED WORLD: " + event.getWorld().getName());
+        this.sparkStacker.getStackManager().loadWorld(event.getWorld());
+    }
+
+    @EventHandler
+    public void onWorldUnload(WorldUnloadEvent event) {
+        this.sparkStacker.getStackManager().unloadWorld(event.getWorld());
     }
 
 }

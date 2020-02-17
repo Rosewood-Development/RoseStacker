@@ -4,7 +4,7 @@ import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
 import dev.esophose.sparkstacker.hook.ShopGuiPlusHook;
 import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
 import dev.esophose.sparkstacker.listener.BlockListener;
-import dev.esophose.sparkstacker.listener.ChunkListener;
+import dev.esophose.sparkstacker.listener.WorldListener;
 import dev.esophose.sparkstacker.listener.EntityListener;
 import dev.esophose.sparkstacker.listener.InteractListener;
 import dev.esophose.sparkstacker.listener.ItemListener;
@@ -76,7 +76,7 @@ public class SparkStacker extends JavaPlugin {
         // Register listeners
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new BlockListener(this), this);
-        pluginManager.registerEvents(new ChunkListener(this), this);
+        pluginManager.registerEvents(new WorldListener(this), this);
         pluginManager.registerEvents(new EntityListener(this), this);
         pluginManager.registerEvents(new InteractListener(this), this);
         pluginManager.registerEvents(new ItemListener(this), this);

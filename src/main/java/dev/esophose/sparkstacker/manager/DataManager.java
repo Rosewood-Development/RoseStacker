@@ -140,7 +140,7 @@ public class DataManager extends Manager {
                         callback.accept(stackedBlocks);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup));
+                            this.async(() -> this.deleteStacks(cleanup, true));
                     });
 
                     compoundSelect.setLength(0);
@@ -201,7 +201,7 @@ public class DataManager extends Manager {
                         callback.accept(stackedEntities);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup));
+                            this.async(() -> this.deleteStacks(cleanup, true));
                     });
 
                     compoundSelect.setLength(0);
@@ -262,7 +262,7 @@ public class DataManager extends Manager {
                         callback.accept(stackedItems);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup));
+                            this.async(() -> this.deleteStacks(cleanup, true));
                     });
 
                     compoundSelect.setLength(0);
@@ -333,7 +333,7 @@ public class DataManager extends Manager {
                         callback.accept(stackedSpawners);
 
                         if (!cleanup.isEmpty())
-                            this.deleteStacks(cleanup);
+                            this.deleteStacks(cleanup, true);
                     });
 
                     compoundSelect.setLength(0);
@@ -525,11 +525,11 @@ public class DataManager extends Manager {
         }
     }
 
-    public void deleteStacks(Set<Stack> stacks) {
+    public void deleteStacks(Set<Stack> stacks, boolean async) {
         if (stacks.isEmpty())
             return;
 
-        this.async(() -> this.databaseConnector.connect(connection -> {
+        Runnable task = () -> this.databaseConnector.connect(connection -> {
             Set<StackedBlock> stackedBlocks = new HashSet<>();
             Set<StackedEntity> stackedEntities = new HashSet<>();
             Set<StackedItem> stackedItems = new HashSet<>();
@@ -561,7 +561,13 @@ public class DataManager extends Manager {
 
             if (!stackedSpawners.isEmpty())
                 this.deleteStackBatch(connection, stackedSpawners, "stacked_spawner");
-        }));
+        });
+
+        if (async) {
+            this.async(task);
+        } else {
+            task.run();
+        }
     }
 
     private <T extends Stack> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {

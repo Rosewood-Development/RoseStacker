@@ -45,7 +45,10 @@ public class ConversionManager extends Manager {
     }
 
     public Set<StackPlugin> getEnabledConverters() {
-        return this.converters.entrySet().stream().filter(x -> x.getValue().canConvert()).map(Entry::getKey).collect(Collectors.toSet());
+        return this.converters.entrySet().stream()
+                .filter(x -> x.getValue().canConvert())
+                .map(Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     public enum StackPlugin {

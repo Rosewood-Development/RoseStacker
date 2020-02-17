@@ -63,11 +63,11 @@ public class SparkCommand extends BaseCommand {
         int amount;
         switch (clearallType) {
             case ENTITY:
-                amount = stackManager.removeAllEntities();
+                amount = stackManager.removeAllEntityStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-entities", StringPlaceholders.single("amount", amount));
                 break;
             case ITEM:
-                amount = stackManager.removeAllItems();
+                amount = stackManager.removeAllItemStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-items", StringPlaceholders.single("amount", amount));
                 break;
         }

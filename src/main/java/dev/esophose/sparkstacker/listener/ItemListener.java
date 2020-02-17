@@ -33,7 +33,7 @@ public class ItemListener implements Listener {
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getEntity());
         if (stackedItem != null)
-            stackManager.removeItem(stackedItem);
+            stackManager.removeItemStack(stackedItem);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -60,7 +60,7 @@ public class ItemListener implements Listener {
         } else {
             // Only pick up one item
             if (stackedItem.getStackSize() > 1) {
-                stackManager.splitItem(stackedItem, 1);
+                stackManager.splitItemStack(stackedItem, 1);
                 event.setCancelled(true);
             }
             return;
@@ -104,7 +104,7 @@ public class ItemListener implements Listener {
 
         // Just let them pick it up if it will all fit
         if (inventorySpace >= stackedItem.getStackSize() && stackedItem.getStackSize() <= maxStackSize) {
-            stackManager.removeItem(stackedItem);
+            stackManager.removeItemStack(stackedItem);
             return false;
         }
 
@@ -120,7 +120,7 @@ public class ItemListener implements Listener {
         this.addItemStackAmountToInventory(inventory, target, amount);
 
         if (willPickupAll) {
-            stackManager.removeItem(stackedItem);
+            stackManager.removeItemStack(stackedItem);
         } else {
             stackedItem.setStackSize(stackedItem.getStackSize() - inventorySpace);
 

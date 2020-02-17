@@ -56,14 +56,14 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.sparkStacker.getStackManager();
-        stackManager.setEntityStackingDisabled(true);
+        stackManager.setEntityStackingTemporarilyDisabled(true);
         LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
-        stackManager.setEntityStackingDisabled(false);
+        stackManager.setEntityStackingTemporarilyDisabled(false);
 
         initialEntity.setAI(false);
         initialEntity.setInvulnerable(true);
 
-        StackedEntity stackedEntity = (StackedEntity) stackManager.createStackFromEntity(initialEntity, false);
+        StackedEntity stackedEntity = stackManager.createEntityStack(initialEntity, false);
         Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> {
             for (int i = 0; i < spawnAmount - 1; i++) {
                 LivingEntity newEntity = EntitySerializer.createEntityUnspawned(entityType, spawnLocation);
@@ -87,14 +87,18 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.sparkStacker.getStackManager();
-        Player player = event.getPlayer();
 
+        LivingEntity entity = (LivingEntity) event.getRightClicked();
+        if (!stackManager.isEntityStacked(entity))
+            return;
+
+        Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
-            if (!stackManager.isEntityStacked(event.getRightClicked()))
+            if (!stackManager.isEntityStacked(entity))
                 return;
 
-            StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getRightClicked());
+            StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
             Bukkit.getScheduler().runTask(this.sparkStacker, stackedEntity::updateOriginalCustomName);
             return;
         }
@@ -118,10 +122,6 @@ public class InteractListener implements Listener {
 
         Location spawnLocation = event.getRightClicked().getLocation();
         if (spawnLocation.getWorld() == null)
-            return;
-
-        LivingEntity entity = (LivingEntity) event.getRightClicked();
-        if (!stackManager.isEntityStacked(entity))
             return;
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
