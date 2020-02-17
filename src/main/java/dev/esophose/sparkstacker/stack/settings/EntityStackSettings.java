@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Flying;
@@ -42,6 +43,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean dontStackIfTrading;
 
     // Cached entity types
+    private Boolean isBoss;
     private Boolean isColorable;
     private Boolean isSittable;
     private Boolean isTameable;
@@ -95,7 +97,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     protected void setDefaults() {
         super.setDefaults();
 
-        this.setIfNotExists("enabled", true);
+        this.setIfNotExists("enabled", !this.isEntityBoss());
         this.setIfNotExists("display-name", StackerUtils.formatName(this.getEntityType().name()));
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);
@@ -247,6 +249,17 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     @Override
     public String getConfigurationSectionKey() {
         return this.getEntityType().name();
+    }
+
+    private boolean isEntityBoss() {
+        if (this.isBoss == null) {
+            Class<?> entityClass = this.getEntityType().getEntityClass();
+            if (entityClass == null)
+                return false;
+            this.isBoss = Boss.class.isAssignableFrom(entityClass);
+        }
+
+        return this.isBoss;
     }
 
     private boolean isEntityColorable() {

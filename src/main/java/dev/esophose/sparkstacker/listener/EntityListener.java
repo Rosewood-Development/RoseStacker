@@ -1,6 +1,5 @@
 package dev.esophose.sparkstacker.listener;
 
-import com.bgsoftware.wildstacker.listeners.events.EggLayEvent;
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.manager.StackManager;
