@@ -1,15 +1,23 @@
 package dev.esophose.sparkstacker.listener;
 
+import com.bgsoftware.wildstacker.listeners.events.EggLayEvent;
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.manager.StackManager;
+import dev.esophose.sparkstacker.manager.StackSettingManager;
 import dev.esophose.sparkstacker.stack.StackedEntity;
 import dev.esophose.sparkstacker.stack.settings.SpawnerStackSettings;
+import dev.esophose.sparkstacker.stack.settings.entity.ChickenStackSettings;
 import dev.esophose.sparkstacker.utils.EntitySerializer;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -18,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -26,6 +35,7 @@ import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
 public class EntityListener implements Listener {
@@ -119,10 +129,10 @@ public class EntityListener implements Listener {
 
     private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (!stackManager.isEntityStacked(entity))
+        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        if (stackedEntity == null)
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity.getStackSize() == 1) {
             stackManager.removeEntityStack(stackedEntity);
             return;
@@ -199,6 +209,38 @@ public class EntityListener implements Listener {
             // Wait for potential lightning to go away
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.sparkStacker, stackedEntity::decreaseStackSize, 20);
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEggLay(EntityDropItemEvent event) {
+        if (event.getEntityType() != EntityType.CHICKEN || event.getItemDrop().getItemStack().getType() != Material.EGG)
+            return;
+
+        StackSettingManager stackSettingManager = this.sparkStacker.getStackSettingManager();
+        ChickenStackSettings chickenStackSettings = (ChickenStackSettings) stackSettingManager.getEntityStackSettings(EntityType.CHICKEN);
+        if (!chickenStackSettings.shouldMultiplyEggDropsByStackSize())
+            return;
+
+        StackManager stackManager = this.sparkStacker.getStackManager();
+        Chicken chickenEntity = (Chicken) event.getEntity();
+        StackedEntity stackedEntity = stackManager.getStackedEntity(chickenEntity);
+        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+            return;
+
+        event.getItemDrop().remove();
+
+        int maxStackSize = Material.EGG.getMaxStackSize();
+        int eggs = stackedEntity.getStackSize();
+        int fullItemStacks = (int) Math.floor((double) eggs / maxStackSize);
+        int remainingEggs = eggs % maxStackSize;
+
+        List<ItemStack> eggStacks = new ArrayList<>();
+        for (int i = 0; i < fullItemStacks; i++)
+            eggStacks.add(new ItemStack(Material.EGG, maxStackSize));
+        if (remainingEggs > 0)
+            eggStacks.add(new ItemStack(Material.EGG, remainingEggs));
+
+        stackManager.preStackItems(eggStacks, event.getEntity().getLocation());
     }
 
 }

@@ -145,7 +145,7 @@ public class SparkCommand extends BaseCommand {
             target.getPlayer().getInventory().addItem(StackerUtils.getEntityAsStackedItemStack(entityType, amount));
 
             String displayString = localeManager.getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getDisplayName()).build());
+                    .addPlaceholder("name", SparkCommand.this.sparkStacker.getStackSettingManager().getEntityStackSettings(entityType).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
             localeManager.sendMessage(player, "command-give-given", placeholders);

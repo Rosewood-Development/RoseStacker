@@ -95,11 +95,11 @@ publishing {
         }
     }
     repositories {
-        if (project.hasProperty('jenkinsUsername') && project.hasProperty('jenkinsPassword')) {
+        if (project.hasProperty('mavenUsername') && project.hasProperty('mavenPassword')) {
             maven {
                 credentials {
-                    username project.jenkinsUsername
-                    password project.jenkinsPassword
+                    username project.mavenUsername
+                    password project.mavenPassword
                 }
 
                 def releasesRepoUrl = 'https://repo.codemc.org/repository/maven-releases/'

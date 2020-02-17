@@ -86,7 +86,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (removed.contains(stackedItem))
                 continue;
 
-            if (!stackedItem.getItem().isValid()) {
+            Item item = stackedItem.getItem();
+            if (item == null || !item.isValid()) {
                 this.removeItemStack(stackedItem);
                 continue;
             }
@@ -101,7 +102,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (removed.contains(stackedEntity))
                 continue;
 
-            if (!stackedEntity.getEntity().isValid()) {
+            LivingEntity livingEntity = stackedEntity.getEntity();
+            if (livingEntity == null || !livingEntity.isValid()) {
                 this.removeEntityStack(stackedEntity);
                 continue;
             }
