@@ -40,6 +40,7 @@ public class SparkCommand extends BaseCommand {
         localeManager.sendSimpleMessage(sender, "command-reload-description");
         localeManager.sendSimpleMessage(sender, "command-give-description");
         localeManager.sendSimpleMessage(sender, "command-clearall-description");
+        localeManager.sendSimpleMessage(sender, "command-stats-description");
         localeManager.sendSimpleMessage(sender, "command-convert-description");
         sender.sendMessage("");
     }
@@ -93,6 +94,27 @@ public class SparkCommand extends BaseCommand {
     @Subcommand("convert")
     public void onConvert(CommandSender sender) {
         this.sparkStacker.getLocaleManager().sendMessage(sender, "command-convert-usage");
+    }
+
+    @Subcommand("stats")
+    @Description("Gets stats about the plugin")
+    @CommandPermission("sparkstacker.stats")
+    public void onStats(CommandSender sender) {
+        StackManager stackManager = this.sparkStacker.getStackManager();
+        LocaleManager localeManager = this.sparkStacker.getLocaleManager();
+
+        int threadAmount = stackManager.getStackingThreads().size();
+        int entityAmount = stackManager.getStackedEntities().size();
+        int itemAmount = stackManager.getStackedItems().size();
+        int blockAmount = stackManager.getStackedItems().size();
+        int spawnerAmount = stackManager.getStackedSpawners().size();
+
+        localeManager.sendMessage(sender, "command-stats-header");
+        localeManager.sendSimpleMessage(sender, "command-stats-threads", StringPlaceholders.single("amount", threadAmount));
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-entities", StringPlaceholders.single("amount", entityAmount));
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-items", StringPlaceholders.single("amount", itemAmount));
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-blocks", StringPlaceholders.single("amount", blockAmount));
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-spawners", StringPlaceholders.single("amount", spawnerAmount));
     }
 
     @Subcommand("give")

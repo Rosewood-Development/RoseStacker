@@ -11,6 +11,7 @@ import dev.esophose.sparkstacker.stack.StackingLogic;
 import dev.esophose.sparkstacker.stack.StackingThread;
 import io.netty.util.internal.ConcurrentSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -302,8 +303,15 @@ public class StackManager extends Manager implements StackingLogic {
      * @param world the World
      * @return a StackingThread for the World, otherwise null if one doesn't exist
      */
-    private StackingThread getStackingThread(World world) {
+    public StackingThread getStackingThread(World world) {
         return this.stackingThreads.get(world.getUID());
+    }
+
+    /**
+     * @return a Map in a key -> World UUID, value -> StackingThread of all StackingThreads
+     */
+    public Map<UUID, StackingThread> getStackingThreads() {
+        return this.stackingThreads;
     }
 
     /**

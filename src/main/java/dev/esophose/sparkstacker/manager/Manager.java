@@ -4,7 +4,7 @@ import dev.esophose.sparkstacker.SparkStacker;
 
 public abstract class Manager {
 
-    protected SparkStacker sparkStacker;
+    protected final SparkStacker sparkStacker;
 
     public Manager(SparkStacker sparkStacker) {
         this.sparkStacker = sparkStacker;

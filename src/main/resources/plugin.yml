@@ -3,7 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.sparkstacker.SparkStacker
 api-version: 1.14
-loadbefore: [ShopGuiPlus]
+loadbefore: [ShopGUIPlus]
 softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI]
 permissions:
   sparkstacker.*:

@@ -581,4 +581,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         return stack1.getStackSize() > stack2.getStackSize() ? stack1 : stack2;
     }
 
+    /**
+     * @return the world that this StackingThread is acting on
+     */
+    public World getTargetWorld() {
+        return this.targetWorld;
+    }
+
 }

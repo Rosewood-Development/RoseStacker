@@ -43,13 +43,22 @@ public class EnglishLocale implements Locale {
             this.put("command-clearall-killed-entities", "&eCleared &b%amount% &eentities.");
             this.put("command-clearall-killed-items", "&eCleared &b%amount% &eitems.");
 
-            this.put("#5", "Convert Command");
+            this.put("#5", "Stats Command");
+            this.put("command-stats-description", "&8 - &d/ss stats &7- Displays stats about the plugin");
+            this.put("command-stats-header", "&aCurrent Plugin Stats:");
+            this.put("command-stats-threads", "&eActive stacking threads: &b%amount%");
+            this.put("command-stats-stacked-entities", "&eLoaded stacked entities: &b%amount%");
+            this.put("command-stats-stacked-items", "&eLoaded stacked items: &b%amount%");
+            this.put("command-stats-stacked-blocks", "&eLoaded stacked blocks: &b%amount%");
+            this.put("command-stats-stacked-spawners", "&eLoaded stacked spawners: &b%amount%");
+
+            this.put("#6", "Convert Command");
             this.put("command-convert-description", "&8 - &d/ss convert &7- Converts data from another stacking plugin");
             this.put("command-convert-usage", "&cUsage: &e/ss convert <plugin>");
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto SparkStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
 
-            this.put("#6", "ACF-Core Messages");
+            this.put("#7", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -67,7 +76,7 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#7", "ACF-Minecraft Messages");
+            this.put("#8", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
         }};
     }
