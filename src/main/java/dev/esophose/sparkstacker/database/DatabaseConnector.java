@@ -6,13 +6,6 @@ import java.sql.SQLException;
 public interface DatabaseConnector {
 
     /**
-     * Checks if the connection to the database has been created
-     *
-     * @return true if the connection is created, otherwise false
-     */
-    boolean isInitialized();
-
-    /**
      * Closes all open connections to the database
      */
     void closeConnection();
@@ -23,6 +16,16 @@ public interface DatabaseConnector {
      * @param callback The callback to execute once the connection is retrieved
      */
     void connect(ConnectionCallback callback);
+
+    /**
+     * @return the lock to notify when all connections have been finalized
+     */
+    Object getLock();
+
+    /**
+     * @return true if all connections have finished, otherwise false
+     */
+    boolean isFinished();
 
     /**
      * Wraps a connection in a callback which will automagically handle catching sql errors

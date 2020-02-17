@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -209,7 +210,7 @@ public final class EntitySerializer {
 
             // Read list length
             int length = dataInput.readInt();
-            List<String> stackNbtStrings = new LinkedList<>();
+            List<String> stackNbtStrings = Collections.synchronizedList(new LinkedList<>());
 
             // Read the serialized itemstack list
             for (int i = 0; i < length; i++)

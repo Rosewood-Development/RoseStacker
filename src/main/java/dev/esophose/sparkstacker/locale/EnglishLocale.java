@@ -30,7 +30,7 @@ public class EnglishLocale implements Locale {
 
             this.put("#2", "Reload Command");
             this.put("command-reload-description", "&8 - &d/ss reload &7- Reloads the plugin");
-            this.put("command-reload-reloaded", "&eConfiguration and locale files were reloaded.");
+            this.put("command-reload-reloaded", "&ePlugin data, configuration, and locale files were reloaded.");
 
             this.put("#3", "Give Command");
             this.put("command-give-description", "&8 - &d/ss give &7- Give pre-stacked items");

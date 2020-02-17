@@ -54,23 +54,17 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.task != null)
             this.task.cancel();
 
-        // Unload existing StackingThreads
-        for (UUID worldUUID : this.stackingThreads.keySet()) {
-            World world = Bukkit.getWorld(worldUUID);
-            if (world != null)
-                this.unloadWorld(world);
-        }
+        // Close and clear StackingThreads
+        this.stackingThreads.values().forEach(StackingThread::close);
+        this.stackingThreads.clear();
 
         // Delete pending stacks
-        this.deleteStacks(false);
-
-        // Clear StackingThreads
-        this.stackingThreads.clear();
+        this.deleteStacks();
 
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.sparkStacker, () -> this.deleteStacks(true), 0L, 100L);
+        this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.sparkStacker, this::deleteStacks, 0L, 100L);
     }
 
     @Override
@@ -78,18 +72,12 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.task != null)
             this.task.cancel();
 
-        // Unload existing StackingThreads
-        for (UUID worldUUID : this.stackingThreads.keySet()) {
-            World world = Bukkit.getWorld(worldUUID);
-            if (world != null)
-                this.unloadWorld(world);
-        }
-
-        // Clear StackingThreads
+        // Close and clear StackingThreads
+        this.stackingThreads.values().forEach(StackingThread::close);
         this.stackingThreads.clear();
 
         // Delete pending stacks
-        this.deleteStacks(false);
+        this.deleteStacks();
     }
 
     @Override
@@ -394,12 +382,10 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
-     * Deletes all stacking pending deletion
-     *
-     * @param async true if should be run async, otherwise false to run sync
+     * Deletes all stacks pending deletion
      */
-    private void deleteStacks(boolean async) {
-        this.sparkStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks), async);
+    private void deleteStacks() {
+        this.sparkStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks));
         this.deletedStacks.clear();
     }
 

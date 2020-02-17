@@ -2,6 +2,7 @@ package dev.esophose.sparkstacker.listener;
 
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.manager.StackManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -28,13 +29,13 @@ public class WorldListener implements Listener {
                 if (entity instanceof LivingEntity)
                     stackManager.createEntityStack((LivingEntity) entity, true);
         } else {
-            stackManager.loadChunk(event.getChunk());
+            Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> stackManager.loadChunk(event.getChunk()));
         }
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        this.sparkStacker.getStackManager().unloadChunk(event.getChunk());
+        Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> this.sparkStacker.getStackManager().unloadChunk(event.getChunk()));
     }
 
     @EventHandler

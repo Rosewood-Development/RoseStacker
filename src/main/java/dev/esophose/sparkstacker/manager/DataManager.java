@@ -2,7 +2,6 @@ package dev.esophose.sparkstacker.manager;
 
 import dev.esophose.sparkstacker.SparkStacker;
 import dev.esophose.sparkstacker.database.DatabaseConnector;
-import dev.esophose.sparkstacker.database.DatabaseConnector.ConnectionCallback;
 import dev.esophose.sparkstacker.database.MySQLConnector;
 import dev.esophose.sparkstacker.database.SQLiteConnector;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
@@ -49,8 +48,7 @@ public class DataManager extends Manager {
 
     @Override
     public void reload() {
-        if (this.databaseConnector != null)
-            this.databaseConnector.closeConnection();
+        this.disable();
 
         try {
             if (Setting.MYSQL_ENABLED.getBoolean()) {
@@ -73,20 +71,34 @@ public class DataManager extends Manager {
         }
 
         // Vacuum the database to help compress it, only run once per plugin startup
-        if (!this.ranVacuum && this.databaseConnector instanceof SQLiteConnector) {
-            this.databaseConnector.connect((connection) -> {
-                connection.createStatement().execute("VACUUM");
-            });
-        }
+        if (!this.ranVacuum && this.databaseConnector instanceof SQLiteConnector)
+            this.databaseConnector.connect((connection) -> connection.createStatement().execute("VACUUM"));
     }
 
     @Override
     public void disable() {
+        if (this.databaseConnector == null)
+            return;
+
+        // Wait for all database connections to finish
+        long now = System.currentTimeMillis();
+        long deadline = now + 3000; // Wait at most 3 seconds
+        synchronized (this.databaseConnector.getLock()) {
+            while (!this.databaseConnector.isFinished() && now < deadline) {
+                try {
+                    this.databaseConnector.getLock().wait(deadline - now);
+                    now = System.currentTimeMillis();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         this.databaseConnector.closeConnection();
     }
 
-    public void getStackedBlocks(Set<Chunk> chunks, boolean async, Consumer<Set<StackedBlock>> callback) {
-        ConnectionCallback query = connection -> {
+    public void getStackedBlocks(Set<Chunk> chunks, Consumer<Set<StackedBlock>> callback) {
+        this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_block WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
             int count = 0;
@@ -99,65 +111,67 @@ public class DataManager extends Manager {
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
                 if (++count >= 500 || !chunkIterator.hasNext()) {
-                    Statement statement = connection.createStatement();
-                    ResultSet result = statement.executeQuery(compoundSelect.toString());
-                    this.sync(() -> {
+                    Set<StackedBlockData> stackedBlockData = new HashSet<>();
+
+                    try (Statement statement = connection.createStatement()) {
+                        ResultSet result = statement.executeQuery(compoundSelect.toString());
+                        while (result.next()) {
+                            stackedBlockData.add(new StackedBlockData(
+                                    result.getInt("id"),
+                                    result.getInt("stack_size"),
+                                    result.getInt("chunk_x"),
+                                    result.getInt("chunk_z"),
+                                    result.getInt("block_x"),
+                                    result.getInt("block_y"),
+                                    result.getInt("block_z"),
+                                    result.getString("world")
+                            ));
+                        }
+                    }
+
+                    Runnable task = () -> {
                         Set<StackedBlock> stackedBlocks = new HashSet<>();
                         Set<Stack> cleanup = new HashSet<>();
 
-                        try {
-                            while (result.next()) {
-                                int id = result.getInt("id");
-                                int stackSize = result.getInt("stack_size");
-                                int chunkX = result.getInt("chunk_x");
-                                int chunkZ = result.getInt("chunk_z");
-                                int blockX = result.getInt("block_x");
-                                int blockY = result.getInt("block_y");
-                                int blockZ = result.getInt("block_z");
+                        for (StackedBlockData stackData : stackedBlockData) {
+                            World world = Bukkit.getWorld(stackData.world);
+                            Block block = null;
 
-                                World world = Bukkit.getWorld(result.getString("world"));
-                                Block block = null;
-
-                                boolean invalid = world == null;
-                                if (!invalid) {
-                                    block = world.getBlockAt((chunkX << 4) + blockX, blockY, (chunkZ << 4) + blockZ);
-                                    if (block.getType() == Material.AIR)
-                                        invalid = true;
-                                }
-
-                                if (!invalid) {
-                                    stackedBlocks.add(new StackedBlock(id, stackSize, block));
-                                } else {
-                                    cleanup.add(new StackedBlock(id, 0, null));
-                                }
+                            boolean invalid = world == null;
+                            if (!invalid) {
+                                block = world.getBlockAt((stackData.chunkX << 4) + stackData.blockX, stackData.blockY, (stackData.chunkZ << 4) + stackData.blockZ);
+                                if (block.getType() == Material.AIR)
+                                    invalid = true;
                             }
 
-                            statement.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
+                            if (!invalid) {
+                                stackedBlocks.add(new StackedBlock(stackData.id, stackData.stackSize, block));
+                            } else {
+                                cleanup.add(new StackedBlock(stackData.id, 0, null));
+                            }
                         }
 
                         callback.accept(stackedBlocks);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup, true));
-                    });
+                            Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> this.deleteStacks(cleanup));
+                    };
+
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Bukkit.getScheduler().runTask(this.sparkStacker, task);
+                    }
 
                     compoundSelect.setLength(0);
                     count = 0;
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void getStackedEntities(Set<Chunk> chunks, boolean async, Consumer<Set<StackedEntity>> callback) {
-        ConnectionCallback query = connection -> {
+    public void getStackedEntities(Set<Chunk> chunks, Consumer<Set<StackedEntity>> callback) {
+        this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
             int count = 0;
@@ -174,51 +188,53 @@ public class DataManager extends Manager {
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
                 if (++count >= 500 || !chunkIterator.hasNext()) {
-                    Statement statement = connection.createStatement();
-                    ResultSet result = statement.executeQuery(compoundSelect.toString());
-                    this.sync(() -> {
+                    Set<StackedEntityData> stackedEntityData = new HashSet<>();
+
+                    try (Statement statement = connection.createStatement()) {
+                        ResultSet result = statement.executeQuery(compoundSelect.toString());
+                        while (result.next()) {
+                            stackedEntityData.add(new StackedEntityData(
+                                    result.getInt("id"),
+                                    UUID.fromString(result.getString("entity_uuid")),
+                                    result.getBytes("stack_entities")
+                            ));
+                        }
+                    }
+
+                    Runnable task = () -> {
                         Set<StackedEntity> stackedEntities = new HashSet<>();
                         Set<Stack> cleanup = new HashSet<>();
 
-                        try {
-                            while (result.next()) {
-                                int id = result.getInt("id");
-                                UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-
-                                Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
-                                if (entity.isPresent()) {
-                                    stackedEntities.add(EntitySerializer.fromBlob(id, (LivingEntity) entity.get(), result.getBytes("stack_entities")));
-                                } else {
-                                    cleanup.add(new StackedEntity(id, null, null, null));
-                                }
+                        for (StackedEntityData stackData : stackedEntityData) {
+                            Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
+                            if (entity.isPresent()) {
+                                stackedEntities.add(EntitySerializer.fromBlob(stackData.id, (LivingEntity) entity.get(), stackData.stackEntities));
+                            } else {
+                                cleanup.add(new StackedEntity(stackData.id, null, null, null));
                             }
-
-                            statement.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
                         }
 
                         callback.accept(stackedEntities);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup, true));
-                    });
+                            Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> this.deleteStacks(cleanup));
+                    };
+
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Bukkit.getScheduler().runTask(this.sparkStacker, task);
+                    }
 
                     compoundSelect.setLength(0);
                     count = 0;
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void getStackedItems(Set<Chunk> chunks, boolean async, Consumer<Set<StackedItem>> callback) {
-        ConnectionCallback query = connection -> {
+    public void getStackedItems(Set<Chunk> chunks, Consumer<Set<StackedItem>> callback) {
+        this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
             int count = 0;
@@ -235,51 +251,53 @@ public class DataManager extends Manager {
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
                 if (++count >= 500 || !chunkIterator.hasNext()) {
-                    Statement statement = connection.createStatement();
-                    ResultSet result = statement.executeQuery(compoundSelect.toString());
-                    this.sync(() -> {
+                    Set<StackedItemData> stackedItemData = new HashSet<>();
+
+                    try (Statement statement = connection.createStatement()) {
+                        ResultSet result = statement.executeQuery(compoundSelect.toString());
+                        while (result.next()) {
+                            stackedItemData.add(new StackedItemData(
+                                    result.getInt("id"),
+                                    result.getInt("stack_size"),
+                                    UUID.fromString(result.getString("entity_uuid"))
+                            ));
+                        }
+                    }
+
+                    Runnable task = () -> {
                         Set<StackedItem> stackedItems = new HashSet<>();
                         Set<Stack> cleanup = new HashSet<>();
 
-                        try {
-                            while (result.next()) {
-                                int id = result.getInt("id");
-                                int stackSize = result.getInt("stack_size");
-                                UUID entityUUID = UUID.fromString(result.getString("entity_uuid"));
-                                Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(entityUUID)).findFirst();
-                                if (entity.isPresent()) {
-                                    stackedItems.add(new StackedItem(id, stackSize, (Item) entity.get()));
-                                } else {
-                                    cleanup.add(new StackedItem(id, 0, null));
-                                }
+                        for (StackedItemData stackData : stackedItemData) {
+                            Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
+                            if (entity.isPresent()) {
+                                stackedItems.add(new StackedItem(stackData.id, stackData.stackSize, (Item) entity.get()));
+                            } else {
+                                cleanup.add(new StackedItem(stackData.id, 0, null));
                             }
-
-                            statement.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
                         }
 
                         callback.accept(stackedItems);
 
                         if (!cleanup.isEmpty())
-                            this.async(() -> this.deleteStacks(cleanup, true));
-                    });
+                            Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> this.deleteStacks(cleanup));
+                    };
+
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Bukkit.getScheduler().runTask(this.sparkStacker, task);
+                    }
 
                     compoundSelect.setLength(0);
                     count = 0;
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void getStackedSpawners(Set<Chunk> chunks, boolean async, Consumer<Set<StackedSpawner>> callback) {
-        ConnectionCallback query = connection -> {
+    public void getStackedSpawners(Set<Chunk> chunks, Consumer<Set<StackedSpawner>> callback) {
+        this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_spawner WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
             int count = 0;
@@ -292,69 +310,71 @@ public class DataManager extends Manager {
                 compoundSelect.append(String.format(select, chunk.getWorld().getName(), chunk.getX(), chunk.getZ()));
 
                 if (++count >= 500 || !chunkIterator.hasNext()) {
-                    Statement statement = connection.createStatement();
-                    ResultSet result = statement.executeQuery(compoundSelect.toString());
-                    this.sync(() -> {
+                    Set<StackedBlockData> stackedSpawnerData = new HashSet<>();
+
+                    try (Statement statement = connection.createStatement()) {
+                        ResultSet result = statement.executeQuery(compoundSelect.toString());
+                        while (result.next()) {
+                            stackedSpawnerData.add(new StackedBlockData(
+                                    result.getInt("id"),
+                                    result.getInt("stack_size"),
+                                    result.getInt("chunk_x"),
+                                    result.getInt("chunk_z"),
+                                    result.getInt("block_x"),
+                                    result.getInt("block_y"),
+                                    result.getInt("block_z"),
+                                    result.getString("world")
+                            ));
+                        }
+                    }
+
+                    Runnable task = () -> {
                         Set<StackedSpawner> stackedSpawners = new HashSet<>();
                         Set<Stack> cleanup = new HashSet<>();
 
-                        try {
-                            while (result.next()) {
-                                int id = result.getInt("id");
-                                int stackSize = result.getInt("stack_size");
-                                int chunkX = result.getInt("chunk_x");
-                                int chunkZ = result.getInt("chunk_z");
-                                int blockX = result.getInt("block_x");
-                                int blockY = result.getInt("block_y");
-                                int blockZ = result.getInt("block_z");
+                        for (StackedBlockData stackData : stackedSpawnerData) {
+                            World world = Bukkit.getWorld(stackData.world);
+                            Block block = null;
 
-                                World world = Bukkit.getWorld(result.getString("world"));
-                                Block block = null;
-
-                                boolean invalid = world == null;
-                                if (!invalid) {
-                                    block = world.getBlockAt((chunkX << 4) + blockX, blockY, (chunkZ << 4) + blockZ);
-                                    if (block.getType() != Material.SPAWNER)
-                                        invalid = true;
-                                }
-
-                                if (!invalid) {
-                                    stackedSpawners.add(new StackedSpawner(id, stackSize, (CreatureSpawner) block.getState()));
-                                } else {
-                                    cleanup.add(new StackedBlock(id, 0, null));
-                                }
+                            boolean invalid = world == null;
+                            if (!invalid) {
+                                block = world.getBlockAt((stackData.chunkX << 4) + stackData.blockX, stackData.blockY, (stackData.chunkZ << 4) + stackData.blockZ);
+                                if (block.getType() != Material.SPAWNER)
+                                    invalid = true;
                             }
 
-                            statement.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
+                            if (!invalid) {
+                                stackedSpawners.add(new StackedSpawner(stackData.id, stackData.stackSize, (CreatureSpawner) block.getState()));
+                            } else {
+                                cleanup.add(new StackedBlock(stackData.id, 0, null));
+                            }
                         }
 
                         callback.accept(stackedSpawners);
 
                         if (!cleanup.isEmpty())
-                            this.deleteStacks(cleanup, true);
-                    });
+                            Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, () -> this.deleteStacks(cleanup));
+                    };
+
+                    if (Bukkit.isPrimaryThread()) {
+                        task.run();
+                    } else {
+                        Bukkit.getScheduler().runTask(this.sparkStacker, task);
+                    }
 
                     compoundSelect.setLength(0);
                     count = 0;
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public <T extends Stack> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks, boolean async) {
+    public <T extends Stack> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks) {
         if (stacks.isEmpty())
             return;
 
         String tableName = stacks.iterator().next() instanceof StackedBlock ? "stacked_block" : "stacked_spawner";
-        ConnectionCallback query = connection -> {
+        this.databaseConnector.connect(connection -> {
             Set<Stack> update = stacks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
             Set<Stack> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
@@ -390,20 +410,14 @@ public class DataManager extends Manager {
                     ex.printStackTrace();
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void createOrUpdateStackedEntities(Collection<StackedEntity> stackedEntities, boolean async) {
+    public void createOrUpdateStackedEntities(Collection<StackedEntity> stackedEntities) {
         if (stackedEntities.isEmpty())
             return;
 
-        ConnectionCallback query = connection -> {
+        this.databaseConnector.connect(connection -> {
             Set<StackedEntity> update = stackedEntities.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
             Set<StackedEntity> insert = stackedEntities.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
@@ -453,20 +467,14 @@ public class DataManager extends Manager {
                     ex.printStackTrace();
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void createOrUpdateStackedItems(Collection<StackedItem> stackedItems, boolean async) {
+    public void createOrUpdateStackedItems(Collection<StackedItem> stackedItems) {
         if (stackedItems.isEmpty())
             return;
 
-        ConnectionCallback query = connection -> {
+        this.databaseConnector.connect(connection -> {
             Set<StackedItem> update = stackedItems.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
             Set<StackedItem> insert = stackedItems.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
@@ -516,20 +524,14 @@ public class DataManager extends Manager {
                     ex.printStackTrace();
                 }
             }
-        };
-
-        if (async) {
-            this.async(() -> this.databaseConnector.connect(query));
-        } else {
-            this.databaseConnector.connect(query);
-        }
+        });
     }
 
-    public void deleteStacks(Set<Stack> stacks, boolean async) {
+    public void deleteStacks(Set<Stack> stacks) {
         if (stacks.isEmpty())
             return;
 
-        Runnable task = () -> this.databaseConnector.connect(connection -> {
+        this.databaseConnector.connect(connection -> {
             Set<StackedBlock> stackedBlocks = new HashSet<>();
             Set<StackedEntity> stackedEntities = new HashSet<>();
             Set<StackedItem> stackedItems = new HashSet<>();
@@ -562,12 +564,6 @@ public class DataManager extends Manager {
             if (!stackedSpawners.isEmpty())
                 this.deleteStackBatch(connection, stackedSpawners, "stacked_spawner");
         });
-
-        if (async) {
-            this.async(task);
-        } else {
-            task.run();
-        }
     }
 
     private <T extends Stack> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {
@@ -597,12 +593,47 @@ public class DataManager extends Manager {
         return this.sparkStacker.getDescription().getName().toLowerCase() + '_';
     }
 
-    public void async(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.sparkStacker, runnable);
+    private static class StackedBlockData {
+        private int id;
+        private int stackSize;
+        private int chunkX, chunkZ;
+        private int blockX, blockY, blockZ;
+        private String world;
+
+        public StackedBlockData(int id, int stackSize, int chunkX, int chunkZ, int blockX, int blockY, int blockZ, String world) {
+            this.id = id;
+            this.stackSize = stackSize;
+            this.chunkX = chunkX;
+            this.chunkZ = chunkZ;
+            this.blockX = blockX;
+            this.blockY = blockY;
+            this.blockZ = blockZ;
+            this.world = world;
+        }
     }
 
-    public void sync(Runnable runnable) {
-        Bukkit.getScheduler().runTask(this.sparkStacker, runnable);
+    private static class StackedEntityData {
+        private int id;
+        private UUID entityUUID;
+        private byte[] stackEntities;
+
+        public StackedEntityData(int id, UUID entityUUID, byte[] stackEntities) {
+            this.id = id;
+            this.entityUUID = entityUUID;
+            this.stackEntities = stackEntities;
+        }
+    }
+
+    private static class StackedItemData {
+        private int id;
+        private int stackSize;
+        private UUID entityUUID;
+
+        public StackedItemData(int id, int stackSize, UUID entityUUID) {
+            this.id = id;
+            this.stackSize = stackSize;
+            this.entityUUID = entityUUID;
+        }
     }
 
 }

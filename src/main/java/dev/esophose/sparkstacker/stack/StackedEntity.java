@@ -171,7 +171,7 @@ public class StackedEntity extends Stack {
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
-        return new StackedEntity(oldEntity, new LinkedList<>());
+        return new StackedEntity(oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
 
     public EntityStackSettings getStackSettings() {

@@ -4,10 +4,10 @@ import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
 import dev.esophose.sparkstacker.hook.ShopGuiPlusHook;
 import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
 import dev.esophose.sparkstacker.listener.BlockListener;
-import dev.esophose.sparkstacker.listener.WorldListener;
 import dev.esophose.sparkstacker.listener.EntityListener;
 import dev.esophose.sparkstacker.listener.InteractListener;
 import dev.esophose.sparkstacker.listener.ItemListener;
+import dev.esophose.sparkstacker.listener.WorldListener;
 import dev.esophose.sparkstacker.manager.CommandManager;
 import dev.esophose.sparkstacker.manager.ConfigurationManager;
 import dev.esophose.sparkstacker.manager.ConversionManager;
@@ -42,8 +42,8 @@ public class SparkStacker extends JavaPlugin {
     private DataMigrationManager dataMigrationManager;
     private HologramManager hologramManager;
     private LocaleManager localeManager;
-    private StackManager stackManager;
     private StackSettingManager stackSettingManager;
+    private StackManager stackManager;
     private SpawnerSpawnManager spawnerSpawnManager;
 
     public static SparkStacker getInstance() {
@@ -66,8 +66,8 @@ public class SparkStacker extends JavaPlugin {
         this.dataMigrationManager = new DataMigrationManager(this);
         this.hologramManager = this.registerManager(HologramManager.class);
         this.localeManager = new LocaleManager(this);
-        this.stackManager = this.registerManager(StackManager.class);
         this.stackSettingManager = new StackSettingManager(this);
+        this.stackManager = this.registerManager(StackManager.class);
         this.spawnerSpawnManager = this.registerManager(SpawnerSpawnManager.class);
 
         // Load managers
@@ -187,17 +187,17 @@ public class SparkStacker extends JavaPlugin {
     }
 
     /**
-     * @return the StackManager instance
-     */
-    public StackManager getStackManager() {
-        return this.stackManager;
-    }
-
-    /**
      * @return the StackSettingManager instance
      */
     public StackSettingManager getStackSettingManager() {
         return this.stackSettingManager;
+    }
+
+    /**
+     * @return the StackManager instance
+     */
+    public StackManager getStackManager() {
+        return this.stackManager;
     }
 
     /**

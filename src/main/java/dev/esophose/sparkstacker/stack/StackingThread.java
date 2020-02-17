@@ -71,10 +71,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         // Load stacks
         DataManager dataManager = this.sparkStacker.getDataManager();
-        dataManager.getStackedEntities(chunks, false, stacks -> stacks.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
-        dataManager.getStackedItems(chunks, false, stacks -> stacks.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
-        dataManager.getStackedBlocks(chunks, false, stacks -> stacks.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
-        dataManager.getStackedSpawners(chunks, false, stacks -> stacks.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
+        dataManager.getStackedEntities(chunks, stacks -> stacks.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
+        dataManager.getStackedItems(chunks, stacks -> stacks.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
+        dataManager.getStackedBlocks(chunks, stacks -> stacks.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
+        dataManager.getStackedSpawners(chunks, stacks -> stacks.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
     }
 
     @Override
@@ -143,10 +143,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
 
         // Save anything that's loaded
-        dataManager.createOrUpdateStackedEntities(this.stackedEntities.values(), false);
-        dataManager.createOrUpdateStackedItems(this.stackedItems.values(), false);
-        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks.values(), false);
-        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values(), false);
+        dataManager.createOrUpdateStackedEntities(this.stackedEntities.values());
+        dataManager.createOrUpdateStackedItems(this.stackedItems.values());
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks.values());
+        dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values());
 
         this.task.cancel();
     }
@@ -314,7 +314,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
             return null;
 
-        StackedEntity newStackedEntity = new StackedEntity(livingEntity, new LinkedList<>());
+        StackedEntity newStackedEntity = new StackedEntity(livingEntity, Collections.synchronizedList(new LinkedList<>()));
         this.stackedEntities.put(livingEntity.getUniqueId(), newStackedEntity);
 
         if (tryStack)
@@ -389,10 +389,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         Set<Chunk> singletonChunk = Collections.singleton(chunk);
 
-        dataManager.getStackedEntities(singletonChunk, true, (stack) -> stack.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
-        dataManager.getStackedItems(singletonChunk, true, (stack) -> stack.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
-        dataManager.getStackedBlocks(singletonChunk, true, (stack) -> stack.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
-        dataManager.getStackedSpawners(singletonChunk, true, (stack) -> stack.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
+        dataManager.getStackedEntities(singletonChunk, (stack) -> stack.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
+        dataManager.getStackedItems(singletonChunk, (stack) -> stack.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
+        dataManager.getStackedBlocks(singletonChunk, (stack) -> stack.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
+        dataManager.getStackedSpawners(singletonChunk, (stack) -> stack.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
     }
 
     @Override
@@ -408,10 +408,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         for (StackedEntity stackedEntity : stackedEntities.values())
             stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
 
-        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks.values(), true);
-        dataManager.createOrUpdateStackedEntities(stackedEntities.values(), true);
-        dataManager.createOrUpdateStackedItems(stackedItems.values(), true);
-        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners.values(), true);
+        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks.values());
+        dataManager.createOrUpdateStackedEntities(stackedEntities.values());
+        dataManager.createOrUpdateStackedItems(stackedItems.values());
+        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners.values());
 
         stackedBlocks.keySet().forEach(this.stackedBlocks::remove);
         stackedEntities.keySet().forEach(this.stackedEntities::remove);
