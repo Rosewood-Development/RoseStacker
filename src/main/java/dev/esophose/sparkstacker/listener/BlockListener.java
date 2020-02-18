@@ -49,7 +49,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         Block block = event.getBlock();
-        boolean isStacked = stackManager.isBlockStacked(block);
+        boolean isStacked = stackManager.isBlockStacked(block) || stackManager.isSpawnerStacked(block);
         boolean isSpawner = block.getType() == Material.SPAWNER;
         if (!isStacked && !isSpawner)
             return;
@@ -332,7 +332,7 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onInteract(PlayerInteractEvent event) {
+    public void onSpawnerChangeWithSpawnEgg(PlayerInteractEvent event) {
         Block clickedBlock = event.getClickedBlock();
         if (clickedBlock == null
                 || clickedBlock.getType() != Material.SPAWNER
