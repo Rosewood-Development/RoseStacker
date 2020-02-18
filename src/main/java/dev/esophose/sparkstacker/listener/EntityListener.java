@@ -211,7 +211,7 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEggLay(EntityDropItemEvent event) {
+    public void onChickenLayEgg(EntityDropItemEvent event) {
         if (event.getEntityType() != EntityType.CHICKEN || event.getItemDrop().getItemStack().getType() != Material.EGG)
             return;
 

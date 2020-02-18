@@ -3,6 +3,7 @@ package dev.esophose.sparkstacker;
 import dev.esophose.sparkstacker.hook.PlaceholderAPIHook;
 import dev.esophose.sparkstacker.hook.ShopGuiPlusHook;
 import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
+import dev.esophose.sparkstacker.listener.BeeListener;
 import dev.esophose.sparkstacker.listener.BlockListener;
 import dev.esophose.sparkstacker.listener.EntityListener;
 import dev.esophose.sparkstacker.listener.InteractListener;
@@ -20,6 +21,7 @@ import dev.esophose.sparkstacker.manager.SpawnerSpawnManager;
 import dev.esophose.sparkstacker.manager.StackManager;
 import dev.esophose.sparkstacker.manager.StackSettingManager;
 import dev.esophose.sparkstacker.utils.Metrics;
+import dev.esophose.sparkstacker.utils.NMSUtil;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Bukkit;
@@ -80,6 +82,9 @@ public class SparkStacker extends JavaPlugin {
         pluginManager.registerEvents(new EntityListener(this), this);
         pluginManager.registerEvents(new InteractListener(this), this);
         pluginManager.registerEvents(new ItemListener(this), this);
+
+        if (NMSUtil.getVersionNumber() >= 15)
+            pluginManager.registerEvents(new BeeListener(this), this);
 
         // Try to hook with PlaceholderAPI
         if (PlaceholderAPIHook.enabled())
