@@ -231,15 +231,18 @@ public class BlockListener implements Listener {
 
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
         boolean isAdditiveStack = against.getType() == block.getType();
-        if (isAdditiveStack && against.getType() == Material.SPAWNER)
-            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == StackerUtils.getStackedItemEntityType(placedItem);
+        EntityType entityType = null;
+        if (isAdditiveStack && against.getType() == Material.SPAWNER) {
+            entityType = StackerUtils.getStackedItemEntityType(placedItem);
+            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
+        }
 
         int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
         if (isAdditiveStack && !player.isSneaking()) {
-            if (!stackManager.isBlockTypeStackable(against))
-                return;
-
             if (block.getType() == Material.SPAWNER) {
+                if (!stackManager.isSpawnerTypeStackable(entityType))
+                    return;
+
                 // Handle spawner stacking
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
                 if (stackedSpawner == null)
@@ -252,6 +255,9 @@ public class BlockListener implements Listener {
 
                 stackedSpawner.increaseStackSize(stackAmount);
             } else {
+                if (!stackManager.isBlockTypeStackable(against))
+                    return;
+
                 // Handle normal block stacking
                 StackedBlock stackedBlock = stackManager.getStackedBlock(against);
                 if (stackedBlock == null)
@@ -266,7 +272,7 @@ public class BlockListener implements Listener {
             }
 
             event.setCancelled(true);
-        } else {
+        } else { // Handle singular items that have a stack multiplier
             // Set the spawner type
             if (placedItem.getType() == Material.SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();

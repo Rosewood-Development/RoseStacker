@@ -3,8 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.sparkstacker.SparkStacker
 api-version: 1.14
-loadbefore: [ShopGUIPlus]
-softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI]
+softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus]
 permissions:
   sparkstacker.*:
     description: Inherits all plugin permissions
@@ -22,6 +21,9 @@ permissions:
     default: op
   sparkstacker.clearall:
     description: Allows using the clearall command
+    default: op
+  sparkstacker.stats:
+    description: Allows using the stats command
     default: op
   sparkstacker.convert:
     description: Allows using the convert command
