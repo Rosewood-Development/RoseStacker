@@ -55,10 +55,7 @@ public class BlockListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        boolean breakEverything = player.isSneaking();
         Location dropLocation = block.getLocation().clone().add(0.5, 0.5, 0.5);
-
-        // TODO: Make break-entire-stack-while-sneaking setting, default true
 
         if (isSpawner) {
             // Always drop the correct spawner type even if it's not stacked
@@ -70,6 +67,7 @@ public class BlockListener implements Listener {
             }
 
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            boolean breakEverything = Setting.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             if (breakEverything) {
                 this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), stackedSpawner.getStackSize());
                 stackedSpawner.setStackSize(0);
@@ -83,6 +81,7 @@ public class BlockListener implements Listener {
                 stackManager.removeSpawnerStack(stackedSpawner);
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            boolean breakEverything = Setting.BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             if (breakEverything) {
                 if (player.getGameMode() != GameMode.CREATIVE)
                     StackerUtils.dropItems(dropLocation, new ItemStack(block.getType()), stackedBlock.getStackSize());
