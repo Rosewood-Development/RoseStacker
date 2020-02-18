@@ -49,7 +49,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         Block block = event.getBlock();
-        boolean isStacked = stackManager.isBlockStacked(block) || stackManager.isSpawnerStacked(block);
+        boolean isStacked = this.isBlockOrSpawnerStack(stackManager, block);
         boolean isSpawner = block.getType() == Material.SPAWNER;
         if (!isStacked && !isSpawner)
             return;
@@ -147,7 +147,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isBlockStacked(event.getBlock()))
+        if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
@@ -156,7 +156,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         // TODO: Configurable setting to destroy entire stack instead of protecting it
-        event.blockList().removeIf(stackManager::isBlockStacked);
+        event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -164,13 +164,13 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         // TODO: Configurable setting to destroy entire stack instead of protecting it
-        event.blockList().removeIf(stackManager::isBlockStacked);
+        event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isBlockStacked(event.getBlock()))
+        if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
@@ -179,7 +179,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         for (Block block : event.getBlocks()) {
-            if (stackManager.isBlockStacked(block)) {
+            if (this.isBlockOrSpawnerStack(stackManager, block)) {
                 event.setCancelled(true);
                 return;
             }
@@ -191,7 +191,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.sparkStacker.getStackManager();
 
         for (Block block : event.getBlocks()) {
-            if (stackManager.isBlockStacked(block)) {
+            if (this.isBlockOrSpawnerStack(stackManager, block)) {
                 event.setCancelled(true);
                 return;
             }
@@ -312,14 +312,14 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isBlockStacked(event.getBlock()))
+        if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpongeAbsorb(SpongeAbsorbEvent event) {
         StackManager stackManager = this.sparkStacker.getStackManager();
-        if (stackManager.isBlockStacked(event.getBlock()))
+        if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
@@ -342,7 +342,7 @@ public class BlockListener implements Listener {
 
         Bukkit.getScheduler().runTask(this.sparkStacker, () -> {
             StackManager stackManager = this.sparkStacker.getStackManager();
-            if (!stackManager.isBlockStacked(clickedBlock))
+            if (!this.isBlockOrSpawnerStack(stackManager, clickedBlock))
                 return;
 
             // Make sure spawners convert and update their display properly
@@ -350,6 +350,10 @@ public class BlockListener implements Listener {
             stackedSpawner.updateSpawnCount();
             stackedSpawner.updateDisplay();
         });
+    }
+
+    private boolean isBlockOrSpawnerStack(StackManager stackManager, Block block) {
+        return stackManager.isBlockStacked(block) || stackManager.isSpawnerStacked(block);
     }
 
 }
