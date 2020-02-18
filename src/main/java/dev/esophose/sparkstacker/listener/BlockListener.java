@@ -1,6 +1,7 @@
 package dev.esophose.sparkstacker.listener;
 
 import dev.esophose.sparkstacker.SparkStacker;
+import dev.esophose.sparkstacker.hook.CoreProtectHook;
 import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import dev.esophose.sparkstacker.manager.StackManager;
 import dev.esophose.sparkstacker.stack.StackedBlock;
@@ -63,6 +64,7 @@ public class BlockListener implements Listener {
                 this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
                 block.setType(Material.AIR);
                 event.setCancelled(true);
+                CoreProtectHook.recordBlockBreak(player, block);
                 return;
             }
 
@@ -86,11 +88,13 @@ public class BlockListener implements Listener {
                 if (player.getGameMode() != GameMode.CREATIVE)
                     StackerUtils.dropItems(dropLocation, new ItemStack(block.getType()), stackedBlock.getStackSize());
                 stackedBlock.setStackSize(0);
+                CoreProtectHook.recordBlockBreak(player, block);
                 block.setType(Material.AIR);
             } else {
                 if (player.getGameMode() != GameMode.CREATIVE)
                     player.getWorld().dropItemNaturally(dropLocation, new ItemStack(block.getType()));
                 stackedBlock.increaseStackSize(-1);
+                CoreProtectHook.recordBlockBreak(player, block);
             }
 
             if (stackedBlock.getStackSize() <= 1)
@@ -271,6 +275,7 @@ public class BlockListener implements Listener {
             }
 
             event.setCancelled(true);
+            CoreProtectHook.recordBlockPlace(player, against);
         } else { // Handle singular items that have a stack multiplier
             // Set the spawner type
             if (placedItem.getType() == Material.SPAWNER) {

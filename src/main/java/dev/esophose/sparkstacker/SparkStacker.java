@@ -98,6 +98,7 @@ public class SparkStacker extends JavaPlugin {
     @Override
     public void onDisable() {
         this.disable();
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     /**

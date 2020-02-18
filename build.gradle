@@ -20,8 +20,7 @@ repositories {
     maven { url = 'https://repo.codemc.org/repository/nms' }
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
     maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
-
-
+    maven { url = 'http://maven.playpro.com' }
 }
 
 compileJava {
@@ -35,6 +34,7 @@ dependencies {
     // Referenced dependencies
     shadow 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
     shadow 'me.clip:placeholderapi:2.10.4'
+    shadow 'net.coreprotect:coreprotect:2.15.0'
 
     /*
      * Referenced local dependencies that aren't available in a maven repo

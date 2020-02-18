@@ -1,5 +1,6 @@
 package dev.esophose.sparkstacker.stack;
 
+import dev.esophose.sparkstacker.manager.StackManager;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -10,6 +11,9 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Common logic shared between {@link StackManager} and {@link StackingThread}
+ */
 public interface StackingLogic {
 
     /**

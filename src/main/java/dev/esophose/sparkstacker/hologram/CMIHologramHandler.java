@@ -1,6 +1,7 @@
 package dev.esophose.sparkstacker.hologram;
 
 import com.Zrips.CMI.CMI;
+import com.Zrips.CMI.Containers.CMILocation;
 import com.Zrips.CMI.Modules.Holograms.CMIHologram;
 import com.Zrips.CMI.Modules.Holograms.HologramManager;
 import dev.esophose.sparkstacker.utils.StackerUtils;
@@ -24,7 +25,7 @@ public class CMIHologramHandler implements HologramHandler {
     public void createOrUpdateHologram(Location location, String text) {
         CMIHologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = new CMIHologram(StackerUtils.locationAsKey(location), location);
+            hologram = new CMIHologram(StackerUtils.locationAsKey(location), new CMILocation(location));
             hologram.setLines(Collections.singletonList(text));
             this.hologramManager.addHologram(hologram);
             this.holograms.put(location, hologram);
