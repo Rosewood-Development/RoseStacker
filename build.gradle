@@ -35,13 +35,14 @@ dependencies {
     shadow 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
     shadow 'me.clip:placeholderapi:2.10.4'
     shadow 'net.coreprotect:coreprotect:2.15.0'
+    shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
 
     /*
      * Referenced local dependencies that aren't available in a maven repo
      * Included local dependencies:
+     * - Clearlag.jar (3.1.6)
      * - CMI8.6.9.4.jar
      * - Holograms-2.12.jar
-     * - HolographicDisplays-2.4.2-SNAPSHOT.jar
      * - ShopGUIPlus-1.25.1.jar
      * - StackMob-5.0.2.jar
      * - ultimatestacker-1.11.6.jar

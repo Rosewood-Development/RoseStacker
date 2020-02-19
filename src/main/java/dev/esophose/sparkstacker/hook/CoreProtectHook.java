@@ -1,5 +1,6 @@
 package dev.esophose.sparkstacker.hook;
 
+import dev.esophose.sparkstacker.manager.ConfigurationManager.Setting;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
@@ -15,6 +16,9 @@ public class CoreProtectHook {
     private static CoreProtectAPI coreProtectAPI;
 
     public static boolean enabled() {
+        if (!Setting.MISC_COREPROTECT_LOGGING.getBoolean())
+            return false;
+
         if (enabled != null)
             return enabled;
 

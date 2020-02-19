@@ -5,6 +5,7 @@ import dev.esophose.sparkstacker.hook.ShopGuiPlusHook;
 import dev.esophose.sparkstacker.hook.SparkStackerPlaceholderExpansion;
 import dev.esophose.sparkstacker.listener.BeeListener;
 import dev.esophose.sparkstacker.listener.BlockListener;
+import dev.esophose.sparkstacker.listener.ClearlagListener;
 import dev.esophose.sparkstacker.listener.EntityListener;
 import dev.esophose.sparkstacker.listener.InteractListener;
 import dev.esophose.sparkstacker.listener.ItemListener;
@@ -93,6 +94,10 @@ public class SparkStacker extends JavaPlugin {
         // Try to hook with ShopGuiPlus
         if (Bukkit.getPluginManager().isPluginEnabled("ShopGuiPlus"))
             ShopGuiPlusHook.setupSpawners(this);
+
+        // Try to hook with Clearlag
+        if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
+            pluginManager.registerEvents(new ClearlagListener(this), this);
     }
 
     @Override
