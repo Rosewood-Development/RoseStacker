@@ -1,114 +1,47 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'maven-publish'
-    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-group = 'dev.esophose'
-version = '1.0.0-SNAPSHOT'
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    group = 'dev.esophose'
+    version = '1.0.0-SNAPSHOT'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-    jcenter()
+    repositories {
+        mavenCentral()
+        jcenter()
 
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://repo.codemc.org/repository/maven-public' }
-    maven { url = 'https://repo.codemc.org/repository/nms' }
-    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
-    maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    maven { url = 'http://maven.playpro.com' }
+        maven { url = 'https://repo.codemc.org/repository/nms' }
+        maven { url = 'https://repo.codemc.org/repository/maven-public' }
+        maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
+        maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url = 'http://maven.playpro.com' }
+    }
 }
 
-compileJava {
-    options.compilerArgs += ['-parameters']
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-    options.encoding = 'UTF-8'
+configurations {
+    childJars
 }
 
 dependencies {
-    // Referenced dependencies
-    shadow 'org.spigotmc:spigot:1.15.2-R0.1-20200202.085145-8'
-    shadow 'me.clip:placeholderapi:2.10.4'
-    shadow 'net.coreprotect:coreprotect:2.15.0'
-    shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
+    implementation project(':Plugin')
+    implementation project(':NMS-Wrapper')
+    implementation project(':NMS-v1_14_R1')
+    implementation project(':NMS-v1_15_R1')
 
-    /*
-     * Referenced local dependencies that aren't available in a maven repo
-     * Included local dependencies:
-     * - Clearlag.jar (3.1.6)
-     * - CMI8.6.9.4.jar
-     * - Holograms-2.12.jar
-     * - ShopGUIPlus-1.25.1.jar
-     * - StackMob-5.0.2.jar
-     * - ultimatestacker-1.11.6.jar
-     * - WildStacker-3.0.1.jar
-     */
-    shadow fileTree(dir: 'libs', include: ['*.jar'])
-
-    // Dependencies that will be shaded into the jar
-    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
-    implementation 'com.zaxxer:HikariCP:3.2.0'
-    implementation 'org.slf4j:slf4j-api:1.7.25'
-    implementation 'org.slf4j:slf4j-nop:1.7.25'
-}
-
-shadowJar {
-    archiveClassifier.set(null)
-
-    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
-    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
-    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf')
-
-    exclude 'acf-*.properties'
-}
-
-processResources {
-    from (sourceSets.main.resources.srcDirs) {
-        include '**/*.yml'
-        filter ReplaceTokens, tokens: ["version": project.property("version")]
+    subprojects.each {
+        childJars project(it.path)
     }
 }
 
-publishing {
-    publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
-        }
-        mavenJava(MavenPublication) {
-            artifactId = 'rosestacker'
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
-                name = 'rosestacker'
-            }
-        }
-    }
-    repositories {
-        if (project.hasProperty('mavenUsername') && project.hasProperty('mavenPassword')) {
-            maven {
-                credentials {
-                    username project.mavenUsername
-                    password project.mavenPassword
-                }
-
-                def releasesRepoUrl = 'https://repo.codemc.org/repository/maven-releases/'
-                def snapshotsRepoUrl = 'https://repo.codemc.org/repository/maven-snapshots/'
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            }
+jar {
+    dependsOn configurations.childJars
+    from {
+        configurations.childJars.collect {
+            zipTree(it)
         }
     }
 }
-
-build.dependsOn shadowJar
