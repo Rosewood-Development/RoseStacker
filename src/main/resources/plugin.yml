@@ -1,33 +1,33 @@
-name: SparkStacker
+name: RoseStacker
 version: @version@
 authors: [Esophose]
-main: dev.esophose.sparkstacker.SparkStacker
+main: dev.esophose.rosestacker.RoseStacker
 api-version: 1.14
-softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect]
+softdepend: [HolographicDisplays, Holograms, CMI, UltimateStacker, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag]
 permissions:
-  sparkstacker.*:
+  rosestacker.*:
     description: Inherits all plugin permissions
     children:
-      sparkstacker.reload: true
-      sparkstacker.give: true
-      sparkstacker.clearall: true
-      sparkstacker.convert: true
-      sparkstacker.silktouch: true
-  sparkstacker.reload:
+      rosestacker.reload: true
+      rosestacker.give: true
+      rosestacker.clearall: true
+      rosestacker.convert: true
+      rosestacker.silktouch: true
+  rosestacker.reload:
     description: Allows using the reload command
     default: op
-  sparkstacker.give:
+  rosestacker.give:
     description: Allows using the give command
     default: op
-  sparkstacker.clearall:
+  rosestacker.clearall:
     description: Allows using the clearall command
     default: op
-  sparkstacker.stats:
+  rosestacker.stats:
     description: Allows using the stats command
     default: op
-  sparkstacker.convert:
+  rosestacker.convert:
     description: Allows using the convert command
     default: op
-  sparkstacker.silktouch:
+  rosestacker.silktouch:
     description: Allows picking up spawners with silk touch
     default: op
