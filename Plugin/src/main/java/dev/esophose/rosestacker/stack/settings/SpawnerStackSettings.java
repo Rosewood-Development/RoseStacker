@@ -19,18 +19,6 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.NPC;
 import org.bukkit.entity.WaterMob;
 
-
-import static org.bukkit.Material.ACACIA_LEAVES;
-import static org.bukkit.Material.AIR;
-import static org.bukkit.Material.BIRCH_LEAVES;
-import static org.bukkit.Material.DARK_OAK_LEAVES;
-import static org.bukkit.Material.GRASS_BLOCK;
-import static org.bukkit.Material.JUNGLE_LEAVES;
-import static org.bukkit.Material.MYCELIUM;
-import static org.bukkit.Material.OAK_LEAVES;
-import static org.bukkit.Material.SPRUCE_LEAVES;
-import static org.bukkit.Material.WATER;
-
 public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
 
     private static Map<EntityType, SpawnConditions> defaultSpawnConditions;

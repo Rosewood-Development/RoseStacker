@@ -1,11 +1,11 @@
 package dev.esophose.rosestacker;
 
+import dev.esophose.rosestacker.hook.PlaceholderAPIHook;
+import dev.esophose.rosestacker.hook.RoseStackerPlaceholderExpansion;
+import dev.esophose.rosestacker.hook.ShopGuiPlusHook;
+import dev.esophose.rosestacker.listener.BeeListener;
 import dev.esophose.rosestacker.listener.BlockListener;
 import dev.esophose.rosestacker.listener.ClearlagListener;
-import dev.esophose.rosestacker.hook.PlaceholderAPIHook;
-import dev.esophose.rosestacker.hook.ShopGuiPlusHook;
-import dev.esophose.rosestacker.hook.RoseStackerPlaceholderExpansion;
-import dev.esophose.rosestacker.listener.BeeListener;
 import dev.esophose.rosestacker.listener.EntityListener;
 import dev.esophose.rosestacker.listener.InteractListener;
 import dev.esophose.rosestacker.listener.ItemListener;
@@ -21,10 +21,13 @@ import dev.esophose.rosestacker.manager.Manager;
 import dev.esophose.rosestacker.manager.SpawnerSpawnManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
-import dev.esophose.rosestacker.utils.Metrics;
 import dev.esophose.rosestacker.nms.NMSUtil;
-import java.util.HashSet;
-import java.util.Set;
+import dev.esophose.rosestacker.utils.Metrics;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,20 +37,15 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class RoseStacker extends JavaPlugin {
 
+    /**
+     * The running instance of RoseStacker on the server
+     */
     private static RoseStacker INSTANCE;
 
-    private Set<Manager> managers;
-
-    private CommandManager commandManager;
-    private ConfigurationManager configurationManager;
-    private ConversionManager conversionManager;
-    private DataManager dataManager;
-    private DataMigrationManager dataMigrationManager;
-    private HologramManager hologramManager;
-    private LocaleManager localeManager;
-    private StackSettingManager stackSettingManager;
-    private StackManager stackManager;
-    private SpawnerSpawnManager spawnerSpawnManager;
+    /**
+     * The plugin managers
+     */
+    private Map<Class<? extends Manager>, Manager> managers;
 
     public static RoseStacker getInstance() {
         return INSTANCE;
@@ -68,17 +66,7 @@ public class RoseStacker extends JavaPlugin {
         new Metrics(this);
 
         // Register managers
-        this.managers = new HashSet<>();
-        this.commandManager = this.registerManager(CommandManager.class);
-        this.configurationManager = new ConfigurationManager(this);
-        this.conversionManager = this.registerManager(ConversionManager.class);
-        this.dataManager = new DataManager(this);
-        this.dataMigrationManager = new DataMigrationManager(this);
-        this.hologramManager = this.registerManager(HologramManager.class);
-        this.localeManager = new LocaleManager(this);
-        this.stackSettingManager = new StackSettingManager(this);
-        this.stackManager = this.registerManager(StackManager.class);
-        this.spawnerSpawnManager = this.registerManager(SpawnerSpawnManager.class);
+        this.managers = new LinkedHashMap<>();
 
         // Load managers
         this.reload();
@@ -113,7 +101,9 @@ public class RoseStacker extends JavaPlugin {
         if (INSTANCE == null)
             return;
 
-        this.disable();
+        this.disableManagers();
+        this.managers.clear();
+
         Bukkit.getScheduler().cancelTasks(this);
     }
 
@@ -121,112 +111,48 @@ public class RoseStacker extends JavaPlugin {
      * Reloads the plugin's settings and data
      */
     public void reload() {
-        this.configurationManager.reload();
-        this.localeManager.reload();
-        this.stackSettingManager.reload();
-        this.dataManager.reload();
-        this.dataMigrationManager.reload();
-        this.managers.forEach(Manager::reload); // The order doesn't matter for the rest
+        this.disableManagers();
+        this.managers.values().forEach(Manager::reload);
+
+        this.getManager(ConfigurationManager.class);
+        this.getManager(DataManager.class);
+        this.getManager(DataMigrationManager.class);
+        this.getManager(LocaleManager.class);
+        this.getManager(StackSettingManager.class);
+        this.getManager(CommandManager.class);
+        this.getManager(ConversionManager.class);
+        this.getManager(HologramManager.class);
+        this.getManager(StackManager.class);
+        this.getManager(SpawnerSpawnManager.class);
+    }
+
+    private void disableManagers() {
+        List<Manager> managers = new ArrayList<>(this.managers.values());
+        Collections.reverse(managers);
+        managers.forEach(Manager::disable);
     }
 
     /**
-     * Disables most of the plugin
-     */
-    public void disable() {
-        this.managers.forEach(Manager::disable);
-        this.configurationManager.disable();
-        this.localeManager.disable();
-        this.stackSettingManager.disable();
-        this.dataManager.disable();
-        this.dataMigrationManager.disable();
-    }
-
-    /**
-     * Registers a manager
+     * Gets a manager instance
      *
-     * @param managerClass The class of the manager to create a new instance of
+     * @param managerClass The class of the manager to get
      * @param <T> extends Manager
      * @return A new instance of the given manager class
      */
-    private <T extends Manager> T registerManager(Class<T> managerClass) {
+    @SuppressWarnings("unchecked")
+    public <T extends Manager> T getManager(Class<T> managerClass) {
+        if (this.managers.containsKey(managerClass))
+            return (T) this.managers.get(managerClass);
+
         try {
-            T newManager = managerClass.getConstructor(RoseStacker.class).newInstance(this);
-            this.managers.add(newManager);
-            return newManager;
+            T manager = managerClass.getConstructor(RoseStacker.class).newInstance(this);
+            this.managers.put(managerClass, manager);
+            manager.reload();
+            return manager;
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
-    }
-
-    /**
-     * @return the CommandManager instance
-     */
-    public CommandManager getCommandManager() {
-        return this.commandManager;
-    }
-
-    /**
-     * @return the ConfigurationManager instance
-     */
-    public ConfigurationManager getConfigurationManager() {
-        return this.configurationManager;
-    }
-
-    /**
-     * @return the ConversionManager instance
-     */
-    public ConversionManager getConversionManager() {
-        return this.conversionManager;
-    }
-
-    /**
-     * @return the DataManager instance
-     */
-    public DataManager getDataManager() {
-        return this.dataManager;
-    }
-
-    /**
-     * @return the DataMigrationManager instance
-     */
-    public DataMigrationManager getDataMigrationManager() {
-        return this.dataMigrationManager;
-    }
-
-    /**
-     * @return the HologramManager instance
-     */
-    public HologramManager getHologramManager() {
-        return this.hologramManager;
-    }
-
-    /**
-     * @return the LocaleManager instance
-     */
-    public LocaleManager getLocaleManager() {
-        return this.localeManager;
-    }
-
-    /**
-     * @return the StackSettingManager instance
-     */
-    public StackSettingManager getStackSettingManager() {
-        return this.stackSettingManager;
-    }
-
-    /**
-     * @return the StackManager instance
-     */
-    public StackManager getStackManager() {
-        return this.stackManager;
-    }
-
-    /**
-     * @return the SpawnerSpawnManager instance
-     */
-    public SpawnerSpawnManager getSpawnerSpawnManager() {
-        return this.spawnerSpawnManager;
     }
 
 }

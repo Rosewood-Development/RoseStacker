@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.utils;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
 import java.util.Collection;
@@ -136,7 +137,7 @@ public final class StackerUtils {
     }
 
     public static ItemStack getEntityAsStackedItemStack(EntityType entityType, int amount) {
-        EntityStackSettings stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(entityType);
+        EntityStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
         Material spawnEggMaterial = stackSettings.getSpawnEggMaterial();
         if (spawnEggMaterial == null)
             return new ItemStack(Material.AIR);

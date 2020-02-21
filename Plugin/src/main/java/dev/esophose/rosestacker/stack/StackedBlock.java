@@ -1,9 +1,11 @@
 package dev.esophose.rosestacker.stack;
 
-import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
+import dev.esophose.rosestacker.manager.LocaleManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,7 +25,7 @@ public class StackedBlock extends Stack {
         this.block = block;
 
         if (this.block != null) {
-            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getBlockStackSettings(this.block);
+            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(this.block);
 
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
@@ -63,7 +65,7 @@ public class StackedBlock extends Stack {
         if (!Setting.BLOCK_DISPLAY_TAGS.getBoolean())
             return;
 
-        HologramManager hologramManager = RoseStacker.getInstance().getHologramManager();
+        HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
         Location location = this.block.getLocation().clone().add(0.5, 0.75, 0.5);
 
@@ -72,7 +74,7 @@ public class StackedBlock extends Stack {
             return;
         }
 
-        String displayString = RoseStacker.getInstance().getLocaleManager().getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);

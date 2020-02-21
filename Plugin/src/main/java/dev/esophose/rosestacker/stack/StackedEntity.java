@@ -3,7 +3,9 @@ package dev.esophose.rosestacker.stack;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.event.AsyncEntityDeathEvent;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.nms.NMSHandler;
 import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
@@ -38,7 +40,7 @@ public class StackedEntity extends Stack {
 
         if (this.entity != null) {
             this.originalCustomName = originalCustomName;
-            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getEntityStackSettings(this.entity);
+            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
 
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
@@ -92,7 +94,7 @@ public class StackedEntity extends Stack {
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = NMSUtil.getHandler().spawnEntityFromNBTString(this.serializedStackedEntities.remove(0), location);
         this.updateOriginalCustomName();
-        RoseStacker.getInstance().getStackManager().updateStackedEntityKey(oldEntity, this.entity);
+        RoseStacker.getInstance().getManager(StackManager.class).updateStackedEntityKey(oldEntity, this.entity);
     }
 
     public List<String> getStackedEntityNBTStrings() {
@@ -138,7 +140,7 @@ public class StackedEntity extends Stack {
             World world = this.entity.getLocation().getWorld();
             if (world != null) {
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
-                    RoseStacker.getInstance().getStackManager().preStackItems(loot, this.entity.getLocation());
+                    RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, this.entity.getLocation());
                     if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0) {
                         ExperienceOrb experienceOrb = world.spawn(this.entity.getLocation(), ExperienceOrb.class);
                         experienceOrb.setExperience(finalTotalExp);
@@ -164,7 +166,7 @@ public class StackedEntity extends Stack {
         if (this.serializedStackedEntities.isEmpty())
             throw new IllegalStateException();
 
-        StackManager stackManager = RoseStacker.getInstance().getStackManager();
+        StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
         LivingEntity oldEntity = this.entity;
         stackManager.setEntityStackingTemporarilyDisabled(true);
@@ -201,10 +203,10 @@ public class StackedEntity extends Stack {
         } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
             if (this.originalCustomName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
-                displayString = RoseStacker.getInstance().getLocaleManager().getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", this.getStackSize())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", this.getStackSize())
                         .addPlaceholder("name", this.originalCustomName).build());
             } else {
-                displayString = RoseStacker.getInstance().getLocaleManager().getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
                         .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
             }
 

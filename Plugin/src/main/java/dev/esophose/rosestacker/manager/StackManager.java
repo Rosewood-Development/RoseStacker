@@ -346,7 +346,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the block is stackable, otherwise false
      */
     public boolean isBlockTypeStackable(Block block) {
-        return this.roseStacker.getStackSettingManager().getBlockStackSettings(block).isStackingEnabled();
+        return this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block).isStackingEnabled();
     }
 
     /**
@@ -356,7 +356,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the spawner entity type is stackable, otherwise false
      */
     public boolean isSpawnerTypeStackable(EntityType entityType) {
-        return this.roseStacker.getStackSettingManager().getSpawnerStackSettings(entityType).isStackingEnabled();
+        return this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType).isStackingEnabled();
     }
 
     /**
@@ -392,7 +392,7 @@ public class StackManager extends Manager implements StackingLogic {
      * Deletes all stacks pending deletion
      */
     private void deleteStacks() {
-        this.roseStacker.getDataManager().deleteStacks(new HashSet<>(this.deletedStacks));
+        this.roseStacker.getManager(DataManager.class).deleteStacks(new HashSet<>(this.deletedStacks));
         this.deletedStacks.clear();
     }
 

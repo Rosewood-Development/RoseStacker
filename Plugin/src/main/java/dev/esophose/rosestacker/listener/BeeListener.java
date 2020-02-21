@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.stack.StackedEntity;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -23,7 +23,7 @@ public class BeeListener implements Listener {
         if (event.getEntityType() != EntityType.BEE)
             return;
 
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Bee beeEntity = (Bee) event.getEntity();
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(beeEntity);

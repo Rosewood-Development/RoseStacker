@@ -1,8 +1,8 @@
 package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.stack.StackedItem;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.stack.StackedItem;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Sound;
@@ -29,7 +29,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getEntity());
         if (stackedItem != null)
@@ -44,7 +44,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
@@ -72,7 +72,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryPickup(InventoryPickupItemEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
@@ -94,7 +94,7 @@ public class ItemListener implements Listener {
      * @return true if the pickup event should be cancelled, otherwise false
      */
     private boolean applyInventoryItemPickup(Inventory inventory, StackedItem stackedItem, Entity eventEntity) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         ItemStack target = stackedItem.getItem().getItemStack();
         int maxStackSize = target.getMaxStackSize();

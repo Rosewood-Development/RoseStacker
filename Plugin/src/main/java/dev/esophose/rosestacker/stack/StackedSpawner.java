@@ -1,9 +1,11 @@
 package dev.esophose.rosestacker.stack;
 
-import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
+import dev.esophose.rosestacker.manager.LocaleManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,7 +27,7 @@ public class StackedSpawner extends Stack {
         this.spawner = spawner;
 
         if (this.spawner != null) {
-            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
+            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
             if (Bukkit.isPrimaryThread()) {
                 this.updateSpawnCount();
@@ -69,7 +71,7 @@ public class StackedSpawner extends Stack {
         if (!Setting.SPAWNER_DISPLAY_TAGS.getBoolean())
             return;
 
-        HologramManager hologramManager = RoseStacker.getInstance().getHologramManager();
+        HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
         Location location = this.spawner.getLocation().clone().add(0.5, 0.75, 0.5);
 
@@ -78,7 +80,7 @@ public class StackedSpawner extends Stack {
             return;
         }
 
-        String displayString = RoseStacker.getInstance().getLocaleManager().getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);
@@ -92,7 +94,7 @@ public class StackedSpawner extends Stack {
         EntityType oldEntityType = this.spawner.getSpawnedType();
         this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
         if (oldEntityType != this.spawner.getSpawnedType())
-            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getSpawnerStackSettings(this.spawner);
+            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
         int delay = this.spawner.getDelay();
         this.spawner.setSpawnCount(this.size * 4);

@@ -1,13 +1,14 @@
 package dev.esophose.rosestacker.listener;
 
-import dev.esophose.rosestacker.stack.StackedBlock;
-import dev.esophose.rosestacker.stack.StackedSpawner;
-import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
-import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.hook.CoreProtectHook;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.stack.StackedBlock;
+import dev.esophose.rosestacker.stack.StackedSpawner;
+import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -47,7 +48,7 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         Block block = event.getBlock();
         boolean isStacked = this.isBlockOrSpawnerStack(stackManager, block);
@@ -149,14 +150,14 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         // TODO: Configurable setting to destroy entire stack instead of protecting it
         event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
@@ -164,7 +165,7 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         // TODO: Configurable setting to destroy entire stack instead of protecting it
         event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
@@ -172,14 +173,14 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPistonExtend(BlockPistonExtendEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         for (Block block : event.getBlocks()) {
             if (this.isBlockOrSpawnerStack(stackManager, block)) {
@@ -191,7 +192,7 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPistonRetract(BlockPistonRetractEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         for (Block block : event.getBlocks()) {
             if (this.isBlockOrSpawnerStack(stackManager, block)) {
@@ -203,7 +204,7 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         // TODO: auto stack range
 
         Player player = event.getPlayer();
@@ -215,11 +216,11 @@ public class BlockListener implements Listener {
 
         if (block.getType() == Material.SPAWNER) {
             CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
-            SpawnerStackSettings spawnerStackSettings = this.roseStacker.getStackSettingManager().getSpawnerStackSettings(creatureSpawner);
+            SpawnerStackSettings spawnerStackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(creatureSpawner);
             if (!spawnerStackSettings.isStackingEnabled())
                 return;
         } else {
-            BlockStackSettings blockStackSettings = this.roseStacker.getStackSettingManager().getBlockStackSettings(block);
+            BlockStackSettings blockStackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block);
             if (!blockStackSettings.isStackingEnabled())
                 return;
         }
@@ -315,14 +316,14 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpongeAbsorb(SpongeAbsorbEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
             event.setCancelled(true);
     }
@@ -345,7 +346,7 @@ public class BlockListener implements Listener {
             return;
 
         Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-            StackManager stackManager = this.roseStacker.getStackManager();
+            StackManager stackManager = this.roseStacker.getManager(StackManager.class);
             if (!this.isBlockOrSpawnerStack(stackManager, clickedBlock))
                 return;
 

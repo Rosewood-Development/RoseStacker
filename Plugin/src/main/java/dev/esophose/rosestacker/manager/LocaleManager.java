@@ -1,11 +1,11 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.hook.PlaceholderAPIHook;
-import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.hook.PlaceholderAPIHook;
 import dev.esophose.rosestacker.locale.EnglishLocale;
 import dev.esophose.rosestacker.locale.Locale;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import java.io.File;
 import java.io.IOException;

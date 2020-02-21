@@ -230,7 +230,7 @@ public class ConfigurationManager extends Manager {
             if (this.value != null)
                 return;
 
-            this.value = RoseStacker.getInstance().getConfigurationManager().getConfig().get(this.key);
+            this.value = RoseStacker.getInstance().getManager(ConfigurationManager.class).getConfig().get(this.key);
         }
     }
 

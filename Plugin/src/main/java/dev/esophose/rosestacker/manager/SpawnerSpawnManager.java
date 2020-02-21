@@ -57,7 +57,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
     @Override
     public void run() {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
 
         for (Block block : stackManager.getStackedSpawners().keySet()) {
             if (block.getType() != Material.SPAWNER)
@@ -71,7 +72,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
                 return;
 
-            SpawnConditions spawnConditions = this.roseStacker.getStackSettingManager().getSpawnerStackSettings(entityType).getSpawnConditions();
+            SpawnConditions spawnConditions = stackSettingManager.getSpawnerStackSettings(entityType).getSpawnConditions();
 
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();

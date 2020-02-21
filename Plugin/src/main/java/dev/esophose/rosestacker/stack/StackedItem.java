@@ -1,8 +1,10 @@
 package dev.esophose.rosestacker.stack;
 
-import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.manager.LocaleManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +27,7 @@ public class StackedItem extends Stack {
         this.item = item;
 
         if (this.item != null) {
-            this.stackSettings = RoseStacker.getInstance().getStackSettingManager().getItemStackSettings(this.item);
+            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getItemStackSettings(this.item);
 
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
@@ -81,7 +83,7 @@ public class StackedItem extends Stack {
             displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = RoseStacker.getInstance().getLocaleManager().getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
                 .addPlaceholder("name", displayName).build());
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());

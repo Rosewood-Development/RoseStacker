@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.listener;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackManager;
+import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.nms.NMSHandler;
 import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.StackedEntity;
@@ -45,7 +46,7 @@ public class InteractListener implements Listener {
         if (spawnAmount == 1)
             return;
 
-        EntityStackSettings stackSettings = this.roseStacker.getStackSettingManager().getEntityStackSettings(itemStack.getType());
+        EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         if (spawnAmount > stackSettings.getMaxStackSize()) {
             event.setCancelled(true);
             return;
@@ -56,7 +57,7 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return;
 
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         stackManager.setEntityStackingTemporarilyDisabled(true);
         LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
         stackManager.setEntityStackingTemporarilyDisabled(false);
@@ -88,7 +89,7 @@ public class InteractListener implements Listener {
         if (!(event.getRightClicked() instanceof LivingEntity))
             return;
 
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         LivingEntity entity = (LivingEntity) event.getRightClicked();
         if (!stackManager.isEntityStacked(entity))
@@ -112,7 +113,7 @@ public class InteractListener implements Listener {
         if (spawnAmount == 1)
             return;
 
-        EntityStackSettings stackSettings = this.roseStacker.getStackSettingManager().getEntityStackSettings(itemStack.getType());
+        EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         if (spawnAmount > stackSettings.getMaxStackSize()) {
             event.setCancelled(true);
             return;

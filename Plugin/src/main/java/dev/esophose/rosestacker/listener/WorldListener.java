@@ -22,7 +22,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
-        StackManager stackManager = this.roseStacker.getStackManager();
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         if (event.isNewChunk()) {
             for (Entity entity : event.getChunk().getEntities())
@@ -35,18 +35,18 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.roseStacker.getStackManager().unloadChunk(event.getChunk()));
+        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.roseStacker.getManager(StackManager.class).unloadChunk(event.getChunk()));
     }
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         System.out.println("LOADED WORLD: " + event.getWorld().getName());
-        this.roseStacker.getStackManager().loadWorld(event.getWorld());
+        this.roseStacker.getManager(StackManager.class).loadWorld(event.getWorld());
     }
 
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent event) {
-        this.roseStacker.getStackManager().unloadWorld(event.getWorld());
+        this.roseStacker.getManager(StackManager.class).unloadWorld(event.getWorld());
     }
 
 }

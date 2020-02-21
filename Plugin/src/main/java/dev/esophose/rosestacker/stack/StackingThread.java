@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.stack;
 
-import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
-import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.DataManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,7 +55,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public StackingThread(RoseStacker roseStacker, StackManager stackManager, World targetWorld) {
         this.roseStacker = roseStacker;
         this.stackManager = stackManager;
-        this.stackSettingManager = this.roseStacker.getStackSettingManager();
+        this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
         this.targetWorld = targetWorld;
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this, 5L, Setting.STACK_FREQUENCY.getLong());
 
@@ -70,7 +70,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         Set<Chunk> chunks = new HashSet<>(Arrays.asList(this.targetWorld.getLoadedChunks()));
 
         // Load stacks
-        DataManager dataManager = this.roseStacker.getDataManager();
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
         dataManager.getStackedEntities(chunks, stacks -> stacks.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
         dataManager.getStackedItems(chunks, stacks -> stacks.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
         dataManager.getStackedBlocks(chunks, stacks -> stacks.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
@@ -138,7 +138,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void close() {
-        DataManager dataManager = this.roseStacker.getDataManager();
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
         // Restore custom names
         for (StackedEntity stackedEntity : this.stackedEntities.values())
@@ -387,7 +387,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void loadChunk(Chunk chunk) {
-        DataManager dataManager = this.roseStacker.getDataManager();
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
         Set<Chunk> singletonChunk = Collections.singleton(chunk);
 
@@ -399,7 +399,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void unloadChunk(Chunk chunk) {
-        DataManager dataManager = this.roseStacker.getDataManager();
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
         Map<Block, StackedBlock> stackedBlocks = this.stackedBlocks.entrySet().stream().filter(x -> x.getValue().getLocation().getChunk() == chunk).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Map<UUID, StackedEntity> stackedEntities = this.stackedEntities.entrySet().stream().filter(x -> x.getValue().getLocation().getChunk() == chunk).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

@@ -26,7 +26,7 @@ public class DataMigrationManager extends Manager {
 
     @Override
     public void reload() {
-        DataManager dataManager = this.roseStacker.getDataManager();
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
         DatabaseConnector databaseConnector = dataManager.getDatabaseConnector();
 
         databaseConnector.connect((connection -> {
@@ -108,7 +108,7 @@ public class DataMigrationManager extends Manager {
      * @return the name of the migrations table
      */
     private String getMigrationsTableName() {
-        return this.roseStacker.getDataManager().getTablePrefix() + "migrations";
+        return this.roseStacker.getManager(DataManager.class).getTablePrefix() + "migrations";
     }
 
 }
