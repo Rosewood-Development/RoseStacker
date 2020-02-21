@@ -55,9 +55,9 @@ public class RoseStacker extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println(NMSUtil.getVersion() + " | " + NMSUtil.getVersionNumber());
+        this.getLogger().info("Detected server API version as " + NMSUtil.getVersion());
         if (!NMSUtil.isValidVersion()) {
-            this.getLogger().severe("This version of RoseStacker only supports 1.14 through 1.15. The plugin has been disabled.");
+            this.getLogger().severe("This version of RoseStacker only supports 1.13.2 through 1.15.2. The plugin has been disabled.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }

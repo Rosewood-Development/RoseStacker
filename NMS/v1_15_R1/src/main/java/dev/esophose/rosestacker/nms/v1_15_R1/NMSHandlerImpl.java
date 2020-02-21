@@ -83,7 +83,7 @@ public class NMSHandlerImpl implements NMSHandler {
                         null,
                         null,
                         new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        EnumMobSpawn.TRIGGERED,
+                        EnumMobSpawn.COMMAND,
                         true,
                         false
                 );

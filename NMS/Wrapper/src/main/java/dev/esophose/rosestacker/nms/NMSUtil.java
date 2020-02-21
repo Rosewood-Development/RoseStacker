@@ -23,8 +23,6 @@ public final class NMSUtil {
     }
 
     /**
-     * Gets the server version
-     *
      * @return The server version
      */
     public static String getVersion() {
@@ -36,14 +34,12 @@ public final class NMSUtil {
     }
 
     /**
-     * Gets the server version major release number
-     *
-     * @return The server version major release number
+     * @return the server version major release number
      */
     public static int getVersionNumber() {
         if (cachedVersionNumber == -1) {
             String name = getVersion().substring(3);
-            cachedVersionNumber = Integer.parseInt(name.substring(0, name.length() - 4));
+            cachedVersionNumber = Integer.parseInt(name.substring(0, name.length() - 3));
         }
         return cachedVersionNumber;
     }

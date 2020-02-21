@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack.settings;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import org.bukkit.Material;
@@ -227,7 +228,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
                 return false;
         }
 
-        if (this.isEntityRaider()) {
+        if (NMSUtil.getVersionNumber() >= 14 && this.isEntityRaider()) {
             Raider raider1 = (Raider) entity1;
             Raider raider2 = (Raider) entity2;
 
@@ -331,7 +332,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityRaider() {
         if (this.isRaider == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
+            if (NMSUtil.getVersionNumber() <= 13 || entityClass == null)
                 return false;
             this.isRaider = Raider.class.isAssignableFrom(entityClass);
         }

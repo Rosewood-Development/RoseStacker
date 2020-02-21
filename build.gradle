@@ -29,12 +29,29 @@ configurations {
 dependencies {
     implementation project(':Plugin')
     implementation project(':NMS-Wrapper')
+    implementation project(':NMS-v1_13_R2')
     implementation project(':NMS-v1_14_R1')
     implementation project(':NMS-v1_15_R1')
 
     subprojects.each {
         childJars project(it.path)
     }
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+
+    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
+    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
+    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf.commands')
+    relocate('co.aikar.locales', 'dev.esophose.rosestacker.lib.acf.locales')
+    //relocate('co.aikar.timings', 'dev.esophose.rosestacker.lib.acf.timings')
+    relocate('co.aikar.util', 'dev.esophose.rosestacker.lib.acf.util')
+    relocate('net.jodah.expiringmap', 'dev.esophose.rosestacker.lib.expiringmap')
+    relocate('org.intellij', 'dev.esophose.rosestacker.lib.intellij')
+    relocate('org.jetbrains', 'dev.esophose.rosestacker.lib.jetbrains')
+
+    exclude 'acf-*.properties'
 }
 
 jar {
@@ -45,3 +62,5 @@ jar {
         }
     }
 }
+
+build.dependsOn shadowJar

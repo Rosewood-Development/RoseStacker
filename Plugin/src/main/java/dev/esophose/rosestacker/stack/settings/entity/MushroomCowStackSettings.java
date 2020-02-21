@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.Material;
@@ -14,11 +15,15 @@ public class MushroomCowStackSettings extends EntityStackSettings {
     public MushroomCowStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        if (NMSUtil.getVersionNumber() >= 14)
+            this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
     }
 
     @Override
     protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+        if (NMSUtil.getVersionNumber() <= 13)
+            return true;
+
         MushroomCow mushroomCow1 = (MushroomCow) stack1.getEntity();
         MushroomCow mushroomCow2 = (MushroomCow) stack2.getEntity();
 
@@ -27,7 +32,8 @@ public class MushroomCowStackSettings extends EntityStackSettings {
 
     @Override
     protected void setDefaultsInternal() {
-        this.setIfNotExists("dont-stack-if-different-type", false);
+        if (NMSUtil.getVersionNumber() >= 14)
+            this.setIfNotExists("dont-stack-if-different-type", false);
     }
 
     @Override

@@ -41,16 +41,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:1.7.25'
 }
 
-shadowJar {
-    archiveClassifier.set(null)
-
-    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
-    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
-    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf')
-
-    exclude 'acf-*.properties'
-}
-
 processResources {
     from (sourceSets.main.resources.srcDirs) {
         include '**/*.yml'
@@ -94,5 +84,3 @@ publishing {
         }
     }
 }
-
-build.dependsOn shadowJar

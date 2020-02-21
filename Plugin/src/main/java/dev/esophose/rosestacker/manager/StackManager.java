@@ -307,7 +307,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
-     * @return a Map in a key -> World UUID, value -> StackingThread of all StackingThreads
+     * @return a Map of key -> World UUID, value -> StackingThread of all StackingThreads
      */
     public Map<UUID, StackingThread> getStackingThreads() {
         return this.stackingThreads;
@@ -397,7 +397,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
-     * Toggles entity stacking as temporarily disabled to allow for entity manipulation without
+     * Toggles instant entity stacking as temporarily disabled to allow for entity manipulation without
      * stacks automatically being created.
      *
      * @param disabled true to disable, otherwise false to enable
@@ -407,7 +407,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
-     * @return true if entity stacking is temporarily disabled, otherwise false
+     * @return true if instant entity stacking is temporarily disabled, otherwise false
      */
     public boolean isEntityStackingTemporarilyDisabled() {
         return this.isEntityStackingTemporarilyDisabled;

@@ -1,4 +1,4 @@
-package dev.esophose.rosestacker.nms.v1_14_R1;
+package dev.esophose.rosestacker.nms.v1_13_R2;
 
 import dev.esophose.rosestacker.nms.NMSHandler;
 import java.io.ByteArrayInputStream;
@@ -6,39 +6,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.Optional;
-import net.minecraft.server.v1_14_R1.BlockPosition;
-import net.minecraft.server.v1_14_R1.DamageSource;
-import net.minecraft.server.v1_14_R1.Entity;
-import net.minecraft.server.v1_14_R1.EntityLiving;
-import net.minecraft.server.v1_14_R1.EntityTypes;
-import net.minecraft.server.v1_14_R1.EnumMobSpawn;
-import net.minecraft.server.v1_14_R1.IRegistry;
-import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagDouble;
-import net.minecraft.server.v1_14_R1.NBTTagList;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.Entity;
+import net.minecraft.server.v1_13_R2.EntityLiving;
+import net.minecraft.server.v1_13_R2.EntityTypes;
+import net.minecraft.server.v1_13_R2.IRegistry;
+import net.minecraft.server.v1_13_R2.NBTCompressedStreamTools;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
+import net.minecraft.server.v1_13_R2.NBTTagDouble;
+import net.minecraft.server.v1_13_R2.NBTTagList;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public class NMSHandlerImpl implements NMSHandler {
-
-    // Method to update the EntityLiving LootTable, normally protected
-    private static Method method_EntityLiving_a;
-
-    static {
-        try {
-            method_EntityLiving_a = EntityLiving.class.getDeclaredMethod("a", DamageSource.class, boolean.class);
-            method_EntityLiving_a.setAccessible(true);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public String getEntityAsNBTString(LivingEntity livingEntity) {
@@ -50,7 +35,7 @@ public class NMSHandlerImpl implements NMSHandler {
             craftEntity.save(nbt);
 
             // Write entity type
-            String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
+            String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.P()).toString();
             dataOutput.writeUTF(entityType);
 
             // Write NBT
@@ -75,17 +60,17 @@ public class NMSHandlerImpl implements NMSHandler {
             // Read NBT
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
-            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
-            if (optionalEntity.isPresent()) {
-                Entity spawned = optionalEntity.get().spawnCreature(
+            EntityTypes<?> entityTypes = EntityTypes.a(entityType);
+            if (entityTypes != null) {
+                Entity spawned = entityTypes.spawnCreature(
                         ((CraftWorld) location.getWorld()).getHandle(),
                         nbt,
                         null,
                         null,
                         new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        EnumMobSpawn.COMMAND,
                         true,
-                        false
+                        false,
+                        SpawnReason.CUSTOM
                 );
 
                 if (spawned != null) {
@@ -119,9 +104,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
             // Set NBT
             this.setNBT(entity, nbt, location);
-
-            // Update loot table
-            method_EntityLiving_a.invoke(entity, DamageSource.GENERIC, false);
         } catch (Exception e) {
             e.printStackTrace();
         }

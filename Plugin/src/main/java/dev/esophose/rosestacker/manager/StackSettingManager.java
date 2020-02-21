@@ -1,14 +1,15 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.esophose.rosestacker.utils.StackerUtils;
-import dev.esophose.rosestacker.config.CommentedFileConfiguration;
 import dev.esophose.rosestacker.utils.ClassUtils;
+import dev.esophose.rosestacker.utils.StackerUtils;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,7 @@ public class StackSettingManager extends Manager {
         CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, entitySettingsFile);
         try {
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, PACKAGE_PATH, EntityStackSettings.class);
+            List<String> ignoredLoading = new ArrayList<>();
             for (Class<EntityStackSettings> clazz : classes) {
                 try {
                     EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
@@ -85,9 +87,12 @@ public class StackSettingManager extends Manager {
                     // Log entity settings that failed to load
                     // This should only be caused by version incompatibilities
                     String className = clazz.getSimpleName();
-                    this.roseStacker.getLogger().warning("Ignored loading stack settings for entity: " + className.substring(0, className.length() - 13));
+                    ignoredLoading.add(className.substring(0, className.length() - 13));
                 }
             }
+
+            if (!ignoredLoading.isEmpty())
+            this.roseStacker.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
         } catch (Exception e) {
             e.printStackTrace();
         }

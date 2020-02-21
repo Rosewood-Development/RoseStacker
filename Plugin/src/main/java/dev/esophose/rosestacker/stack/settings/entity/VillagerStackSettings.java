@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack.settings.entity;
 
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.StackedEntity;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.Material;
@@ -18,7 +19,8 @@ public class VillagerStackSettings extends EntityStackSettings {
 
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
+        if (NMSUtil.getVersionNumber() >= 14)
+            this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
     }
 
     @Override
@@ -32,6 +34,9 @@ public class VillagerStackSettings extends EntityStackSettings {
         if (this.dontStackIfDifferentType && villager1.getType() != villager2.getType())
             return false;
 
+        if (NMSUtil.getVersionNumber() <= 13)
+            return true;
+
         return !this.dontStackIfDifferentLevel || villager1.getVillagerLevel() == villager2.getVillagerLevel();
     }
 
@@ -39,7 +44,8 @@ public class VillagerStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-profession", false);
         this.setIfNotExists("dont-stack-if-different-type", false);
-        this.setIfNotExists("dont-stack-if-different-level", false);
+        if (NMSUtil.getVersionNumber() >= 14)
+            this.setIfNotExists("dont-stack-if-different-level", false);
     }
 
     @Override
