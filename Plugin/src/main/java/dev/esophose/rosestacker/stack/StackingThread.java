@@ -215,20 +215,43 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void removeEntityStack(StackedEntity stackedEntity) {
-        UUID key = stackedEntity.getEntity().getUniqueId();
-        if (this.stackedEntities.containsKey(key)) {
-            this.stackedEntities.remove(key);
-            this.stackManager.markStackDeleted(stackedEntity);
+        LivingEntity entity = stackedEntity.getEntity();
+        if (entity != null) {
+            UUID key = stackedEntity.getEntity().getUniqueId();
+            if (this.stackedEntities.containsKey(key)) {
+                this.stackedEntities.remove(key);
+                this.stackManager.markStackDeleted(stackedEntity);
+            }
+        } else {
+            // Entity is null so we have to remove by value instead
+            for (UUID key : this.stackedEntities.keySet()) {
+                if (this.stackedEntities.get(key) == stackedEntity) {
+                    this.stackedEntities.remove(key);
+                    return;
+                }
+            }
         }
     }
 
     @Override
     public void removeItemStack(StackedItem stackedItem) {
-        UUID key = stackedItem.getItem().getUniqueId();
-        if (this.stackedItems.containsKey(key)) {
-            this.stackedItems.remove(key);
-            this.stackManager.markStackDeleted(stackedItem);
+        Item item = stackedItem.getItem();
+        if (item != null) {
+            UUID key = stackedItem.getItem().getUniqueId();
+            if (this.stackedItems.containsKey(key)) {
+                this.stackedItems.remove(key);
+                this.stackManager.markStackDeleted(stackedItem);
+            }
+        } else {
+            // Item is null so we have to remove by value instead
+            for (UUID key : this.stackedItems.keySet()) {
+                if (this.stackedItems.get(key) == stackedItem) {
+                    this.stackedItems.remove(key);
+                    return;
+                }
+            }
         }
+
     }
 
     @Override

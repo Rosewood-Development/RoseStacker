@@ -24,6 +24,7 @@ public class CommandManager extends Manager {
 
     public CommandManager(RoseStacker roseStacker) {
         super(roseStacker);
+
         this.loaded = false;
     }
 
