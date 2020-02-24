@@ -227,6 +227,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             for (UUID key : this.stackedEntities.keySet()) {
                 if (this.stackedEntities.get(key) == stackedEntity) {
                     this.stackedEntities.remove(key);
+                    this.stackManager.markStackDeleted(stackedEntity);
                     return;
                 }
             }
@@ -247,6 +248,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             for (UUID key : this.stackedItems.keySet()) {
                 if (this.stackedItems.get(key) == stackedItem) {
                     this.stackedItems.remove(key);
+                    this.stackManager.markStackDeleted(stackedItem);
                     return;
                 }
             }

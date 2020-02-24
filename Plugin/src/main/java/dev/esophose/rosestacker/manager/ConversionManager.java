@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.converter.EpicSpawnersPluginConverter;
 import dev.esophose.rosestacker.converter.StackMobPluginConverter;
 import dev.esophose.rosestacker.converter.StackPluginConverter;
 import dev.esophose.rosestacker.converter.UltimateStackerPluginConverter;
@@ -54,6 +55,7 @@ public class ConversionManager extends Manager {
     public enum StackPlugin {
         WildStacker(WildStackerPluginConverter.class),
         UltimateStacker(UltimateStackerPluginConverter.class),
+        EpicSpawners(EpicSpawnersPluginConverter.class),
         StackMob(StackMobPluginConverter.class);
 
         private final Class<? extends StackPluginConverter> converterClass;

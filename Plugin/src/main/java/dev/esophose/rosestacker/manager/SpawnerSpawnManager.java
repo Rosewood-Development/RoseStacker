@@ -27,11 +27,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      */
     private static final int MAX_FAILED_SPAWN_ATTEMPTS = 50;
 
-    /**
-     * How many blocks away from the spawner can we spawn mobs?
-     */
-    private static final int MAX_SPAWN_DISTANCE = 4;
-
     private Random random;
     private BukkitTask task;
 
@@ -83,7 +78,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
 
             // Make sure we meet the nearby entity constraint
-            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), MAX_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, MAX_SPAWN_DISTANCE, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities())
+            int spawnRange = spawner.getSpawnRange();
+            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), spawnRange, spawnRange, spawnRange, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities())
                 continue;
 
             // Spawn the mobs
@@ -93,9 +89,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
                 while (attempts < MAX_FAILED_SPAWN_ATTEMPTS) {
-                    int xOffset = this.random.nextInt(MAX_SPAWN_DISTANCE * 2 + 1) - MAX_SPAWN_DISTANCE;
-                    int yOffset = this.random.nextInt(MAX_SPAWN_DISTANCE * 2 + 1) - MAX_SPAWN_DISTANCE;
-                    int zOffset = this.random.nextInt(MAX_SPAWN_DISTANCE * 2 + 1) - MAX_SPAWN_DISTANCE;
+                    int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                    int yOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                    int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                     Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
                     if (this.isSpawnPlaceAvailable(spawnLocation, spawnConditions)) {
                         Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
