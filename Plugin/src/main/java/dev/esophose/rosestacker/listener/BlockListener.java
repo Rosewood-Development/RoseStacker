@@ -47,6 +47,20 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockClicked(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if (block == null || !event.getPlayer().isSneaking() || !Setting.BLOCK_GUI_ENABLED.getBoolean())
+            return;
+
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+        if (stackedBlock != null) {
+            stackedBlock.openGui(event.getPlayer());
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
@@ -84,6 +98,11 @@ public class BlockListener implements Listener {
                 stackManager.removeSpawnerStack(stackedSpawner);
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            if (stackedBlock.isLocked()) {
+                event.setCancelled(true);
+                return;
+            }
+
             boolean breakEverything = Setting.BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             if (breakEverything) {
                 if (player.getGameMode() != GameMode.CREATIVE)
@@ -264,8 +283,12 @@ public class BlockListener implements Listener {
 
                 // Handle normal block stacking
                 StackedBlock stackedBlock = stackManager.getStackedBlock(against);
-                if (stackedBlock == null)
+                if (stackedBlock == null) {
                     stackedBlock = stackManager.createBlockStack(against, 1);
+                } else if (stackedBlock.isLocked()) {
+                    event.setCancelled(true);
+                    return;
+                }
 
                 if (stackedBlock.getStackSize() + stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
                     event.setCancelled(true);

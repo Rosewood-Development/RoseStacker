@@ -65,13 +65,14 @@ public class ConfigurationManager extends Manager {
 
         GLOBAL_BLOCK_SETTINGS("global-block-settings", null, "Global block settings", "Changed values in block_settings.yml will override these values"),
         BLOCK_STACKING_ENABLED("global-block-settings.stacking-enabled", true, "Should block stacking be enabled at all?"),
-        BLOCK_MAX_STACK_SIZE("global-block-settings.max-stack-size", 512, "The maximum number of blocks that can be in a single stack"),
+        BLOCK_MAX_STACK_SIZE("global-block-settings.max-stack-size", 2048, "The maximum number of blocks that can be in a single stack"),
         BLOCK_DISPLAY_TAGS("global-block-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
+        BLOCK_GUI_ENABLED("global-block-settings.gui-enabled", true, "Should a GUI to edit the stack open when the player shift-right-clicks the stack?"),
 
         GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml will override these values"),
         SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should spawner stacking be enabled at all?"),
-        SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 64, "The maximum number of spawners that can be in a single stack"),
+        SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 32, "The maximum number of spawners that can be in a single stack"),
         SPAWNER_DISPLAY_TAGS("global-spawner-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         SPAWNER_DROP_TO_INVENTORY("global-spawner-settings.drop-to-inventory", false, "Should spawners be dropped directly into the player's inventory when broken?"),
         SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-spawner-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),

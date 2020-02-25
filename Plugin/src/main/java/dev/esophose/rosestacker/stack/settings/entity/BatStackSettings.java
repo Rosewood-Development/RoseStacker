@@ -14,7 +14,7 @@ public class BatStackSettings extends EntityStackSettings {
     public BatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfSleeping = settingsConfiguration.getBoolean("dont-stack-if-sleeping");
+        this.dontStackIfSleeping = this.settingsConfiguration.getBoolean("dont-stack-if-sleeping");
     }
 
     @Override

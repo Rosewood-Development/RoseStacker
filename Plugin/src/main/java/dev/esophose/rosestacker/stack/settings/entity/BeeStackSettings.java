@@ -19,12 +19,12 @@ public class BeeStackSettings extends EntityStackSettings {
     public BeeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        this.dontStackIfAngry = settingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfHasHive = settingsConfiguration.getBoolean("dont-stack-if-has-hive");
-        this.dontStackIfDifferentHives = settingsConfiguration.getBoolean("dont-stack-if-different-hives");
-        this.dontStackIfStung = settingsConfiguration.getBoolean("dont-stack-if-stung");
-        this.dontStackIfHasFlower = settingsConfiguration.getBoolean("dont-stack-if-has-flower");
-        this.dontStackIfHasNectar = settingsConfiguration.getBoolean("dont-stack-if-has-nectar");
+        this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
+        this.dontStackIfHasHive = this.settingsConfiguration.getBoolean("dont-stack-if-has-hive");
+        this.dontStackIfDifferentHives = this.settingsConfiguration.getBoolean("dont-stack-if-different-hives");
+        this.dontStackIfStung = this.settingsConfiguration.getBoolean("dont-stack-if-stung");
+        this.dontStackIfHasFlower = this.settingsConfiguration.getBoolean("dont-stack-if-has-flower");
+        this.dontStackIfHasNectar = this.settingsConfiguration.getBoolean("dont-stack-if-has-nectar");
     }
 
     @Override

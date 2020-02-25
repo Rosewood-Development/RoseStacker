@@ -3,6 +3,7 @@ package dev.esophose.rosestacker.utils;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,6 +74,21 @@ public final class StackerUtils {
             amount -= toTake;
             location.getWorld().dropItemNaturally(location, newItemStack);
         }
+    }
+
+    /**
+     * Drops a List of ItemStacks into a Player's Inventory, with any overflow dropped onto the ground
+     *
+     * @param player The Player to give items to
+     * @param itemStacks The ItemStacks to give
+     */
+    public static void dropItemsToPlayer(Player player, List<ItemStack> itemStacks) {
+        List<ItemStack> extraItems = new ArrayList<>();
+        for (ItemStack itemStack : itemStacks)
+            extraItems.addAll(player.getInventory().addItem(itemStack).values());
+        Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
+        for (ItemStack extraItem : extraItems)
+            player.getWorld().dropItemNaturally(location, extraItem);
     }
 
     /**

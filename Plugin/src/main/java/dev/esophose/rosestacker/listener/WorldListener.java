@@ -40,7 +40,6 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        System.out.println("LOADED WORLD: " + event.getWorld().getName());
         this.roseStacker.getManager(StackManager.class).loadWorld(event.getWorld());
     }
 

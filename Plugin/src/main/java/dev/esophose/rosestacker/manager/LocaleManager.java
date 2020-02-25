@@ -9,6 +9,7 @@ import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
@@ -45,23 +46,23 @@ public class LocaleManager extends Manager {
         CommentedFileConfiguration configuration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, file);
         if (newFile) {
             configuration.addComments(locale.getLocaleName() + " translation by " + locale.getTranslatorName());
-            Map<String, String> defaultLocaleStrings = locale.getDefaultLocaleStrings();
+            Map<String, Object> defaultLocaleStrings = locale.getDefaultLocaleValues();
             for (String key : defaultLocaleStrings.keySet()) {
-                String value = defaultLocaleStrings.get(key);
+                Object value = defaultLocaleStrings.get(key);
                 if (key.startsWith("#")) {
-                    configuration.addComments(value);
+                    configuration.addComments((String) value);
                 } else {
                     configuration.set(key, value);
                 }
             }
             changed = true;
         } else {
-            Map<String, String> defaultLocaleStrings = locale.getDefaultLocaleStrings();
+            Map<String, Object> defaultLocaleStrings = locale.getDefaultLocaleValues();
             for (String key : defaultLocaleStrings.keySet()) {
                 if (key.startsWith("#"))
                     continue;
 
-                String value = defaultLocaleStrings.get(key);
+                Object value = defaultLocaleStrings.get(key);
                 if (!configuration.contains(key)) {
                     configuration.set(key, value);
                     changed = true;
@@ -101,7 +102,7 @@ public class LocaleManager extends Manager {
     public Map<String, String> getAcfCoreMessages() {
         return this.locale.getKeys(false).stream()
                 .filter(x -> x.startsWith("acf-core"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-core-", "").replaceAll("-", "_"), x -> this.locale.getString(x)));
+                .collect(Collectors.toMap(x -> x.replaceFirst("acf-core-", "").replaceAll("-", "_"), this.locale::getString));
     }
 
     /**
@@ -110,7 +111,7 @@ public class LocaleManager extends Manager {
     public Map<String, String> getAcfMinecraftMessages() {
         return this.locale.getKeys(false).stream()
                 .filter(x -> x.startsWith("acf-minecraft"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-minecraft-", "").replaceAll("-", "_"), x -> this.locale.getString(x)));
+                .collect(Collectors.toMap(x -> x.replaceFirst("acf-minecraft-", "").replaceAll("-", "_"), this.locale::getString));
     }
 
     /**
@@ -135,6 +136,21 @@ public class LocaleManager extends Manager {
         if (message == null)
             return ChatColor.RED + "Missing message in locale file: " + messageKey;
         return ChatColor.translateAlternateColorCodes('&', stringPlaceholders.apply(message));
+    }
+
+    /**
+     * Gets a gui locale message with the given placeholders applied
+     * 
+     * @param messageKey The key of the message to get
+     * @param stringPlaceholders The placeholders to apply
+     * @return The locale message with the given placeholders applied
+     */
+    public List<String> getGuiLocaleMessage(String messageKey, StringPlaceholders stringPlaceholders) {
+        List<String> message = this.locale.getStringList(messageKey);
+        if (message.isEmpty())
+            message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
+        message.replaceAll(x -> ChatColor.translateAlternateColorCodes('&', stringPlaceholders.apply(x)));
+        return message;
     }
 
     /**

@@ -1,5 +1,8 @@
 package dev.esophose.rosestacker.locale;
 
+import dev.esophose.guiframework.util.GuiUtil;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,8 +19,8 @@ public class EnglishLocale implements Locale {
     }
 
     @Override
-    public Map<String, String> getDefaultLocaleStrings() {
-        return new LinkedHashMap<String, String>() {{
+    public Map<String, Object> getDefaultLocaleValues() {
+        return new LinkedHashMap<String, Object>() {{
             this.put("#0", "Plugin Message Prefix");
             this.put("prefix", "&7[&cRoseStacker&7] ");
 
@@ -58,7 +61,16 @@ public class EnglishLocale implements Locale {
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
 
-            this.put("#7", "ACF-Core Messages");
+            this.put("#7", "Stacked Block GUI");
+            this.put("gui-stacked-block-title", "Editing %name% Stack");
+            this.put("gui-stacked-block-page-back", Collections.singletonList("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", Arrays.asList("&cDestroy Stack", "&eDestroys the stack and drops the items"));
+            this.put("gui-stacked-block-destroy-title", "Destroy Block Stack?");
+            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirm", "&eYes, destroy the stack"));
+            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cCancel", "&eNo, go back to previous screen"));
+
+            this.put("#8", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -76,7 +88,7 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#8", "ACF-Minecraft Messages");
+            this.put("#9", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
         }};
     }

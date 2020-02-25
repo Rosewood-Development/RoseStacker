@@ -17,6 +17,6 @@ public interface Locale {
     /**
      * @return the default locale message strings in a key -> value pair
      */
-    Map<String, String> getDefaultLocaleStrings();
+    Map<String, Object> getDefaultLocaleValues();
 
 }

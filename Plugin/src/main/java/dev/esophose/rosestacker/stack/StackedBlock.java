@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.gui.StackedBlockGui;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.LocaleManager;
@@ -10,11 +11,13 @@ import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 public class StackedBlock extends Stack {
 
     private int size;
     private Block block;
+    private StackedBlockGui stackedBlockGui;
 
     private BlockStackSettings stackSettings;
 
@@ -23,6 +26,7 @@ public class StackedBlock extends Stack {
 
         this.size = size;
         this.block = block;
+        this.stackedBlockGui = null;
 
         if (this.block != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(this.block);
@@ -40,14 +44,28 @@ public class StackedBlock extends Stack {
         return this.block;
     }
 
+    public boolean isLocked() {
+        if (this.stackedBlockGui == null)
+            return false;
+        return this.stackedBlockGui.hasViewers();
+    }
+
     public void increaseStackSize(int amount) {
         this.size += amount;
+
         this.updateDisplay();
     }
 
     public void setStackSize(int size) {
         this.size = size;
+
         this.updateDisplay();
+    }
+
+    public void openGui(Player player) {
+        if (this.stackedBlockGui == null)
+            this.stackedBlockGui = new StackedBlockGui(this);
+        this.stackedBlockGui.openFor(player);
     }
 
     @Override
