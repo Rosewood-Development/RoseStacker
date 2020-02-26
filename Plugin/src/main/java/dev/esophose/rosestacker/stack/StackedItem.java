@@ -42,6 +42,15 @@ public class StackedItem extends Stack {
         return this.item;
     }
 
+    public void updateItem() {
+        Item item = (Item) Bukkit.getEntity(this.item.getUniqueId());
+        if (item == null || item == this.item)
+            return;
+
+        this.item = item;
+        this.updateDisplay();
+    }
+
     public void increaseStackSize(int amount) {
         this.size += amount;
         this.updateDisplay();

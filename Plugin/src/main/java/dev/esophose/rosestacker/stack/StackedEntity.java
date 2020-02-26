@@ -55,6 +55,15 @@ public class StackedEntity extends Stack {
         return this.entity;
     }
 
+    public void updateEntity() {
+        LivingEntity entity = (LivingEntity) Bukkit.getEntity(this.entity.getUniqueId());
+        if (entity == null || entity == this.entity)
+            return;
+
+        this.entity = entity;
+        this.updateDisplay();
+    }
+
     public String getOriginalCustomName() {
         return this.originalCustomName;
     }

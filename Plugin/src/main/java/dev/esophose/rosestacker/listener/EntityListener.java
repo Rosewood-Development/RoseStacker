@@ -7,6 +7,7 @@ import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.nms.NMSHandler;
 import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.StackedEntity;
+import dev.esophose.rosestacker.stack.StackedItem;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.stack.settings.entity.ChickenStackSettings;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
@@ -66,20 +69,22 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityTeleport(EntityTeleportEvent event) {
-        if (event.getTo() == null)
+    public void onEntityTeleport(EntityPortalEvent event) {
+        if (event.getTo() == null || event.getFrom().getWorld() == event.getTo().getWorld())
             return;
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
-            if (stackManager.isEntityStacked(livingEntity))
-                stackManager.changeStackingThread(livingEntity, event.getFrom().getWorld(), event.getTo().getWorld());
+            StackedEntity stackedEntity = stackManager.getStackedEntity(livingEntity);
+            if (stackedEntity != null)
+                Bukkit.getScheduler().runTask(this.roseStacker, () -> stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld()));
         } else if (entity instanceof Item) {
             Item item = (Item) entity;
-            if (stackManager.isItemStacked(item))
-                stackManager.changeStackingThread(item, event.getFrom().getWorld(), event.getTo().getWorld());
+            StackedItem stackedItem = stackManager.getStackedItem(item);
+            if (stackedItem != null)
+                Bukkit.getScheduler().runTask(this.roseStacker, () -> stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
         }
     }
 

@@ -380,12 +380,24 @@ public class StackManager extends Manager implements StackingLogic {
         this.deletedStacks.add(stack);
     }
 
-    public void changeStackingThread(LivingEntity livingEntity, World from, World to) {
-        // TODO: StackingThread#transferExistingEntityStack(StackedEntity) and StackingThread#transferEntityStackTo(StackedEntity, StackingThread)
+    public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {
+        StackingThread fromThread = this.getStackingThread(from);
+        StackingThread toThread = this.getStackingThread(to);
+
+        if (fromThread == null || toThread == null)
+            return;
+
+        fromThread.transferExistingEntityStack(entityUUID, stackedEntity, toThread);
     }
 
-    public void changeStackingThread(Item item, World from, World to) {
-        // TODO
+    public void changeStackingThread(UUID itemUUID, StackedItem stackedItem, World from, World to) {
+        StackingThread fromThread = this.getStackingThread(from);
+        StackingThread toThread = this.getStackingThread(to);
+
+        if (fromThread == null || toThread == null)
+            return;
+
+        fromThread.transferExistingItemStack(itemUUID, stackedItem, toThread);
     }
 
     /**

@@ -168,7 +168,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 if (entity.getType() == EntityType.PLAYER)
                     continue;
 
-                double distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
+                double distanceSqrd;
+                try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
+                    distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
+                } catch (Exception e) {
+                    continue;
+                }
+
                 if (distanceSqrd > maxEntityRenderDistanceSqrd)
                     continue;
 
@@ -662,6 +668,26 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             return entity1.getTicksLived() > entity2.getTicksLived() ? stack1 : stack2;
 
         return stack1.getStackSize() > stack2.getStackSize() ? stack1 : stack2;
+    }
+
+    public void transferExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity, StackingThread toThread) {
+        this.stackedEntities.remove(entityUUID);
+        toThread.loadExistingEntityStack(entityUUID, stackedEntity);
+    }
+
+    public void transferExistingItemStack(UUID itemUUID, StackedItem stackedItem, StackingThread toThread) {
+        this.stackedItems.remove(itemUUID);
+        toThread.loadExistingItemStack(itemUUID, stackedItem);
+    }
+
+    private void loadExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity) {
+        stackedEntity.updateEntity();
+        this.stackedEntities.put(entityUUID, stackedEntity);
+    }
+
+    private void loadExistingItemStack(UUID itemUUID, StackedItem stackedItem) {
+        stackedItem.updateItem();
+        this.stackedItems.put(itemUUID, stackedItem);
     }
 
     /**
