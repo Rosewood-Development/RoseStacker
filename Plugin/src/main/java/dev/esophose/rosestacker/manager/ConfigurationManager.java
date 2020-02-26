@@ -52,7 +52,7 @@ public class ConfigurationManager extends Manager {
         ENTITY_DONT_STACK_CUSTOM_NAMED("global-entity-settings.dont-stack-custom-named", false, "Should we avoid stacking entities with custom names?"),
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
-        ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you don't use custom drops and want slightly better performance, disable this", "Note to developers: The death events are asynchronous"),
+        ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you use custom drops plugins, make sure to enable this", "Note to developers: The death events are asynchronous"),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
@@ -69,6 +69,7 @@ public class ConfigurationManager extends Manager {
         BLOCK_DISPLAY_TAGS("global-block-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
         BLOCK_GUI_ENABLED("global-block-settings.gui-enabled", true, "Should a GUI to edit the stack open when the player shift-right-clicks the stack?"),
+        BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", "BLUE_STAINED_GLASS_PANE", "What material should be used for the border of the GUI?", "If you want no border, set it to AIR"),
 
         GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml will override these values"),
         SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should spawner stacking be enabled at all?"),
@@ -80,6 +81,16 @@ public class ConfigurationManager extends Manager {
         SPAWNER_SILK_TOUCH_CHANCE("global-spawner-settings.silk-touch-chance", 100, "The chance that spawners will be picked up with a silk touch tool"),
         SPAWNER_SILK_TOUCH_GUARANTEE("global-spawner-settings.silk-touch-guarantee", true, "Should silk touch of level II or higher be guaranteed to pick up the spawner?"),
         SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION("global-spawner-settings.silk-touch-require-permission", false, "Should the permission rosestacker.silktouch be required", "to be able to pick up spawners with silk touch?"),
+
+        DYNAMIC_TAG_SETTINGS("dynamic-tag-settings", null, "Settings that apply to the tags above stacks", "These settings require their respective display-tags settings to be set to true to function", "These settings run at the same frequency as the stack-frequency setting", "If you are seeing impacts to server performance, consider disabling these settings"),
+        ENTITY_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED("dynamic-tag-settings.entity-display-tags-dynamic-view-range-enabled", true, "Should entity tags be hidden when the player is a certain distance away?", "Note: This overrides global-entity-settings.display-tags-hover if enabled"),
+        ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED("dynamic-tag-settings.item-display-tags-dynamic-view-range-enabled", true, "Should item tags be hidden when the player is a certain distance away?"),
+        BLOCK_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED("dynamic-tag-settings.block-display-tags-dynamic-view-range-enabled", true, "Should block tags be hidden when the player is a certain distance away?"),
+        SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED("dynamic-tag-settings.spawner-display-tags-dynamic-view-range-enabled", true, "Should spawner tags be hidden when the player is a certain distance away?"),
+        ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE("dynamic-tag-settings.entity-item-display-tags-dynamic-view-range", 32, "How far away should a player be able to see entity and item tags?"),
+        BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE("dynamic-tag-settings.block-spawner-display-tags-dynamic-view-range", 32, "How far away should a player be able to see block and spawner tags?"),
+        ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED("dynamic-tag-settings.entity-item-display-tags-dynamic-view-range-wall-detection-enabled", true, "Should entity and item tags be hidden if they are out of view?"),
+        BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED("dynamic-tag-settings.block-spawner-display-tags-dynamic-view-range-wall-detection-enabled", true, "Should block and spawner tags be hidden if they are out of view?"),
 
         MISC_SETTINGS("misc-settings", null, "Miscellaneous other settings for the plugin"),
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),
@@ -107,9 +118,7 @@ public class ConfigurationManager extends Manager {
         }
 
         /**
-         * Gets the setting as a boolean
-         *
-         * @return The setting as a boolean
+         * @return the setting as a boolean
          */
         public boolean getBoolean() {
             this.loadValue();
@@ -133,7 +142,7 @@ public class ConfigurationManager extends Manager {
         }
 
         /**
-         * @return the setting a double
+         * @return the setting as a double
          */
         public double getDouble() {
             this.loadValue();
@@ -149,7 +158,7 @@ public class ConfigurationManager extends Manager {
         }
 
         /**
-         * @return the setting a String
+         * @return the setting as a String
          */
         public String getString() {
             this.loadValue();

@@ -1,12 +1,12 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.hologram.CMIHologramHandler;
 import dev.esophose.rosestacker.hologram.HologramHandler;
 import dev.esophose.rosestacker.hologram.HologramsHologramHandler;
 import dev.esophose.rosestacker.hologram.HolographicDisplaysHologramHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 
 public class HologramManager extends Manager {
 
@@ -27,13 +27,10 @@ public class HologramManager extends Manager {
         } else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
             this.roseStacker.getLogger().info("Holograms is being used as the Hologram Handler.");
             this.hologramHandler = new HologramsHologramHandler();
-        } else if (Bukkit.getPluginManager().isPluginEnabled("CMI")) {
-            this.roseStacker.getLogger().info("CMI is being used as the Hologram Handler.");
-            this.hologramHandler = new CMIHologramHandler();
         } else {
             this.roseStacker.getLogger().warning("No Hologram Handler plugin was detected. " +
                     "If you want Stack tags to be displayed above stacked spawners or blocks, " +
-                    "please install one of the following plugins: [HolographicDisplays, Holograms, CMI]");
+                    "please install one of the following plugins: [HolographicDisplays, Holograms]");
             this.hologramHandler = null;
         }
     }
@@ -71,6 +68,18 @@ public class HologramManager extends Manager {
     public void deleteAllHolograms() {
         if (this.hologramHandler != null)
             this.hologramHandler.deleteAllHolograms();
+    }
+
+    /**
+     * Checks if the given Entity is part of a hologram
+     *
+     * @param entity The Entity to check
+     * @return true if the Entity is a hologram, otherwise false
+     */
+    public boolean isHologram(Entity entity) {
+        if (this.hologramHandler != null)
+            return this.hologramHandler.isHologram(entity);
+        return false;
     }
 
 }

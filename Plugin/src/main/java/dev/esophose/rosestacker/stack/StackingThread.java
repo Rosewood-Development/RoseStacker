@@ -3,8 +3,10 @@ package dev.esophose.rosestacker.stack;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.DataManager;
+import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
+import dev.esophose.rosestacker.nms.NMSUtil;
 import dev.esophose.rosestacker.stack.settings.EntityStackSettings;
 import dev.esophose.rosestacker.stack.settings.ItemStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
@@ -28,6 +30,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -42,6 +45,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final RoseStacker roseStacker;
     private final StackManager stackManager;
     private final StackSettingManager stackSettingManager;
+    private final HologramManager hologramManager;
     private final World targetWorld;
     private final BukkitTask task;
 
@@ -56,6 +60,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.roseStacker = roseStacker;
         this.stackManager = stackManager;
         this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
+        this.hologramManager = this.roseStacker.getManager(HologramManager.class);
         this.targetWorld = targetWorld;
         this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this, 5L, Setting.STACK_FREQUENCY.getLong());
 
@@ -133,6 +138,53 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 }
             }
             this.cleanupTimer = 0;
+        }
+
+        // Handle dynamic stack tags
+        boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicSpawnerTags = Setting.SPAWNER_DISPLAY_TAGS.getBoolean() && Setting.SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
+
+        double entityItemDynamicViewRange = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
+        double blockSpawnerDynamicViewRange = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
+
+        double entityItemDynamicViewRangeSqrd = entityItemDynamicViewRange * entityItemDynamicViewRange;
+        double blockSpawnerDynamicViewRangeSqrd = blockSpawnerDynamicViewRange * blockSpawnerDynamicViewRange;
+
+        boolean entityItemDynamicWallDetection = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        boolean blockSpawnerDynamicWallDetection = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+
+        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags || dynamicSpawnerTags))
+            return;
+
+        double maxEntityRenderDistanceSqrd = 75 * 75;
+        Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
+        for (Player player : this.targetWorld.getPlayers()) {
+            if (player.getWorld() != this.targetWorld)
+                continue;
+
+            for (Entity entity : this.targetWorld.getEntities()) {
+                if (entity.getType() == EntityType.PLAYER)
+                    continue;
+
+                double distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
+                if (distanceSqrd > maxEntityRenderDistanceSqrd)
+                    continue;
+
+                boolean visible;
+                if ((validEntities.contains(entity.getType()) || entity.getType() == EntityType.DROPPED_ITEM) && entity.isCustomNameVisible()) {
+                    visible = distanceSqrd < entityItemDynamicViewRangeSqrd;
+                    if (entityItemDynamicWallDetection)
+                        visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
+                } else if (entity.getType() == EntityType.ARMOR_STAND && this.hologramManager.isHologram(entity)) {
+                    visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
+                    if (blockSpawnerDynamicWallDetection)
+                        visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
+                } else continue;
+
+                NMSUtil.getHandler().toggleEntityNameTagForPlayer(player, entity, visible);
+            }
         }
     }
 
@@ -474,8 +526,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
             // Check if we should merge the stacks
             EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
+            if (stackSettings == null)
+                continue;
+
             if (stackSettings.canStackWith(stackedEntity, other, false)) {
-                if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity()))
+                if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity(), 0.75, false))
                     continue;
 
                 int minStackSize = stackSettings.getMinStackSize();
@@ -547,6 +602,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
             // Check if we should merge the stacks
             ItemStackSettings stackSettings = this.stackSettingManager.getItemStackSettings(stackedItem.getItem());
+            if (stackSettings == null)
+                continue;
+
             if (stackSettings.canStackWith(stackedItem, other, false)) {
                 StackedItem increased = this.getPreferredItemStack(stackedItem, other);
                 StackedItem removed = increased == stackedItem ? other : stackedItem;

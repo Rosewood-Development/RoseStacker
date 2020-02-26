@@ -25,7 +25,6 @@ dependencies {
      * Referenced local dependencies that aren't available in a maven repo
      * Included local dependencies:
      * - Clearlag.jar (3.1.6)
-     * - CMI8.6.9.4.jar
      * - epicspawners-6.2.2.jar
      * - Holograms-2.12.jar
      * - ShopGUIPlus-1.25.1.jar

@@ -26,6 +26,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -66,10 +67,11 @@ public class StackedBlockGui {
         for (int i = 17; i <= 44; i += 9) borderSlots.add(i);
         for (int i = 46; i <= 52; i += 2) borderSlots.add(i);
         borderSlots.addAll(Arrays.asList(45, 53));
-        ItemStack borderItem = new ItemStack(Material.BLUE_STAINED_GLASS_PANE);
+        ItemStack borderItem = new ItemStack(Material.valueOf(Setting.BLOCK_GUI_BORDER_MATERIAL.getString()));
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.setDisplayName("");
+            itemMeta.setDisplayName(" ");
+            itemMeta.addItemFlags(ItemFlag.values());
             borderItem.setItemMeta(itemMeta);
         }
 
@@ -163,6 +165,7 @@ public class StackedBlockGui {
             stackManager.removeBlockStack(this.stackedBlock);
         } else if (newStackSize == 0) {
             stackManager.removeBlockStack(this.stackedBlock);
+            this.stackedBlock.getBlock().setType(Material.AIR);
         } else if (newStackSize > maxStackSize) {
             List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), newStackSize - maxStackSize);
             StackerUtils.dropItemsToPlayer(player, overflowItems);
@@ -177,18 +180,15 @@ public class StackedBlockGui {
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-            List<ItemStack> itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize() - 1);
+            List<ItemStack> itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
             Location dropLocation = this.stackedBlock.getLocation().clone();
             dropLocation.add(0.5, 0.5, 0.5);
 
-            ItemStack silkTouchItem = new ItemStack(Material.DIAMOND_PICKAXE);
-            silkTouchItem.addEnchantment(Enchantment.SILK_TOUCH, 1);
-
             this.stackedBlock.setStackSize(0);
-            this.stackedBlock.getBlock().breakNaturally(silkTouchItem);
             stackManager.preStackItems(itemsToDrop, dropLocation);
 
             stackManager.removeBlockStack(this.stackedBlock);
+            this.stackedBlock.getBlock().setType(Material.AIR);
         });
     }
 

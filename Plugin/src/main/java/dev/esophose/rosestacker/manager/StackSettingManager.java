@@ -108,7 +108,7 @@ public class StackSettingManager extends Manager {
 
         // Load spawner settings
         CommentedFileConfiguration spawnerSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, spawnerSettingsFile);
-        StackerUtils.getStackableEntityTypes().forEach(x -> {
+        StackerUtils.getAlphabeticalStackableEntityTypes().forEach(x -> {
             SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, x);
             this.spawnerSettings.put(x, spawnerStackSettings);
             if (spawnerStackSettings.hasChanges())

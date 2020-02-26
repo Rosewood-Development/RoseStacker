@@ -1,8 +1,10 @@
 package dev.esophose.rosestacker.nms;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public interface NMSHandler {
 
@@ -41,5 +43,14 @@ public interface NMSHandler {
      * @return The newly created LivingEntity instance
      */
     LivingEntity createEntityUnspawned(EntityType entityType, Location location);
+
+    /**
+     * Toggles the visibility of an Entity's nametag for a Player
+     *
+     * @param player The Player to send the packet to
+     * @param entity The Entity to toggle
+     * @param visible true to make the nametag visible, otherwise false
+     */
+    void toggleEntityNameTagForPlayer(Player player, Entity entity, boolean visible);
 
 }

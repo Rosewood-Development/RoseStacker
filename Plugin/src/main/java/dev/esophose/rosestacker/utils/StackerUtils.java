@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
@@ -20,6 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
@@ -29,12 +31,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 public final class StackerUtils {
 
     private static Random random = new Random();
+    private static List<EntityType> cachedAlphabeticalEntityTypes;
+    private static Set<EntityType> cachedStackableEntityTypes;
 
     /**
      * Formats a string from THIS_FORMAT to This Format
@@ -216,47 +219,62 @@ public final class StackerUtils {
         return EntityType.PIG;
     }
 
-    public static boolean hasLineOfSight(LivingEntity entity1, LivingEntity entity2) {
-        Location location1 = entity1.getLocation().clone().add(0, entity1.getEyeHeight(), 0);
-        Location location2 = entity2.getLocation().clone().add(0, entity2.getEyeHeight(), 0);
+    /**
+     * A line of sight algorithm to check if two entities can see each other without obstruction
+     *
+     * @param entity1 The first entity
+     * @param entity2 The second entity
+     * @param accuracy How often should we check for obstructions? Smaller numbers = more checks
+     * @param requireOccluding Should occluding blocks be required to count as a solid block?
+     * @return true if the entities can see each other, otherwise false
+     */
+    public static boolean hasLineOfSight(Entity entity1, Entity entity2, double accuracy, boolean requireOccluding) {
+        Location location1 = entity1.getLocation().clone();
+        Location location2 = entity2.getLocation().clone();
 
-        World world = location1.getWorld();
+        if (entity1 instanceof LivingEntity)
+            location1.add(0, ((LivingEntity) entity1).getEyeHeight(), 0);
+        if (entity2 instanceof LivingEntity)
+            location2.add(0, ((LivingEntity) entity2).getEyeHeight(), 0);
 
-        if (world == null)
-            return false;
-
-        Vector direction = location2.toVector().subtract(location1.toVector()).normalize();
-        if (Double.isNaN(direction.getX()) || Double.isNaN(direction.getY()) || Double.isNaN(direction.getZ()) ||
-            Double.isInfinite(direction.getX()) || Double.isInfinite(direction.getY()) || Double.isInfinite(direction.getZ()))
-            return false;
-
-        int distance = (int) Math.round(location1.distance(location2));
-
-        try {
-            int maxChecks = distance * 2;
-            int currentChecks = 0;
-            BlockIterator blockIterator = new BlockIterator(world, location1.toVector(), direction, 0, distance);
-            while (blockIterator.hasNext()) {
-                Block block = blockIterator.next();
-                if (block.getType().isSolid())
-                    return false;
-                if (currentChecks++ > maxChecks)
-                    break;
-            }
-        } catch (Exception e) {
-            return false;
+        Vector vector1 = location1.toVector();
+        Vector vector2 = location2.toVector();
+        Vector direction = vector2.clone().subtract(vector1).normalize();
+        double distance = vector1.distance(vector2);
+        double numSteps = distance / accuracy;
+        double stepSize = distance / numSteps;
+        for (double i = 0; i < distance; i += stepSize) {
+            Location location = location1.clone().add(direction.clone().multiply(i));
+            Block block = location.getBlock();
+            Material type = block.getType();
+            if (type.isSolid() && (!requireOccluding || type.isOccluding()))
+                return false;
         }
 
         return true;
     }
 
-    public static List<EntityType> getStackableEntityTypes() {
-        return Stream.of(EntityType.values())
+    public static List<EntityType> getAlphabeticalStackableEntityTypes() {
+        if (cachedAlphabeticalEntityTypes != null)
+            return cachedAlphabeticalEntityTypes;
+
+        return cachedAlphabeticalEntityTypes = Stream.of(EntityType.values())
                 .filter(EntityType::isAlive)
                 .filter(EntityType::isSpawnable)
                 .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
                 .sorted(Comparator.comparing(Enum::name))
                 .collect(Collectors.toList());
+    }
+
+    public static Set<EntityType> getStackableEntityTypes() {
+        if (cachedStackableEntityTypes != null)
+            return cachedStackableEntityTypes;
+
+        return cachedStackableEntityTypes = Stream.of(EntityType.values())
+                .filter(EntityType::isAlive)
+                .filter(EntityType::isSpawnable)
+                .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
+                .collect(Collectors.toSet());
     }
 
     public static void takeOneItem(Player player, EquipmentSlot handType) {

@@ -38,7 +38,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         exceptions.put(EntityType.ZOMBIE_HORSE, new SpawnConditions(ImmutableSet.of(Material.AIR), LightLevel.DARK));
 
         defaultSpawnConditions = new HashMap<>();
-        for (EntityType entityType : StackerUtils.getStackableEntityTypes()) {
+        for (EntityType entityType : StackerUtils.getAlphabeticalStackableEntityTypes()) {
             if (exceptions.containsKey(entityType)) {
                 defaultSpawnConditions.put(entityType, exceptions.get(entityType));
                 continue;

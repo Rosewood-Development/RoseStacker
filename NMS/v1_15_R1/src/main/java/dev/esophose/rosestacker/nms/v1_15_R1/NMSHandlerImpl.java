@@ -6,10 +6,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Optional;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.DamageSource;
+import net.minecraft.server.v1_15_R1.DataWatcher;
+import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
+import net.minecraft.server.v1_15_R1.DataWatcherSerializer;
 import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityLiving;
 import net.minecraft.server.v1_15_R1.EntityTypes;
@@ -19,22 +24,32 @@ import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagDouble;
 import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public class NMSHandlerImpl implements NMSHandler {
 
-    // Method to update the EntityLiving LootTable, normally protected
-    private static Method method_EntityLiving_a;
+    private static Method method_EntityLiving_a; // Method to update the EntityLiving LootTable, normally protected
+    private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
+    private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
 
     static {
         try {
             method_EntityLiving_a = EntityLiving.class.getDeclaredMethod("a", DamageSource.class, boolean.class);
             method_EntityLiving_a.setAccessible(true);
+
+            field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
+            field_PacketPlayOutEntityMetadata_a.setAccessible(true);
+
+            field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
+            field_PacketPlayOutEntityMetadata_b.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -136,6 +151,22 @@ public class NMSHandlerImpl implements NMSHandler {
 
         CraftWorld craftWorld = (CraftWorld) location.getWorld();
         return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
+    }
+
+    @Override
+    public void toggleEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, boolean visible) {
+        try {
+            DataWatcherSerializer<Boolean> dataWatcherSerializer = DataWatcherRegistry.i;
+            DataWatcher.Item<Boolean> dataWatcherItem = new DataWatcher.Item<>(dataWatcherSerializer.a(3), visible);
+
+            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
+            field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
+            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Collections.singletonList(dataWatcherItem));
+
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

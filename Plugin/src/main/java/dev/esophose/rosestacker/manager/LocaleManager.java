@@ -140,7 +140,7 @@ public class LocaleManager extends Manager {
 
     /**
      * Gets a gui locale message with the given placeholders applied
-     * 
+     *
      * @param messageKey The key of the message to get
      * @param stringPlaceholders The placeholders to apply
      * @return The locale message with the given placeholders applied

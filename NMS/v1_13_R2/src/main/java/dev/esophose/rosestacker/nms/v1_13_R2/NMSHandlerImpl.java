@@ -6,7 +6,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.util.Collections;
 import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.DataWatcher;
+import net.minecraft.server.v1_13_R2.DataWatcherRegistry;
+import net.minecraft.server.v1_13_R2.DataWatcherSerializer;
 import net.minecraft.server.v1_13_R2.Entity;
 import net.minecraft.server.v1_13_R2.EntityLiving;
 import net.minecraft.server.v1_13_R2.EntityTypes;
@@ -15,15 +20,33 @@ import net.minecraft.server.v1_13_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import net.minecraft.server.v1_13_R2.NBTTagDouble;
 import net.minecraft.server.v1_13_R2.NBTTagList;
+import net.minecraft.server.v1_13_R2.PacketPlayOutEntityMetadata;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public class NMSHandlerImpl implements NMSHandler {
+
+    private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
+    private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
+
+    static {
+        try {
+            field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
+            field_PacketPlayOutEntityMetadata_a.setAccessible(true);
+
+            field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
+            field_PacketPlayOutEntityMetadata_b.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public String getEntityAsNBTString(LivingEntity livingEntity) {
@@ -118,6 +141,22 @@ public class NMSHandlerImpl implements NMSHandler {
 
         CraftWorld craftWorld = (CraftWorld) location.getWorld();
         return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
+    }
+
+    @Override
+    public void toggleEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, boolean visible) {
+        try {
+            DataWatcherSerializer<Boolean> dataWatcherSerializer = DataWatcherRegistry.i;
+            DataWatcher.Item<Boolean> dataWatcherItem = new DataWatcher.Item<>(dataWatcherSerializer.a(3), visible);
+
+            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
+            field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
+            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Collections.singletonList(dataWatcherItem));
+
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

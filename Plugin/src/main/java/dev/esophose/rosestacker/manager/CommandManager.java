@@ -48,7 +48,7 @@ public class CommandManager extends Manager {
             CommandCompletions<BukkitCommandCompletionContext> completions = commandManager.getCommandCompletions();
             completions.registerAsyncCompletion("amount", ctx -> Arrays.asList("5", "16", "64", "256", "<amount>"));
             completions.registerAsyncCompletion("stackableBlockMaterial", ctx -> stackSettingManager.getStackableBlockTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
-            completions.registerAsyncCompletion("spawnableEntityType", ctx -> StackerUtils.getStackableEntityTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
+            completions.registerAsyncCompletion("spawnableEntityType", ctx -> StackerUtils.getAlphabeticalStackableEntityTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
             completions.registerAsyncCompletion("blockStackAmounts", ctx -> {
                 int maxStackAmount = Setting.BLOCK_MAX_STACK_SIZE.getInt();
                 return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");

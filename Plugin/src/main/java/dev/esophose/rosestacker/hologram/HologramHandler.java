@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.hologram;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 
 public interface HologramHandler {
 
@@ -23,5 +24,13 @@ public interface HologramHandler {
      * Deletes all holograms
      */
     void deleteAllHolograms();
+
+    /**
+     * Checks if the given Entity is part of a hologram
+     *
+     * @param entity The Entity to check
+     * @return true if the Entity is a hologram, otherwise false
+     */
+    boolean isHologram(Entity entity);
 
 }
