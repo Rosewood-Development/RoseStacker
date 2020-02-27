@@ -71,6 +71,11 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     private boolean disableMobAI;
     private SpawnConditions spawnConditions;
     private int spawnCountStackSizeMultiplier;
+    private int minSpawnDelay;
+    private int maxSpawnDelay;
+    private int maxNearbyEntities;
+    private int playerActivationRange;
+    private int spawnRange;
 
     public SpawnerStackSettings(CommentedFileConfiguration settingsConfiguration, EntityType entityType) {
         super(settingsConfiguration);
@@ -81,6 +86,11 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         this.displayName = this.settingsConfiguration.getString("display-name");
         this.disableMobAI = this.settingsConfiguration.getBoolean("disable-mob-ai");
         this.spawnCountStackSizeMultiplier = this.settingsConfiguration.getInt("spawn-count-stack-size-multiplier");
+        this.minSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-minimum");
+        this.maxSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-maximum");
+        this.maxNearbyEntities = this.settingsConfiguration.getInt("max-nearby-entities");
+        this.playerActivationRange = this.settingsConfiguration.getInt("player-activation-range");
+        this.spawnRange = this.settingsConfiguration.getInt("spawn-range");
 
         List<String> spawnBlockString = this.settingsConfiguration.getStringList("spawn-blocks");
         Set<Material> spawnBlocks = spawnBlockString.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -109,7 +119,11 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name() + '_' + Material.SPAWNER.name()));
         this.setIfNotExists("disable-mob-ai", false);
         this.setIfNotExists("spawn-count-stack-size-multiplier", -1);
-        //this.setIfNotExists("spawn-delay-minimum", );
+        this.setIfNotExists("spawn-delay-minimum", -1);
+        this.setIfNotExists("spawn-delay-maximum", -1);
+        this.setIfNotExists("max-nearby-entities", -1);
+        this.setIfNotExists("player-activation-range", -1);
+        this.setIfNotExists("spawn-range", -1);
 
         SpawnConditions defaults = defaultSpawnConditions.get(this.entityType);
         this.setIfNotExists("spawn-blocks", defaults.getSpawnBlocks().stream().map(Enum::name).collect(Collectors.toList()));
@@ -145,6 +159,36 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         if (this.spawnCountStackSizeMultiplier != -1)
             return Math.max(this.spawnCountStackSizeMultiplier, 1);
         return Math.max(Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.getInt(), 1);
+    }
+
+    public int getMinSpawnDelay() {
+        if (this.minSpawnDelay != -1)
+            return Math.max(this.minSpawnDelay, 5);
+        return Math.max(Setting.SPAWNER_SPAWN_DELAY_MINIMUM.getInt(), 5);
+    }
+
+    public int getMaxSpawnDelay() {
+        if (this.maxSpawnDelay != -1)
+            return Math.max(this.maxSpawnDelay, this.getMinSpawnDelay());
+        return Math.max(Setting.SPAWNER_SPAWN_DELAY_MAXIMUM.getInt(), this.getMinSpawnDelay());
+    }
+
+    public int getMaxNearbyEntities() {
+        if (this.maxNearbyEntities != -1)
+            return Math.max(this.maxNearbyEntities, 1);
+        return Math.max(Setting.SPAWNER_SPAWN_MAX_NEARBY_ENTITIES.getInt(), 1);
+    }
+
+    public int getPlayerActivationRange() {
+        if (this.playerActivationRange != -1)
+            return Math.max(this.playerActivationRange, 1);
+        return Math.max(Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt(), 1);
+    }
+
+    public int getSpawnRange() {
+        if (this.spawnRange != -1)
+            return Math.max(this.spawnRange, 1);
+        return Math.max(Setting.SPAWNER_SPAWN_RANGE.getInt(), 1);
     }
 
     public static class SpawnConditions {
