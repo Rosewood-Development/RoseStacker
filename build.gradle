@@ -41,6 +41,7 @@ dependencies {
 shadowJar {
     archiveClassifier.set(null)
 
+    relocate('dev.esophose.guiframework', 'dev.esophose.rosestacker.lib.guiframework')
     relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
     relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
     relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf.commands')

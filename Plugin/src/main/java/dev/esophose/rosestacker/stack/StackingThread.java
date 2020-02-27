@@ -121,7 +121,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         // Auto unstack entities
         for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
             if (!stackedEntity.shouldStayStacked())
-                this.splitEntityStack(stackedEntity);
+                Bukkit.getScheduler().runTask(this.roseStacker, () -> this.splitEntityStack(stackedEntity));
 
         // Cleans up entities that aren't stacked
         this.cleanupTimer++;
@@ -146,6 +146,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         boolean dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
         boolean dynamicSpawnerTags = Setting.SPAWNER_DISPLAY_TAGS.getBoolean() && Setting.SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
 
+        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags || dynamicSpawnerTags))
+            return;
+
         double entityItemDynamicViewRange = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
         double blockSpawnerDynamicViewRange = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
 
@@ -154,9 +157,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         boolean entityItemDynamicWallDetection = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         boolean blockSpawnerDynamicWallDetection = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-
-        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags || dynamicSpawnerTags))
-            return;
 
         double maxEntityRenderDistanceSqrd = 75 * 75;
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
