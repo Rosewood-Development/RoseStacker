@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CatchUnknown;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
@@ -132,7 +133,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("block")
         @CommandCompletion("* @stackableBlockMaterial @blockStackAmounts")
-        public void onBlock(OnlinePlayer target, Material material, int amount) {
+        public void onBlock(OnlinePlayer target, Material material, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();
@@ -147,7 +148,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("spawner")
         @CommandCompletion("* @spawnableEntityType @spawnerStackAmounts")
-        public void onSpawner(OnlinePlayer target, EntityType entityType, int amount) {
+        public void onSpawner(OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();
@@ -162,7 +163,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("entity")
         @CommandCompletion("* @spawnableEntityType @entityStackAmounts")
-        public void onEntity(OnlinePlayer target, EntityType entityType, int amount) {
+        public void onEntity(OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();

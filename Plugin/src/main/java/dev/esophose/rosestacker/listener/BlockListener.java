@@ -94,8 +94,10 @@ public class BlockListener implements Listener {
                 stackedSpawner.increaseStackSize(-1);
             }
 
-            if (stackedSpawner.getStackSize() <= 1)
+            if (stackedSpawner.getStackSize() <= 0) {
                 stackManager.removeSpawnerStack(stackedSpawner);
+                return;
+            }
         } else {
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
             if (stackedBlock.isLocked()) {
@@ -311,7 +313,7 @@ public class BlockListener implements Listener {
                 spawner.setSpawnedType(spawnedType);
                 spawner.update();
 
-                if (stackAmount <= 1)
+                if (stackAmount <= 0)
                     return;
 
                 if (stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
@@ -375,7 +377,7 @@ public class BlockListener implements Listener {
 
             // Make sure spawners convert and update their display properly
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-            stackedSpawner.updateSpawnCount();
+            stackedSpawner.updateSpawnerProperties();
             stackedSpawner.updateDisplay();
         });
     }

@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack.settings;
 
 import com.google.common.collect.ImmutableSet;
 import dev.esophose.rosestacker.config.CommentedFileConfiguration;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     private String displayName;
     private boolean disableMobAI;
     private SpawnConditions spawnConditions;
+    private int spawnCountStackSizeMultiplier;
 
     public SpawnerStackSettings(CommentedFileConfiguration settingsConfiguration, EntityType entityType) {
         super(settingsConfiguration);
@@ -78,6 +80,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
         this.disableMobAI = this.settingsConfiguration.getBoolean("disable-mob-ai");
+        this.spawnCountStackSizeMultiplier = this.settingsConfiguration.getInt("spawn-count-stack-size-multiplier");
 
         List<String> spawnBlockString = this.settingsConfiguration.getStringList("spawn-blocks");
         Set<Material> spawnBlocks = spawnBlockString.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -105,6 +108,8 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name() + '_' + Material.SPAWNER.name()));
         this.setIfNotExists("disable-mob-ai", false);
+        this.setIfNotExists("spawn-count-stack-size-multiplier", -1);
+        //this.setIfNotExists("spawn-delay-minimum", );
 
         SpawnConditions defaults = defaultSpawnConditions.get(this.entityType);
         this.setIfNotExists("spawn-blocks", defaults.getSpawnBlocks().stream().map(Enum::name).collect(Collectors.toList()));
@@ -134,6 +139,12 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
 
     public SpawnConditions getSpawnConditions() {
         return this.spawnConditions;
+    }
+
+    public int getSpawnCountStackSizeMultiplier() {
+        if (this.spawnCountStackSizeMultiplier != -1)
+            return Math.max(this.spawnCountStackSizeMultiplier, 1);
+        return Math.max(Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.getInt(), 1);
     }
 
     public static class SpawnConditions {

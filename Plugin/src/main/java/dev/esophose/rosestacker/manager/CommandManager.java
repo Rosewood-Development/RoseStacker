@@ -2,6 +2,8 @@ package dev.esophose.rosestacker.manager;
 
 import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.CommandCompletions;
+import co.aikar.commands.ConditionFailedException;
+import co.aikar.commands.MessageKeys;
 import co.aikar.commands.PaperCommandManager;
 import co.aikar.locales.MessageKey;
 import dev.esophose.rosestacker.RoseStacker;
@@ -14,8 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 
 public class CommandManager extends Manager {
@@ -68,6 +72,17 @@ public class CommandManager extends Manager {
             });
             completions.registerAsyncCompletion("clearallType", ctx -> Stream.of(ClearallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
             completions.registerAsyncCompletion("conversionType", ctx -> conversionManager.getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
+
+            commandManager.getCommandConditions().addCondition(int.class, "limits", (c, exec, value) -> {
+                if (value == null)
+                    return;
+
+                if (c.hasConfig("min") && c.getConfigValue("min", 0) > value)
+                    throw new ConditionFailedException(MessageKeys.PLEASE_SPECIFY_AT_LEAST, "{min}", String.valueOf(c.getConfigValue("min", 0)));
+
+                if (c.hasConfig("max") && c.getConfigValue("max", Integer.MAX_VALUE) < value)
+                    throw new ConditionFailedException(MessageKeys.PLEASE_SPECIFY_AT_MOST, "{max}", String.valueOf(c.getConfigValue("max", Integer.MAX_VALUE)));
+            });
 
             this.loaded = true;
         }

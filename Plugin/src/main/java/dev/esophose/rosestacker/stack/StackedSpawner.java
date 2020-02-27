@@ -30,7 +30,7 @@ public class StackedSpawner extends Stack {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
             if (Bukkit.isPrimaryThread()) {
-                this.updateSpawnCount();
+                this.updateSpawnerProperties();
                 this.updateDisplay();
             }
         }
@@ -46,13 +46,13 @@ public class StackedSpawner extends Stack {
 
     public void increaseStackSize(int amount) {
         this.size += amount;
-        this.updateSpawnCount();
+        this.updateSpawnerProperties();
         this.updateDisplay();
     }
 
     public void setStackSize(int size) {
         this.size = size;
-        this.updateSpawnCount();
+        this.updateSpawnerProperties();
         this.updateDisplay();
     }
 
@@ -75,7 +75,8 @@ public class StackedSpawner extends Stack {
 
         Location location = this.spawner.getLocation().clone().add(0.5, 0.75, 0.5);
 
-        if (this.size <= 1) {
+        int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
+        if (this.size <= sizeForHologram) {
             hologramManager.deleteHologram(location);
             return;
         }
@@ -86,7 +87,7 @@ public class StackedSpawner extends Stack {
         hologramManager.createOrUpdateHologram(location, displayString);
     }
 
-    public void updateSpawnCount() {
+    public void updateSpawnerProperties() {
         if (this.spawner.getBlock().getType() != Material.SPAWNER)
             return;
 
@@ -97,7 +98,7 @@ public class StackedSpawner extends Stack {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
         int delay = this.spawner.getDelay();
-        this.spawner.setSpawnCount(this.size * 4);
+        this.spawner.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
         this.spawner.setDelay(delay);
         this.spawner.update();
     }

@@ -1,6 +1,8 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings.SpawnConditions;
 import java.util.Random;
 import org.bukkit.Bukkit;
@@ -55,6 +57,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
 
+        boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
+
         for (Block block : stackManager.getStackedSpawners().keySet()) {
             if (block.getType() != Material.SPAWNER)
                 continue;
@@ -67,7 +71,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
                 return;
 
-            SpawnConditions spawnConditions = stackSettingManager.getSpawnerStackSettings(entityType).getSpawnConditions();
+            SpawnerStackSettings stackSettings = stackSettingManager.getSpawnerStackSettings(entityType);
+            SpawnConditions spawnConditions = stackSettings.getSpawnConditions();
 
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();
@@ -83,8 +88,13 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 continue;
 
             // Spawn the mobs
-            int minSpawnAmount = spawner.getSpawnCount() / 4;
-            int spawnAmount = this.random.nextInt(spawner.getSpawnCount() - minSpawnAmount + 1) + minSpawnAmount;
+            int spawnAmount;
+            if (randomizeSpawnAmounts) {
+                int minSpawnAmount = spawner.getSpawnCount() / stackSettings.getSpawnCountStackSizeMultiplier();
+                spawnAmount = this.random.nextInt(spawner.getSpawnCount() - minSpawnAmount + 1) + minSpawnAmount;
+            } else {
+                spawnAmount = spawner.getSpawnCount();
+            }
 
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
@@ -106,6 +116,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         }
     }
 
+    // TODO: Handle spawn areas for mobs that are larger than one block
     private boolean isSpawnPlaceAvailable(Location location, SpawnConditions spawnConditions) {
         Block block = location.getBlock();
         Block below = block.getRelative(BlockFace.DOWN);
