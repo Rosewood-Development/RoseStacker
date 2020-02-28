@@ -50,6 +50,10 @@ public class StackedBlock extends Stack {
         return this.stackedBlockGui.hasViewers();
     }
 
+    public void kickOutGuiViewers() {
+        this.stackedBlockGui.kickOutViewers();
+    }
+
     public void increaseStackSize(int amount) {
         this.size += amount;
 

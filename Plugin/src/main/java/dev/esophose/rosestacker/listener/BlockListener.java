@@ -208,6 +208,8 @@ public class BlockListener implements Listener {
                     continue;
 
                 StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+                stackedBlock.kickOutGuiViewers();
+
                 int newStackSize;
 
                 int destroyAmountFixed = Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
