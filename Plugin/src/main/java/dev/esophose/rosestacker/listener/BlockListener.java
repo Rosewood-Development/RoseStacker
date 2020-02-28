@@ -10,6 +10,7 @@ import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -178,18 +179,19 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-
-        // TODO: Configurable setting to destroy entire stack instead of protecting it
-        event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
+        this.handleExplosion(event.blockList());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
+        this.handleExplosion(event.blockList());
+    }
+
+    private void handleExplosion(List<Block> blockList) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         // TODO: Configurable setting to destroy entire stack instead of protecting it
-        event.blockList().removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
+        blockList.removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -369,6 +371,11 @@ public class BlockListener implements Listener {
                 || event.getItem() == null
                 || !event.getItem().getType().name().endsWith("_SPAWN_EGG"))
             return;
+
+        if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+            event.setCancelled(true);
+            return;
+        }
 
         Bukkit.getScheduler().runTask(this.roseStacker, () -> {
             StackManager stackManager = this.roseStacker.getManager(StackManager.class);

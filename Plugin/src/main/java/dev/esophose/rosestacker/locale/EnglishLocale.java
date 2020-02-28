@@ -65,7 +65,7 @@ public class EnglishLocale implements Locale {
             this.put("command-purgedata-purged", "&ePurged &b%amount% &estack data entries from the database.");
 
             this.put("#8", "Query Data Command");
-            this.put("command-querydata-description", "&8 - &d/rs purgedata <world> [stackType] &7- Gets stack data info about a world");
+            this.put("command-querydata-description", "&8 - &d/rs querydata <world> &7- Gets saved stack data info about a world");
             this.put("command-querydata-none", "&eNo data was found with the given world name.");
             this.put("command-querydata-header", "&aQueried data results:");
             this.put("command-querydata-entity", "&eSaved entity stacks: &b%amount%");

@@ -11,8 +11,12 @@ permissions:
       rosestacker.reload: true
       rosestacker.give: true
       rosestacker.clearall: true
+      rosestacker.stats: true
       rosestacker.convert: true
+      rosestacker.purgedata: true
+      rosestacker.querydata: true
       rosestacker.silktouch: true
+      rosestacker.spawnerconvert: true
   rosestacker.reload:
     description: Allows using the reload command
     default: op
@@ -28,6 +32,15 @@ permissions:
   rosestacker.convert:
     description: Allows using the convert command
     default: op
+  rosestacker.purgedata:
+    description: Allows using the purgedata command
+    default: op
+  rosestacker.querydata:
+    description: Allows using the querydata command
+    default: op
   rosestacker.silktouch:
     description: Allows picking up spawners with silk touch
+    default: op
+  rosestacker.spawnerconvert:
+    description: Allows converting spawners with mob spawn eggs
     default: op
