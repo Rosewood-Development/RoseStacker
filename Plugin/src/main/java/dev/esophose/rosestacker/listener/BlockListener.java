@@ -1,5 +1,6 @@
 package dev.esophose.rosestacker.listener;
 
+import dev.esophose.guiframework.util.GuiUtil;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.hook.CoreProtectHook;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
@@ -10,6 +11,7 @@ import dev.esophose.rosestacker.stack.StackedSpawner;
 import dev.esophose.rosestacker.stack.settings.BlockStackSettings;
 import dev.esophose.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.esophose.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -190,8 +192,85 @@ public class BlockListener implements Listener {
     private void handleExplosion(List<Block> blockList) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
-        // TODO: Configurable setting to destroy entire stack instead of protecting it
-        blockList.removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
+        boolean stackedBlockProtection = Setting.BLOCK_EXPLOSION_PROTECTION.getBoolean();
+        boolean stackedSpawnerProtection = Setting.SPAWNER_EXPLOSION_PROTECTION.getBoolean();
+
+        if (stackedBlockProtection && stackedSpawnerProtection) {
+            blockList.removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
+            return;
+        }
+
+        for (Block block : new ArrayList<>(blockList)) {
+            if (!stackedBlockProtection && stackManager.isBlockStacked(block)) {
+                blockList.remove(block);
+
+                if (!StackerUtils.passesChance(Setting.BLOCK_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
+                    continue;
+
+                StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+                int newStackSize;
+
+                int destroyAmountFixed = Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
+                if (destroyAmountFixed != -1) {
+                    newStackSize = stackedBlock.getStackSize() - destroyAmountFixed;
+                } else {
+                    newStackSize = (int) Math.floor(stackedBlock.getStackSize() * (Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                }
+
+                if (newStackSize <= 0) {
+                    block.setType(Material.AIR);
+                    stackedBlock.setStackSize(0);
+                    stackManager.removeBlockStack(stackedBlock);
+                    continue;
+                }
+
+                if (Setting.BLOCK_EXPLOSION_DECREASE_STACK_SIZE_ONLY.getBoolean()) {
+                    stackedBlock.setStackSize(newStackSize);
+                    if (newStackSize <= 1)
+                        stackManager.removeBlockStack(stackedBlock);
+                } else {
+                    stackedBlock.setStackSize(0);
+                    stackManager.removeBlockStack(stackedBlock);
+                    Material type = block.getType();
+                    block.setType(Material.AIR);
+                    Bukkit.getScheduler().runTask(this.roseStacker, () ->
+                            stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(type, newStackSize), block.getLocation().clone().add(0.5, 0.5, 0.5)));
+                }
+            } else if (!stackedSpawnerProtection && stackManager.isSpawnerStacked(block)) {
+                blockList.remove(block);
+
+                if (!StackerUtils.passesChance(Setting.SPAWNER_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
+                    continue;
+
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+                int newStackSize;
+
+                int destroyAmountFixed = Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
+                if (destroyAmountFixed != -1) {
+                    newStackSize = stackedSpawner.getStackSize() - destroyAmountFixed;
+                } else {
+                    newStackSize = (int) Math.floor(stackedSpawner.getStackSize() * (Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                }
+
+                if (newStackSize <= 0) {
+                    block.setType(Material.AIR);
+                    stackedSpawner.setStackSize(0);
+                    stackManager.removeSpawnerStack(stackedSpawner);
+                    continue;
+                }
+
+                if (Setting.SPAWNER_EXPLOSION_DECREASE_STACK_SIZE_ONLY.getBoolean()) {
+                    stackedSpawner.setStackSize(newStackSize);
+                } else {
+                    stackedSpawner.setStackSize(0);
+                    stackManager.removeSpawnerStack(stackedSpawner);
+                    EntityType spawnedType = ((CreatureSpawner) block.getState()).getSpawnedType();
+                    block.setType(Material.AIR);
+                    Bukkit.getScheduler().runTask(this.roseStacker, () ->
+                            block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5, 0.5, 0.5), StackerUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
+                }
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
