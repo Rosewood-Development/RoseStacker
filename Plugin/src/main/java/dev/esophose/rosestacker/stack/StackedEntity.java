@@ -19,6 +19,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -78,14 +79,25 @@ public class StackedEntity extends Stack {
     }
 
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
-        if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-            this.serializedStackedEntities.add(NMSUtil.getHandler().getEntityAsNBTString(entity));
-        } else {
-            this.serializedStackedEntities.add(0, NMSUtil.getHandler().getEntityAsNBTString(entity));
-        }
+        Runnable task = () -> {
+            if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
+                this.serializedStackedEntities.add(NMSUtil.getHandler().getEntityAsNBTString(entity));
+            } else {
+                this.serializedStackedEntities.add(0, NMSUtil.getHandler().getEntityAsNBTString(entity));
+            }
 
-        if (updateDisplay)
-            this.updateDisplay();
+            if (updateDisplay)
+                this.updateDisplay();
+        };
+
+        // For some reason, a VillagerAcquireTradeEvent is called when saving a villager's nbt.
+        // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
+        // We switch over to a non-async thread specifically for villagers because of this.
+        if (!Bukkit.isPrimaryThread() && entity instanceof AbstractVillager) {
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), task);
+        } else {
+            task.run();
+        }
     }
 
     public void increaseStackSize(List<String> entityNBTStrings) {
