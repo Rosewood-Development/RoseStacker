@@ -42,7 +42,6 @@ public class EnglishLocale implements Locale {
 
             this.put("#4", "Clearall Command");
             this.put("command-clearall-description", "&8 - &d/rs clearall &7- Clears all of a stack type");
-            this.put("command-clearall-usage", "&cUsage: &e/rs clearall <entity|item>");
             this.put("command-clearall-killed-entities", "&eCleared &b%amount% &eentities.");
             this.put("command-clearall-killed-items", "&eCleared &b%amount% &eitems.");
 
@@ -57,11 +56,24 @@ public class EnglishLocale implements Locale {
 
             this.put("#6", "Convert Command");
             this.put("command-convert-description", "&8 - &d/rs convert &7- Converts data from another stacking plugin");
-            this.put("command-convert-usage", "&cUsage: &e/rs convert <plugin>");
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
 
-            this.put("#7", "Stacked Block GUI");
+            this.put("#7", "Purge Data Command");
+            this.put("command-purgedata-description", "&8 - &d/rs purgedata <world> &7- Deletes stack data from a world");
+            this.put("command-purgedata-none", "&eNo stack data was found with the given world name.");
+            this.put("command-purgedata-purged", "&ePurged &b%amount% &estack data entries from the database.");
+
+            this.put("#8", "Query Data Command");
+            this.put("command-querydata-description", "&8 - &d/rs purgedata <world> [stackType] &7- Gets stack data info about a world");
+            this.put("command-querydata-none", "&eNo data was found with the given world name.");
+            this.put("command-querydata-header", "&aQueried data results:");
+            this.put("command-querydata-entity", "&eSaved entity stacks: &b%amount%");
+            this.put("command-querydata-item", "&eSaved item stacks: &b%amount%");
+            this.put("command-querydata-block", "&eSaved block stacks: &b%amount%");
+            this.put("command-querydata-spawner", "&eSaved spawner stacks: &b%amount%");
+
+            this.put("#9", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");
             this.put("gui-stacked-block-page-back", Collections.singletonList("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
             this.put("gui-stacked-block-page-forward", Collections.singletonList("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
@@ -70,7 +82,7 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirm", "&eYes, destroy the stack"));
             this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cCancel", "&eNo, go back to previous screen"));
 
-            this.put("#8", "ACF-Core Messages");
+            this.put("#10", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -88,7 +100,7 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#9", "ACF-Minecraft Messages");
+            this.put("#11", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
         }};
     }

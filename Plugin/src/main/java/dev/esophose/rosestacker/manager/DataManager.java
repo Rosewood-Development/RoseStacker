@@ -1,6 +1,7 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.command.RoseCommand.StackType;
 import dev.esophose.rosestacker.database.DatabaseConnector;
 import dev.esophose.rosestacker.database.MySQLConnector;
 import dev.esophose.rosestacker.database.SQLiteConnector;
@@ -23,8 +24,10 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -579,6 +582,48 @@ public class DataManager extends Manager {
         }
     }
 
+    public int purgeData(String world) {
+        AtomicInteger totalDeleted = new AtomicInteger();
+        this.databaseConnector.connect(connection -> {
+            Set<String> types = Stream.of(StackType.values()).map(x -> "stacked_" + x.name().toLowerCase()).collect(Collectors.toSet());
+            for (String type : types) {
+                String delete = "DELETE FROM " + this.getTablePrefix() + type + " WHERE world = ?";
+                try (PreparedStatement statement = connection.prepareStatement(delete)) {
+                    statement.setString(1, world);
+                    totalDeleted.addAndGet(statement.executeUpdate());
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        return totalDeleted.get();
+    }
+
+    public StackCounts queryData(String world) {
+        return new StackCounts(
+                this.queryData(world, StackType.ENTITY),
+                this.queryData(world, StackType.ITEM),
+                this.queryData(world, StackType.BLOCK),
+                this.queryData(world, StackType.SPAWNER)
+        );
+    }
+
+    public int queryData(String world, StackType stackType) {
+        AtomicInteger total = new AtomicInteger();
+        this.databaseConnector.connect(connection -> {
+            String query = "SELECT COUNT(*) FROM " + this.getTablePrefix() + "stacked_" + stackType.name().toLowerCase() + " WHERE world = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, world);
+                ResultSet result = statement.executeQuery();
+                result.next();
+                total.addAndGet(result.getInt(1));
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
+        return total.get();
+    }
+
     /**
      * @return The connector to the database
      */
@@ -591,6 +636,33 @@ public class DataManager extends Manager {
      */
     public String getTablePrefix() {
         return this.roseStacker.getDescription().getName().toLowerCase() + '_';
+    }
+
+    public static class StackCounts {
+        private int entity, item, block, spawner;
+
+        private StackCounts(int entity, int item, int block, int spawner) {
+            this.entity = entity;
+            this.item = item;
+            this.block = block;
+            this.spawner = spawner;
+        }
+
+        public int getEntityCount() {
+            return this.entity;
+        }
+
+        public int getItemCount() {
+            return this.item;
+        }
+
+        public int getBlockCount() {
+            return this.block;
+        }
+
+        public int getSpawnerCount() {
+            return this.spawner;
+        }
     }
 
     private static class StackedBlockData {

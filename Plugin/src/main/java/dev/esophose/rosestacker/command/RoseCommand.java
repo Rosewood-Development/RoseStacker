@@ -7,24 +7,25 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConversionManager;
 import dev.esophose.rosestacker.manager.ConversionManager.StackPlugin;
+import dev.esophose.rosestacker.manager.DataManager;
+import dev.esophose.rosestacker.manager.DataManager.StackCounts;
 import dev.esophose.rosestacker.manager.LocaleManager;
 import dev.esophose.rosestacker.manager.StackManager;
 import dev.esophose.rosestacker.manager.StackSettingManager;
 import dev.esophose.rosestacker.utils.StackerUtils;
 import dev.esophose.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 @CommandAlias("rs|rosestacker|stacker")
-@Description("The base RoseStacker command")
 public class RoseCommand extends BaseCommand {
 
     protected final RoseStacker roseStacker;
@@ -45,11 +46,12 @@ public class RoseCommand extends BaseCommand {
         localeManager.sendSimpleMessage(sender, "command-clearall-description");
         localeManager.sendSimpleMessage(sender, "command-stats-description");
         localeManager.sendSimpleMessage(sender, "command-convert-description");
+        localeManager.sendSimpleMessage(sender, "command-purgedata-description");
+        localeManager.sendSimpleMessage(sender, "command-querydata-description");
         sender.sendMessage("");
     }
 
     @Subcommand("reload")
-    @Description("Reloads the plugin")
     @CommandPermission("rosestacker.reload")
     public void onReload(CommandSender sender) {
         this.roseStacker.reload();
@@ -57,7 +59,6 @@ public class RoseCommand extends BaseCommand {
     }
 
     @Subcommand("clearall")
-    @Description("Clears all stacked entities or items")
     @CommandPermission("rosestacker.clearall")
     @CommandCompletion("@clearallType")
     public void onClearall(CommandSender sender, ClearallType clearallType) {
@@ -77,13 +78,7 @@ public class RoseCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("clearall")
-    public void onClearall(CommandSender sender) {
-        this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-clearall-usage");
-    }
-
     @Subcommand("convert")
-    @Description("Converts a stack plugin's data to this one")
     @CommandPermission("rosestacker.convert")
     @CommandCompletion("@conversionType")
     public void onConvert(CommandSender sender, StackPlugin stackPlugin) {
@@ -94,13 +89,7 @@ public class RoseCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("convert")
-    public void onConvert(CommandSender sender) {
-        this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-convert-usage");
-    }
-
     @Subcommand("stats")
-    @Description("Gets stats about the plugin")
     @CommandPermission("rosestacker.stats")
     public void onStats(CommandSender sender) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
@@ -121,7 +110,6 @@ public class RoseCommand extends BaseCommand {
     }
 
     @Subcommand("give")
-    @Description("Gives stacked items")
     @CommandPermission("rosestacker.give")
     public class GiveCommand extends BaseCommand {
 
@@ -178,9 +166,52 @@ public class RoseCommand extends BaseCommand {
 
     }
 
+    @Subcommand("purgedata")
+    @CommandPermission("rosestacker.purgedata")
+    @CommandCompletion("@worlds")
+    public void onPurgeData(CommandSender sender, String world) {
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        int totalDeleted = dataManager.purgeData(world);
+        if (totalDeleted == 0) {
+            localeManager.sendMessage(sender, "command-purgedata-none");
+        } else {
+            localeManager.sendMessage(sender, "command-purgedata-purged", StringPlaceholders.single("amount", totalDeleted));
+        }
+    }
+
+    @Subcommand("querydata")
+    @CommandPermission("rosestacker.querydata")
+    @CommandCompletion("@worlds")
+    public void onQueryData(CommandSender sender, World world) {
+        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        StackCounts stackCounts = dataManager.queryData(world.getName());
+        int entity = stackCounts.getEntityCount();
+        int item = stackCounts.getItemCount();
+        int block = stackCounts.getBlockCount();
+        int spawner = stackCounts.getSpawnerCount();
+        if (entity == 0 && item == 0 && block == 0 && spawner == 0) {
+            localeManager.sendMessage(sender, "command-querydata-none");
+        } else {
+            localeManager.sendMessage(sender, "command-querydata-header");
+            localeManager.sendMessage(sender, "command-querydata-entity", StringPlaceholders.single("amount", entity));
+            localeManager.sendMessage(sender, "command-querydata-item", StringPlaceholders.single("amount", item));
+            localeManager.sendMessage(sender, "command-querydata-block", StringPlaceholders.single("amount", block));
+            localeManager.sendMessage(sender, "command-querydata-spawner", StringPlaceholders.single("amount", spawner));
+        }
+    }
+
     public enum ClearallType {
         ENTITY,
         ITEM
+    }
+
+    public enum StackType {
+        ENTITY,
+        ITEM,
+        BLOCK,
+        SPAWNER
     }
 
 }
