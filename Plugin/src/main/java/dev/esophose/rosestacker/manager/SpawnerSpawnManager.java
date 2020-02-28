@@ -15,6 +15,7 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 public class SpawnerSpawnManager extends Manager implements Runnable {
@@ -107,6 +108,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
                         if (entity.isValid()) // Don't spawn particles for auto-stacked entities
                             block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                        SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
+                        Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                         break;
                     }
 
