@@ -7,6 +7,7 @@ import dev.esophose.guiframework.gui.GuiButtonFlag;
 import dev.esophose.guiframework.gui.GuiContainer;
 import dev.esophose.guiframework.gui.GuiSize;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
+import dev.esophose.guiframework.gui.screen.GuiScreenEditFilters;
 import dev.esophose.guiframework.gui.screen.GuiScreenSection;
 import dev.esophose.guiframework.util.GuiUtil;
 import dev.esophose.rosestacker.RoseStacker;
@@ -96,6 +97,8 @@ public class StackedBlockGui {
         GuiScreen mainScreen = new GuiScreen(this.guiContainer, GuiSize.ROWS_SIX)
                 .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
                 .setEditableSection(editableSection, stackItems, this::updateStackedBlock)
+                .setEditFilters(new GuiScreenEditFilters()
+                        .setWhitelist(this.stackedBlock.getBlock().getType()))
                 .addButtonAt(47, new GuiButton()
                         .setIcon(Material.PAPER)
                         .setName(pageBackString.getName())
