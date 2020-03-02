@@ -19,11 +19,11 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Merchant;
 
 public class StackedEntity extends Stack {
 
@@ -93,7 +93,7 @@ public class StackedEntity extends Stack {
         // For some reason, a VillagerAcquireTradeEvent is called when saving a villager's nbt.
         // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
         // We switch over to a non-async thread specifically for villagers because of this.
-        if (!Bukkit.isPrimaryThread() && entity instanceof AbstractVillager) {
+        if (!Bukkit.isPrimaryThread() && entity instanceof Merchant) {
             Bukkit.getScheduler().runTask(RoseStacker.getInstance(), task);
         } else {
             task.run();
