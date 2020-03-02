@@ -33,7 +33,7 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class StackManager extends Manager implements StackingLogic {
 
-    private BukkitTask task;
+    private BukkitTask deleteTask;
 
     private final Map<UUID, StackingThread> stackingThreads;
     private final Set<Stack> deletedStacks;
@@ -51,8 +51,8 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void reload() {
-        if (this.task != null)
-            this.task.cancel();
+        if (this.deleteTask != null)
+            this.deleteTask.cancel();
 
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
@@ -64,13 +64,19 @@ public class StackManager extends Manager implements StackingLogic {
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
-        this.task = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this::deleteStacks, 0L, 100L);
+        this.deleteTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this::deleteStacks, 0L, 100L);
     }
 
     @Override
     public void disable() {
-        if (this.task != null)
-            this.task.cancel();
+        if (this.deleteTask != null)
+            this.deleteTask.cancel();
+
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        if (!dataManager.isConnected()) {
+            this.stackingThreads.clear();
+            return;
+        }
 
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
@@ -282,18 +288,20 @@ public class StackManager extends Manager implements StackingLogic {
         stackingThread.preStackItems(items, location);
     }
 
-    @Override
     public void loadChunk(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null)
-            stackingThread.loadChunk(chunk);
+        if (stackingThread == null)
+            return;
+
+        stackingThread.loadChunk(chunk);
     }
 
-    @Override
     public void unloadChunk(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null)
-            stackingThread.unloadChunk(chunk);
+        if (stackingThread == null)
+            return;
+
+        stackingThread.unloadChunk(chunk);
     }
 
     /**
@@ -319,7 +327,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @param world to create a StackingThread for
      */
     public void loadWorld(World world) {
-        if (this.isWorldDisabled(world))
+        if (this.isWorldDisabled(world) || this.stackingThreads.containsKey(world.getUID()))
             return;
 
         this.stackingThreads.put(world.getUID(), new StackingThread(this.roseStacker, this, world));

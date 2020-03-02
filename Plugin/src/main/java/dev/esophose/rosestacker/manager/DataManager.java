@@ -100,6 +100,10 @@ public class DataManager extends Manager {
         this.databaseConnector.closeConnection();
     }
 
+    public boolean isConnected() {
+        return this.databaseConnector != null;
+    }
+
     public void getStackedBlocks(Set<Chunk> chunks, Consumer<Set<StackedBlock>> callback) {
         this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_block WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
