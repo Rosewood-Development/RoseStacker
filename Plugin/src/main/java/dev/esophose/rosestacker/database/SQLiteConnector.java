@@ -16,8 +16,12 @@ public class SQLiteConnector implements DatabaseConnector {
     private final Object lock;
 
     public SQLiteConnector(Plugin plugin) {
+        this(plugin, plugin.getDescription().getName().toLowerCase());
+    }
+
+    public SQLiteConnector(Plugin plugin, String dbName) {
         this.plugin = plugin;
-        this.connectionString = "jdbc:sqlite:" + plugin.getDataFolder() + File.separator + plugin.getDescription().getName().toLowerCase() + ".db";
+        this.connectionString = "jdbc:sqlite:" + plugin.getDataFolder() + File.separator + dbName + ".db";
         this.openConnections = new AtomicInteger();
         this.lock = new Object();
 

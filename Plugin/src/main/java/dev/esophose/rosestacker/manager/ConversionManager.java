@@ -40,8 +40,13 @@ public class ConversionManager extends Manager {
         if (!converter.canConvert())
             return false;
 
-        converter.convert();
-        converter.disablePlugin();
+        try {
+            converter.convert();
+            converter.disablePlugin();
+        } catch (Exception ex) {
+            return false;
+        }
+
         return true;
     }
 

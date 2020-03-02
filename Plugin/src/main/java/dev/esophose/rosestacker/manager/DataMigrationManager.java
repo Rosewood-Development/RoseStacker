@@ -4,7 +4,7 @@ import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.database.DataMigration;
 import dev.esophose.rosestacker.database.DatabaseConnector;
 import dev.esophose.rosestacker.database.SQLiteConnector;
-import dev.esophose.rosestacker.database.migrations._1_InitialMigration;
+import dev.esophose.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public class DataMigrationManager extends Manager {
         super(roseStacker);
 
         this.migrations = Arrays.asList(
-                new _1_InitialMigration()
+                new _1_Create_Tables_Stacks()
         );
     }
 

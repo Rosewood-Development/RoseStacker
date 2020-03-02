@@ -15,7 +15,7 @@ public class StackMobPluginConverter extends StackPluginConverter {
 
     @Override
     public void convert() {
-
+        // There's actually nothing to do here since everything is stored in PersistentDataContainers
     }
 
 }

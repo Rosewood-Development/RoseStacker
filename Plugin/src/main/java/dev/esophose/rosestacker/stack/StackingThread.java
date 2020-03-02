@@ -101,7 +101,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
             Item item = stackedItem.getItem();
             if (item == null || item.isDead()) {
-                System.out.println("INVALID ITEM!!!");
                 this.removeItemStack(stackedItem);
                 continue;
             }
@@ -118,7 +117,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
             LivingEntity livingEntity = stackedEntity.getEntity();
             if (livingEntity == null) {
-                System.out.println("INVALID ENTITY!!!");
                 this.removeEntityStack(stackedEntity);
                 continue;
             }

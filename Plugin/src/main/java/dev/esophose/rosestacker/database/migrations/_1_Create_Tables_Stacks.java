@@ -7,9 +7,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class _1_InitialMigration extends DataMigration {
+public class _1_Create_Tables_Stacks extends DataMigration {
 
-    public _1_InitialMigration() {
+    public _1_Create_Tables_Stacks() {
         super(1);
     }
 
