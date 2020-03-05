@@ -1,11 +1,14 @@
-package dev.esophose.rosestacker.converter;
+package dev.esophose.rosestacker.conversion.converter;
 
 import com.songoda.ultimatestacker.UltimateStacker;
 import com.songoda.ultimatestacker.core.database.DatabaseConnector;
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.manager.ConversionManager;
+import dev.esophose.rosestacker.manager.DataManager;
+import dev.esophose.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,17 +25,18 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
 
     @Override
     public void convert() {
-        ConversionManager conversionManager = this.roseStacker.getManager(ConversionManager.class);
+        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+
+        // Force save loaded data
+        this.ultimateStacker.getDataManager().bulkUpdateSpawners(this.ultimateStacker.getSpawnerStackManager().getStacks());
 
         // Go through the database to be able to load all spawner information
         DatabaseConnector connector = this.ultimateStacker.getDatabaseConnector();
         connector.connect(connection -> {
-            // Force save loaded data
-            this.ultimateStacker.getDataManager().bulkUpdateSpawners(this.ultimateStacker.getSpawnerStackManager().getStacks());
-
             // Load spawners
             try (Statement statement = connection.createStatement()) {
                 ResultSet result = statement.executeQuery("SELECT amount, world, x, y, z FROM ultimatestacker_spawners");
+                Set<StackedSpawner> stackedSpawners = new HashSet<>();
                 while (result.next()) {
                     World world = Bukkit.getWorld(result.getString("world"));
                     if (world == null)
@@ -44,8 +48,9 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
 
                     Location location = new Location(world, x, y, z);
                     int amount = result.getInt("amount");
-                    // TODO
+                    stackedSpawners.add(new StackedSpawner(amount, location));
                 }
+                dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
             }
         });
     }

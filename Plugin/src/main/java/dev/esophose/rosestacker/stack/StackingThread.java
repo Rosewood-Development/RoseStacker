@@ -2,6 +2,7 @@ package dev.esophose.rosestacker.stack;
 
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
+import dev.esophose.rosestacker.manager.ConversionManager;
 import dev.esophose.rosestacker.manager.DataManager;
 import dev.esophose.rosestacker.manager.HologramManager;
 import dev.esophose.rosestacker.manager.StackManager;
@@ -46,6 +47,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final StackManager stackManager;
     private final StackSettingManager stackSettingManager;
     private final HologramManager hologramManager;
+    private final ConversionManager conversionManager;
     private final World targetWorld;
 
     private final BukkitTask stackTask;
@@ -65,6 +67,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.stackManager = stackManager;
         this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
         this.hologramManager = this.roseStacker.getManager(HologramManager.class);
+        this.conversionManager = this.roseStacker.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
 
         this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this, 5L, Setting.STACK_FREQUENCY.getLong());
@@ -456,6 +459,16 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     }
 
     @Override
+    public void addEntityStack(StackedEntity stackedEntity) {
+        this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+    }
+
+    @Override
+    public void addItemStack(StackedItem stackedItem) {
+        this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+    }
+
+    @Override
     public void preStackItems(Collection<ItemStack> items, Location location) {
         if (location.getWorld() == null)
             return;
@@ -684,7 +697,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.pendingLoadChunks.isEmpty()) {
             Set<Chunk> chunks = new HashSet<>(this.pendingLoadChunks);
             this.pendingLoadChunks.clear();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.loadChunks(chunks));
+            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
+                this.conversionManager.convertChunks(chunks);
+                this.loadChunks(chunks);
+            });
         }
 
         if (!this.pendingUnloadChunks.isEmpty()) {

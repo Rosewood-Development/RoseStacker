@@ -1,38 +1,54 @@
 package dev.esophose.rosestacker.manager;
 
 import dev.esophose.rosestacker.RoseStacker;
-import dev.esophose.rosestacker.converter.EpicSpawnersPluginConverter;
-import dev.esophose.rosestacker.converter.StackMobPluginConverter;
-import dev.esophose.rosestacker.converter.StackPluginConverter;
-import dev.esophose.rosestacker.converter.UltimateStackerPluginConverter;
-import dev.esophose.rosestacker.converter.WildStackerPluginConverter;
+import dev.esophose.rosestacker.conversion.ConversionData;
+import dev.esophose.rosestacker.conversion.ConverterType;
+import dev.esophose.rosestacker.conversion.StackPlugin;
+import dev.esophose.rosestacker.conversion.converter.StackPluginConverter;
+import dev.esophose.rosestacker.conversion.handler.ConversionHandler;
+import dev.esophose.rosestacker.stack.StackType;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 
 public class ConversionManager extends Manager {
 
     private Map<StackPlugin, StackPluginConverter> converters;
+    private Set<ConversionHandler> conversionHandlers;
+    private DataManager dataManager;
 
     public ConversionManager(RoseStacker roseStacker) {
         super(roseStacker);
 
         this.converters = new HashMap<>();
+        this.conversionHandlers = new HashSet<>();
+        this.dataManager = this.roseStacker.getManager(DataManager.class);
     }
 
     @Override
     public void reload() {
         this.converters.clear();
+        this.conversionHandlers.clear();
 
         for (StackPlugin stackPlugin : StackPlugin.values())
             this.converters.put(stackPlugin, stackPlugin.getConverter());
+
+        for (ConverterType converterType : this.dataManager.getConversionHandlers())
+            this.conversionHandlers.add(converterType.getConversionHandler());
     }
 
     @Override
     public void disable() {
-
+        this.converters.clear();
     }
 
     public boolean convert(StackPlugin stackPlugin) {
@@ -41,13 +57,52 @@ public class ConversionManager extends Manager {
             return false;
 
         try {
+            // Convert, then disable the converted plugin
             converter.convert();
             converter.disablePlugin();
+
+            // Convert data for all loaded chunks
+            Set<Chunk> loadedChunks = new HashSet<>();
+            for (World world : Bukkit.getWorlds())
+                loadedChunks.addAll(Arrays.asList(world.getLoadedChunks()));
+
+            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.convertChunks(loadedChunks));
         } catch (Exception ex) {
             return false;
         }
 
         return true;
+    }
+
+    public void convertChunks(Set<Chunk> chunks) {
+        if (this.conversionHandlers.isEmpty())
+            return;
+
+        Set<StackType> requiredStackTypes = new HashSet<>();
+        for (ConversionHandler conversionHandler : this.conversionHandlers)
+            requiredStackTypes.add(conversionHandler.getRequiredDataStackType());
+
+        Set<Entity> entities = new HashSet<>();
+        for (Chunk chunk : chunks)
+            entities.addAll(Arrays.asList(chunk.getEntities()));
+
+        Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(entities, requiredStackTypes);
+
+        for (ConversionHandler conversionHandler : this.conversionHandlers) {
+            Set<ConversionData> data;
+            if (conversionHandler.isDataAlwaysRequired()) {
+                data = new HashSet<>();
+                for (Entity entity : entities)
+                    data.add(new ConversionData(entity));
+            } else {
+                data = conversionData.get(conversionHandler.getRequiredDataStackType());
+            }
+
+            if (data.isEmpty())
+                continue;
+
+            conversionHandler.handleConversion(data);
+        }
     }
 
     public Set<StackPlugin> getEnabledConverters() {
@@ -57,26 +112,8 @@ public class ConversionManager extends Manager {
                 .collect(Collectors.toSet());
     }
 
-    public enum StackPlugin {
-        WildStacker(WildStackerPluginConverter.class),
-        UltimateStacker(UltimateStackerPluginConverter.class),
-        EpicSpawners(EpicSpawnersPluginConverter.class),
-        StackMob(StackMobPluginConverter.class);
-
-        private final Class<? extends StackPluginConverter> converterClass;
-
-        StackPlugin(Class<? extends StackPluginConverter> conveterClass) {
-            this.converterClass = conveterClass;
-        }
-
-        public StackPluginConverter getConverter() {
-            try {
-                return this.converterClass.getConstructor(RoseStacker.class).newInstance(RoseStacker.getInstance());
-            } catch (ReflectiveOperationException ex) {
-                ex.printStackTrace();
-                return null;
-            }
-        }
+    public Set<ConversionHandler> getEnabledHandlers() {
+        return Collections.unmodifiableSet(this.conversionHandlers);
     }
 
 }

@@ -205,6 +205,20 @@ public interface StackingLogic {
     StackedSpawner createSpawnerStack(Block block, int amount);
 
     /**
+     * Adds a pre-existing StackedEntity
+     *
+     * @param stackedEntity the StackedEntity to add
+     */
+    void addEntityStack(StackedEntity stackedEntity);
+
+    /**
+     * Adds a pre-existing StackedItem
+     *
+     * @param stackedItem the StackedItem to add
+     */
+    void addItemStack(StackedItem stackedItem);
+
+    /**
      * Pre-stacks a collection of ItemStacks and spawns StackedEntities at the given location
      *
      * @param items the items to stack and spawn

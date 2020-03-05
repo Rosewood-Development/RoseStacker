@@ -1,6 +1,10 @@
-package dev.esophose.rosestacker.converter;
+package dev.esophose.rosestacker.conversion.converter;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.conversion.ConverterType;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,18 +18,24 @@ public abstract class StackPluginConverter {
 
     protected RoseStacker roseStacker;
     protected Plugin plugin;
+    private Set<ConverterType> converterTypes;
 
-    public StackPluginConverter(RoseStacker roseStacker, String pluginName) {
+    public StackPluginConverter(RoseStacker roseStacker, String pluginName, ConverterType... converterTypes) {
         this.roseStacker = roseStacker;
         this.plugin = Bukkit.getPluginManager().getPlugin(pluginName);
+        this.converterTypes = new HashSet<>(Arrays.asList(converterTypes));
     }
 
     public boolean canConvert() {
-        return this.plugin != null;
+        return this.plugin != null && this.plugin.isEnabled();
     }
 
     public void disablePlugin() {
         Bukkit.getPluginManager().disablePlugin(this.plugin);
+    }
+
+    public Set<ConverterType> getConverterTypes() {
+        return this.converterTypes;
     }
 
     public abstract void convert() throws Exception;

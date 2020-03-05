@@ -16,6 +16,33 @@ public class _1_Create_Tables_Stacks extends DataMigration {
     @Override
     public void migrate(DatabaseConnector connector, Connection connection, String tablePrefix) throws SQLException {
         String autoIncrement = connector instanceof MySQLConnector ? " AUTO_INCREMENT" : "";
+        String blob = connector instanceof MySQLConnector ? "LONGBLOB" : "BLOB";
+
+        // Create StackedEntity table
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE " + tablePrefix + "stacked_entity (" +
+                    "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
+                    "entity_uuid VARCHAR(36) NOT NULL, " +
+                    "stack_entities " + blob + " NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "UNIQUE (entity_uuid)" +
+                    ")");
+        }
+
+        // Create StackedItem table
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE " + tablePrefix + "stacked_item (" +
+                    "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
+                    "entity_uuid VARCHAR(36) NOT NULL, " +
+                    "stack_size INTEGER NOT NULL, " +
+                    "world VARCHAR(255) NOT NULL, " +
+                    "chunk_x INTEGER NOT NULL, " +
+                    "chunk_z INTEGER NOT NULL, " +
+                    "UNIQUE (entity_uuid)" +
+                    ")");
+        }
 
         // Create StackedBlock table
         try (Statement statement = connection.createStatement()) {
@@ -29,32 +56,6 @@ public class _1_Create_Tables_Stacks extends DataMigration {
                     "block_y INTEGER NOT NULL, " +
                     "block_z INTEGER NOT NULL, " +
                     "UNIQUE (world, chunk_x, chunk_z, block_x, block_y, block_z)" +
-                    ")");
-        }
-
-        // Create StackedEntity table
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE " + tablePrefix + "stacked_entity (" +
-                    "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "stack_entities BLOB NOT NULL, " +
-                    "world VARCHAR(255) NOT NULL, " +
-                    "chunk_x INTEGER NOT NULL, " +
-                    "chunk_z INTEGER NOT NULL, " +
-                    "UNIQUE (entity_uuid)" +
-                    ")");
-        }
-
-        // Create StackedItem table
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE " + tablePrefix + "stacked_item (" +
-                    "id INTEGER PRIMARY KEY" + autoIncrement + ", " +
-                    "stack_size INTEGER NOT NULL, " +
-                    "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "world VARCHAR(255) NOT NULL, " +
-                    "chunk_x INTEGER NOT NULL, " +
-                    "chunk_z INTEGER NOT NULL, " +
-                    "UNIQUE (entity_uuid)" +
                     ")");
         }
 

@@ -10,8 +10,8 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.conversion.StackPlugin;
 import dev.esophose.rosestacker.manager.ConversionManager;
-import dev.esophose.rosestacker.manager.ConversionManager.StackPlugin;
 import dev.esophose.rosestacker.manager.DataManager;
 import dev.esophose.rosestacker.manager.DataManager.StackCounts;
 import dev.esophose.rosestacker.manager.LocaleManager;
@@ -24,6 +24,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 @CommandAlias("rs|rosestacker|stacker")
 public class RoseCommand extends BaseCommand {
@@ -82,10 +83,13 @@ public class RoseCommand extends BaseCommand {
     @CommandPermission("rosestacker.convert")
     @CommandCompletion("@conversionType")
     public void onConvert(CommandSender sender, StackPlugin stackPlugin) {
-        if (this.roseStacker.getManager(ConversionManager.class).convert(stackPlugin)) {
-            this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-convert-converted", StringPlaceholders.single("plugin", stackPlugin.name()));
+        ConversionManager conversionManager = this.roseStacker.getManager(ConversionManager.class);
+        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+
+        if (conversionManager.convert(stackPlugin)) {
+            localeManager.sendMessage(sender, "command-convert-converted", StringPlaceholders.single("plugin", stackPlugin.name()));
         } else {
-            this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-convert-failed", StringPlaceholders.single("plugin", stackPlugin.name()));
+            localeManager.sendMessage(sender, "command-convert-failed", StringPlaceholders.single("plugin", stackPlugin.name()));
         }
     }
 
@@ -121,7 +125,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("block")
         @CommandCompletion("* @stackableBlockMaterial @blockStackAmounts")
-        public void onBlock(OnlinePlayer target, Material material, @Conditions("limits:min=1") int amount) {
+        public void onBlock(CommandSender sender, OnlinePlayer target, Material material, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();
@@ -131,12 +135,12 @@ public class RoseCommand extends BaseCommand {
                     .addPlaceholder("name", RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(material).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            localeManager.sendMessage(player, "command-give-given", placeholders);
+            localeManager.sendMessage(sender, "command-give-given", placeholders);
         }
 
         @Subcommand("spawner")
-        @CommandCompletion("* @spawnableEntityType @spawnerStackAmounts")
-        public void onSpawner(OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
+        @CommandCompletion("* @spawnableSpawnerEntityType @spawnerStackAmounts")
+        public void onSpawner(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();
@@ -146,22 +150,28 @@ public class RoseCommand extends BaseCommand {
                     .addPlaceholder("name", RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            localeManager.sendMessage(player, "command-give-given", placeholders);
+            localeManager.sendMessage(sender, "command-give-given", placeholders);
         }
 
         @Subcommand("entity")
-        @CommandCompletion("* @spawnableEntityType @entityStackAmounts")
-        public void onEntity(OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
+        @CommandCompletion("* @spawnableEggEntityType @entityStackAmounts")
+        public void onEntity(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
             LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
 
             Player player = target.getPlayer();
-            target.getPlayer().getInventory().addItem(StackerUtils.getEntityAsStackedItemStack(entityType, amount));
+            ItemStack itemStack = StackerUtils.getEntityAsStackedItemStack(entityType, amount);
+            if (itemStack == null) {
+                RoseCommand.this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
+                return;
+            }
+
+            target.getPlayer().getInventory().addItem(itemStack);
 
             String displayString = localeManager.getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", amount)
                     .addPlaceholder("name", RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(entityType).getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName()).addPlaceholder("display", displayString).build();
-            localeManager.sendMessage(player, "command-give-given", placeholders);
+            localeManager.sendMessage(sender, "command-give-given", placeholders);
         }
 
     }
@@ -205,13 +215,6 @@ public class RoseCommand extends BaseCommand {
     public enum ClearallType {
         ENTITY,
         ITEM
-    }
-
-    public enum StackType {
-        ENTITY,
-        ITEM,
-        BLOCK,
-        SPAWNER
     }
 
 }

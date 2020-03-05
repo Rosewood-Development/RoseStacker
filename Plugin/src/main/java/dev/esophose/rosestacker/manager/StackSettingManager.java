@@ -179,10 +179,31 @@ public class StackSettingManager extends Manager {
         return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
     }
 
+    public Set<EntityType> getStackableEntityTypes() {
+        return this.entitySettings.values().stream()
+                .filter(EntityStackSettings::isStackingEnabled)
+                .map(EntityStackSettings::getEntityType)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Material> getStackableItemTypes() {
+        return this.itemSettings.values().stream()
+                .filter(ItemStackSettings::isStackingEnabled)
+                .map(ItemStackSettings::getType)
+                .collect(Collectors.toSet());
+    }
+
     public Set<Material> getStackableBlockTypes() {
         return this.blockSettings.values().stream()
                 .filter(BlockStackSettings::isStackingEnabled)
                 .map(BlockStackSettings::getType)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<EntityType> getStackableSpawnerTypes() {
+        return this.spawnerSettings.values().stream()
+                .filter(SpawnerStackSettings::isStackingEnabled)
+                .map(SpawnerStackSettings::getEntityType)
                 .collect(Collectors.toSet());
     }
 

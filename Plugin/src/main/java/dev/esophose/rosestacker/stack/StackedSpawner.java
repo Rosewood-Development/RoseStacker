@@ -17,6 +17,7 @@ public class StackedSpawner extends Stack {
 
     private int size;
     private CreatureSpawner spawner;
+    private Location location;
 
     private SpawnerStackSettings stackSettings;
 
@@ -25,6 +26,7 @@ public class StackedSpawner extends Stack {
 
         this.size = size;
         this.spawner = spawner;
+        this.location = this.spawner.getLocation();
 
         if (this.spawner != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
@@ -38,6 +40,20 @@ public class StackedSpawner extends Stack {
 
     public StackedSpawner(int size, CreatureSpawner spawner) {
         this(-1, size, spawner);
+    }
+
+    /**
+     * This constructor should only be used by the converters and SHOULD NEVER be put into a StackingThread
+     *
+     * @param size The size of the stack
+     * @param location The Location of the stack
+     */
+    public StackedSpawner(int size, Location location) {
+        super(-1);
+
+        this.size = size;
+        this.spawner = null;
+        this.location = location;
     }
 
     public CreatureSpawner getSpawner() {
@@ -63,7 +79,7 @@ public class StackedSpawner extends Stack {
 
     @Override
     public Location getLocation() {
-        return this.spawner.getLocation();
+        return this.location;
     }
 
     @Override
@@ -73,7 +89,7 @@ public class StackedSpawner extends Stack {
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
-        Location location = this.spawner.getLocation().clone().add(0.5, 0.75, 0.5);
+        Location location = this.location.clone().add(0.5, 0.75, 0.5);
 
         int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
         if (this.size <= sizeForHologram) {

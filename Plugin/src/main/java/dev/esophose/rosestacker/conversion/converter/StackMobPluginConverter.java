@@ -1,6 +1,7 @@
-package dev.esophose.rosestacker.converter;
+package dev.esophose.rosestacker.conversion.converter;
 
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.conversion.ConverterType;
 import uk.antiperson.stackmob.StackMob;
 
 public class StackMobPluginConverter extends StackPluginConverter {
@@ -8,7 +9,7 @@ public class StackMobPluginConverter extends StackPluginConverter {
     private StackMob stackMob;
 
     public StackMobPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "StackMob");
+        super(roseStacker, "StackMob", ConverterType.STACKMOB);
 
         this.stackMob = (StackMob) this.plugin;
     }

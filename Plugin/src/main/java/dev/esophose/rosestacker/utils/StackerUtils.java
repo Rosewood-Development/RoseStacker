@@ -159,7 +159,7 @@ public final class StackerUtils {
         EntityStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
         Material spawnEggMaterial = stackSettings.getSpawnEggMaterial();
         if (spawnEggMaterial == null)
-            return new ItemStack(Material.AIR);
+            return null;
 
         ItemStack itemStack = new ItemStack(spawnEggMaterial);
         ItemMeta itemMeta = itemStack.getItemMeta();

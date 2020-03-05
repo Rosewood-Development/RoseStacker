@@ -40,7 +40,7 @@ public class RoseStacker extends JavaPlugin {
     /**
      * The running instance of RoseStacker on the server
      */
-    private static RoseStacker INSTANCE;
+    private static RoseStacker instance;
 
     /**
      * The plugin managers
@@ -48,7 +48,7 @@ public class RoseStacker extends JavaPlugin {
     private Map<Class<? extends Manager>, Manager> managers;
 
     public static RoseStacker getInstance() {
-        return INSTANCE;
+        return instance;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class RoseStacker extends JavaPlugin {
             return;
         }
 
-        INSTANCE = this;
+        instance = this;
 
         // bStats Metrics
         new Metrics(this);
@@ -98,7 +98,7 @@ public class RoseStacker extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (INSTANCE == null)
+        if (instance == null)
             return;
 
         this.disableManagers();

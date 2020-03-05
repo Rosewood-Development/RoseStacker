@@ -3,7 +3,7 @@ version: @version@
 authors: [Esophose]
 main: dev.esophose.rosestacker.RoseStacker
 api-version: 1.13
-softdepend: [HolographicDisplays, Holograms, UltimateStacker, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag]
+softdepend: [HolographicDisplays, Holograms, UltimateStacker, EpicSpawners, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag]
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions
