@@ -25,6 +25,10 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
 
     @Override
     public void convert() {
+        // If EpicSpawners is installed, spawner stacking functionality is handled by that plugin instead
+        if (Bukkit.getPluginManager().isPluginEnabled("EpicSpawners"))
+            return;
+
         DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
         // Force save loaded data

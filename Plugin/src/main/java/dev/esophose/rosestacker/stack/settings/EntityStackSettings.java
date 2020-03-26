@@ -255,9 +255,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityBoss() {
         if (this.isBoss == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isBoss = Boss.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isBoss = false;
+            } else {
+                this.isBoss = Boss.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isBoss;
@@ -266,9 +268,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityColorable() {
         if (this.isColorable == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isColorable = Colorable.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isColorable = false;
+            } else {
+                this.isColorable = Colorable.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isColorable;
@@ -277,9 +281,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntitySittable() {
         if (this.isSittable == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isSittable = Sittable.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isSittable = false;
+            } else {
+                this.isSittable = Sittable.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isSittable;
@@ -288,9 +294,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityTameable() {
         if (this.isTameable == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isTameable = Tameable.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isTameable = false;
+            } else {
+                this.isTameable = Tameable.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isTameable;
@@ -299,9 +307,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityAnimals() {
         if (this.isAnimals == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isAnimals = Animals.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isAnimals = false;
+            } else {
+                this.isAnimals = Animals.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isAnimals;
@@ -310,9 +320,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityAbstractHorse() {
         if (this.isAbstractHorse == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isAbstractHorse = AbstractHorse.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isAbstractHorse = false;
+            } else {
+                this.isAbstractHorse = AbstractHorse.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isAbstractHorse;
@@ -321,9 +333,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityChestedHorse() {
         if (this.isChestedHorse == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isChestedHorse = ChestedHorse.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isChestedHorse = false;
+            } else {
+                this.isChestedHorse = ChestedHorse.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isChestedHorse;
@@ -332,9 +346,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityRaider() {
         if (this.isRaider == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (NMSUtil.getVersionNumber() <= 13 || entityClass == null)
-                return false;
-            this.isRaider = Raider.class.isAssignableFrom(entityClass);
+            if (NMSUtil.getVersionNumber() <= 13 || entityClass == null) {
+                this.isRaider = false;
+            } else {
+                this.isRaider = Raider.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isRaider;
@@ -343,9 +359,11 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private boolean isEntityMerchant() {
         if (this.isMerchant == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (entityClass == null)
-                return false;
-            this.isMerchant = Merchant.class.isAssignableFrom(entityClass);
+            if (entityClass == null) {
+                this.isMerchant = false;
+            } else {
+                this.isMerchant = Merchant.class.isAssignableFrom(entityClass);
+            }
         }
 
         return this.isMerchant;

@@ -642,7 +642,7 @@ public class DataManager extends Manager {
                 insertIgnore = "INSERT IGNORE ";
             }
 
-            String query = insertIgnore + this.getTablePrefix() + " convert_handle (name) VALUES (?)";
+            String query = insertIgnore + this.getTablePrefix() + " convert_handler (name) VALUES (?)";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 for (ConverterType converterType : converterTypes) {
                     statement.setString(1, converterType.name());
@@ -656,7 +656,7 @@ public class DataManager extends Manager {
     public Set<ConverterType> getConversionHandlers() {
         Set<ConverterType> conversionHandlers = EnumSet.noneOf(ConverterType.class);
         this.databaseConnector.connect(connection -> {
-            String query = "SELECT name FROM " + this.getTablePrefix() + "convert_handle";
+            String query = "SELECT name FROM " + this.getTablePrefix() + "convert_handler";
             try (Statement statement = connection.createStatement()) {
                 ResultSet result = statement.executeQuery(query);
                 while (result.next())

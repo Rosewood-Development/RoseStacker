@@ -35,7 +35,7 @@ dependencies {
     shadow fileTree(dir: '../libs', include: ['*.jar'])
 
     // Dependencies that will be shaded into the jar
-    implementation 'dev.esophose:guiframework:1.0'
+    implementation 'dev.esophose:guiframework:1.0.1'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     implementation 'com.zaxxer:HikariCP:3.2.0'
     implementation 'org.slf4j:slf4j-api:1.7.25'

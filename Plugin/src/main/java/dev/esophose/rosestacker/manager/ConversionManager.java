@@ -44,11 +44,19 @@ public class ConversionManager extends Manager {
 
         for (ConverterType converterType : this.dataManager.getConversionHandlers())
             this.conversionHandlers.add(converterType.getConversionHandler());
+
+        if (this.conversionHandlers.size() > 0 || this.getEnabledConverters().size() > 0)
+            this.loadConvertLocks();
     }
 
     @Override
     public void disable() {
         this.converters.clear();
+    }
+
+    private void loadConvertLocks() {
+        // TODO: See discord for feature suggestion implementation
+        // TODO: Need to manage a way to disable certain stack types in the StackManager
     }
 
     public boolean convert(StackPlugin stackPlugin) {
@@ -60,6 +68,9 @@ public class ConversionManager extends Manager {
             // Convert, then disable the converted plugin
             converter.convert();
             converter.disablePlugin();
+
+            // Make sure we set the conversion handlers
+            this.dataManager.setConversionHandlers(converter.getConverterTypes());
 
             // Convert data for all loaded chunks
             Set<Chunk> loadedChunks = new HashSet<>();
