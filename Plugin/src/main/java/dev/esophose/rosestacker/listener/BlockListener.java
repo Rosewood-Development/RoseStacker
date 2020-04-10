@@ -1,6 +1,6 @@
 package dev.esophose.rosestacker.listener;
 
-import dev.esophose.guiframework.util.GuiUtil;
+import dev.esophose.guiframework.framework.util.GuiUtil;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.hook.CoreProtectHook;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExpEvent;
@@ -52,7 +53,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockClicked(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        if (block == null || !event.getPlayer().isSneaking() || !Setting.BLOCK_GUI_ENABLED.getBoolean())
+        if (block == null || !event.getPlayer().isSneaking() || event.getAction() != Action.RIGHT_CLICK_BLOCK || !Setting.BLOCK_GUI_ENABLED.getBoolean())
             return;
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);

@@ -1,15 +1,14 @@
 package dev.esophose.rosestacker.gui;
 
+import dev.esophose.guiframework.GuiFactory;
 import dev.esophose.guiframework.GuiFramework;
+import dev.esophose.guiframework.framework.util.GuiUtil;
 import dev.esophose.guiframework.gui.ClickAction;
-import dev.esophose.guiframework.gui.GuiButton;
 import dev.esophose.guiframework.gui.GuiButtonFlag;
 import dev.esophose.guiframework.gui.GuiContainer;
 import dev.esophose.guiframework.gui.GuiSize;
 import dev.esophose.guiframework.gui.screen.GuiScreen;
-import dev.esophose.guiframework.gui.screen.GuiScreenEditFilters;
 import dev.esophose.guiframework.gui.screen.GuiScreenSection;
-import dev.esophose.guiframework.util.GuiUtil;
 import dev.esophose.rosestacker.RoseStacker;
 import dev.esophose.rosestacker.manager.ConfigurationManager.Setting;
 import dev.esophose.rosestacker.manager.LocaleManager;
@@ -53,7 +52,7 @@ public class StackedBlockGui {
     }
 
     private void buildGui() {
-        this.guiContainer = new GuiContainer();
+        this.guiContainer = GuiFactory.createContainer();
 
         List<Integer> paginatedSlots = new ArrayList<>();
         for (int i = 10; i <= 16; i++) paginatedSlots.add(i);
@@ -79,7 +78,7 @@ public class StackedBlockGui {
         for (int i = 0; i <= 26; i++) destroyBorderSlots.add(i);
         destroyBorderSlots.removeAll(Arrays.asList(12, 14));
 
-        GuiScreenSection editableSection = new GuiScreenSection(paginatedSlots);
+        GuiScreenSection editableSection = GuiFactory.createScreenSection(paginatedSlots);
         LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
         BlockStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(this.stackedBlock.getBlock());
 
@@ -94,24 +93,24 @@ public class StackedBlockGui {
         while (stackItems.size() < pages * paginatedSlots.size())
             stackItems.add(new ItemStack(Material.AIR));
 
-        GuiScreen mainScreen = new GuiScreen(this.guiContainer, GuiSize.ROWS_SIX)
+        GuiScreen mainScreen = GuiFactory.createScreen(this.guiContainer, GuiSize.ROWS_SIX)
                 .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
                 .setEditableSection(editableSection, stackItems, this::updateStackedBlock)
-                .setEditFilters(new GuiScreenEditFilters()
+                .setEditFilters(GuiFactory.createScreenEditFilters()
                         .setWhitelist(this.stackedBlock.getBlock().getType()))
-                .addButtonAt(47, new GuiButton()
+                .addButtonAt(47, GuiFactory.createButton()
                         .setIcon(Material.PAPER)
                         .setName(pageBackString.getName())
                         .setLore(pageBackString.getLore())
                         .setClickAction(event -> ClickAction.PAGE_BACKWARDS)
                         .setFlags(GuiButtonFlag.HIDE_IF_FIRST_PAGE)
                         .setHiddenReplacement(borderItem))
-                .addButtonAt(49, new GuiButton()
+                .addButtonAt(49, GuiFactory.createButton()
                         .setIcon(Material.BARRIER)
                         .setName(destroyString.getName())
                         .setLore(destroyString.getLore())
                         .setClickAction(event -> ClickAction.TRANSITION_FORWARDS))
-                .addButtonAt(51, new GuiButton()
+                .addButtonAt(51, GuiFactory.createButton()
                         .setIcon(Material.PAPER)
                         .setName(pageForwardString.getName())
                         .setLore(pageForwardString.getLore())
@@ -122,9 +121,9 @@ public class StackedBlockGui {
         for (int slot : borderSlots)
             mainScreen.addItemStackAt(slot, borderItem);
 
-        GuiScreen confirmScreen = new GuiScreen(this.guiContainer, GuiSize.ROWS_THREE)
+        GuiScreen confirmScreen = GuiFactory.createScreen(this.guiContainer, GuiSize.ROWS_THREE)
                 .setTitle(localeManager.getLocaleMessage("gui-stacked-block-destroy-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
-                .addButtonAt(12, new GuiButton()
+                .addButtonAt(12, GuiFactory.createButton()
                         .setIcon(Material.EMERALD_BLOCK)
                         .setName(confirmDestroyString.getName())
                         .setLore(confirmDestroyString.getLore())
@@ -132,7 +131,7 @@ public class StackedBlockGui {
                             this.destroyStackedBlock();
                             return ClickAction.NOTHING;
                         }))
-                .addButtonAt(14, new GuiButton()
+                .addButtonAt(14, GuiFactory.createButton()
                         .setIcon(Material.REDSTONE_BLOCK)
                         .setName(confirmCancelString.getName())
                         .setLore(confirmCancelString.getLore())

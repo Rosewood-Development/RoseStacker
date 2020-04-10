@@ -1,6 +1,6 @@
 package dev.esophose.rosestacker.locale;
 
-import dev.esophose.guiframework.util.GuiUtil;
+import dev.esophose.guiframework.framework.util.GuiUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -58,7 +58,7 @@ public class EnglishLocale implements Locale {
             this.put("command-convert-description", "&8 - &d/rs convert &7- Converts data from another stacking plugin");
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
-            this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin. ");
+            this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.");
 
             this.put("#7", "Purge Data Command");
             this.put("command-purgedata-description", "&8 - &d/rs purgedata <world> &7- Deletes stack data from a world");
