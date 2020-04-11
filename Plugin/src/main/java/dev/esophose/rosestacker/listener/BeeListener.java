@@ -24,6 +24,9 @@ public class BeeListener implements Listener {
             return;
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
         Bee beeEntity = (Bee) event.getEntity();
 
         StackedEntity stackedEntity = stackManager.getStackedEntity(beeEntity);

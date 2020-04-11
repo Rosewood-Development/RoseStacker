@@ -306,6 +306,22 @@ public class StackManager extends Manager implements StackingLogic {
         stackingThread.preStackItems(items, location);
     }
 
+    public boolean isEntityStackingEnabled() {
+        return Setting.ENTITY_STACKING_ENABLED.getBoolean();
+    }
+
+    public boolean isItemStackingEnabled() {
+        return Setting.ITEM_STACKING_ENABLED.getBoolean();
+    }
+
+    public boolean isBlockStackingEnabled() {
+        return Setting.BLOCK_STACKING_ENABLED.getBoolean();
+    }
+
+    public boolean isSpawnerStackingEnabled() {
+        return Setting.SPAWNER_STACKING_ENABLED.getBoolean();
+    }
+
     public void loadChunk(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread == null)

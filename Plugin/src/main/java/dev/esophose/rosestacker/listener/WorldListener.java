@@ -24,6 +24,9 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
         if (event.isNewChunk()) {
+            if (!this.stackManager.isEntityStackingEnabled())
+                return;
+
             for (Entity entity : event.getChunk().getEntities())
                 if (entity instanceof LivingEntity)
                     this.stackManager.createEntityStack((LivingEntity) entity, true);

@@ -24,10 +24,10 @@ public class ClearlagListener implements Listener {
         if (stackingThread == null)
             return;
 
-        if (Setting.MISC_CLEARLAG_CLEAR_ENTITIES.getBoolean())
+        if (Setting.MISC_CLEARLAG_CLEAR_ENTITIES.getBoolean() && stackManager.isEntityStackingEnabled())
             stackingThread.removeAllEntityStacks();
 
-        if (Setting.MISC_CLEARLAG_CLEAR_ITEMS.getBoolean())
+        if (Setting.MISC_CLEARLAG_CLEAR_ITEMS.getBoolean() && stackManager.isItemStackingEnabled())
             stackingThread.removeAllItemStacks();
     }
 

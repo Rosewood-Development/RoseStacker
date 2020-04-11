@@ -44,6 +44,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         if (this.task != null)
             this.task.cancel();
 
+        if (!this.roseStacker.getManager(StackManager.class).isSpawnerStackingEnabled())
+            return;
+
         this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 1);
     }
 

@@ -50,7 +50,7 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntitySpawn(EntitySpawnEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        if (stackManager.isEntityStackingTemporarilyDisabled())
+        if (!stackManager.isItemStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
         if (event.getEntity() instanceof Item)
@@ -60,7 +60,7 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        if (stackManager.isEntityStackingTemporarilyDisabled())
+        if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
         stackManager.createEntityStack(event.getEntity(), true);
@@ -74,11 +74,17 @@ public class EntityListener implements Listener {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity) {
+            if (!stackManager.isEntityStackingEnabled())
+                return;
+
             LivingEntity livingEntity = (LivingEntity) entity;
             StackedEntity stackedEntity = stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null)
                 Bukkit.getScheduler().runTask(this.roseStacker, () -> stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld()));
         } else if (entity instanceof Item) {
+            if (!stackManager.isItemStackingEnabled())
+                return;
+
             Item item = (Item) entity;
             StackedItem stackedItem = stackManager.getStackedItem(item);
             if (stackedItem != null)
@@ -89,6 +95,9 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpawnerSpawn(SpawnerSpawnEvent event) {
         if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        if (!this.roseStacker.getManager(StackManager.class).isSpawnerStackingEnabled())
             return;
 
         LivingEntity entity = (LivingEntity) event.getEntity();
@@ -132,6 +141,9 @@ public class EntityListener implements Listener {
 
     private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity == null)
             return;
@@ -183,6 +195,9 @@ public class EntityListener implements Listener {
 
     private void handleEntityTransformation(EntityTransformEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
         if (!(event.getEntity() instanceof LivingEntity)
                 || !(event.getTransformedEntity() instanceof LivingEntity)
                 || event.getEntity().getType() == event.getTransformedEntity().getType()
@@ -220,12 +235,15 @@ public class EntityListener implements Listener {
         if (event.getEntityType() != EntityType.CHICKEN || event.getItemDrop().getItemStack().getType() != Material.EGG)
             return;
 
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
         StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
         ChickenStackSettings chickenStackSettings = (ChickenStackSettings) stackSettingManager.getEntityStackSettings(EntityType.CHICKEN);
         if (!chickenStackSettings.shouldMultiplyEggDropsByStackSize())
             return;
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Chicken chickenEntity = (Chicken) event.getEntity();
         StackedEntity stackedEntity = stackManager.getStackedEntity(chickenEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)

@@ -30,6 +30,8 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isItemStackingEnabled())
+            return;
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getEntity());
         if (stackedItem != null)
@@ -38,6 +40,9 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemMerge(ItemMergeEvent event) {
+        if (!this.roseStacker.getManager(StackManager.class).isItemStackingEnabled())
+            return;
+
         // We will handle all item merging ourselves, thank you very much
         event.setCancelled(true);
     }
@@ -45,6 +50,8 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isItemStackingEnabled())
+            return;
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
@@ -73,6 +80,8 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryPickup(InventoryPickupItemEvent event) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isItemStackingEnabled())
+            return;
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)

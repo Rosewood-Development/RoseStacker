@@ -46,6 +46,10 @@ public class InteractListener implements Listener {
         if (spawnAmount == 1)
             return;
 
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
         EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         if (spawnAmount > stackSettings.getMaxStackSize()) {
             event.setCancelled(true);
@@ -57,7 +61,6 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return;
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         stackManager.setEntityStackingTemporarilyDisabled(true);
         LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
         stackManager.setEntityStackingTemporarilyDisabled(false);
@@ -90,6 +93,8 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
 
         LivingEntity entity = (LivingEntity) event.getRightClicked();
         if (!stackManager.isEntityStacked(entity))
