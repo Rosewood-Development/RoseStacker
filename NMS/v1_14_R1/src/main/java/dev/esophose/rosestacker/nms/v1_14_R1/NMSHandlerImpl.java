@@ -63,6 +63,9 @@ public class NMSHandlerImpl implements NMSHandler {
             EntityLiving craftEntity = ((CraftLivingEntity) livingEntity).getHandle();
             craftEntity.save(nbt);
 
+            // Don't store attributes, it's pretty large and doesn't usually matter
+            nbt.remove("Attributes");
+
             // Write entity type
             String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
             dataOutput.writeUTF(entityType);
