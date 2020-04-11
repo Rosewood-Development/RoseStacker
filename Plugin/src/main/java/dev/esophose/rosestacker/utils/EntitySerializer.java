@@ -22,13 +22,16 @@ public final class EntitySerializer {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
-            // Write the size of the items
-            List<String> nbtStrings = stackedEntity.getStackedEntityNBTStrings();
-            dataOutput.writeInt(nbtStrings.size());
+            // Write the size of the nbt data
+            List<byte[]> nbtData = stackedEntity.getStackedEntityNBT();
+            dataOutput.writeInt(nbtData.size());
 
             // Save every element in the list
-            for (String nbtString : nbtStrings)
-                dataOutput.writeUTF(nbtString);
+            for (byte[] data : nbtData) {
+                dataOutput.writeInt(data.length);
+                for (byte b : data)
+                    dataOutput.writeByte(b);
+            }
 
             // Write the original mob name
             String originalCustomName = stackedEntity.getOriginalCustomName();
@@ -58,16 +61,20 @@ public final class EntitySerializer {
 
             // Read list length
             int length = dataInput.readInt();
-            List<String> stackNbtStrings = Collections.synchronizedList(new LinkedList<>());
+            List<byte[]> stackNbtData = Collections.synchronizedList(new LinkedList<>());
 
-            // Read the serialized itemstack list
-            for (int i = 0; i < length; i++)
-                stackNbtStrings.add(dataInput.readUTF());
+            // Read the serialized nbt list
+            for (int i = 0; i < length; i++) {
+                byte[] nbtData = new byte[dataInput.readInt()];
+                for (int n = 0; n < nbtData.length; n++)
+                    nbtData[n] = dataInput.readByte();
+                stackNbtData.add(nbtData);
+            }
 
             // Read original mob name, if any
             String originalCustomName = dataInput.readUTF();
 
-            return new StackedEntity(id, livingEntity, stackNbtStrings, originalCustomName.isEmpty() ? null : originalCustomName);
+            return new StackedEntity(id, livingEntity, stackNbtData, originalCustomName.isEmpty() ? null : originalCustomName);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -137,10 +137,10 @@ public class InteractListener implements Listener {
         entity.setInvulnerable(true);
 
         NMSHandler nmsHandler = NMSUtil.getHandler();
-        String entityNbt = nmsHandler.getEntityAsNBTString(entity);
+        byte[] entityNbt = nmsHandler.getEntityAsNBT(entity);
         Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
             for (int i = 0; i < spawnAmount - 1; i++) {
-                LivingEntity newEntity = nmsHandler.getNBTStringAsEntity(entity.getType(), spawnLocation, entityNbt);
+                LivingEntity newEntity = nmsHandler.getNBTAsEntity(entity.getType(), spawnLocation, entityNbt);
                 stackedEntity.increaseStackSize(newEntity, false);
             }
 

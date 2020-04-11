@@ -22,7 +22,7 @@ public class UltimateStackerEntityConversionHandler extends UltimateStackerConve
             if (stackSize == -1)
                 continue;
 
-            List<String> entityStackData = this.createEntityStackNBT(entity.getType(), stackSize, entity.getLocation());
+            List<byte[]> entityStackData = this.createEntityStackNBT(entity.getType(), stackSize, entity.getLocation());
             this.stackManager.addEntityStack(new StackedEntity(data.getEntity(), entityStackData));
         }
     }

@@ -47,14 +47,14 @@ public abstract class ConversionHandler {
      * @param entityType The type of entity
      * @param amount The amount of nbt entries to create
      * @param location The location of the main entity
-     * @return A list of nbt strings
+     * @return A list of nbt data
      */
-    protected List<String> createEntityStackNBT(EntityType entityType, int amount, Location location) {
-        List<String> entityNBT = new LinkedList<>();
+    protected List<byte[]> createEntityStackNBT(EntityType entityType, int amount, Location location) {
+        List<byte[]> entityNBT = new LinkedList<>();
 
         NMSHandler nmsHandler = NMSUtil.getHandler();
         for (int i = 0; i < amount; i++)
-            entityNBT.add(nmsHandler.getEntityAsNBTString(nmsHandler.createEntityUnspawned(entityType, location)));
+            entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createEntityUnspawned(entityType, location)));
 
         return Collections.synchronizedList(entityNBT);
     }

@@ -29,11 +29,11 @@ public class StackedEntity extends Stack {
 
     private LivingEntity entity;
     private String originalCustomName;
-    private List<String> serializedStackedEntities;
+    private List<byte[]> serializedStackedEntities;
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(int id, LivingEntity entity, List<String> serializedStackedEntities, String originalCustomName) {
+    public StackedEntity(int id, LivingEntity entity, List<byte[]> serializedStackedEntities, String originalCustomName) {
         super(id);
 
         this.entity = entity;
@@ -48,7 +48,7 @@ public class StackedEntity extends Stack {
         }
     }
 
-    public StackedEntity(LivingEntity entity, List<String> serializedStackedEntities) {
+    public StackedEntity(LivingEntity entity, List<byte[]> serializedStackedEntities) {
         this(-1, entity, serializedStackedEntities, null);
     }
 
@@ -81,9 +81,9 @@ public class StackedEntity extends Stack {
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
             if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-                this.serializedStackedEntities.add(NMSUtil.getHandler().getEntityAsNBTString(entity));
+                this.serializedStackedEntities.add(NMSUtil.getHandler().getEntityAsNBT(entity));
             } else {
-                this.serializedStackedEntities.add(0, NMSUtil.getHandler().getEntityAsNBTString(entity));
+                this.serializedStackedEntities.add(0, NMSUtil.getHandler().getEntityAsNBT(entity));
             }
 
             if (updateDisplay)
@@ -100,7 +100,7 @@ public class StackedEntity extends Stack {
         }
     }
 
-    public void increaseStackSize(List<String> entityNBTStrings) {
+    public void increaseStackSize(List<byte[]> entityNBTStrings) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
             this.serializedStackedEntities.addAll(entityNBTStrings);
         } else {
@@ -113,12 +113,12 @@ public class StackedEntity extends Stack {
         LivingEntity oldEntity = this.entity;
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
-        this.entity = NMSUtil.getHandler().spawnEntityFromNBTString(this.serializedStackedEntities.remove(0), location);
+        this.entity = NMSUtil.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
         this.updateOriginalCustomName();
         RoseStacker.getInstance().getManager(StackManager.class).updateStackedEntityKey(oldEntity, this.entity);
     }
 
-    public List<String> getStackedEntityNBTStrings() {
+    public List<byte[]> getStackedEntityNBT() {
         return Collections.unmodifiableList(this.serializedStackedEntities);
     }
 
@@ -140,8 +140,8 @@ public class StackedEntity extends Stack {
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
             NMSHandler nmsHandler = NMSUtil.getHandler();
-            for (String entityNBT : this.serializedStackedEntities) {
-                LivingEntity entity = nmsHandler.getNBTStringAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
+            for (byte[] entityNBT : this.serializedStackedEntities) {
+                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
                 if (entity != null) {
                     entity.setFireTicks(fireTicks);
                     Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
@@ -178,7 +178,7 @@ public class StackedEntity extends Stack {
         if (this.serializedStackedEntities.isEmpty())
             return true;
 
-        LivingEntity entity = NMSUtil.getHandler().getNBTStringAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
+        LivingEntity entity = NMSUtil.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
         return this.stackSettings.canStackWith(this, stackedEntity, true);
     }
@@ -191,7 +191,7 @@ public class StackedEntity extends Stack {
 
         LivingEntity oldEntity = this.entity;
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSUtil.getHandler().spawnEntityFromNBTString(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
+        this.entity = NMSUtil.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);

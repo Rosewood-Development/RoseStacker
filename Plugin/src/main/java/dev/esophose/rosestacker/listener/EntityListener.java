@@ -196,18 +196,18 @@ public class EntityListener implements Listener {
         LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
             NMSHandler nmsHandler = NMSUtil.getHandler();
-            String serialized = nmsHandler.getEntityAsNBTString(transformedEntity);
+            byte[] serialized = nmsHandler.getEntityAsNBT(transformedEntity);
             event.setCancelled(true);
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
                 stackManager.setEntityStackingTemporarilyDisabled(true);
-                StackedEntity newStack = stackManager.createEntityStack(nmsHandler.spawnEntityFromNBTString(serialized, transformedEntity.getLocation()), false);
+                StackedEntity newStack = stackManager.createEntityStack(nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation()), false);
                 stackManager.setEntityStackingTemporarilyDisabled(false);
                 if (newStack == null)
                     return;
 
-                for (String serializedEntity : stackedEntity.getStackedEntityNBTStrings())
-                    newStack.increaseStackSize(nmsHandler.getNBTStringAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
+                for (byte[] serializedEntity : stackedEntity.getStackedEntityNBT())
+                    newStack.increaseStackSize(nmsHandler.getNBTAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
             });
         } else {
             // Wait for potential lightning to go away

@@ -29,7 +29,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 public class NMSHandlerImpl implements NMSHandler {
 
@@ -49,7 +48,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public String getEntityAsNBTString(LivingEntity livingEntity) {
+    public byte[] getEntityAsNBT(LivingEntity livingEntity) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
@@ -64,7 +63,7 @@ public class NMSHandlerImpl implements NMSHandler {
             // Write NBT
             NBTCompressedStreamTools.a(nbt, (OutputStream) dataOutput);
 
-            return Base64Coder.encodeLines(outputStream.toByteArray());
+            return outputStream.toByteArray();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,8 +72,8 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity spawnEntityFromNBTString(String serialized, Location location) {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
+    public LivingEntity spawnEntityFromNBT(byte[] serialized, Location location) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
             // Read entity type
@@ -109,14 +108,14 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity getNBTStringAsEntity(EntityType entityType, Location location, String serialized) {
+    public LivingEntity getNBTAsEntity(EntityType entityType, Location location, byte[] serialized) {
         if (location.getWorld() == null)
             return null;
 
         CraftWorld craftWorld = (CraftWorld) location.getWorld();
         EntityLiving entity = (EntityLiving) craftWorld.createEntity(location, entityType.getEntityClass());
 
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(serialized));
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
             // Read entity type, don't need the value

@@ -14,16 +14,16 @@ public interface NMSHandler {
      * @param livingEntity to serialize
      * @return base64 string of the entity
      */
-    String getEntityAsNBTString(LivingEntity livingEntity);
+    byte[] getEntityAsNBT(LivingEntity livingEntity);
 
     /**
      * Deserializes and spawns the entity at the given location
      *
      * @param serialized entity
      * @param location to spawn the entity at
-     * @return the entity spawned from the NBT string
+     * @return the entity spawned from the NBT
      */
-    LivingEntity spawnEntityFromNBTString(String serialized, Location location);
+    LivingEntity spawnEntityFromNBT(byte[] serialized, Location location);
 
     /**
      * Gets a LivingEntity from an NBT string without spawning the entity into the world
@@ -33,7 +33,7 @@ public interface NMSHandler {
      * @param serialized The serialized entity NBT data
      * @return A LivingEntity instance, not in the world
      */
-    LivingEntity getNBTStringAsEntity(EntityType entityType, Location location, String serialized);
+    LivingEntity getNBTAsEntity(EntityType entityType, Location location, byte[] serialized);
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world

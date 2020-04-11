@@ -570,7 +570,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
                 removed.getEntity().setCustomName(removed.getOriginalCustomName());
                 increased.increaseStackSize(removed.getEntity());
-                increased.increaseStackSize(removed.getStackedEntityNBTStrings());
+                increased.increaseStackSize(removed.getStackedEntityNBT());
 
                 if (Bukkit.isPrimaryThread()) {
                     removed.getEntity().remove();

@@ -18,7 +18,7 @@ public class EntityConversionHandler extends ConversionHandler {
     public void handleConversion(Set<ConversionData> conversionData) {
         for (ConversionData data : conversionData) {
             LivingEntity entity = data.getEntity();
-            List<String> entityStackData = this.createEntityStackNBT(entity.getType(), data.getStackSize(), entity.getLocation());
+            List<byte[]> entityStackData = this.createEntityStackNBT(entity.getType(), data.getStackSize(), entity.getLocation());
             this.stackManager.addEntityStack(new StackedEntity(data.getEntity(), entityStackData));
         }
     }
