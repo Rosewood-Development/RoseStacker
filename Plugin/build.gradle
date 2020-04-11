@@ -25,12 +25,13 @@ dependencies {
      * Referenced local dependencies that aren't available in a maven repo
      * Included local dependencies:
      * - Clearlag.jar (3.1.6)
-     * - epicspawners-6.2.2.jar
+     * - EpicSpawners-6.3.9.jar
      * - Holograms-2.12.jar
-     * - ShopGUIPlus-1.25.1.jar
-     * - StackMob-5.0.2.jar
-     * - ultimatestacker-1.11.6.jar
-     * - WildStacker-3.0.1.jar
+     * - HolographicDisplays-2.4.2-SNAPSHOT.jar
+     * - ShopGUIPlus-1.28.1.jar
+     * - StackMob-5.1.0.jar
+     * - UltimateStacker-1.11.10.jar
+     * - WildStacker-3.0.2.jar
      */
     shadow fileTree(dir: '../libs', include: ['*.jar'])
 

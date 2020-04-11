@@ -38,7 +38,7 @@ public abstract class StackPluginConverter {
         return this.converterTypes;
     }
 
-    public abstract void convert() throws Exception;
+    public abstract void convert();
 
     protected Location parseLocation(String locationString, char separator) {
         String[] pieces = locationString.split(Pattern.quote(String.valueOf(separator)));

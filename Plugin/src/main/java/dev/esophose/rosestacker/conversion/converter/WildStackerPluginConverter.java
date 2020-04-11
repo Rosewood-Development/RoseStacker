@@ -86,11 +86,11 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                     Block block = location.getBlock();
 
                     WStackedBarrel.of(block).removeDisplayBlock(); // Remove hologram thingy
+                    block.setType(type); // Set the block type to the stack type since we just removed the hologram thingy
 
-                    if (amount == 1) {
-                        block.setType(type);
+                    // Stacks of 1 aren't really stacks
+                    if (amount == 1)
                         continue;
-                    }
 
                     stackedBlocksAndSpawners.add(new StackedBlock(amount, block));
                 }

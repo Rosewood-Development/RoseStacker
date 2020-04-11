@@ -1,15 +1,18 @@
 package dev.esophose.rosestacker.conversion.converter;
 
 import com.songoda.epicspawners.EpicSpawners;
-import com.songoda.epicspawners.storage.Storage;
-import com.songoda.epicspawners.storage.StorageRow;
 import dev.esophose.rosestacker.RoseStacker;
+import dev.esophose.rosestacker.database.DatabaseConnector;
+import dev.esophose.rosestacker.database.SQLiteConnector;
 import dev.esophose.rosestacker.manager.DataManager;
 import dev.esophose.rosestacker.stack.StackedSpawner;
-import java.lang.reflect.Field;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public class EpicSpawnersPluginConverter extends StackPluginConverter {
 
@@ -22,27 +25,35 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
     }
 
     @Override
-    public void convert() throws Exception {
+    public void convert() {
         DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
-        // Go through the storage system to be able to load all spawner information
-        // The storage field is private and there's no getter, so... just get it anyway
-        Field storageField = EpicSpawners.class.getDeclaredField("storage");
-        storageField.setAccessible(true);
-        Storage storage = (Storage) storageField.get(this.epicSpawners);
+        // Query their database ourselves
+        DatabaseConnector connector = new SQLiteConnector(this.epicSpawners);
+        connector.connect(connection -> {
+            Set<StackedSpawner> stackedSpawners = new HashSet<>();
 
-        // Force save loaded data
-        storage.doSave();
+            String tablePrefix = this.epicSpawners.getDataManager().getTablePrefix();
+            try (Statement statement = connection.createStatement()) {
+                String query = "SELECT amount, world, x, y, z FROM " + tablePrefix + "placed_spawners ps JOIN " + tablePrefix + "spawner_stacks ss ON ps.id = ss.spawner_id";
+                ResultSet result = statement.executeQuery(query);
+                while (result.next()) {
+                    World world = Bukkit.getWorld(result.getString("world"));
+                    if (world == null)
+                        continue;
 
-        Set<StackedSpawner> stackedSpawners = new HashSet<>();
-        for (StorageRow row : storage.getRowsByGroup("spawners")) {
-            try {
-                Location location = this.parseLocation(row.get("location").asString(), ':');
-                int amount = Integer.parseInt(row.get("stacks").asString().split(":")[1]);
-                stackedSpawners.add(new StackedSpawner(amount, location));
-            } catch (Exception ignored) { }
-        }
-        dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
+                    int amount = result.getInt("amount");
+                    double x = result.getDouble("x");
+                    double y = result.getDouble("y");
+                    double z = result.getDouble("z");
+
+                    Location location = new Location(world, x, y, z);
+                    stackedSpawners.add(new StackedSpawner(amount, location));
+                }
+            }
+
+            dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
+        });
     }
 
 }
