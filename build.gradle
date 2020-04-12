@@ -5,7 +5,7 @@ plugins {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
-    group = 'dev.esophose'
+    group = 'dev.rosewood'
     version = '1.0.0-SNAPSHOT'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -41,16 +41,16 @@ dependencies {
 shadowJar {
     archiveClassifier.set(null)
 
-    relocate('dev.esophose.guiframework', 'dev.esophose.rosestacker.lib.guiframework')
-    relocate('com.zaxxer.hikari', 'dev.esophose.rosestacker.lib.hikaricp')
-    relocate('org.slf4j', 'dev.esophose.rosestacker.lib.slf4j')
-    relocate('co.aikar.commands', 'dev.esophose.rosestacker.lib.acf.commands')
-    relocate('co.aikar.locales', 'dev.esophose.rosestacker.lib.acf.locales')
-    //relocate('co.aikar.timings', 'dev.esophose.rosestacker.lib.acf.timings')
-    relocate('co.aikar.util', 'dev.esophose.rosestacker.lib.acf.util')
-    relocate('net.jodah.expiringmap', 'dev.esophose.rosestacker.lib.expiringmap')
-    relocate('org.intellij', 'dev.esophose.rosestacker.lib.intellij')
-    relocate('org.jetbrains', 'dev.esophose.rosestacker.lib.jetbrains')
+    relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
+    relocate('com.zaxxer.hikari', 'dev.rosewood.rosestacker.lib.hikaricp')
+    relocate('org.slf4j', 'dev.rosewood.rosestacker.lib.slf4j')
+    relocate('co.aikar.commands', 'dev.rosewood.rosestacker.lib.acf.commands')
+    relocate('co.aikar.locales', 'dev.rosewood.rosestacker.lib.acf.locales')
+    //relocate('co.aikar.timings', 'dev.rosewood.rosestacker.lib.acf.timings')
+    relocate('co.aikar.util', 'dev.rosewood.rosestacker.lib.acf.util')
+    relocate('net.jodah.expiringmap', 'dev.rosewood.rosestacker.lib.expiringmap')
+    relocate('org.intellij', 'dev.rosewood.rosestacker.lib.intellij')
+    relocate('org.jetbrains', 'dev.rosewood.rosestacker.lib.jetbrains')
 
     exclude 'acf-*.properties'
 }
