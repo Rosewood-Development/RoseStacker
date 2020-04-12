@@ -1,14 +1,14 @@
 package dev.rosewood.rosestacker.gui;
 
-import dev.esophose.guiframework.GuiFactory;
-import dev.esophose.guiframework.GuiFramework;
-import dev.esophose.guiframework.framework.util.GuiUtil;
-import dev.esophose.guiframework.gui.ClickAction;
-import dev.esophose.guiframework.gui.GuiButtonFlag;
-import dev.esophose.guiframework.gui.GuiContainer;
-import dev.esophose.guiframework.gui.GuiSize;
-import dev.esophose.guiframework.gui.screen.GuiScreen;
-import dev.esophose.guiframework.gui.screen.GuiScreenSection;
+import dev.rosewood.guiframework.GuiFactory;
+import dev.rosewood.guiframework.GuiFramework;
+import dev.rosewood.guiframework.framework.util.GuiUtil;
+import dev.rosewood.guiframework.gui.ClickAction;
+import dev.rosewood.guiframework.gui.GuiButtonFlag;
+import dev.rosewood.guiframework.gui.GuiContainer;
+import dev.rosewood.guiframework.gui.GuiSize;
+import dev.rosewood.guiframework.gui.screen.GuiScreen;
+import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;

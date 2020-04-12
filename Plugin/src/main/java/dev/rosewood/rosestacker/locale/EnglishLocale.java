@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.locale;
 
-import dev.esophose.guiframework.framework.util.GuiUtil;
+import dev.rosewood.guiframework.framework.util.GuiUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;

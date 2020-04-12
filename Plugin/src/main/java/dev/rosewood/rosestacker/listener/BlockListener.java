@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.esophose.guiframework.framework.util.GuiUtil;
+import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.CoreProtectHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;

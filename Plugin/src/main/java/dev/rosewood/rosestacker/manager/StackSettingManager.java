@@ -27,7 +27,7 @@ import org.bukkit.entity.LivingEntity;
 
 public class StackSettingManager extends Manager {
 
-    private static final String PACKAGE_PATH = "dev.esophose.rosestacker.stack.settings.entity";
+    private static final String PACKAGE_PATH = "dev.rosewood.rosestacker.stack.settings.entity";
 
     private Map<Material, BlockStackSettings> blockSettings;
     private Map<EntityType, EntityStackSettings> entitySettings;
