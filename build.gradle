@@ -19,6 +19,17 @@ allprojects {
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'http://maven.playpro.com' }
+
+        maven {
+            url = 'https://repo.rosewooddev.io/repository/maven-public'
+            credentials {
+                username project.mavenUser
+                password project.mavenPassword
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
     }
 }
 
