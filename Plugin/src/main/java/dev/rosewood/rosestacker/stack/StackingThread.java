@@ -71,7 +71,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.targetWorld = targetWorld;
 
         this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this, 5L, Setting.STACK_FREQUENCY.getLong());
-        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this::processPendingChunks, 0L, 2L);
+        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this::processPendingChunks, 0L, 3L);
         this.pendingLoadChunks = new HashSet<>();
         this.pendingUnloadChunks = new HashSet<>();
 
@@ -714,6 +714,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     }
 
     private void processPendingChunks() {
+        this.pendingLoadChunks.removeIf(this.pendingUnloadChunks::contains);
+        this.pendingUnloadChunks.removeIf(this.pendingLoadChunks::contains);
+
         if (!this.pendingLoadChunks.isEmpty()) {
             Set<Chunk> chunks = new HashSet<>(this.pendingLoadChunks);
             this.pendingLoadChunks.clear();
