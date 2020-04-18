@@ -56,8 +56,6 @@ public class DataManager extends Manager {
 
     @Override
     public void reload() {
-        this.disable();
-
         try {
             if (Setting.MYSQL_ENABLED.getBoolean()) {
                 String hostname = Setting.MYSQL_HOSTNAME.getString();

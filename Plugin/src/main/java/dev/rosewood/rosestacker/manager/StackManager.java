@@ -51,9 +51,6 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void reload() {
-        if (this.deleteTask != null)
-            this.deleteTask.cancel();
-
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
         this.stackingThreads.clear();
@@ -69,8 +66,10 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void disable() {
-        if (this.deleteTask != null)
+        if (this.deleteTask != null) {
             this.deleteTask.cancel();
+            this.deleteTask = null;
+        }
 
         DataManager dataManager = this.roseStacker.getManager(DataManager.class);
         if (!dataManager.isConnected()) {

@@ -45,12 +45,6 @@ public class StackSettingManager extends Manager {
 
     @Override
     public void reload() {
-        // Clear existing settings
-        this.blockSettings.clear();
-        this.entitySettings.clear();
-        this.itemSettings.clear();
-        this.spawnerSettings.clear();
-
         // Settings files
         File blockSettingsFile = new File(this.roseStacker.getDataFolder(), "block_settings.yml");
         File entitySettingsFile = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");

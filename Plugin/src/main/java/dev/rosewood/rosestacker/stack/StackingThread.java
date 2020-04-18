@@ -239,8 +239,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (this.stackManager.isSpawnerStackingEnabled())
             dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values());
 
-        this.stackTask.cancel();
-        this.pendingChunkTask.cancel();
+        if (this.stackTask != null)
+            this.stackTask.cancel();
+
+        if (this.pendingChunkTask != null)
+            this.pendingChunkTask.cancel();
     }
 
     @Override

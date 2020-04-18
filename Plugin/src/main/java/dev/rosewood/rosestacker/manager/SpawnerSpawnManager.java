@@ -41,9 +41,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
     @Override
     public void reload() {
-        if (this.task != null)
-            this.task.cancel();
-
         if (!this.roseStacker.getManager(StackManager.class).isSpawnerStackingEnabled())
             return;
 
@@ -52,8 +49,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
     @Override
     public void disable() {
-        if (this.task != null)
+        if (this.task != null) {
             this.task.cancel();
+            this.task = null;
+        }
     }
 
     @Override

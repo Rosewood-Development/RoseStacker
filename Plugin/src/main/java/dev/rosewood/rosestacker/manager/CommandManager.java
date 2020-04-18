@@ -23,8 +23,13 @@ import org.bukkit.entity.EntityType;
 
 public class CommandManager extends Manager {
 
+    private final PaperCommandManager commandManager;
+
     public CommandManager(RoseStacker roseStacker) {
         super(roseStacker);
+
+        this.commandManager = new PaperCommandManager(this.roseStacker);
+        this.commandManager.registerCommand(new RoseCommand(this.roseStacker), true);
     }
 
     @Override
@@ -32,18 +37,16 @@ public class CommandManager extends Manager {
         LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
         ConversionManager conversionManager = this.roseStacker.getManager(ConversionManager.class);
         StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
-        PaperCommandManager commandManager = new PaperCommandManager(this.roseStacker);
-        commandManager.registerCommand(new RoseCommand(this.roseStacker), true);
 
         // Load custom message strings
         Map<String, String> acfCoreMessages = localeManager.getAcfCoreMessages();
         Map<String, String> acfMinecraftMessages = localeManager.getAcfMinecraftMessages();
         for (String key : acfCoreMessages.keySet())
-            commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key));
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key));
         for (String key : acfMinecraftMessages.keySet())
-            commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key));
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key));
 
-        CommandCompletions<BukkitCommandCompletionContext> completions = commandManager.getCommandCompletions();
+        CommandCompletions<BukkitCommandCompletionContext> completions = this.commandManager.getCommandCompletions();
         completions.registerStaticCompletion("amount", () -> Arrays.asList("5", "16", "64", "256", "<amount>"));
         completions.registerStaticCompletion("stackableBlockMaterial", () -> stackSettingManager.getStackableBlockTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("spawnableSpawnerEntityType", () -> stackSettingManager.getStackableSpawnerTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
@@ -73,7 +76,7 @@ public class CommandManager extends Manager {
         completions.registerAsyncCompletion("conversionType", ctx -> conversionManager.getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
         completions.registerAsyncCompletion("conversionEnabledType", ctx -> conversionManager.getEnabledHandlers().stream().map(ConversionHandler::getRequiredDataStackType).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
 
-        commandManager.getCommandConditions().addCondition(int.class, "limits", (c, exec, value) -> {
+        this.commandManager.getCommandConditions().addCondition(int.class, "limits", (c, exec, value) -> {
             if (value == null)
                 return;
 

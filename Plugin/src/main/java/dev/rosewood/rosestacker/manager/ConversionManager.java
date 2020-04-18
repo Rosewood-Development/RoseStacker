@@ -36,9 +36,6 @@ public class ConversionManager extends Manager {
 
     @Override
     public void reload() {
-        this.converters.clear();
-        this.conversionHandlers.clear();
-
         for (StackPlugin stackPlugin : StackPlugin.values())
             this.converters.put(stackPlugin, stackPlugin.getConverter());
 
@@ -52,6 +49,7 @@ public class ConversionManager extends Manager {
     @Override
     public void disable() {
         this.converters.clear();
+        this.conversionHandlers.clear();
     }
 
     private void loadConvertLocks() {
