@@ -211,7 +211,7 @@ public class EntityListener implements Listener {
         LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
             NMSHandler nmsHandler = NMSUtil.getHandler();
-            byte[] serialized = nmsHandler.getEntityAsNBT(transformedEntity);
+            byte[] serialized = nmsHandler.getEntityAsNBT(transformedEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
             event.setCancelled(true);
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {

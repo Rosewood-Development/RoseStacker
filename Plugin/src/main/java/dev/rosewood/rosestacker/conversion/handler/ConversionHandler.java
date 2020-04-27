@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.ConversionData;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.NMSUtil;
@@ -54,7 +55,7 @@ public abstract class ConversionHandler {
 
         NMSHandler nmsHandler = NMSUtil.getHandler();
         for (int i = 0; i < amount; i++)
-            entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createEntityUnspawned(entityType, location)));
+            entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createEntityUnspawned(entityType, location), Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
 
         return Collections.synchronizedList(entityNBT);
     }

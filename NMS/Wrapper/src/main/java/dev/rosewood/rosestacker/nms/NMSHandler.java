@@ -12,9 +12,10 @@ public interface NMSHandler {
      * Serializes a LivingEntity to a base64 string
      *
      * @param livingEntity to serialize
+     * @param includeAttributes true to include the entitiy attribute tags, otherwise false
      * @return base64 string of the entity
      */
-    byte[] getEntityAsNBT(LivingEntity livingEntity);
+    byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes);
 
     /**
      * Deserializes and spawns the entity at the given location

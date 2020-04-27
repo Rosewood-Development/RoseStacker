@@ -80,10 +80,11 @@ public class StackedEntity extends Stack {
 
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
+            byte[] nbtData = NMSUtil.getHandler().getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
             if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-                this.serializedStackedEntities.add(NMSUtil.getHandler().getEntityAsNBT(entity));
+                this.serializedStackedEntities.add(nbtData);
             } else {
-                this.serializedStackedEntities.add(0, NMSUtil.getHandler().getEntityAsNBT(entity));
+                this.serializedStackedEntities.add(0, nbtData);
             }
 
             if (updateDisplay)

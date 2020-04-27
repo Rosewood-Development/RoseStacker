@@ -103,23 +103,16 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        Set<Stack> removed = new HashSet<>();
-
         // Auto stack items
         if (this.stackManager.isItemStackingEnabled()) {
             for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
-                if (removed.contains(stackedItem))
-                    continue;
-
                 Item item = stackedItem.getItem();
-                if (item == null || item.isValid()) {
+                if (item == null || !item.isValid()) {
                     this.removeItemStack(stackedItem);
                     continue;
                 }
 
-                StackedItem removedStack = this.tryStackItem(stackedItem);
-                if (removedStack != null)
-                    removed.add(removedStack);
+                this.tryStackItem(stackedItem);
             }
         }
 
@@ -128,18 +121,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             return;
 
         for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
-            if (removed.contains(stackedEntity))
-                continue;
-
             LivingEntity livingEntity = stackedEntity.getEntity();
             if (livingEntity == null || !livingEntity.isValid()) {
                 this.removeEntityStack(stackedEntity);
                 continue;
             }
 
-            StackedEntity removedStack = this.tryStackEntity(stackedEntity);
-            if (removedStack != null)
-                removed.add(removedStack);
+            this.tryStackEntity(stackedEntity);
         }
 
         // Auto unstack entities

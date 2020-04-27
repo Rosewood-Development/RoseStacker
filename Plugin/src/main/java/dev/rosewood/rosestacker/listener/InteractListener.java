@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -142,7 +143,7 @@ public class InteractListener implements Listener {
         entity.setInvulnerable(true);
 
         NMSHandler nmsHandler = NMSUtil.getHandler();
-        byte[] entityNbt = nmsHandler.getEntityAsNBT(entity);
+        byte[] entityNbt = nmsHandler.getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
         Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
             for (int i = 0; i < spawnAmount - 1; i++) {
                 LivingEntity newEntity = nmsHandler.getNBTAsEntity(entity.getType(), spawnLocation, entityNbt);

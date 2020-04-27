@@ -55,7 +55,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public byte[] getEntityAsNBT(LivingEntity livingEntity) {
+    public byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
@@ -64,7 +64,8 @@ public class NMSHandlerImpl implements NMSHandler {
             craftEntity.save(nbt);
 
             // Don't store attributes, it's pretty large and doesn't usually matter
-            nbt.remove("Attributes");
+            if (!includeAttributes)
+                nbt.remove("Attributes");
 
             // Write entity type
             String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
