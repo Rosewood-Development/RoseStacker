@@ -224,7 +224,7 @@ public final class StackerUtils {
      *
      * @param entity1 The first entity
      * @param entity2 The second entity
-     * @param accuracy How often should we check for obstructions? Smaller numbers = more checks
+     * @param accuracy How often should we check for obstructions? Smaller numbers = more checks (Recommended 0.75)
      * @param requireOccluding Should occluding blocks be required to count as a solid block?
      * @return true if the entities can see each other, otherwise false
      */

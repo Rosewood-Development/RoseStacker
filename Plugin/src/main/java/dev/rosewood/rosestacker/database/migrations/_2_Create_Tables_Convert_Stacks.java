@@ -26,8 +26,7 @@ public class _2_Create_Tables_Convert_Stacks extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "convert_stacked_entity (" +
                     "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "stack_size INTEGER NOT NULL, " +
-                    "UNIQUE (entity_uuid)" +
+                    "stack_size INTEGER NOT NULL" +
                     ")");
         }
 
@@ -35,8 +34,7 @@ public class _2_Create_Tables_Convert_Stacks extends DataMigration {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE " + tablePrefix + "convert_stacked_item (" +
                     "entity_uuid VARCHAR(36) NOT NULL, " +
-                    "stack_size INTEGER NOT NULL, " +
-                    "UNIQUE (entity_uuid)" +
+                    "stack_size INTEGER NOT NULL" +
                     ")");
         }
     }

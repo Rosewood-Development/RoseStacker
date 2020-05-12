@@ -1,7 +1,11 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.CommentedConfigurationSection;
+import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConverterType;
+import dev.rosewood.rosestacker.conversion.StackPlugin;
+import dev.rosewood.rosestacker.stack.StackType;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,11 +22,13 @@ public abstract class StackPluginConverter {
 
     protected RoseStacker roseStacker;
     protected Plugin plugin;
+    private StackPlugin stackPlugin;
     private Set<ConverterType> converterTypes;
 
-    public StackPluginConverter(RoseStacker roseStacker, String pluginName, ConverterType... converterTypes) {
+    public StackPluginConverter(RoseStacker roseStacker, String pluginName, StackPlugin stackPlugin, ConverterType... converterTypes) {
         this.roseStacker = roseStacker;
         this.plugin = Bukkit.getPluginManager().getPlugin(pluginName);
+        this.stackPlugin = stackPlugin;
         this.converterTypes = new HashSet<>(Arrays.asList(converterTypes));
     }
 
@@ -39,6 +45,21 @@ public abstract class StackPluginConverter {
     }
 
     public abstract void convert();
+
+    public void configureLockFile(CommentedFileConfiguration config) {
+        if (this.plugin == null || config.isConfigurationSection(this.plugin.getName()))
+            return;
+
+        CommentedConfigurationSection configurationSection = config.createSection(this.plugin.getName());
+        for (StackType stackType : this.stackPlugin.getStackTypes())
+            configurationSection.set("lock-" + stackType.name().toLowerCase() + "-stacking", true);
+    }
+
+    public boolean isStackingLocked(CommentedFileConfiguration config, StackType stackType) {
+        if (this.plugin == null || !this.stackPlugin.getStackTypes().contains(stackType))
+            return false;
+        return config.getConfigurationSection(this.plugin.getName()).getBoolean("lock-" + stackType.name().toLowerCase() + "-stacking");
+    }
 
     protected Location parseLocation(String locationString, char separator) {
         String[] pieces = locationString.split(Pattern.quote(String.valueOf(separator)));

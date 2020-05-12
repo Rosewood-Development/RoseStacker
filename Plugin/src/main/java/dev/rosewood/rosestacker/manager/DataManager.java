@@ -640,7 +640,7 @@ public class DataManager extends Manager {
                 insertIgnore = "INSERT IGNORE ";
             }
 
-            String query = insertIgnore + this.getTablePrefix() + " convert_handler (name) VALUES (?)";
+            String query = insertIgnore + this.getTablePrefix() + "convert_handler (name) VALUES (?)";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 for (ConverterType converterType : converterTypes) {
                     statement.setString(1, converterType.name());
@@ -668,7 +668,7 @@ public class DataManager extends Manager {
         this.databaseConnector.connect(connection -> {
             Set<ConversionData> entityData = conversionData.get(StackType.ENTITY);
             if (!entityData.isEmpty()) {
-                String entityInsert = "INSERT INTO " + this.getTablePrefix() + "convert_entity (entity_uuid, stack_size) VALUES (?, ?)";
+                String entityInsert = "INSERT INTO " + this.getTablePrefix() + "convert_stacked_entity (entity_uuid, stack_size) VALUES (?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(entityInsert)) {
                     for (ConversionData data : entityData) {
                         statement.setString(1, data.getUniqueId().toString());
@@ -681,7 +681,7 @@ public class DataManager extends Manager {
 
             Set<ConversionData> itemData = conversionData.get(StackType.ITEM);
             if (!itemData.isEmpty()) {
-                String itemInsert = "INSERT INTO " + this.getTablePrefix() + "convert_item (entity_uuid, stack_size) VALUES (?, ?)";
+                String itemInsert = "INSERT INTO " + this.getTablePrefix() + "convert_stacked_item (entity_uuid, stack_size) VALUES (?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(itemInsert)) {
                     for (ConversionData data : entityData) {
                         statement.setString(1, data.getUniqueId().toString());
@@ -719,11 +719,12 @@ public class DataManager extends Manager {
             return conversionData;
 
         this.databaseConnector.connect(connection -> {
+            String entityUniqueIdsString = entityMap.keySet().stream().map(UUID::toString).map(x -> "'" + x + "'").collect(Collectors.joining(","));
+
             // Get data
             Set<UUID> foundUniqueIds = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
-                String entityUniqueIdsString = entityMap.keySet().stream().map(UUID::toString).collect(Collectors.joining(","));
-                String query = "SELECT entity_uuid, stack_size FROM " + this.getTablePrefix() + "convert_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
+                String query = "SELECT entity_uuid, stack_size FROM " + this.getTablePrefix() + "convert_stacked_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
                 ResultSet result = statement.executeQuery(query);
                 while (result.next()) {
                     UUID uuid = UUID.fromString(result.getString("entity_uuid"));
@@ -736,8 +737,7 @@ public class DataManager extends Manager {
 
             // Delete data
             try (Statement statement = connection.createStatement()) {
-                String entityUniqueIdsString = foundUniqueIds.stream().map(UUID::toString).collect(Collectors.joining(","));
-                String query = "DELETE FROM " + this.getTablePrefix() + "convert_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
+                String query = "DELETE FROM " + this.getTablePrefix() + "convert_stacked_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
                 statement.executeUpdate(query);
             }
         });

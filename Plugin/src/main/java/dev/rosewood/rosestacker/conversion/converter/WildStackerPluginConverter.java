@@ -4,8 +4,10 @@ import com.bgsoftware.wildstacker.WildStackerPlugin;
 import com.bgsoftware.wildstacker.handlers.SystemHandler;
 import com.bgsoftware.wildstacker.objects.WStackedBarrel;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
+import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.database.DatabaseConnector;
 import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -29,7 +31,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
     private WildStackerPlugin wildStacker;
 
     public WildStackerPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "WildStacker", ConverterType.ENTITY, ConverterType.ITEM);
+        super(roseStacker, "WildStacker", StackPlugin.WildStacker, ConverterType.ENTITY, ConverterType.ITEM);
 
         this.wildStacker = (WildStackerPlugin) this.plugin;
     }

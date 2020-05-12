@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.conversion.converter;
 
 import com.songoda.epicspawners.EpicSpawners;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.database.DatabaseConnector;
 import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -19,7 +21,7 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
     private EpicSpawners epicSpawners;
 
     public EpicSpawnersPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "EpicSpawners");
+        super(roseStacker, "EpicSpawners", StackPlugin.EpicSpawners);
 
         this.epicSpawners = (EpicSpawners) this.plugin;
     }

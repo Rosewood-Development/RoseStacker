@@ -1,1 +1,3 @@
-RoseStacker: A stacker plugin created with performance in mind.
+## RoseStacker
+
+Created with accuracy and performance in mind.

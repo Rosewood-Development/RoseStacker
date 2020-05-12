@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.conversion.converter;
 import com.songoda.ultimatestacker.UltimateStacker;
 import com.songoda.ultimatestacker.core.database.DatabaseConnector;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
@@ -18,7 +20,7 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
     private UltimateStacker ultimateStacker;
 
     public UltimateStackerPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "UltimateStacker");
+        super(roseStacker, "UltimateStacker", StackPlugin.UltimateStacker);
 
         this.ultimateStacker = (UltimateStacker) this.plugin;
     }

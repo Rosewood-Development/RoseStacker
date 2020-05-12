@@ -37,6 +37,7 @@ public class StackManager extends Manager implements StackingLogic {
 
     private final Map<UUID, StackingThread> stackingThreads;
     private final Set<Stack> deletedStacks;
+    private final ConversionManager conversionManager;
 
     private boolean isEntityStackingTemporarilyDisabled;
 
@@ -45,6 +46,7 @@ public class StackManager extends Manager implements StackingLogic {
 
         this.stackingThreads = new ConcurrentHashMap<>();
         this.deletedStacks = new ConcurrentSet<>();
+        this.conversionManager = this.roseStacker.getManager(ConversionManager.class);
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -306,19 +308,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     public boolean isEntityStackingEnabled() {
-        return Setting.ENTITY_STACKING_ENABLED.getBoolean();
+        return Setting.ENTITY_STACKING_ENABLED.getBoolean() && !this.conversionManager.isEntityStackingLocked();
     }
 
     public boolean isItemStackingEnabled() {
-        return Setting.ITEM_STACKING_ENABLED.getBoolean();
+        return Setting.ITEM_STACKING_ENABLED.getBoolean() && !this.conversionManager.isItemStackingLocked();
     }
 
     public boolean isBlockStackingEnabled() {
-        return Setting.BLOCK_STACKING_ENABLED.getBoolean();
+        return Setting.BLOCK_STACKING_ENABLED.getBoolean() && !this.conversionManager.isBlockStackingLocked();
     }
 
     public boolean isSpawnerStackingEnabled() {
-        return Setting.SPAWNER_STACKING_ENABLED.getBoolean();
+        return Setting.SPAWNER_STACKING_ENABLED.getBoolean() && !this.conversionManager.isSpawnerStackingLocked();
     }
 
     public void loadChunk(Chunk chunk) {

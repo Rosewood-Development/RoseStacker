@@ -1,8 +1,8 @@
 name: RoseStacker
-version: @version@
+version: '@version@'
 authors: [Esophose]
 main: dev.rosewood.rosestacker.RoseStacker
-api-version: 1.13
+api-version: '1.13'
 softdepend: [HolographicDisplays, Holograms, UltimateStacker, EpicSpawners, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag]
 permissions:
   rosestacker.*:

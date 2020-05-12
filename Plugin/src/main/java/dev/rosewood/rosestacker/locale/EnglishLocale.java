@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
+import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -103,6 +105,12 @@ public class EnglishLocale implements Locale {
 
             this.put("#11", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
+
+            this.put("#12", "Convert Lock Messages");
+            this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +
+                    "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
+                    "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +
+                    "That file will also allow you to acknowledge that you have read this warning and let you to disable this message.");
         }};
     }
 }
