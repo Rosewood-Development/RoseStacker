@@ -92,6 +92,7 @@ public class BlockListener implements Listener {
                 block.setType(Material.AIR);
                 event.setCancelled(true);
                 CoreProtectHook.recordBlockBreak(player, block);
+                this.damageTool(player);
                 return;
             }
 
@@ -123,7 +124,7 @@ public class BlockListener implements Listener {
             boolean breakEverything = Setting.BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             if (breakEverything) {
                 if (player.getGameMode() != GameMode.CREATIVE)
-                    StackerUtils.dropItems(dropLocation, new ItemStack(block.getType()), stackedBlock.getStackSize());
+                    stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize()), dropLocation);
                 stackedBlock.setStackSize(0);
                 CoreProtectHook.recordBlockBreak(player, block);
                 block.setType(Material.AIR);
@@ -138,6 +139,7 @@ public class BlockListener implements Listener {
                 stackManager.removeBlockStack(stackedBlock);
         }
 
+        this.damageTool(player);
         event.setCancelled(true);
     }
 
