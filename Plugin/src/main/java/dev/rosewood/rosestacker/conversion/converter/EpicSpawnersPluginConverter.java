@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.database.DatabaseConnector;
 import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
 import java.sql.Statement;

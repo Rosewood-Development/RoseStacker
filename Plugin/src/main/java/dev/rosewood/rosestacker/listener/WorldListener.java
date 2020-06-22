@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.StackManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;

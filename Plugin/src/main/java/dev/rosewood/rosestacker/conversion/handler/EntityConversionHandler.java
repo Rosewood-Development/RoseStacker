@@ -8,7 +8,6 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 
 public class EntityConversionHandler extends ConversionHandler {

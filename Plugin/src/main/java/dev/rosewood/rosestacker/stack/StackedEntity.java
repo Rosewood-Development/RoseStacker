@@ -19,6 +19,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -91,10 +92,10 @@ public class StackedEntity extends Stack {
                 this.updateDisplay();
         };
 
-        // For some reason, a VillagerAcquireTradeEvent is called when saving a villager's nbt.
+        // VillagerAcquireTradeEvent and EnderDragonChangePhaseEvents are called when reading the entity NBT data.
         // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
-        // We switch over to a non-async thread specifically for villagers because of this.
-        if (!Bukkit.isPrimaryThread() && entity instanceof Merchant) {
+        // We switch over to a non-async thread specifically for the entities of these events because of this.
+        if (!Bukkit.isPrimaryThread() && (entity instanceof Merchant || entity instanceof EnderDragon)) {
             Bukkit.getScheduler().runTask(RoseStacker.getInstance(), task);
         } else {
             task.run();
@@ -176,7 +177,12 @@ public class StackedEntity extends Stack {
      * @return true if this entity should stay stacked, otherwise false
      */
     public boolean shouldStayStacked() {
-        if (this.serializedStackedEntities.isEmpty())
+        if (this.entity == null || this.serializedStackedEntities.isEmpty())
+            return true;
+
+        // Ender dragons call an EnderDragonChangePhaseEvent upon entity construction
+        // We want to be able to do this check async, just we just won't let ender dragons unstack without dying
+        if (this.entity instanceof EnderDragon)
             return true;
 
         LivingEntity entity = NMSUtil.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));

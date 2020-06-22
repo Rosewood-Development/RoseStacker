@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;

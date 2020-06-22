@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
+import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -10,7 +11,6 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
-import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -250,19 +250,8 @@ public class EntityListener implements Listener {
             return;
 
         event.getItemDrop().remove();
-
-        int maxStackSize = Material.EGG.getMaxStackSize();
-        int eggs = stackedEntity.getStackSize();
-        int fullItemStacks = (int) Math.floor((double) eggs / maxStackSize);
-        int remainingEggs = eggs % maxStackSize;
-
-        List<ItemStack> eggStacks = new ArrayList<>();
-        for (int i = 0; i < fullItemStacks; i++)
-            eggStacks.add(new ItemStack(Material.EGG, maxStackSize));
-        if (remainingEggs > 0)
-            eggStacks.add(new ItemStack(Material.EGG, remainingEggs));
-
-        stackManager.preStackItems(eggStacks, event.getEntity().getLocation());
+        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
+        stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
 }

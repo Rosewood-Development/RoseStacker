@@ -1,11 +1,8 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -13,6 +10,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.Directional;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -20,10 +20,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class InteractListener implements Listener {
 
@@ -39,53 +42,15 @@ public class InteractListener implements Listener {
         if (event.getItem() == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
 
-        ItemStack itemStack = event.getItem();
-        if (!StackerUtils.isSpawnEgg(itemStack.getType()))
-            return;
-
-        int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
-        if (spawnAmount == 1)
-            return;
-
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        if (!stackManager.isEntityStackingEnabled())
-            return;
-
-        EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
-        if (spawnAmount > stackSettings.getMaxStackSize()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        EntityType entityType = stackSettings.getEntityType();
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();
-        if (spawnLocation.getWorld() == null)
-            return;
+        spawnLocation.add(0.5, 0, 0.5); // Center on block
 
-        stackManager.setEntityStackingTemporarilyDisabled(true);
-        LivingEntity initialEntity = (LivingEntity) spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
-        stackManager.setEntityStackingTemporarilyDisabled(false);
+        ItemStack itemStack = event.getItem();
 
-        initialEntity.setAI(false);
-        initialEntity.setInvulnerable(true);
-
-        StackedEntity stackedEntity = stackManager.createEntityStack(initialEntity, false);
-        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
-            NMSHandler nmsHandler = NMSUtil.getHandler();
-            for (int i = 0; i < spawnAmount - 1; i++) {
-                LivingEntity newEntity = nmsHandler.createEntityUnspawned(entityType, spawnLocation);
-                stackedEntity.increaseStackSize(newEntity, false);
-            }
-
-            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-                stackedEntity.updateDisplay();
-                initialEntity.setAI(true);
-                initialEntity.setInvulnerable(false);
-            });
-        });
-
-        StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
-        event.setCancelled(true);
+        if (this.spawnEntities(null, spawnLocation, itemStack)) {
+            StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -112,53 +77,62 @@ public class InteractListener implements Listener {
             return;
         }
 
-        if (!StackerUtils.isSpawnEgg(itemStack.getType()))
+        if (this.spawnEntities(entity, entity.getLocation(), itemStack)) {
+            StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onDispenserDispense(BlockDispenseEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() != Material.DISPENSER)
             return;
+
+        ItemStack itemStack = event.getItem();
+        Location spawnLocation = block.getRelative(((Directional) block.getBlockData()).getFacing()).getLocation();
+        spawnLocation.add(0.5, 0, 0.5);
+
+        if (this.spawnEntities(null, spawnLocation, itemStack)) {
+            Inventory inventory = ((Container) block.getState()).getInventory();
+            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+                for (int slot = 0; slot < inventory.getSize(); slot++) {
+                    ItemStack item = inventory.getItem(slot);
+                    if (item == null || !item.isSimilar(itemStack))
+                        continue;
+                    item.setAmount(item.getAmount() - 1);
+                    if (item.getAmount() < 0)
+                        inventory.setItem(slot, null);
+                    break;
+                }
+            });
+
+            event.setCancelled(true);
+        }
+    }
+
+    private boolean spawnEntities(Entity original, Location spawnLocation, ItemStack itemStack) {
+        if (!StackerUtils.isSpawnEgg(itemStack.getType()))
+            return false;
 
         int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
         if (spawnAmount == 1)
-            return;
+            return false;
 
         EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
-        if (spawnAmount > stackSettings.getMaxStackSize()) {
-            event.setCancelled(true);
-            return;
-        }
-
         EntityType entityType = stackSettings.getEntityType();
-        if (event.getRightClicked().getType() != entityType)
-            return;
+        if (original != null && original.getType() != entityType)
+            return false;
 
-        Location spawnLocation = event.getRightClicked().getLocation();
         if (spawnLocation.getWorld() == null)
-            return;
+            return false;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-        if (stackedEntity.getStackSize() + spawnAmount > stackSettings.getMaxStackSize()) {
-            event.setCancelled(true);
-            return;
+        for (int i = 0; i < spawnAmount; i++) {
+            Entity spawnedEntity = spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
+            spawnedEntity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
         }
 
-        entity.setAI(false);
-        entity.setInvulnerable(true);
-
-        NMSHandler nmsHandler = NMSUtil.getHandler();
-        byte[] entityNbt = nmsHandler.getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
-        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
-            for (int i = 0; i < spawnAmount - 1; i++) {
-                LivingEntity newEntity = nmsHandler.getNBTAsEntity(entity.getType(), spawnLocation, entityNbt);
-                stackedEntity.increaseStackSize(newEntity, false);
-            }
-
-            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-                stackedEntity.updateDisplay();
-                entity.setAI(true);
-                entity.setInvulnerable(false);
-            });
-        });
-
-        StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
-        event.setCancelled(true);
+        return true;
     }
 
 }

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.ArrayList;
@@ -92,6 +93,7 @@ public final class StackerUtils {
         Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
         for (ItemStack extraItem : extraItems)
             player.getWorld().dropItemNaturally(location, extraItem);
+        RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
     }
 
     /**

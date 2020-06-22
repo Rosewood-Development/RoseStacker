@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import uk.antiperson.stackmob.StackMob;

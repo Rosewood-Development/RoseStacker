@@ -28,4 +28,5 @@ public class RoseStackerSpawnerProvider implements ExternalSpawnerProvider {
     public EntityType getSpawnerEntityType(ItemStack itemStack) {
         return StackerUtils.getStackedItemEntityType(itemStack);
     }
+
 }
