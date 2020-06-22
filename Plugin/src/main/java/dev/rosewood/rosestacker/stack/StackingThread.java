@@ -83,22 +83,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.cleanupTimer = 0;
 
         // Load all existing stacks in the target world
-        Set<Chunk> chunks = new HashSet<>(Arrays.asList(this.targetWorld.getLoadedChunks()));
-
-        // Load stacks
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
-
-        if (this.stackManager.isEntityStackingEnabled())
-            dataManager.getStackedEntities(chunks, stacks -> stacks.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
-
-        if (this.stackManager.isItemStackingEnabled())
-            dataManager.getStackedItems(chunks, stacks -> stacks.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
-
-        if (this.stackManager.isBlockStackingEnabled())
-            dataManager.getStackedBlocks(chunks, stacks -> stacks.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
-
-        if (this.stackManager.isSpawnerStackingEnabled())
-            dataManager.getStackedSpawners(chunks, stacks -> stacks.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
+        this.pendingLoadChunks.addAll(Arrays.asList(this.targetWorld.getLoadedChunks()));
     }
 
     @Override
@@ -531,6 +516,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (stackedEntity == other
                     || other.getEntity() == null
                     || !other.getEntity().isValid()
+                    || this.stackManager.isMarkedAsDeleted(other)
                     || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
                     || stackedEntity.getEntity() == other.getEntity()
                     || stackedEntity.getEntity().getType() != other.getEntity().getType())
@@ -612,7 +598,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         for (StackedItem other : this.stackedItems.values()) {
             if (stackedItem == other
-                    || !other.getItem().isValid()
+                    || this.stackManager.isMarkedAsDeleted(other)
                     || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                     || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
                     || other.getItem().getPickupDelay() > other.getItem().getTicksLived()

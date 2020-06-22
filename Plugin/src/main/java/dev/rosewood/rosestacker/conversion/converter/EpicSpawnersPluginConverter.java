@@ -2,11 +2,11 @@ package dev.rosewood.rosestacker.conversion.converter;
 
 import com.songoda.epicspawners.EpicSpawners;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.database.DatabaseConnector;
 import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -48,8 +48,8 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
                     double x = result.getDouble("x");
                     double y = result.getDouble("y");
                     double z = result.getDouble("z");
-
                     Location location = new Location(world, x, y, z);
+
                     stackedSpawners.add(new StackedSpawner(amount, location));
                 }
             }

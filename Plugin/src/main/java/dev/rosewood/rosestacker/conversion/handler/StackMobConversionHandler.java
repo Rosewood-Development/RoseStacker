@@ -2,8 +2,10 @@ package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.ConversionData;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,12 +24,13 @@ public class StackMobConversionHandler extends ConversionHandler {
     }
 
     @Override
-    public void handleConversion(Set<ConversionData> conversionData) {
+    public Set<Stack> handleConversion(Set<ConversionData> conversionData) {
         Set<LivingEntity> entities = conversionData.stream()
                 .map(ConversionData::getEntity)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
+        Set<Stack> stacks = new HashSet<>();
 
         for (LivingEntity entity : entities) {
             PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
@@ -35,8 +38,12 @@ public class StackMobConversionHandler extends ConversionHandler {
             if (stackSize == -1)
                 continue;
 
-            this.stackManager.addEntityStack(new StackedEntity(entity, this.createEntityStackNBT(entity.getType(), stackSize - 1, entity.getLocation())));
+            StackedEntity stackedEntity = new StackedEntity(entity, this.createEntityStackNBT(entity.getType(), stackSize - 1, entity.getLocation()));
+            this.stackManager.addEntityStack(stackedEntity);
+            stacks.add(stackedEntity);
         }
+
+        return stacks;
     }
 
 }

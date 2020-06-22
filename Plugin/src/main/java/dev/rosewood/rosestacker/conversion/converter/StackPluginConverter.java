@@ -56,7 +56,7 @@ public abstract class StackPluginConverter {
     }
 
     public boolean isStackingLocked(CommentedFileConfiguration config, StackType stackType) {
-        if (this.plugin == null || !this.stackPlugin.getStackTypes().contains(stackType))
+        if (this.plugin == null || !this.plugin.isEnabled() || !this.stackPlugin.getStackTypes().contains(stackType))
             return false;
         return config.getConfigurationSection(this.plugin.getName()).getBoolean("lock-" + stackType.name().toLowerCase() + "-stacking");
     }

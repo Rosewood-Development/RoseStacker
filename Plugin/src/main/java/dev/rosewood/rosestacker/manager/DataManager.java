@@ -667,7 +667,7 @@ public class DataManager extends Manager {
     public void setConversionData(Map<StackType, Set<ConversionData>> conversionData) {
         this.databaseConnector.connect(connection -> {
             Set<ConversionData> entityData = conversionData.get(StackType.ENTITY);
-            if (!entityData.isEmpty()) {
+            if (entityData != null && !entityData.isEmpty()) {
                 String entityInsert = "INSERT INTO " + this.getTablePrefix() + "convert_stacked_entity (entity_uuid, stack_size) VALUES (?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(entityInsert)) {
                     for (ConversionData data : entityData) {
@@ -680,10 +680,10 @@ public class DataManager extends Manager {
             }
 
             Set<ConversionData> itemData = conversionData.get(StackType.ITEM);
-            if (!itemData.isEmpty()) {
+            if (itemData != null && !itemData.isEmpty()) {
                 String itemInsert = "INSERT INTO " + this.getTablePrefix() + "convert_stacked_item (entity_uuid, stack_size) VALUES (?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(itemInsert)) {
-                    for (ConversionData data : entityData) {
+                    for (ConversionData data : itemData) {
                         statement.setString(1, data.getUniqueId().toString());
                         statement.setInt(2, data.getStackSize());
                         statement.addBatch();

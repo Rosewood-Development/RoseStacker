@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.conversion.converter.StackPluginConverter;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,7 +55,8 @@ public class ConversionManager extends Manager implements Listener {
         for (ConverterType converterType : this.dataManager.getConversionHandlers())
             this.conversionHandlers.add(converterType.getConversionHandler());
 
-        this.loadConvertLocks();
+        if (!this.getEnabledConverters().isEmpty())
+            this.loadConvertLocks();
     }
 
     @Override
@@ -114,12 +115,8 @@ public class ConversionManager extends Manager implements Listener {
             // Make sure we set the conversion handlers
             this.dataManager.setConversionHandlers(converter.getConverterTypes());
 
-            // Convert data for all loaded chunks
-            Set<Chunk> loadedChunks = new HashSet<>();
-            for (World world : Bukkit.getWorlds())
-                loadedChunks.addAll(Arrays.asList(world.getLoadedChunks()));
-
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.convertChunks(loadedChunks));
+            // Reload plugin to convert and update data
+            Bukkit.getScheduler().runTask(this.roseStacker, this.roseStacker::reload);
         } catch (Exception ex) {
             return false;
         }
@@ -141,6 +138,7 @@ public class ConversionManager extends Manager implements Listener {
 
         Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(entities, requiredStackTypes);
 
+        Set<Stack> convertedStacks = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers) {
             Set<ConversionData> data;
             if (conversionHandler.isDataAlwaysRequired()) {
@@ -154,8 +152,12 @@ public class ConversionManager extends Manager implements Listener {
             if (data.isEmpty())
                 continue;
 
-            conversionHandler.handleConversion(data);
+            convertedStacks.addAll(conversionHandler.handleConversion(data));
         }
+
+        // Update nametags synchronously
+        if (!convertedStacks.isEmpty())
+            Bukkit.getScheduler().runTask(this.roseStacker, () -> convertedStacks.forEach(Stack::updateDisplay));
     }
 
     public Set<StackPlugin> getEnabledConverters() {

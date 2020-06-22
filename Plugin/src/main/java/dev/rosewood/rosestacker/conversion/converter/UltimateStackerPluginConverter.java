@@ -3,9 +3,9 @@ package dev.rosewood.rosestacker.conversion.converter;
 import com.songoda.ultimatestacker.UltimateStacker;
 import com.songoda.ultimatestacker.core.database.DatabaseConnector;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -41,8 +41,9 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
         connector.connect(connection -> {
             // Load spawners
             try (Statement statement = connection.createStatement()) {
-                ResultSet result = statement.executeQuery("SELECT amount, world, x, y, z FROM ultimatestacker_spawners");
                 Set<StackedSpawner> stackedSpawners = new HashSet<>();
+
+                ResultSet result = statement.executeQuery("SELECT amount, world, x, y, z FROM ultimatestacker_spawners");
                 while (result.next()) {
                     World world = Bukkit.getWorld(result.getString("world"));
                     if (world == null)
@@ -56,6 +57,7 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
                     int amount = result.getInt("amount");
                     stackedSpawners.add(new StackedSpawner(amount, location));
                 }
+
                 dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
             }
         });

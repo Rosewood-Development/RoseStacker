@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.NMSUtil;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -33,7 +34,7 @@ public abstract class ConversionHandler {
         this.alwaysRequire = alwaysRequire;
     }
 
-    public abstract void handleConversion(Set<ConversionData> conversionData);
+    public abstract Set<Stack> handleConversion(Set<ConversionData> conversionData);
 
     public StackType getRequiredDataStackType() {
         return this.requiredDataStackType;
@@ -55,7 +56,7 @@ public abstract class ConversionHandler {
         List<byte[]> entityNBT = new LinkedList<>();
 
         NMSHandler nmsHandler = NMSUtil.getHandler();
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < amount - 1; i++)
             entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createEntityUnspawned(entityType, location), Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
 
         return Collections.synchronizedList(entityNBT);

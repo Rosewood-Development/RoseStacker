@@ -4,14 +4,13 @@ import com.bgsoftware.wildstacker.WildStackerPlugin;
 import com.bgsoftware.wildstacker.handlers.SystemHandler;
 import com.bgsoftware.wildstacker.objects.WStackedBarrel;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.database.DatabaseConnector;
 import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.stack.Stack;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -25,6 +24,8 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 
 public class WildStackerPluginConverter extends StackPluginConverter {
 
@@ -39,6 +40,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
     @Override
     public void convert() {
         DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         // Force save loaded data
         SystemHandler systemHandler = this.wildStacker.getSystemManager();
@@ -75,11 +77,11 @@ public class WildStackerPluginConverter extends StackPluginConverter {
 
             dataManager.setConversionData(conversionData);
 
-            Set<Stack> stackedBlocksAndSpawners = new HashSet<>();
-
             // Load barrels (blocks)
             // Yes, this ends up loading chunks because I have no idea how WildStacker serializes the stack material
             try (Statement statement = connection.createStatement()) {
+                Set<StackedBlock> stackedBlocks = new HashSet<>();
+
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM barrels");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
@@ -94,21 +96,32 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                     if (amount == 1)
                         continue;
 
-                    stackedBlocksAndSpawners.add(new StackedBlock(amount, block));
+                    stackedBlocks.add(new StackedBlock(amount, block));
                 }
+
+                dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks);
             }
 
             // Load spawners
             try (Statement statement = connection.createStatement()) {
+                Set<StackedSpawner> stackedSpawners = new HashSet<>();
+
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM spawners");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
-                    int amount = result.getInt("stackAmount");
-                    stackedBlocksAndSpawners.add(new StackedSpawner(amount, location));
-                }
-            }
+                    Block block = location.getBlock();
+                    BlockState blockState = block.getState();
+                    if (!(blockState instanceof CreatureSpawner))
+                        continue;
 
-            dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocksAndSpawners);
+                    int amount = result.getInt("stackAmount");
+
+                    stackedSpawners.add(new StackedSpawner(amount, location));
+                    stackManager.createSpawnerStack(block, amount);
+                }
+
+                dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
+            }
         });
     }
 

@@ -423,6 +423,16 @@ public class StackManager extends Manager implements StackingLogic {
         this.deletedStacks.add(stack);
     }
 
+    /**
+     * Checks if a stack is marked for deletion
+     *
+     * @param stack The stack to check
+     * @return true if the stack is to be deleted, otherwise false
+     */
+    public boolean isMarkedAsDeleted(Stack stack) {
+        return this.deletedStacks.contains(stack);
+    }
+
     public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {
         StackingThread fromThread = this.getStackingThread(from);
         StackingThread toThread = this.getStackingThread(to);
