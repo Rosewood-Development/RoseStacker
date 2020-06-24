@@ -516,6 +516,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (stackedEntity == other
                     || other.getEntity() == null
                     || !other.getEntity().isValid()
+                    || this.stackManager.isMarkedAsDeleted(stackedEntity)
                     || this.stackManager.isMarkedAsDeleted(other)
                     || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
                     || stackedEntity.getEntity() == other.getEntity()
@@ -565,7 +566,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 StackedEntity increased = this.getPreferredEntityStack(stackedEntity, other);
                 StackedEntity removed = increased == stackedEntity ? other : stackedEntity;
 
-                removed.getEntity().setCustomName(removed.getOriginalCustomName());
+                if (removed.getOriginalCustomName() != null) {
+                    removed.getEntity().setCustomName(removed.getOriginalCustomName());
+                } else {
+                    removed.getEntity().setCustomName(null);
+                    removed.getEntity().setCustomNameVisible(false);
+                }
+
                 increased.increaseStackSize(removed.getEntity());
                 increased.increaseStackSize(removed.getStackedEntityNBT());
 
@@ -598,6 +605,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         for (StackedItem other : this.stackedItems.values()) {
             if (stackedItem == other
+                    || this.stackManager.isMarkedAsDeleted(stackedItem)
                     || this.stackManager.isMarkedAsDeleted(other)
                     || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                     || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
