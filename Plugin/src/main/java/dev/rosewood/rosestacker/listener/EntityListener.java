@@ -21,6 +21,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.MushroomCow.Variant;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,6 +36,7 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -213,6 +216,26 @@ public class EntityListener implements Listener {
             NMSHandler nmsHandler = NMSUtil.getHandler();
             byte[] serialized = nmsHandler.getEntityAsNBT(transformedEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
             event.setCancelled(true);
+
+            // Handle mooshroom shearing
+            if (event.getEntityType() == EntityType.MUSHROOM_COW) {
+                int mushroomsDropped = stackedEntity.getStackSize() * 5; // 5 mushrooms per mooshroom sheared
+
+                MushroomCow mooshroom = (MushroomCow) event.getEntity();
+                Material dropType;
+                if (NMSUtil.getVersionNumber() > 13) {
+                    if (mooshroom.getVariant() == Variant.BROWN) {
+                        dropType = Material.BROWN_MUSHROOM;
+                    } else {
+                        dropType = Material.RED_MUSHROOM;
+                    }
+                } else {
+                    dropType = Material.RED_MUSHROOM;
+                }
+
+                stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
+            }
+
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, () -> {
                 stackManager.setEntityStackingTemporarilyDisabled(true);
@@ -225,8 +248,11 @@ public class EntityListener implements Listener {
                     newStack.increaseStackSize(nmsHandler.getNBTAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
             });
         } else {
-            // Wait for potential lightning to go away
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, stackedEntity::decreaseStackSize, 20);
+            if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
+                Bukkit.getScheduler().scheduleSyncDelayedTask(this.roseStacker, stackedEntity::decreaseStackSize, 20);
+            } else {
+                Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
+            }
         }
     }
 
