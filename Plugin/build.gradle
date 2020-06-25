@@ -16,7 +16,7 @@ dependencies {
     implementation project(':NMS-Wrapper')
 
     // Referenced dependencies
-    shadow 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
+    shadow 'org.spigotmc:spigot:1.16.1'
     shadow 'me.clip:placeholderapi:2.10.4'
     shadow 'net.coreprotect:coreprotect:2.15.0'
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'

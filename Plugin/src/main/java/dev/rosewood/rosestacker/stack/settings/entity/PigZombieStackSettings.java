@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.Material;
@@ -47,12 +48,12 @@ public class PigZombieStackSettings extends EntityStackSettings {
 
     @Override
     public EntityType getEntityType() {
-        return EntityType.PIG_ZOMBIE;
+        return NMSUtil.getVersionNumber() >= 16 ? EntityType.ZOMBIFIED_PIGLIN : EntityType.valueOf("PIG_ZOMBIE");
     }
 
     @Override
     public Material getSpawnEggMaterial() {
-        return Material.ZOMBIE_PIGMAN_SPAWN_EGG;
+        return NMSUtil.getVersionNumber() >= 16 ? Material.ZOMBIFIED_PIGLIN_SPAWN_EGG : Material.valueOf("ZOMBIE_PIGMAN_SPAWN_EGG");
     }
 
 }

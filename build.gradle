@@ -19,6 +19,7 @@ allprojects {
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'http://maven.playpro.com' }
+        maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
         maven {
             url = 'https://repo.rosewooddev.io/repository/maven-public'
@@ -43,6 +44,7 @@ dependencies {
     implementation project(':NMS-v1_13_R2')
     implementation project(':NMS-v1_14_R1')
     implementation project(':NMS-v1_15_R1')
+    implementation project(':NMS-v1_16_R1')
 
     subprojects.each {
         childJars project(it.path)
