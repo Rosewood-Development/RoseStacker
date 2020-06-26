@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_14_R1;
 
+import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -164,7 +165,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
             PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
             field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
-            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Collections.singletonList(dataWatcherItem));
+            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Lists.newArrayList(dataWatcherItem));
 
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {
