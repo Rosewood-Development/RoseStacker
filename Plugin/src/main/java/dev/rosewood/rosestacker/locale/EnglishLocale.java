@@ -51,10 +51,10 @@ public class EnglishLocale implements Locale {
             this.put("command-stats-description", "&8 - &d/rs stats &7- Displays stats about the plugin");
             this.put("command-stats-header", "&aCurrent Plugin Stats:");
             this.put("command-stats-threads", "&eActive stacking threads: &b%amount%");
-            this.put("command-stats-stacked-entities", "&eLoaded stacked entities: &b%amount%");
-            this.put("command-stats-stacked-items", "&eLoaded stacked items: &b%amount%");
-            this.put("command-stats-stacked-blocks", "&eLoaded stacked blocks: &b%amount%");
-            this.put("command-stats-stacked-spawners", "&eLoaded stacked spawners: &b%amount%");
+            this.put("command-stats-stacked-entities", "&eLoaded entity stacks: &b%amount%");
+            this.put("command-stats-stacked-items", "&eLoaded item stacks: &b%amount%");
+            this.put("command-stats-stacked-blocks", "&eLoaded block stacks: &b%amount%");
+            this.put("command-stats-stacked-spawners", "&eLoaded spawner stacks: &b%amount%");
 
             this.put("#6", "Convert Command");
             this.put("command-convert-description", "&8 - &d/rs convert &7- Converts data from another stacking plugin");
@@ -70,7 +70,7 @@ public class EnglishLocale implements Locale {
             this.put("#8", "Query Data Command");
             this.put("command-querydata-description", "&8 - &d/rs querydata <world> &7- Gets saved stack data info about a world");
             this.put("command-querydata-none", "&eNo data was found with the given world name.");
-            this.put("command-querydata-header", "&aQueried data results:");
+            this.put("command-querydata-header", "&aQueried Data Results:");
             this.put("command-querydata-entity", "&eSaved entity stacks: &b%amount%");
             this.put("command-querydata-item", "&eSaved item stacks: &b%amount%");
             this.put("command-querydata-block", "&eSaved block stacks: &b%amount%");

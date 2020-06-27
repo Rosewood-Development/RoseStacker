@@ -205,10 +205,10 @@ public class RoseCommand extends BaseCommand {
             localeManager.sendMessage(sender, "command-querydata-none");
         } else {
             localeManager.sendMessage(sender, "command-querydata-header");
-            localeManager.sendMessage(sender, "command-querydata-entity", StringPlaceholders.single("amount", entity));
-            localeManager.sendMessage(sender, "command-querydata-item", StringPlaceholders.single("amount", item));
-            localeManager.sendMessage(sender, "command-querydata-block", StringPlaceholders.single("amount", block));
-            localeManager.sendMessage(sender, "command-querydata-spawner", StringPlaceholders.single("amount", spawner));
+            localeManager.sendSimpleMessage(sender, "command-querydata-entity", StringPlaceholders.single("amount", entity));
+            localeManager.sendSimpleMessage(sender, "command-querydata-item", StringPlaceholders.single("amount", item));
+            localeManager.sendSimpleMessage(sender, "command-querydata-block", StringPlaceholders.single("amount", block));
+            localeManager.sendSimpleMessage(sender, "command-querydata-spawner", StringPlaceholders.single("amount", spawner));
         }
     }
 
