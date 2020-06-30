@@ -6,17 +6,23 @@ import dev.rosewood.rosestacker.hook.PlaceholderAPIHook;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
 import dev.rosewood.rosestacker.locale.Locale;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class LocaleManager extends Manager {
+
+    private static final Pattern HEX_PATTERN = Pattern.compile("#([A-Fa-f0-9]){6}");
 
     private CommentedFileConfiguration locale;
 
@@ -161,7 +167,7 @@ public class LocaleManager extends Manager {
      * @param stringPlaceholders The placeholders to apply
      */
     public void sendMessage(CommandSender sender, String messageKey, StringPlaceholders stringPlaceholders) {
-        sender.sendMessage(this.parsePlaceholders(sender, this.getLocaleMessage("prefix") + this.getLocaleMessage(messageKey, stringPlaceholders)));
+        this.sendParsedMessage(sender, this.getLocaleMessage("prefix") + this.getLocaleMessage(messageKey, stringPlaceholders));
     }
 
     /**
@@ -182,7 +188,7 @@ public class LocaleManager extends Manager {
      * @param stringPlaceholders The placeholders to apply
      */
     public void sendSimpleMessage(CommandSender sender, String messageKey, StringPlaceholders stringPlaceholders) {
-        sender.sendMessage(this.parsePlaceholders(sender, this.getLocaleMessage(messageKey, stringPlaceholders)));
+        this.sendParsedMessage(sender, this.getLocaleMessage(messageKey, stringPlaceholders));
     }
 
     /**
@@ -202,7 +208,7 @@ public class LocaleManager extends Manager {
      * @param message The message to send
      */
     public void sendCustomMessage(CommandSender sender, String message) {
-        sender.sendMessage(this.parsePlaceholders(sender, ChatColor.translateAlternateColorCodes('&', message)));
+        this.sendParsedMessage(sender, message);
     }
 
     /**
@@ -216,6 +222,45 @@ public class LocaleManager extends Manager {
         if (sender instanceof Player)
             return PlaceholderAPIHook.applyPlaceholders((Player) sender, message);
         return message;
+    }
+
+    /**
+     * Parses the colors in a message
+     * Parses & to the normal color code character
+     * Parses hex codes if the game version is 1.16 or higher
+     *
+     * @param message The message
+     * @return A color-replaced message
+     */
+    private String parseColors(String message) {
+        String parsed = message;
+
+        if (NMSUtil.getVersionNumber() >= 16) {
+            Matcher matcher = HEX_PATTERN.matcher(parsed);
+            while (matcher.find()) {
+                ChatColor hexColor = ChatColor.of(matcher.group());
+                String before = parsed.substring(0, matcher.start());
+                String after = parsed.substring(matcher.end());
+                parsed = before + hexColor + after;
+                matcher = HEX_PATTERN.matcher(parsed);
+            }
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', parsed);
+    }
+
+    /**
+     * Sends a message with placeholders and colors parsed to a CommandSender
+     *
+     * @param sender The sender to send the message to
+     * @param message The message
+     */
+    private void sendParsedMessage(CommandSender sender, String message) {
+        if (NMSUtil.getVersionNumber() >= 16) {
+            sender.spigot().sendMessage(TextComponent.fromLegacyText(this.parseColors(this.parsePlaceholders(sender, message))));
+        } else {
+            sender.sendMessage(this.parseColors(this.parsePlaceholders(sender, message)));
+        }
     }
 
 }
