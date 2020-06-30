@@ -6,17 +6,14 @@ import dev.rosewood.rosestacker.hook.PlaceholderAPIHook;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
 import dev.rosewood.rosestacker.locale.Locale;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.utils.HexUtils;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -139,7 +136,7 @@ public class LocaleManager extends Manager {
         String message = this.locale.getString(messageKey);
         if (message == null)
             return ChatColor.RED + "Missing message in locale file: " + messageKey;
-        return ChatColor.translateAlternateColorCodes('&', stringPlaceholders.apply(message));
+        return stringPlaceholders.apply(message);
     }
 
     /**
@@ -153,7 +150,7 @@ public class LocaleManager extends Manager {
         List<String> message = this.locale.getStringList(messageKey);
         if (message.isEmpty())
             message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
-        message.replaceAll(x -> ChatColor.translateAlternateColorCodes('&', stringPlaceholders.apply(x)));
+        message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
         return message;
     }
 

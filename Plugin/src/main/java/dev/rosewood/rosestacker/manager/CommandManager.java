@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.utils.HexUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -42,9 +43,9 @@ public class CommandManager extends Manager {
         Map<String, String> acfCoreMessages = localeManager.getAcfCoreMessages();
         Map<String, String> acfMinecraftMessages = localeManager.getAcfMinecraftMessages();
         for (String key : acfCoreMessages.keySet())
-            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key));
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key)));
         for (String key : acfMinecraftMessages.keySet())
-            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key));
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key)));
 
         CommandCompletions<BukkitCommandCompletionContext> completions = this.commandManager.getCommandCompletions();
         completions.registerStaticCompletion("amount", () -> Arrays.asList("5", "16", "64", "256", "<amount>"));
