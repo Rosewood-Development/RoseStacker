@@ -63,12 +63,12 @@ public class EnglishLocale implements Locale {
             this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.");
 
             this.put("#7", "Purge Data Command");
-            this.put("command-purgedata-description", "&8 - &d/rs purgedata <world> &7- Deletes stack data from a world");
+            this.put("command-purgedata-description", "&8 - &d/rs purgedata [world] &7- Deletes stack data from a world");
             this.put("command-purgedata-none", "&eNo stack data was found with the given world name.");
             this.put("command-purgedata-purged", "&ePurged &b%amount% &estack data entries from the database.");
 
             this.put("#8", "Query Data Command");
-            this.put("command-querydata-description", "&8 - &d/rs querydata <world> &7- Gets saved stack data info about a world");
+            this.put("command-querydata-description", "&8 - &d/rs querydata [world] &7- Gets saved stack data info about a world");
             this.put("command-querydata-none", "&eNo data was found with the given world name.");
             this.put("command-querydata-header", "&aQueried Data Results:");
             this.put("command-querydata-entity", "&eSaved entity stacks: &b%amount%");
