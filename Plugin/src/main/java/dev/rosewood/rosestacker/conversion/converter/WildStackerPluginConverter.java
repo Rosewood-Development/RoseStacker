@@ -1,8 +1,9 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
 import com.bgsoftware.wildstacker.WildStackerPlugin;
-import com.bgsoftware.wildstacker.handlers.SystemHandler;
-import com.bgsoftware.wildstacker.objects.WStackedBarrel;
+import com.bgsoftware.wildstacker.api.WildStackerAPI;
+import com.bgsoftware.wildstacker.api.handlers.SystemManager;
+import com.bgsoftware.wildstacker.api.objects.StackedBarrel;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
@@ -43,7 +44,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         // Force save loaded data
-        SystemHandler systemHandler = this.wildStacker.getSystemManager();
+        SystemManager systemHandler = WildStackerAPI.getWildStacker().getSystemManager();
         systemHandler.performCacheSave();
 
         // Go through the database to be able to load all information
@@ -86,10 +87,14 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
                     int amount = result.getInt("stackAmount");
-                    Material type = systemHandler.getStackedSnapshot(location.getChunk()).getStackedBarrel(location).getValue();
+                    Material type = systemHandler.getStackedSnapshot(location.getChunk()).getStackedBarrelItem(location).getValue().getType();
                     Block block = location.getBlock();
 
-                    WStackedBarrel.of(block).removeDisplayBlock(); // Remove hologram thingy
+                    // Remove hologram thingy
+                    StackedBarrel barrel = systemHandler.getStackedBarrel(block);
+                    if (barrel != null)
+                        barrel.removeDisplayBlock();
+
                     block.setType(type); // Set the block type to the stack type since we just removed the hologram thingy
 
                     // Stacks of 1 aren't really stacks

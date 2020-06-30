@@ -22,7 +22,7 @@ dependencies {
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
 
     // From our repo
-    shadow 'com.bgsoftware:wildstacker:3.0.2'
+    shadow 'com.bgsoftware:wildstacker:3.1.0'
     shadow 'com.gmail.filoghost:holographicdisplays:2.4.2'
     shadow 'com.sainttx:holograms:2.12'
     shadow 'com.songoda:epicspawners:6.3.9'
