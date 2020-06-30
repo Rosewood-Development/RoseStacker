@@ -20,13 +20,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 
-public class StackedEntity extends Stack {
+public class StackedEntity extends Stack implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
     private String originalCustomName;
@@ -245,6 +247,29 @@ public class StackedEntity extends Stack {
             this.entity.setCustomNameVisible(false);
             this.entity.setCustomName(null);
         }
+    }
+
+    /**
+     * Gets the StackedEntity that two stacks should stack into
+     *
+     * @param stack2 the second StackedEntity
+     * @return a positive int if this stack should be preferred, or a negative int if the other should be preferred
+     */
+    @Override
+    public int compareTo(StackedEntity stack2) {
+        Entity entity1 = this.getEntity();
+        Entity entity2 = stack2.getEntity();
+
+        if (this == stack2)
+            return 0;
+
+        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && entity1 instanceof Flying)
+            return entity1.getLocation().getY() < entity2.getLocation().getY() ? 3 : -3;
+
+        if (this.getStackSize() == stack2.getStackSize())
+            return entity1.getTicksLived() > entity2.getTicksLived() ? 2 : -2;
+
+        return this.getStackSize() > stack2.getStackSize() ? 1 : -1;
     }
 
 }
