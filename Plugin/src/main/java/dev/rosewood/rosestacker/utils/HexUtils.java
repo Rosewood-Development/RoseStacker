@@ -260,6 +260,12 @@ public final class HexUtils {
         private int step, stepIndex;
 
         public Gradient(List<Color> colors, int totalColors) {
+            if (colors.size() < 2)
+                throw new IllegalArgumentException("Must provide at least 2 colors");
+
+            if (totalColors < 1)
+                throw new IllegalArgumentException("Must have at least 1 total color");
+
             this.colors = colors;
             this.stepSize = totalColors / (colors.size() - 1);
             this.step = this.stepIndex = 0;
@@ -269,6 +275,10 @@ public final class HexUtils {
          * @return the next color in the gradient
          */
         public Color next() {
+            // Gradients will use the first color of the entire spectrum won't be available to preserve prettiness
+            if (NMSUtil.getVersionNumber() < 16)
+                return this.colors.get(0);
+
             Color color;
             if (this.stepIndex + 1 < this.colors.size()) {
                 Color start = this.colors.get(this.stepIndex);
@@ -319,6 +329,15 @@ public final class HexUtils {
         private float hue;
 
         public Rainbow(int totalColors, float saturation, float brightness) {
+            if (totalColors < 1)
+                throw new IllegalArgumentException("Must have at least 1 total color");
+
+            if (0.0F > saturation || saturation > 1.0F)
+                throw new IllegalArgumentException("Saturation must be between 0.0 and 1.0");
+
+            if (0.0F > brightness || brightness > 1.0F)
+                throw new IllegalArgumentException("Saturation must be between 0.0 and 1.0");
+
             this.hueStep = 1.0F / totalColors;
             this.saturation = saturation;
             this.brightness = brightness;

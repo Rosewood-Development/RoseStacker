@@ -41,7 +41,7 @@ public class RoseCommand extends BaseCommand {
         LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
 
         sender.sendMessage("");
-        localeManager.sendCustomMessage(sender, localeManager.getLocaleMessage("prefix") + "&7Plugin created by &5" + this.roseStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.roseStacker.getDescription().getVersion() + "&7)");
+        localeManager.sendCustomMessage(sender, localeManager.getLocaleMessage("prefix") + "&7Plugin created by <g:#41E0F0:#E468B2>" + this.roseStacker.getDescription().getAuthors().get(0) + "&7. (&ev" + this.roseStacker.getDescription().getVersion() + "&7)");
         localeManager.sendSimpleMessage(sender, "command-reload-description");
         localeManager.sendSimpleMessage(sender, "command-give-description");
         localeManager.sendSimpleMessage(sender, "command-clearall-description");

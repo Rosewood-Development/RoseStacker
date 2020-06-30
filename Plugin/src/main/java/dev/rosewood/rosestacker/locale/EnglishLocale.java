@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.locale;
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
-import dev.rosewood.rosestacker.nms.NMSUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -23,16 +22,9 @@ public class EnglishLocale implements Locale {
 
     @Override
     public Map<String, Object> getDefaultLocaleValues() {
-        String prefix;
-        if (NMSUtil.getVersionNumber() >= 16) {
-            prefix = "&7[<g:#8A2387:#E94057:#F27121>RoseStacker&7] ";
-        } else {
-            prefix = "&7[&cRoseStacker&7] ";
-        }
-
         return new LinkedHashMap<String, Object>() {{
             this.put("#0", "Plugin Message Prefix");
-            this.put("prefix", prefix);
+            this.put("prefix", "&7[<g:#8A2387:#E94057:#F27121>RoseStacker&7] ");
 
             this.put("#1", "Stack Display Tags");
             this.put("entity-stack-display", "&c%amount%x &7%name%");

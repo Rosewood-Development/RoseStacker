@@ -384,13 +384,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         newItemStack.setAmount(newSize);
 
-        stackedItem.getItem().setPickupDelay(30);
+        stackedItem.getItem().setPickupDelay(60);
         stackedItem.getItem().setTicksLived(1);
 
-        Item newItem = world.spawn(stackedItem.getLocation(), Item.class, (entity) -> {
-            entity.setItemStack(newItemStack);
-            entity.setPickupDelay(0);
-        });
+        Item newItem = world.dropItemNaturally(stackedItem.getLocation(), newItemStack);
+        newItem.setPickupDelay(0);
 
         StackedItem newStackedItem = new StackedItem(newSize, newItem);
         this.stackedItems.put(newItem.getUniqueId(), newStackedItem);
@@ -607,18 +605,17 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
      * @return a deleted StackedItem, or null if none
      */
     private StackedItem tryStackItem(StackedItem stackedItem) {
-        if (stackedItem.getItem().getPickupDelay() > stackedItem.getItem().getPickupDelay())
+        if (this.stackManager.isMarkedAsDeleted(stackedItem) || stackedItem.getItem().getPickupDelay() > 40)
             return null;
 
         double maxItemStackDistanceSqrd = Setting.ITEM_MERGE_RADIUS.getDouble() * Setting.ITEM_MERGE_RADIUS.getDouble();
 
         for (StackedItem other : this.stackedItems.values()) {
             if (stackedItem == other
-                    || this.stackManager.isMarkedAsDeleted(stackedItem)
                     || this.stackManager.isMarkedAsDeleted(other)
                     || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                     || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
-                    || other.getItem().getPickupDelay() > other.getItem().getTicksLived()
+                    || other.getItem().getPickupDelay() > 40
                     || stackedItem.getStackSize() + other.getStackSize() > Setting.ITEM_MAX_STACK_SIZE.getInt()
                     || stackedItem.getLocation().distanceSquared(other.getLocation()) > maxItemStackDistanceSqrd)
                 continue;
