@@ -202,12 +202,13 @@ public class DataManager extends Manager {
                         }
                     }
 
+                    Set<Entity> chunkEntitiesCopy = new HashSet<>(chunkEntities);
                     Runnable task = () -> {
                         Set<StackedItem> stackedItems = new HashSet<>();
                         Set<Stack> cleanup = new HashSet<>();
 
                         for (StackedItemData stackData : stackedItemData) {
-                            Optional<Entity> entity = chunkEntities.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
+                            Optional<Entity> entity = chunkEntitiesCopy.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
                             if (entity.isPresent()) {
                                 stackedItems.add(new StackedItem(stackData.id, stackData.stackSize, (Item) entity.get()));
                             } else {
