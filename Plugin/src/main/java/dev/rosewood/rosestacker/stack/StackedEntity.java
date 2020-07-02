@@ -224,7 +224,7 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
 
     @Override
     public void updateDisplay() {
-        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean())
+        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
             return;
 
         if (this.getStackSize() == 1 && this.originalCustomName != null) {

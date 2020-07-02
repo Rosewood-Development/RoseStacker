@@ -9,6 +9,8 @@ import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import io.netty.util.internal.ConcurrentSet;
 import java.util.Collection;
 import java.util.HashMap;
@@ -389,7 +391,8 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the block is stackable, otherwise false
      */
     public boolean isBlockTypeStackable(Block block) {
-        return this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block).isStackingEnabled();
+        BlockStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block);
+        return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
     /**
@@ -399,7 +402,8 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the spawner entity type is stackable, otherwise false
      */
     public boolean isSpawnerTypeStackable(EntityType entityType) {
-        return this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType).isStackingEnabled();
+        SpawnerStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
     /**

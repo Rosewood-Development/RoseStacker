@@ -59,7 +59,7 @@ public class StackSettingManager extends Manager {
 
         // Load block settings
         CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, blockSettingsFile);
-        Stream.of(Material.values()).filter(Material::isBlock).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
+        StackerUtils.getSortedInventoriableStackableBlockMaterialsStream().forEach(x -> {
             BlockStackSettings blockStackSettings = new BlockStackSettings(blockSettingsConfiguration, x);
             this.blockSettings.put(x, blockStackSettings);
             if (blockStackSettings.hasChanges())

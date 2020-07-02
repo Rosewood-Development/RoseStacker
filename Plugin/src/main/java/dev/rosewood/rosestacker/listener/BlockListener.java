@@ -5,11 +5,8 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.CoreProtectHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -356,19 +353,10 @@ public class BlockListener implements Listener {
             against = against.getRelative(BlockFace.DOWN);
 
         if (block.getType() == Material.SPAWNER) {
-            if (!stackManager.isSpawnerStackingEnabled())
-                return;
-
-            CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
-            SpawnerStackSettings spawnerStackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(creatureSpawner);
-            if (!spawnerStackSettings.isStackingEnabled())
+            if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(((CreatureSpawner) block.getState()).getSpawnedType()))
                 return;
         } else {
-            if (!stackManager.isBlockStackingEnabled())
-                return;
-
-            BlockStackSettings blockStackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block);
-            if (!blockStackSettings.isStackingEnabled())
+            if (!stackManager.isBlockStackingEnabled() || !stackManager.isBlockTypeStackable(block))
                 return;
         }
 

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -28,6 +29,7 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
@@ -332,6 +334,17 @@ public final class StackerUtils {
         ItemStack remainingItem = remaining.get(0);
         if (remainingItem != null)
             player.getWorld().dropItemNaturally(player.getLocation(), remainingItem);
+    }
+
+    /**
+     * @return a stream of all block materials that can be placed into an Inventory
+     */
+    public static Stream<Material> getSortedInventoriableStackableBlockMaterialsStream() {
+        Inventory inventory = Bukkit.createInventory(null, 9);
+        return Arrays.stream(Material.values()).filter(Material::isBlock).filter(x -> {
+            inventory.setItem(0, new ItemStack(x));
+            return inventory.getItem(0) != null && x != Material.SPAWNER;
+        }).sorted(Comparator.comparing(Enum::name));
     }
 
     public static boolean containsConfigSpecialCharacters(String string) {

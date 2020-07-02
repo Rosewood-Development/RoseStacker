@@ -136,7 +136,7 @@ public class LocaleManager extends Manager {
         String message = this.locale.getString(messageKey);
         if (message == null)
             return ChatColor.RED + "Missing message in locale file: " + messageKey;
-        return stringPlaceholders.apply(message);
+        return HexUtils.colorify(stringPlaceholders.apply(message));
     }
 
     /**

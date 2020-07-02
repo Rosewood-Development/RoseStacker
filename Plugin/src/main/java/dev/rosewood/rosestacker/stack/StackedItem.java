@@ -82,7 +82,7 @@ public class StackedItem extends Stack implements Comparable<StackedItem> {
         itemStack.setAmount(Math.min(this.size, itemStack.getMaxStackSize()));
         this.item.setItemStack(itemStack);
 
-        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean())
+        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
             return;
 
         String displayName;

@@ -84,7 +84,7 @@ public class StackedSpawner extends Stack {
 
     @Override
     public void updateDisplay() {
-        if (!Setting.SPAWNER_DISPLAY_TAGS.getBoolean())
+        if (!Setting.SPAWNER_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
             return;
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);

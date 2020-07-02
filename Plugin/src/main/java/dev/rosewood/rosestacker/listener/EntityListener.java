@@ -105,6 +105,8 @@ public class EntityListener implements Listener {
 
         LivingEntity entity = (LivingEntity) event.getEntity();
         SpawnerStackSettings spawnerStackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(event.getSpawner());
+        if (spawnerStackSettings == null)
+            return;
 
         // TODO: Custom spawner mob properties
         if (spawnerStackSettings.isMobAIDisabled()) {

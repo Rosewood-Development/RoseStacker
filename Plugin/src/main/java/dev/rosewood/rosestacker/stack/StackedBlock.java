@@ -84,7 +84,7 @@ public class StackedBlock extends Stack {
 
     @Override
     public void updateDisplay() {
-        if (!Setting.BLOCK_DISPLAY_TAGS.getBoolean())
+        if (!Setting.BLOCK_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
             return;
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
