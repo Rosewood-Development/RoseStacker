@@ -166,6 +166,10 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean() && (!entity1.hasMetadata("spawner_spawned") || !entity2.hasMetadata("spawner_spawned")))
             return false;
 
+        // Don't stack if being ridden or is riding something (
+        if (!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle())
+            return comparingForUnstack; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
+
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;
             Colorable colorable2 = (Colorable) entity2;
