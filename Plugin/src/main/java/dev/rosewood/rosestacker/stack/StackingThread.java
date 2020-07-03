@@ -13,9 +13,7 @@ import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -404,7 +402,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
             return null;
 
-        StackedEntity newStackedEntity = new StackedEntity(livingEntity, Collections.synchronizedList(new LinkedList<>()));
+        StackedEntity newStackedEntity = new StackedEntity(livingEntity);
         this.stackedEntities.put(livingEntity.getUniqueId(), newStackedEntity);
 
         if (tryStack)
@@ -454,11 +452,45 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+        this.tryStackEntity(stackedEntity);
     }
 
     @Override
     public void addItemStack(StackedItem stackedItem) {
         this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+        this.tryStackItem(stackedItem);
+    }
+
+    @Override
+    public void preStackEntities(EntityType entityType, int amount, Location location) {
+        World world = location.getWorld();
+        if (world == null)
+            return;
+
+//        this.stackManager.setEntityStackingTemporarilyDisabled(true);
+//
+//        EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(entityType);
+//        Set<StackedEntity> stackedEntities = new HashSet<>();
+//        NMSHandler nmsHandler = NMSUtil.getHandler();
+//        for (int i = 0; i < amount; i++) {
+//            LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location);
+//            System.out.println(nmsHandler.getEntityAsNBT())
+//            Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x -> stackSettings.canStackWith(x, new StackedEntity(entity), false)).findFirst();
+//            if (matchingEntity.isPresent()) {
+//                matchingEntity.get().increaseStackSize(entity);
+//            } else {
+//                entity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
+//                LivingEntity spawnedEntity = nmsHandler.spawnEntityFromNBT(nmsHandler.getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()), location);
+//                stackedEntities.add(new StackedEntity(spawnedEntity));
+//            }
+//        }
+//
+//        stackedEntities.forEach(this::addEntityStack);
+//        this.stackManager.setEntityStackingTemporarilyDisabled(false);
+
+        // Couldn't get the above to apply entity variants (such as sheep color)
+        for (int i = 0; i < amount; i++)
+            world.spawnEntity(location, entityType);
     }
 
     @Override
@@ -478,15 +510,17 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 stackedItems.add(new StackedItem(item.getItemStack().getAmount(), item));
             }
         }
-        stackedItems.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x));
 
+        stackedItems.forEach(this::addItemStack);
         this.stackManager.setEntityStackingTemporarilyDisabled(false);
     }
 
+    @Override
     public void loadChunk(Chunk chunk) {
         this.pendingLoadChunks.add(chunk);
     }
 
+    @Override
     public void unloadChunk(Chunk chunk) {
         this.pendingUnloadChunks.add(chunk);
     }

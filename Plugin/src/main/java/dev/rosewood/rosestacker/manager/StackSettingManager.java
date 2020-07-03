@@ -86,7 +86,7 @@ public class StackSettingManager extends Manager {
             }
 
             if (!ignoredLoading.isEmpty())
-            this.roseStacker.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
+                this.roseStacker.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
         } catch (Exception e) {
             e.printStackTrace();
         }

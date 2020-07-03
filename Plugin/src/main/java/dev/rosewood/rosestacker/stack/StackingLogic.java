@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -219,7 +220,15 @@ public interface StackingLogic {
     void addItemStack(StackedItem stackedItem);
 
     /**
-     * Pre-stacks a collection of ItemStacks and spawns StackedEntities at the given location
+     * Pre-stacks a number of entities of a given type and spawns StackedEntities at the given location
+     * @param entityType the type of entity to spawn
+     * @param amount the amount of entities to spawn
+     * @param location the location to spawn at
+     */
+    void preStackEntities(EntityType entityType, int amount, Location location);
+
+    /**
+     * Pre-stacks a collection of ItemStacks and spawns StackedItems at the given location
      *
      * @param items the items to stack and spawn
      * @param location the location to spawn at

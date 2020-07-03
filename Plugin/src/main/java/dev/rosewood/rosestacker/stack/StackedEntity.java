@@ -55,6 +55,10 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         this(-1, entity, serializedStackedEntities, null);
     }
 
+    public StackedEntity(LivingEntity entity) {
+        this(entity, Collections.synchronizedList(new LinkedList<>()));
+    }
+
     public LivingEntity getEntity() {
         return this.entity;
     }
@@ -205,7 +209,7 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
-        return new StackedEntity(oldEntity, Collections.synchronizedList(new LinkedList<>()));
+        return new StackedEntity(oldEntity);
     }
 
     public EntityStackSettings getStackSettings() {

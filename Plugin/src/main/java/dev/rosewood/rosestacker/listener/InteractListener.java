@@ -26,7 +26,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 public class InteractListener implements Listener {
 
@@ -127,10 +126,7 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return false;
 
-        for (int i = 0; i < spawnAmount; i++) {
-            Entity spawnedEntity = spawnLocation.getWorld().spawnEntity(spawnLocation, entityType);
-            spawnedEntity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
-        }
+        this.roseStacker.getManager(StackManager.class).preStackEntities(entityType, spawnAmount, spawnLocation);
 
         return true;
     }

@@ -297,6 +297,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
+    public void preStackEntities(EntityType entityType, int amount, Location location) {
+        World world = location.getWorld();
+        if (world == null)
+            return;
+
+        StackingThread stackingThread = this.getStackingThread(world);
+        if (stackingThread == null)
+            return;
+
+        stackingThread.preStackEntities(entityType, amount, location);
+    }
+
+    @Override
     public void preStackItems(Collection<ItemStack> items, Location location) {
         World world = location.getWorld();
         if (world == null)
@@ -307,6 +320,24 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         stackingThread.preStackItems(items, location);
+    }
+
+    @Override
+    public void loadChunk(Chunk chunk) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread == null)
+            return;
+
+        stackingThread.loadChunk(chunk);
+    }
+
+    @Override
+    public void unloadChunk(Chunk chunk) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread == null)
+            return;
+
+        stackingThread.unloadChunk(chunk);
     }
 
     public boolean isEntityStackingEnabled() {
@@ -323,22 +354,6 @@ public class StackManager extends Manager implements StackingLogic {
 
     public boolean isSpawnerStackingEnabled() {
         return Setting.SPAWNER_STACKING_ENABLED.getBoolean() && !this.conversionManager.isSpawnerStackingLocked();
-    }
-
-    public void loadChunk(Chunk chunk) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread == null)
-            return;
-
-        stackingThread.loadChunk(chunk);
-    }
-
-    public void unloadChunk(Chunk chunk) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread == null)
-            return;
-
-        stackingThread.unloadChunk(chunk);
     }
 
     /**
