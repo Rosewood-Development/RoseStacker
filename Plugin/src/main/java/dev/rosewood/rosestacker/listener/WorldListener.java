@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.StackManager;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -24,12 +26,17 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
         if (event.isNewChunk()) {
-            if (!this.stackManager.isEntityStackingEnabled())
-                return;
+            // Stack new entities
+            if (this.stackManager.isEntityStackingEnabled())
+                for (Entity entity : event.getChunk().getEntities())
+                    if (entity instanceof LivingEntity)
+                        this.stackManager.createEntityStack((LivingEntity) entity, true);
 
-            for (Entity entity : event.getChunk().getEntities())
-                if (entity instanceof LivingEntity)
-                    this.stackManager.createEntityStack((LivingEntity) entity, true);
+            // Stack new spawners
+            if (this.stackManager.isSpawnerStackingEnabled())
+                for (BlockState tileEntity : event.getChunk().getTileEntities())
+                    if (tileEntity instanceof CreatureSpawner)
+                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1);
         } else {
             this.stackManager.loadChunk(event.getChunk());
         }
