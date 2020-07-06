@@ -70,7 +70,7 @@ public class ConfigurationManager extends Manager {
         BLOCK_DISPLAY_TAGS("global-block-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         BLOCK_EXPLOSION_PROTECTION("global-block-settings.explosion-protection", true, "Should stacked blocks be protected from explosions?"),
         BLOCK_EXPLOSION_DECREASE_STACK_SIZE_ONLY("global-block-settings.explosion-decrease-stack-size-only", true, "If enabled, only the stack size will decrease from explosions, no items will be dropped"),
-        BLOCK_EXPLOSION_DESTROY_CHANCE("global-block-settings.explosion-destroy-chance", 10.0, "The percentage chance of spawners getting destroyed from an explosion (0-100)"),
+        BLOCK_EXPLOSION_DESTROY_CHANCE("global-block-settings.explosion-destroy-chance", 10.0, "The percentage chance of blocks getting destroyed from an explosion (0-100)"),
         BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE("global-block-settings.explosion-amount-percentage", 50.0, "The percentage of blocks in the stack that will be destroyed from an explosion", "If a stack of 10 blocks is exploded with a chance of 50.0, 5 blocks will be saved"),
         BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED("global-block-settings.explosion-amount-fixed", -1, "The fixed amount of blocks in the stack to destroy", "If this is set to 1 or greater, overrides explosion-amount-percentage", "If a stack of 10 blocks is exploded with a fixed amount of 3, 7 blocks will be saved"),
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),

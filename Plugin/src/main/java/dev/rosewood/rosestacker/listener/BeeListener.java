@@ -38,7 +38,7 @@ public class BeeListener implements Listener {
             return;
         }
 
-        stackedEntity.split();
+        stackManager.addEntityStack(stackedEntity.split());
     }
 
 }

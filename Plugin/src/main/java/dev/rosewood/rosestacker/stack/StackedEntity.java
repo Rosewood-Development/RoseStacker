@@ -196,6 +196,11 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         return this.stackSettings.canStackWith(this, stackedEntity, true);
     }
 
+    /**
+     * Removes the visible entity from the stack and moves the next in line to the front
+     *
+     * @return The new StackedEntity of size 1 that was just created
+     */
     public StackedEntity split() {
         if (this.serializedStackedEntities.isEmpty())
             throw new IllegalStateException();
@@ -203,13 +208,17 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
         LivingEntity oldEntity = this.entity;
+        String oldCustomName = this.originalCustomName;
+
         stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = NMSUtil.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
+        this.originalCustomName = this.entity.getCustomName();
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
-        return new StackedEntity(oldEntity);
+
+        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()), oldCustomName);
     }
 
     public EntityStackSettings getStackSettings() {

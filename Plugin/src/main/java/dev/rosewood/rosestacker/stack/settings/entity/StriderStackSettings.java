@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Strider;
-import org.bukkit.entity.Zombie;
 
 public class StriderStackSettings extends EntityStackSettings {
 

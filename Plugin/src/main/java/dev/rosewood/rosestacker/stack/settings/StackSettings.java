@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.stack.settings;
 import dev.rosewood.rosestacker.config.CommentedConfigurationSection;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.Stack;
-import org.bukkit.Bukkit;
 
 public abstract class StackSettings<T extends Stack> {
 
