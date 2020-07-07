@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.Material;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 
 public class BeeStackSettings extends EntityStackSettings {
 
@@ -58,6 +59,15 @@ public class BeeStackSettings extends EntityStackSettings {
         this.setIfNotExists("dont-stack-if-stung", false);
         this.setIfNotExists("dont-stack-if-has-flower", false);
         this.setIfNotExists("dont-stack-if-has-nectar", false);
+    }
+
+    @Override
+    public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        Bee stackedBee = (Bee) stacked;
+        Bee unstackedBee = (Bee) unstacked;
+
+        stackedBee.setAnger(unstackedBee.getAnger());
+        stackedBee.setTarget(unstackedBee.getTarget());
     }
 
     @Override
