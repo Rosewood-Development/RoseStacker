@@ -87,7 +87,9 @@ public class StackedItem extends Stack implements Comparable<StackedItem> {
 
         String displayName;
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null && itemMeta.hasDisplayName() && Setting.ITEM_DISPLAY_CUSTOM_NAMES.getBoolean()) {
+
+        boolean hasCustomName = itemMeta != null && itemMeta.hasDisplayName();
+        if (hasCustomName && Setting.ITEM_DISPLAY_CUSTOM_NAMES.getBoolean()) {
             if (Setting.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.getBoolean()) {
                 displayName = itemMeta.getDisplayName();
             } else {
@@ -97,10 +99,15 @@ public class StackedItem extends Stack implements Comparable<StackedItem> {
             displayName = this.stackSettings.getDisplayName();
         }
 
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
-                .addPlaceholder("name", displayName).build());
+        String displayString;
+        if (this.getStackSize() > 1) {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                    .addPlaceholder("name", displayName).build());
+        } else {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", StringPlaceholders.single("name", displayName));
+        }
 
-        this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean());
+        this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName));
         this.item.setCustomName(displayString);
     }
 

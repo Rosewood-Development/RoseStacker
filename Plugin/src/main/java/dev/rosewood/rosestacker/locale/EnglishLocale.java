@@ -29,7 +29,9 @@ public class EnglishLocale implements Locale {
             this.put("#1", "Stack Display Tags");
             this.put("entity-stack-display", "&c%amount%x &7%name%");
             this.put("entity-stack-display-custom-name", "%name% &7[&c%amount%x&7]");
+            this.put("entity-stack-display-spawn-egg", "&c%amount%x &7%name% Spawn Egg");
             this.put("item-stack-display", "&c%amount%x &7%name%");
+            this.put("item-stack-display-single", "&7%name%");
             this.put("block-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
 

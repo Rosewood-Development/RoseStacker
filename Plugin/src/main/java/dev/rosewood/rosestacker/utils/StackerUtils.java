@@ -1,9 +1,12 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,26 +66,6 @@ public final class StackerUtils {
     }
 
     /**
-     * Drops items of the given ItemStack type on the ground
-     *
-     * @param location The location to drop the items
-     * @param itemStack The ItemStack type to drop
-     * @param amount The amount to drop
-     */
-    public static void dropItems(Location location, ItemStack itemStack, int amount) {
-        if (location.getWorld() == null)
-            return;
-
-        while (amount > 0) {
-            ItemStack newItemStack = itemStack.clone();
-            int toTake = Math.min(amount, itemStack.getMaxStackSize());
-            newItemStack.setAmount(toTake);
-            amount -= toTake;
-            location.getWorld().dropItemNaturally(location, newItemStack);
-        }
-    }
-
-    /**
      * Drops a List of ItemStacks into a Player's Inventory, with any overflow dropped onto the ground
      *
      * @param player The Player to give items to
@@ -130,6 +113,11 @@ public final class StackerUtils {
         if (itemMeta == null)
             return itemStack;
 
+        BlockStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(material);
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", amount)
+                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+
+        itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
                 ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
                 ChatColor.GRAY + "Block Type: " + ChatColor.RED + formatName(material.name())
@@ -149,7 +137,11 @@ public final class StackerUtils {
         if (itemMeta == null)
             return itemStack;
 
-        itemMeta.setDisplayName(ChatColor.RESET + formatName(entityType.name() + "_" + Material.SPAWNER.name()));
+        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+
+        itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
                 ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
                 ChatColor.GRAY + "Spawner Type: " + ChatColor.RED + formatName(entityType.name())
@@ -170,6 +162,10 @@ public final class StackerUtils {
         if (itemMeta == null)
             return itemStack;
 
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", amount)
+                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+
+        itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
                 ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
                 ChatColor.GRAY + "Entity Type: " + ChatColor.RED + formatName(entityType.name())
