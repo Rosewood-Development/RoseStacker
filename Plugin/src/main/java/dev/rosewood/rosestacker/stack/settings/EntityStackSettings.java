@@ -29,6 +29,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
     private int minStackSize;
     private int maxStackSize;
     private Boolean killEntireStackOnDeath;
+    private double mergeRadius;
 
     // Settings that apply to multiple entities through interfaces
     private boolean dontStackIfDifferentColor;
@@ -63,6 +64,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         this.minStackSize = this.settingsConfiguration.getInt("min-stack-size");
         this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
         this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
+        this.mergeRadius = this.settingsConfiguration.getDouble("merge-radius");
 
         if (this.isEntityColorable())
             this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
@@ -103,6 +105,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);
         this.setIfNotExists("kill-entire-stack-on-death", "default");
+        this.setIfNotExists("merge-radius", -1);
 
         if (this.isEntityColorable())
             this.setIfNotExists("dont-stack-if-different-color", false);
@@ -397,6 +400,12 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         if (this.killEntireStackOnDeath != null)
             return this.killEntireStackOnDeath;
         return Setting.ENTITY_KILL_ENTIRE_STACK_ON_DEATH.getBoolean();
+    }
+
+    public double getMergeRadius() {
+        if (this.mergeRadius != -1)
+            return this.mergeRadius;
+        return Setting.ENTITY_MERGE_RADIUS.getDouble();
     }
 
     protected abstract void setDefaultsInternal();

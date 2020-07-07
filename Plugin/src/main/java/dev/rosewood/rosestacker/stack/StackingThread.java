@@ -541,7 +541,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
      * @return a StackedEntity that was stacked into, or null if none
      */
     private StackedEntity tryStackEntity(StackedEntity stackedEntity) {
-        double maxEntityStackDistanceSqrd = Setting.ENTITY_MERGE_RADIUS.getDouble() * Setting.ENTITY_MERGE_RADIUS.getDouble();
+        EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
+        if (stackSettings == null)
+            return null;
+
+        double maxEntityMergeDistanceSqrd = stackSettings.getMergeRadius() * stackSettings.getMergeRadius();
 
         for (StackedEntity other : this.stackedEntities.values()) {
             if (stackedEntity == other
@@ -555,7 +559,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 continue;
 
             if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
-                if (stackedEntity.getLocation().distanceSquared(other.getLocation()) > maxEntityStackDistanceSqrd)
+                if (stackedEntity.getLocation().distanceSquared(other.getLocation()) > maxEntityMergeDistanceSqrd)
                     continue;
             } else {
                 if (stackedEntity.getLocation().getChunk() != other.getLocation().getChunk())
@@ -563,8 +567,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             }
 
             // Check if we should merge the stacks
-            EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
-            if (stackSettings == null || !stackSettings.canStackWith(stackedEntity, other, false))
+            if (!stackSettings.canStackWith(stackedEntity, other, false))
                 continue;
 
             if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity(), 0.75, false))
@@ -579,7 +582,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
                     for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
                         if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
-                                && stackedEntity.getLocation().distanceSquared(nearbyStackedEntity.getLocation()) <= maxEntityStackDistanceSqrd
+                                && stackedEntity.getLocation().distanceSquared(nearbyStackedEntity.getLocation()) <= maxEntityMergeDistanceSqrd
                                 && stackSettings.canStackWith(stackedEntity, nearbyStackedEntity, false))
                             targetEntities.add(nearbyStackedEntity);
                     }
