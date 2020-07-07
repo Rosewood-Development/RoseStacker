@@ -83,8 +83,12 @@ public class EntityListener implements Listener {
 
             LivingEntity livingEntity = (LivingEntity) entity;
             StackedEntity stackedEntity = stackManager.getStackedEntity(livingEntity);
-            if (stackedEntity != null)
-                Bukkit.getScheduler().runTask(this.roseStacker, () -> stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld()));
+            if (stackedEntity != null) {
+                Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+                    stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
+                    stackedEntity.updateDisplay();
+                });
+            }
         } else if (entity instanceof Item) {
             if (!stackManager.isItemStackingEnabled())
                 return;

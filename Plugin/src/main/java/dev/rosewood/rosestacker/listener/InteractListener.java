@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.Directional;
@@ -74,6 +75,22 @@ public class InteractListener implements Listener {
             StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
             Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::updateOriginalCustomName);
             return;
+        } else if (itemStack.getType() == Material.WATER_BUCKET) {
+            switch (entity.getType()) {
+                case COD:
+                case SALMON:
+                case PUFFERFISH:
+                case TROPICAL_FISH:
+                    break;
+                default: return;
+            }
+
+            if (!stackManager.isEntityStacked(entity))
+                return;
+
+            StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+            entity.setCustomName(stackedEntity.getOriginalCustomName());
+            Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
         }
 
         if (this.spawnEntities(entity, entity.getLocation(), itemStack)) {
@@ -115,8 +132,6 @@ public class InteractListener implements Listener {
             return false;
 
         int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
-        if (spawnAmount == 1)
-            return false;
 
         EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         EntityType entityType = stackSettings.getEntityType();

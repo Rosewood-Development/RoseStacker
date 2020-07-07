@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -38,7 +39,8 @@ public class BeeListener implements Listener {
             return;
         }
 
-        stackManager.addEntityStack(stackedEntity.split());
+        beeEntity.setCustomName(stackedEntity.getOriginalCustomName());
+        Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
     }
 
 }
