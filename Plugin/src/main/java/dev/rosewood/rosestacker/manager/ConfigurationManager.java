@@ -82,6 +82,7 @@ public class ConfigurationManager extends Manager {
         SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 32, "The maximum number of spawners that can be in a single stack"),
         SPAWNER_DISPLAY_TAGS("global-spawner-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         SPAWNER_DISPLAY_TAGS_SINGLE("global-spawner-settings.display-tags-single", false, "Should tags be displayed if the stack only has one spawner?"),
+        SPAWNER_DISABLE_MOB_AI("global-spawner-settings.disable-mob-ai", false, "Should mob AI be disabled for mobs spawned by spawners?", "If you enable this, it is highly recommended to enable global-entity-settings.save-attributes", "Enabling attribute saving will make sure all mob AIs get disabled properly"),
         SPAWNER_EXPLOSION_PROTECTION("global-spawner-settings.explosion-protection", true, "Should spawners be protected from explosions?"),
         SPAWNER_EXPLOSION_DECREASE_STACK_SIZE_ONLY("global-spawner-settings.explosion-decrease-stack-size-only", true, "If enabled, only the stack size will decrease from explosions, no items will be dropped"),
         SPAWNER_EXPLOSION_DESTROY_CHANCE("global-spawner-settings.explosion-destroy-chance", 10.0, "The percentage chance of spawners getting destroyed from an explosion (0-100)"),

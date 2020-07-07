@@ -108,11 +108,19 @@ public class EntityListener implements Listener {
         if (spawnerStackSettings == null)
             return;
 
-        // TODO: Custom spawner mob properties
         if (spawnerStackSettings.isMobAIDisabled()) {
+            // Make the entity unable to move
             AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
             if (movementAttribute != null)
                 movementAttribute.setBaseValue(0);
+
+            // Make the entity unable to take knockback
+            AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+            if (knockbackAttribute != null)
+                knockbackAttribute.setBaseValue(Double.MAX_VALUE);
+
+            // Supposed to stop jumping, but only seems to work on players
+            //entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128, true, false));
         }
 
         // Tag the entity as spawned from a spawner

@@ -108,10 +108,14 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
                     if (this.isSpawnPlaceAvailable(spawnLocation, spawnConditions)) {
                         Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
-                        if (entity.isValid()) // Don't spawn particles for auto-stacked entities
-                            block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+
                         SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
                         Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                        if (spawnerSpawnEvent.isCancelled())
+                            entity.remove();
+
+                        if (entity.isValid()) // Don't spawn particles for auto-stacked entities
+                            block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
                         break;
                     }
 

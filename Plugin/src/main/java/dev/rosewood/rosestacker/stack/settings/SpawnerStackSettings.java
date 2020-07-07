@@ -68,7 +68,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     private EntityType entityType;
     private boolean enabled;
     private String displayName;
-    private boolean disableMobAI;
+    private Boolean disableMobAI;
     private SpawnConditions spawnConditions;
     private int spawnCountStackSizeMultiplier;
     private int minSpawnDelay;
@@ -84,7 +84,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
-        this.disableMobAI = this.settingsConfiguration.getBoolean("disable-mob-ai");
+        this.disableMobAI = this.settingsConfiguration.getDefaultedBoolean("disable-mob-ai");
         this.spawnCountStackSizeMultiplier = this.settingsConfiguration.getInt("spawn-count-stack-size-multiplier");
         this.minSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-minimum");
         this.maxSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-maximum");
@@ -117,7 +117,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
 
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name() + '_' + Material.SPAWNER.name()));
-        this.setIfNotExists("disable-mob-ai", false);
+        this.setIfNotExists("disable-mob-ai", "default");
         this.setIfNotExists("spawn-count-stack-size-multiplier", -1);
         this.setIfNotExists("spawn-delay-minimum", -1);
         this.setIfNotExists("spawn-delay-maximum", -1);
@@ -148,7 +148,9 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     }
 
     public boolean isMobAIDisabled() {
-        return this.disableMobAI;
+        if (this.disableMobAI != null)
+            return this.disableMobAI;
+        return Setting.SPAWNER_DISABLE_MOB_AI.getBoolean();
     }
 
     public SpawnConditions getSpawnConditions() {
