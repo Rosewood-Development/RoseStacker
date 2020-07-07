@@ -41,6 +41,7 @@ import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
 
@@ -194,6 +195,11 @@ public class EntityListener implements Listener {
         stackManager.setEntityStackingTemporarilyDisabled(true);
         stackedEntity.decreaseStackSize();
         stackManager.setEntityStackingTemporarilyDisabled(false);
+
+        if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean()) {
+            stackedEntity.getEntity().setVelocity(entity.getVelocity());
+            entity.setVelocity(new Vector());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
