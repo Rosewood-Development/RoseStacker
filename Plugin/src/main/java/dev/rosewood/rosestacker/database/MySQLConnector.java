@@ -62,4 +62,9 @@ public class MySQLConnector implements DatabaseConnector {
         return this.openConnections.get() == 0;
     }
 
+    @Override
+    public void cleanup() {
+
+    }
+
 }

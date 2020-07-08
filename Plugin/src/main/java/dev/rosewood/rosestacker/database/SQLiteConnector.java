@@ -30,6 +30,12 @@ public class SQLiteConnector implements DatabaseConnector {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+//        this.connect((connection) -> {
+//            connection.createStatement().execute("PRAGMA journal_mode=MEMORY; ");
+//            connection.createStatement().execute("PRAGMA temp_store=MEMORY");
+//            connection.createStatement().execute("PRAGMA synchronous=NORMAL");
+//        });
     }
 
     @Override
@@ -48,6 +54,7 @@ public class SQLiteConnector implements DatabaseConnector {
         if (this.connection == null) {
             try {
                 this.connection = DriverManager.getConnection(this.connectionString);
+                this.connection.setAutoCommit(false);
             } catch (SQLException ex) {
                 this.plugin.getLogger().severe("An error occurred retrieving the SQLite database connection: " + ex.getMessage());
             }
@@ -56,6 +63,16 @@ public class SQLiteConnector implements DatabaseConnector {
         this.openConnections.incrementAndGet();
         try {
             callback.accept(this.connection);
+            try {
+                this.connection.commit();
+            } catch (SQLException e) {
+                if (e.getMessage() != null && !e.getMessage().contains("transaction"))
+                    throw e;
+
+                try {
+                    this.connection.rollback();
+                } catch (SQLException ignored) { }
+            }
         } catch (Exception ex) {
             this.plugin.getLogger().severe("An error occurred executing an SQLite query: " + ex.getMessage());
             ex.printStackTrace();
@@ -76,6 +93,15 @@ public class SQLiteConnector implements DatabaseConnector {
     @Override
     public boolean isFinished() {
         return this.openConnections.get() == 0;
+    }
+
+    @Override
+    public void cleanup() {
+        if (this.connection != null) {
+            try {
+                this.connection.createStatement().execute("VACUUM");
+            } catch (SQLException ignored) { }
+        }
     }
 
 }

@@ -28,6 +28,11 @@ public interface DatabaseConnector {
     boolean isFinished();
 
     /**
+     * Cleans up the database data, if applicable
+     */
+    void cleanup();
+
+    /**
      * Wraps a connection in a callback which will automagically handle catching sql errors
      */
     interface ConnectionCallback {

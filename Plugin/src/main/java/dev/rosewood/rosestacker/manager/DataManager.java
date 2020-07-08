@@ -78,7 +78,7 @@ public class DataManager extends Manager {
 
         // Vacuum the database to help compress it, only run once per plugin startup
         if (!this.ranVacuum && this.databaseConnector instanceof SQLiteConnector)
-            this.databaseConnector.connect((connection) -> connection.createStatement().execute("VACUUM"));
+            this.databaseConnector.cleanup();
     }
 
     @Override
@@ -108,6 +108,9 @@ public class DataManager extends Manager {
     }
 
     public void getStackedEntities(Set<Chunk> chunks, Consumer<Set<StackedEntity>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
         this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
@@ -172,6 +175,9 @@ public class DataManager extends Manager {
     }
 
     public void getStackedItems(Set<Chunk> chunks, Consumer<Set<StackedItem>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
         this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
@@ -236,6 +242,9 @@ public class DataManager extends Manager {
     }
 
     public void getStackedBlocks(Set<Chunk> chunks, Consumer<Set<StackedBlock>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
         this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_block WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
@@ -309,6 +318,9 @@ public class DataManager extends Manager {
     }
 
     public void getStackedSpawners(Set<Chunk> chunks, Consumer<Set<StackedSpawner>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
         this.databaseConnector.connect(connection -> {
             String select = "SELECT * FROM " + this.getTablePrefix() + "stacked_spawner WHERE world = '%s' AND chunk_x = %d AND chunk_z = %d";
 
@@ -667,6 +679,9 @@ public class DataManager extends Manager {
     }
 
     public void setConversionData(Map<StackType, Set<ConversionData>> conversionData) {
+        if (conversionData.isEmpty())
+            return;
+
         this.databaseConnector.connect(connection -> {
             Set<ConversionData> entityData = conversionData.get(StackType.ENTITY);
             if (entityData != null && !entityData.isEmpty()) {
