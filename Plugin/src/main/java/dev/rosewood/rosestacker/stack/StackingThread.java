@@ -99,25 +99,24 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         }
 
         // Auto stack entities
-        if (!this.stackManager.isEntityStackingEnabled())
-            return;
+        if (this.stackManager.isEntityStackingEnabled()) {
+            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
+                LivingEntity livingEntity = stackedEntity.getEntity();
+                if (livingEntity == null || !livingEntity.isValid()) {
+                    this.removeEntityStack(stackedEntity);
+                    continue;
+                }
 
-        for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
-            LivingEntity livingEntity = stackedEntity.getEntity();
-            if (livingEntity == null || !livingEntity.isValid()) {
-                this.removeEntityStack(stackedEntity);
-                continue;
+                this.tryStackEntity(stackedEntity);
             }
 
-            this.tryStackEntity(stackedEntity);
+            // Auto unstack entities
+            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
+                if (!stackedEntity.shouldStayStacked())
+                    Bukkit.getScheduler().runTask(this.roseStacker, () -> this.splitEntityStack(stackedEntity));
         }
 
-        // Auto unstack entities
-        for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
-            if (!stackedEntity.shouldStayStacked())
-                Bukkit.getScheduler().runTask(this.roseStacker, () -> this.splitEntityStack(stackedEntity));
-
-        // Cleans up entities that aren't stacked
+        // Cleans up entities/items that aren't stacked
         this.cleanupTimer++;
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : this.targetWorld.getEntities()) {
@@ -192,6 +191,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public void close() {
         DataManager dataManager = this.roseStacker.getManager(DataManager.class);
 
+        // Cancel tasks
+        if (this.stackTask != null)
+            this.stackTask.cancel();
+
+        if (this.pendingChunkTask != null)
+            this.pendingChunkTask.cancel();
+
         // Restore custom names
         for (StackedEntity stackedEntity : this.stackedEntities.values())
             stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
@@ -208,12 +214,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         if (this.stackManager.isSpawnerStackingEnabled())
             dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values());
-
-        if (this.stackTask != null)
-            this.stackTask.cancel();
-
-        if (this.pendingChunkTask != null)
-            this.pendingChunkTask.cancel();
     }
 
     @Override
@@ -474,7 +474,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 //        NMSHandler nmsHandler = NMSUtil.getHandler();
 //        for (int i = 0; i < amount; i++) {
 //            LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location);
-//            System.out.println(nmsHandler.getEntityAsNBT())
 //            Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x -> stackSettings.canStackWith(x, new StackedEntity(entity), false)).findFirst();
 //            if (matchingEntity.isPresent()) {
 //                matchingEntity.get().increaseStackSize(entity);

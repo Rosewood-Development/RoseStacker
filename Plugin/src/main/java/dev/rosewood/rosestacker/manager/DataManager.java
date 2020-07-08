@@ -396,8 +396,8 @@ public class DataManager extends Manager {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
                         statement.setBytes(2, EntitySerializer.toBlob(stack));
                         statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getChunk().getX());
-                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
                         statement.setInt(6, stack.getId());
                         statement.addBatch();
                     }
@@ -421,13 +421,13 @@ public class DataManager extends Manager {
                         statement.setString(1, stack.getEntity().getUniqueId().toString());
                         statement.setBytes(2, EntitySerializer.toBlob(stack));
                         statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getChunk().getX());
-                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
                         // On conflict
                         statement.setBytes(6, EntitySerializer.toBlob(stack));
                         statement.setString(7, stack.getLocation().getWorld().getName());
-                        statement.setInt(8, stack.getLocation().getChunk().getX());
-                        statement.setInt(9, stack.getLocation().getChunk().getZ());
+                        statement.setInt(8, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(9, stack.getLocation().getBlockZ() >> 4);
                         statement.addBatch();
                     }
                     statement.executeBatch();
@@ -453,8 +453,8 @@ public class DataManager extends Manager {
                         statement.setInt(1, stack.getStackSize());
                         statement.setString(2, stack.getItem().getUniqueId().toString());
                         statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getChunk().getX());
-                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
                         statement.setInt(6, stack.getId());
                         statement.addBatch();
                     }
@@ -478,13 +478,13 @@ public class DataManager extends Manager {
                         statement.setInt(1, stack.getStackSize());
                         statement.setString(2, stack.getItem().getUniqueId().toString());
                         statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getChunk().getX());
-                        statement.setInt(5, stack.getLocation().getChunk().getZ());
+                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
                         // On conflict
                         statement.setInt(6, stack.getStackSize());
                         statement.setString(7, stack.getLocation().getWorld().getName());
-                        statement.setInt(8, stack.getLocation().getChunk().getX());
-                        statement.setInt(9, stack.getLocation().getChunk().getZ());
+                        statement.setInt(8, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(9, stack.getLocation().getBlockZ() >> 4);
                         statement.addBatch();
                     }
                     statement.executeBatch();
@@ -524,8 +524,8 @@ public class DataManager extends Manager {
                     for (Stack stack : insert) {
                         statement.setInt(1, stack.getStackSize());
                         statement.setString(2, stack.getLocation().getWorld().getName());
-                        statement.setInt(3, stack.getLocation().getChunk().getX());
-                        statement.setInt(4, stack.getLocation().getChunk().getZ());
+                        statement.setInt(3, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(4, stack.getLocation().getBlockZ() >> 4);
                         statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
                         statement.setInt(6, stack.getLocation().getBlockY());
                         statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);

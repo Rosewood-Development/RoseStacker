@@ -243,7 +243,6 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         if (this.getStackSize() == 1 && this.originalCustomName != null) {
             this.entity.setCustomNameVisible(true);
             this.entity.setCustomName(this.originalCustomName);
-            System.out.println(this.originalCustomName);
         } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
             if (this.originalCustomName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
