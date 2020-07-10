@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -93,15 +96,26 @@ public class SpawnerStackSettings extends StackSettings {
         this.playerActivationRange = this.settingsConfiguration.getInt("player-activation-range");
         this.spawnRange = this.settingsConfiguration.getInt("spawn-range");
 
-        List<String> spawnBlockString = this.settingsConfiguration.getStringList("spawn-blocks");
-        Set<Material> spawnBlocks = spawnBlockString.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
+        List<String> spawnBlockStrings = this.settingsConfiguration.getStringList("spawn-blocks");
+        Set<Material> spawnBlocks = spawnBlockStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (spawnBlocks.isEmpty())
+            spawnBlocks.add(Material.AIR);
 
         String requiredLightLevelString = this.settingsConfiguration.getString("required-light-level");
         if (requiredLightLevelString == null)
             requiredLightLevelString = LightLevel.ANY.name();
         LightLevel requiredLightLevel = LightLevel.getLightLevel(requiredLightLevelString);
 
-        this.spawnConditions = new SpawnConditions(spawnBlocks, requiredLightLevel);
+        List<String> spawnBiomeStrings = this.settingsConfiguration.getStringList("spawn-biomes");
+        Set<Biome> spawnBiomes = spawnBiomeStrings.stream().map(x -> {
+            try {
+                return Biome.valueOf(x.toUpperCase());
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+
+        this.spawnConditions = new SpawnConditions(spawnBlocks, spawnBiomes, requiredLightLevel);
     }
 
     @Override
@@ -121,6 +135,7 @@ public class SpawnerStackSettings extends StackSettings {
 
         SpawnConditions defaults = defaultSpawnConditions.get(this.entityType);
         this.setIfNotExists("spawn-blocks", defaults.getSpawnBlocks().stream().map(Enum::name).collect(Collectors.toList()));
+        this.setIfNotExists("spawn-biomes", new ArrayList<String>());
         this.setIfNotExists("required-light-level", defaults.getRequiredLightLevel().name());
     }
 
@@ -199,15 +214,25 @@ public class SpawnerStackSettings extends StackSettings {
     public static class SpawnConditions {
 
         private Set<Material> spawnBlocks;
+        private Set<Biome> spawnBiomes;
         private LightLevel requiredLightLevel;
 
-        private SpawnConditions(Set<Material> spawnBlocks, LightLevel requiredLightLevel) {
+        private SpawnConditions(Set<Material> spawnBlocks, Set<Biome> spawnBiomes, LightLevel requiredLightLevel) {
             this.spawnBlocks = spawnBlocks;
+            this.spawnBiomes = spawnBiomes;
             this.requiredLightLevel = requiredLightLevel;
+        }
+
+        private SpawnConditions(Set<Material> spawnBlocks, LightLevel requiredLightLevel) {
+            this(spawnBlocks, Collections.emptySet(), requiredLightLevel);
         }
 
         public Set<Material> getSpawnBlocks() {
             return this.spawnBlocks;
+        }
+
+        public Set<Biome> getSpawnBiomes() {
+            return this.spawnBiomes;
         }
 
         public LightLevel getRequiredLightLevel() {

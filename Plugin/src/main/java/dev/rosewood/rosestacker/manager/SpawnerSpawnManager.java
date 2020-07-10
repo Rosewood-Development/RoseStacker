@@ -144,7 +144,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 break;
         }
 
-        if (!spawnConditions.getSpawnBlocks().contains(below.getType()) && !spawnConditions.getSpawnBlocks().contains(Material.AIR))
+        if (!spawnConditions.getSpawnBlocks().contains(Material.AIR) && !spawnConditions.getSpawnBlocks().contains(below.getType()))
+            return false;
+
+        if (!spawnConditions.getSpawnBiomes().isEmpty() && !spawnConditions.getSpawnBiomes().contains(below.getBiome()))
             return false;
 
         return (block.isPassable() || block.isEmpty()) && (above.isPassable() || above.isEmpty());
