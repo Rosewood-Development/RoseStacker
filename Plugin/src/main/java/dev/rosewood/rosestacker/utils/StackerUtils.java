@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,22 +62,6 @@ public final class StackerUtils {
      */
     public static String locationAsKey(Location location) {
         return String.format("%s-%.2f-%.2f-%.2f", location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
-    }
-
-    /**
-     * Drops a List of ItemStacks into a Player's Inventory, with any overflow dropped onto the ground
-     *
-     * @param player The Player to give items to
-     * @param itemStacks The ItemStacks to give
-     */
-    public static void dropItemsToPlayer(Player player, List<ItemStack> itemStacks) {
-        List<ItemStack> extraItems = new ArrayList<>();
-        for (ItemStack itemStack : itemStacks)
-            extraItems.addAll(player.getInventory().addItem(itemStack).values());
-        Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
-        for (ItemStack extraItem : extraItems)
-            player.getWorld().dropItemNaturally(location, extraItem);
-        RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
     }
 
     /**
@@ -325,11 +308,18 @@ public final class StackerUtils {
         }
     }
 
-    public static void dropToInventory(Player player, ItemStack itemStack) {
-        Map<Integer, ItemStack> remaining = player.getInventory().addItem(itemStack);
-        ItemStack remainingItem = remaining.get(0);
-        if (remainingItem != null)
-            player.getWorld().dropItemNaturally(player.getLocation(), remainingItem);
+    /**
+     * Drops a List of ItemStacks into a Player's Inventory, with any overflow dropped onto the ground
+     *
+     * @param player The Player to give items to
+     * @param itemStacks The ItemStacks to give
+     */
+    public static void dropItemsToPlayer(Player player, List<ItemStack> itemStacks) {
+        List<ItemStack> extraItems = new ArrayList<>();
+        for (ItemStack itemStack : itemStacks)
+            extraItems.addAll(player.getInventory().addItem(itemStack).values());
+        Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
+        RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
     }
 
     /**

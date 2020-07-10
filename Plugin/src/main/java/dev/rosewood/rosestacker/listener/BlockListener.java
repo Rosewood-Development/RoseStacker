@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -123,14 +124,26 @@ public class BlockListener implements Listener {
 
             boolean breakEverything = Setting.BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             if (breakEverything) {
-                if (player.getGameMode() != GameMode.CREATIVE)
-                    stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize()), dropLocation);
+                if (player.getGameMode() != GameMode.CREATIVE) {
+                    List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize());
+                    if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+                        StackerUtils.dropItemsToPlayer(player, items);
+                    } else {
+                        stackManager.preStackItems(items, dropLocation);
+                    }
+                }
                 stackedBlock.setStackSize(0);
                 CoreProtectHook.recordBlockBreak(player, block);
                 block.setType(Material.AIR);
             } else {
-                if (player.getGameMode() != GameMode.CREATIVE)
-                    player.getWorld().dropItemNaturally(dropLocation, new ItemStack(block.getType()));
+                if (player.getGameMode() != GameMode.CREATIVE) {
+                    ItemStack item = new ItemStack(block.getType());
+                    if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+                        StackerUtils.dropItemsToPlayer(player, Collections.singletonList(item));
+                    } else {
+                        player.getWorld().dropItemNaturally(dropLocation, item);
+                    }
+                }
                 stackedBlock.increaseStackSize(-1);
                 CoreProtectHook.recordBlockBreak(player, block);
             }
@@ -181,7 +194,7 @@ public class BlockListener implements Listener {
             if (dropAmount > 0) {
                 ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, dropAmount);
                 if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-                    StackerUtils.dropToInventory(player, spawnerItem);
+                    StackerUtils.dropItemsToPlayer(player, Collections.singletonList(spawnerItem));
                 } else {
                     dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
                 }
@@ -192,7 +205,7 @@ public class BlockListener implements Listener {
         } else {
             ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount);
             if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-                StackerUtils.dropToInventory(player, spawnerItem);
+                StackerUtils.dropItemsToPlayer(player, Collections.singletonList(spawnerItem));
             } else {
                 dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
             }
