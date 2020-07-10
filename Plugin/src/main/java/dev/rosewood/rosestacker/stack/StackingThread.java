@@ -336,11 +336,15 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public int removeAllEntityStacks() {
-        int total = this.stackedEntities.size();
-        this.stackedEntities.values().forEach(this.stackManager::markStackDeleted);
-        this.stackedEntities.values().stream().map(StackedEntity::getEntity).forEach(LivingEntity::remove);
-        this.stackedEntities.clear();
-        return total;
+        Set<StackedEntity> toRemove = this.stackedEntities.values().stream()
+                .filter(x -> x.getStackSize() != 1 || Setting.MISC_CLEARALL_REMOVE_SINGLE.getBoolean())
+                .collect(Collectors.toSet());
+
+        toRemove.forEach(this.stackManager::markStackDeleted);
+        toRemove.stream().map(StackedEntity::getEntity).forEach(LivingEntity::remove);
+        this.stackedEntities.values().removeIf(toRemove::contains);
+
+        return toRemove.size();
     }
 
     @Override

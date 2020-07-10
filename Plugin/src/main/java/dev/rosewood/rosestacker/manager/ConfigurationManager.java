@@ -118,6 +118,7 @@ public class ConfigurationManager extends Manager {
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),
         MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", true, "If Clearlag is installed, should we clear stacked entities?"),
         MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", true, "If Clearlag is installed, should we clear stacked items?"),
+        MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above"),
 
         MYSQL_SETTINGS("mysql-settings", null, "Settings for if you want to use MySQL for data management"),
         MYSQL_ENABLED("mysql-settings.enabled", false, "Enable MySQL", "If false, SQLite will be used instead"),
