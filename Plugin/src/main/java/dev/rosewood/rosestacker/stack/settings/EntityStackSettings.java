@@ -419,6 +419,16 @@ public abstract class EntityStackSettings extends StackSettings {
     protected abstract boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2);
 
     /**
+     * Applies special properties to an entity when it stacks
+     *
+     * @param stacking The entity getting stacked into another
+     * @param stack The entity at the top of the result stack
+     */
+    public void applyStackProperties(LivingEntity stacking, LivingEntity stack) {
+        // Does nothing by default, override in a subclass to add functionality
+    }
+
+    /**
      * Applies special properties to an entity when it unstacks
      *
      * @param stacked The entity that's still stacked

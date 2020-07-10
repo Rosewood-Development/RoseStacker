@@ -160,6 +160,9 @@ public class StackedBlockGui {
     private void updateStackedBlock(Player player, List<ItemStack> items) {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
+        // No longer any players viewing
+        this.guiContainer = null;
+
         int newStackSize = items.stream().mapToInt(ItemStack::getAmount).sum();
         if (newStackSize == this.stackedBlock.getStackSize())
             return;
@@ -198,8 +201,6 @@ public class StackedBlockGui {
             StackerUtils.dropItemsToPlayer(player, overflowItems);
             this.stackedBlock.setStackSize(maxStackSize);
         }
-
-        this.guiContainer = null;
     }
 
     private void takeFromPlayer(Player player, int amount) {

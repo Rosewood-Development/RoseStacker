@@ -643,6 +643,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     toStack.getEntity().setCustomNameVisible(false);
                 }
 
+                stackSettings.applyStackProperties(toStack.getEntity(), increased.getEntity());
+
                 increased.increaseStackSize(toStack.getEntity());
                 increased.increaseStackSize(toStack.getStackedEntityNBT());
             }

@@ -187,7 +187,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return true;
 
         // Ender dragons call an EnderDragonChangePhaseEvent upon entity construction
-        // We want to be able to do this check async, just we just won't let ender dragons unstack without dying
+        // We want to be able to do this check async, we just won't let ender dragons unstack without dying
         if (this.entity instanceof EnderDragon)
             return true;
 

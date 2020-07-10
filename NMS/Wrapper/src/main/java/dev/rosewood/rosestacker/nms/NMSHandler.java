@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.nms;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -53,5 +54,12 @@ public interface NMSHandler {
      * @param visible true to make the nametag visible, otherwise false
      */
     void toggleEntityNameTagForPlayer(Player player, Entity entity, boolean visible);
+
+    /**
+     * Unignites a creeper
+     *
+     * @param creeper The creeper to unignite
+     */
+    void unigniteCreeper(Creeper creeper);
 
 }

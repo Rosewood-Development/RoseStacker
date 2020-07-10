@@ -1,11 +1,14 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import net.minecraft.server.v1_16_R1.EntityCreeper;
 import org.bukkit.Material;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 
 public class CreeperStackSettings extends EntityStackSettings {
 
@@ -28,6 +31,11 @@ public class CreeperStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-charged", false);
+    }
+
+    @Override
+    public void applyStackProperties(LivingEntity stacking, LivingEntity stack) {
+        NMSUtil.getHandler().unigniteCreeper((Creeper) stacking);
     }
 
     @Override

@@ -10,9 +10,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.DataWatcher;
+import net.minecraft.server.v1_13_R2.DataWatcherObject;
 import net.minecraft.server.v1_13_R2.DataWatcherRegistry;
 import net.minecraft.server.v1_13_R2.DataWatcherSerializer;
 import net.minecraft.server.v1_13_R2.Entity;
+import net.minecraft.server.v1_13_R2.EntityCreeper;
 import net.minecraft.server.v1_13_R2.EntityLiving;
 import net.minecraft.server.v1_13_R2.EntityTypes;
 import net.minecraft.server.v1_13_R2.IRegistry;
@@ -23,17 +25,23 @@ import net.minecraft.server.v1_13_R2.NBTTagList;
 import net.minecraft.server.v1_13_R2.PacketPlayOutEntityMetadata;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
+@SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
     private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
+
+    private static DataWatcherObject<Boolean> value_EntityCreeper_d; // DataWatcherObject that determines if a creeper is ignited, normally private
+    private static Field field_EntityCreeper_fuseTicks; // Field to set the remianing fuse ticks of a creeper, normally private
 
     static {
         try {
@@ -42,6 +50,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
             field_PacketPlayOutEntityMetadata_b.setAccessible(true);
+
+            Field field_EntityCreeper_d = EntityCreeper.class.getDeclaredField("c");
+            field_EntityCreeper_d.setAccessible(true);
+            value_EntityCreeper_d = (DataWatcherObject<Boolean>) field_EntityCreeper_d.get(null);
+
+            field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -158,6 +172,18 @@ public class NMSHandlerImpl implements NMSHandler {
 
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void unigniteCreeper(Creeper creeper) {
+        EntityCreeper entityCreeper = ((CraftCreeper) creeper).getHandle();
+
+        entityCreeper.getDataWatcher().set(value_EntityCreeper_d, false);
+        try {
+            field_EntityCreeper_fuseTicks.set(entityCreeper, entityCreeper.maxFuseTicks);
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }

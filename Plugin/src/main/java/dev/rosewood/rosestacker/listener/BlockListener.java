@@ -146,11 +146,13 @@ public class BlockListener implements Listener {
             }
             breakAmount = blockUnstackEvent.getDecreaseAmount();
 
-            List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize());
-            if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
-                StackerUtils.dropItemsToPlayer(player, items);
-            } else {
-                stackManager.preStackItems(items, dropLocation);
+            if (player.getGameMode() != GameMode.CREATIVE) {
+                List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), breakAmount);
+                if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+                    StackerUtils.dropItemsToPlayer(player, items);
+                } else {
+                    stackManager.preStackItems(items, dropLocation);
+                }
             }
 
             CoreProtectHook.recordBlockBreak(player, block);
