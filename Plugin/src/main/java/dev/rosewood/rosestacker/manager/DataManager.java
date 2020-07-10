@@ -532,6 +532,13 @@ public class DataManager extends Manager {
 
             if (!insert.isEmpty()) {
                 String batchInsert = "INSERT INTO " + this.getTablePrefix() + tableName + " (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                if (this.databaseConnector instanceof SQLiteConnector) {
+                    batchInsert += " ON CONFLICT(world, chunk_x, chunk_z, block_x, block_y, block_z) DO UPDATE SET stack_size = ?";
+                } else {
+                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?";
+                }
+
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
                     for (Stack<?> stack : insert) {
                         statement.setInt(1, stack.getStackSize());
@@ -541,6 +548,7 @@ public class DataManager extends Manager {
                         statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
                         statement.setInt(6, stack.getLocation().getBlockY());
                         statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
+                        statement.setInt(8, stack.getStackSize());
                         statement.addBatch();
                     }
                     statement.executeBatch();
