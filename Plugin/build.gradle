@@ -20,6 +20,7 @@ dependencies {
     shadow 'me.clip:placeholderapi:2.10.4'
     shadow 'net.coreprotect:coreprotect:2.15.0'
     shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
+    shadow 'org.jetbrains:annotations:16.0.2'
 
     // From our repo
     shadow 'com.bgsoftware:wildstacker:3.1.0'
