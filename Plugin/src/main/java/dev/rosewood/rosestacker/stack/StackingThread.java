@@ -1,6 +1,11 @@
 package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.EntityStackClearEvent;
+import dev.rosewood.rosestacker.event.EntityStackEvent;
+import dev.rosewood.rosestacker.event.EntityUnstackEvent;
+import dev.rosewood.rosestacker.event.ItemStackClearEvent;
+import dev.rosewood.rosestacker.event.ItemStackEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -10,9 +15,11 @@ import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -336,9 +343,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public int removeAllEntityStacks() {
-        Set<StackedEntity> toRemove = this.stackedEntities.values().stream()
+        List<StackedEntity> toRemove = this.stackedEntities.values().stream()
                 .filter(x -> x.getStackSize() != 1 || Setting.MISC_CLEARALL_REMOVE_SINGLE.getBoolean())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
+
+        EntityStackClearEvent entityStackClearEvent = new EntityStackClearEvent(this.targetWorld, toRemove);
+        Bukkit.getPluginManager().callEvent(entityStackClearEvent);
+        if (entityStackClearEvent.isCancelled())
+            return 0;
 
         toRemove.forEach(this.stackManager::markStackDeleted);
         toRemove.stream().map(StackedEntity::getEntity).forEach(LivingEntity::remove);
@@ -349,11 +361,18 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public int removeAllItemStacks() {
-        int total = this.stackedItems.size();
-        this.stackedItems.values().forEach(this.stackManager::markStackDeleted);
-        this.stackedItems.values().stream().map(StackedItem::getItem).forEach(Item::remove);
-        this.stackedItems.clear();
-        return total;
+        List<StackedItem> toRemove = new ArrayList<>(this.stackedItems.values());
+
+        ItemStackClearEvent itemStackClearEvent = new ItemStackClearEvent(this.targetWorld, toRemove);
+        Bukkit.getPluginManager().callEvent(itemStackClearEvent);
+        if (itemStackClearEvent.isCancelled())
+            return 0;
+
+        toRemove.forEach(this.stackManager::markStackDeleted);
+        toRemove.stream().map(StackedItem::getItem).forEach(Item::remove);
+        this.stackedItems.values().removeIf(toRemove::contains);
+
+        return toRemove.size();
     }
 
     @Override
@@ -367,6 +386,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public StackedEntity splitEntityStack(StackedEntity stackedEntity) {
+        EntityUnstackEvent entityUnstackEvent = new EntityUnstackEvent(stackedEntity, new StackedEntity(stackedEntity.getEntity()));
+        Bukkit.getPluginManager().callEvent(entityUnstackEvent);
+        if (entityUnstackEvent.isCancelled())
+            return null;
+
         StackedEntity newlySplit = stackedEntity.split();
         this.stackedEntities.put(newlySplit.getEntity().getUniqueId(), newlySplit);
         return newlySplit;
@@ -602,11 +626,16 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             StackedEntity increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
             targetEntities.remove(increased);
 
-            Set<StackedEntity> removed = new HashSet<>();
-            for (StackedEntity toStack : targetEntities) {
-                if (!stackSettings.canStackWith(increased, toStack, false))
-                    continue;
+            List<StackedEntity> removed = targetEntities.stream()
+                    .filter(x -> stackSettings.canStackWith(increased, x, false))
+                    .collect(Collectors.toList());
 
+            EntityStackEvent entityStackEvent = new EntityStackEvent(removed, increased);
+            Bukkit.getPluginManager().callEvent(entityStackEvent);
+            if (entityStackEvent.isCancelled())
+                continue;
+
+            for (StackedEntity toStack : removed) {
                 if (toStack.getOriginalCustomName() != null) {
                     toStack.getEntity().setCustomName(toStack.getOriginalCustomName());
                 } else {
@@ -616,8 +645,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
                 increased.increaseStackSize(toStack.getEntity());
                 increased.increaseStackSize(toStack.getStackedEntityNBT());
-
-                removed.add(toStack);
             }
 
             if (Bukkit.isPrimaryThread()) {
@@ -662,12 +689,16 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 continue;
 
             // Check if we should merge the stacks
-
             if (!stackSettings.isStackingEnabled())
                 continue;
 
             StackedItem increased = stackedItem.compareTo(other) > 0 ? stackedItem : other;
             StackedItem removed = increased == stackedItem ? other : stackedItem;
+
+            ItemStackEvent itemStackEvent = new ItemStackEvent(removed, increased);
+            Bukkit.getPluginManager().callEvent(itemStackEvent);
+            if (itemStackEvent.isCancelled())
+                continue;
 
             increased.increaseStackSize(removed.getStackSize());
             increased.getItem().setTicksLived(1);

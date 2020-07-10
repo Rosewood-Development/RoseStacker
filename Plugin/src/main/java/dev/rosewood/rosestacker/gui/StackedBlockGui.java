@@ -10,6 +10,8 @@ import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.BlockStackEvent;
+import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -24,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -158,6 +161,30 @@ public class StackedBlockGui {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         int newStackSize = items.stream().mapToInt(ItemStack::getAmount).sum();
+        if (newStackSize == this.stackedBlock.getStackSize())
+            return;
+
+        int difference = newStackSize - this.stackedBlock.getStackSize();
+        if (newStackSize > this.stackedBlock.getStackSize()) {
+            BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference);
+            Bukkit.getPluginManager().callEvent(blockStackEvent);
+            if (blockStackEvent.isCancelled()) {
+                StackerUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), difference));
+                return;
+            }
+
+            newStackSize = this.stackedBlock.getStackSize() + blockStackEvent.getIncreaseAmount();
+        } else {
+            BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, -difference);
+            Bukkit.getPluginManager().callEvent(blockUnstackEvent);
+            if (blockUnstackEvent.isCancelled()) {
+                this.takeFromPlayer(player, -difference);
+                return;
+            }
+
+            newStackSize = this.stackedBlock.getStackSize() - blockUnstackEvent.getDecreaseAmount();
+        }
+
         this.stackedBlock.setStackSize(newStackSize);
 
         int maxStackSize = this.stackedBlock.getStackSettings().getMaxStackSize();
@@ -173,6 +200,25 @@ public class StackedBlockGui {
         }
 
         this.guiContainer = null;
+    }
+
+    private void takeFromPlayer(Player player, int amount) {
+        int toRemove = amount;
+        Inventory playerInventory = player.getInventory();
+        int slot = 0;
+        while (toRemove > 0 && slot < playerInventory.getSize()) {
+            ItemStack item = playerInventory.getItem(slot);
+            if (item == null || item.getType() != this.stackedBlock.getBlock().getType())
+                continue;
+
+            if (toRemove >= item.getAmount()) {
+                toRemove -= item.getAmount();
+                playerInventory.setItem(slot, null);
+            } else {
+                toRemove = 0;
+                item.setAmount(item.getAmount() - toRemove);
+            }
+        }
     }
 
     private void destroyStackedBlock() {

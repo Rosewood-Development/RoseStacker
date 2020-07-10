@@ -2,6 +2,10 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.BlockStackEvent;
+import dev.rosewood.rosestacker.event.BlockUnstackEvent;
+import dev.rosewood.rosestacker.event.SpawnerStackEvent;
+import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
 import dev.rosewood.rosestacker.hook.CoreProtectHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -99,13 +103,22 @@ public class BlockListener implements Listener {
 
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
             boolean breakEverything = Setting.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
-            if (breakEverything) {
-                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), stackedSpawner.getStackSize());
+            int breakAmount = breakEverything ? stackedSpawner.getStackSize() : 1;
+
+            SpawnerUnstackEvent spawnerUnstackEvent = new SpawnerUnstackEvent(player, stackedSpawner, breakAmount);
+            Bukkit.getPluginManager().callEvent(spawnerUnstackEvent);
+            if (spawnerUnstackEvent.isCancelled()) {
+                event.setCancelled(true);
+                return;
+            }
+            breakAmount = spawnerUnstackEvent.getDecreaseAmount();
+
+            this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), breakAmount);
+            if (breakAmount == stackedSpawner.getStackSize()) {
                 stackedSpawner.setStackSize(0);
                 block.setType(Material.AIR);
             } else {
-                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
-                stackedSpawner.increaseStackSize(-1);
+                stackedSpawner.increaseStackSize(-breakAmount);
             }
 
             if (stackedSpawner.getStackSize() <= 0) {
@@ -123,29 +136,29 @@ public class BlockListener implements Listener {
             }
 
             boolean breakEverything = Setting.BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
-            if (breakEverything) {
-                if (player.getGameMode() != GameMode.CREATIVE) {
-                    List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize());
-                    if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
-                        StackerUtils.dropItemsToPlayer(player, items);
-                    } else {
-                        stackManager.preStackItems(items, dropLocation);
-                    }
-                }
+            int breakAmount = breakEverything ? stackedBlock.getStackSize() : 1;
+
+            BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, stackedBlock, breakAmount);
+            Bukkit.getPluginManager().callEvent(blockUnstackEvent);
+            if (blockUnstackEvent.isCancelled()) {
+                event.setCancelled(true);
+                return;
+            }
+            breakAmount = blockUnstackEvent.getDecreaseAmount();
+
+            List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), stackedBlock.getStackSize());
+            if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+                StackerUtils.dropItemsToPlayer(player, items);
+            } else {
+                stackManager.preStackItems(items, dropLocation);
+            }
+
+            CoreProtectHook.recordBlockBreak(player, block);
+            if (breakAmount == stackedBlock.getStackSize()) {
                 stackedBlock.setStackSize(0);
-                CoreProtectHook.recordBlockBreak(player, block);
                 block.setType(Material.AIR);
             } else {
-                if (player.getGameMode() != GameMode.CREATIVE) {
-                    ItemStack item = new ItemStack(block.getType());
-                    if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
-                        StackerUtils.dropItemsToPlayer(player, Collections.singletonList(item));
-                    } else {
-                        player.getWorld().dropItemNaturally(dropLocation, item);
-                    }
-                }
                 stackedBlock.increaseStackSize(-1);
-                CoreProtectHook.recordBlockBreak(player, block);
             }
 
             if (stackedBlock.getStackSize() <= 1)
@@ -253,15 +266,21 @@ public class BlockListener implements Listener {
                 StackedBlock stackedBlock = stackManager.getStackedBlock(block);
                 stackedBlock.kickOutGuiViewers();
 
-                int newStackSize;
-
                 int destroyAmountFixed = Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
+                int destroyAmount;
                 if (destroyAmountFixed != -1) {
-                    newStackSize = stackedBlock.getStackSize() - destroyAmountFixed;
+                    destroyAmount = destroyAmountFixed;
                 } else {
-                    newStackSize = (int) Math.floor(stackedBlock.getStackSize() * (Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                    destroyAmount = stackedBlock.getStackSize() - (int) Math.floor(stackedBlock.getStackSize() * (Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
                 }
 
+                BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(null, stackedBlock, destroyAmount);
+                Bukkit.getPluginManager().callEvent(blockUnstackEvent);
+                if (blockUnstackEvent.isCancelled())
+                    continue;
+                destroyAmount = blockUnstackEvent.getDecreaseAmount();
+
+                int newStackSize = stackedBlock.getStackSize() - destroyAmount;
                 if (newStackSize <= 0) {
                     block.setType(Material.AIR);
                     stackedBlock.setStackSize(0);
@@ -288,15 +307,22 @@ public class BlockListener implements Listener {
                     continue;
 
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
-                int newStackSize;
 
                 int destroyAmountFixed = Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
+                int destroyAmount;
                 if (destroyAmountFixed != -1) {
-                    newStackSize = stackedSpawner.getStackSize() - destroyAmountFixed;
+                    destroyAmount = destroyAmountFixed;
                 } else {
-                    newStackSize = (int) Math.floor(stackedSpawner.getStackSize() * (Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                    destroyAmount = stackedSpawner.getStackSize() - (int) Math.floor(stackedSpawner.getStackSize() * (Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
                 }
 
+                SpawnerUnstackEvent spawnerUnstackEvent = new SpawnerUnstackEvent(null, stackedSpawner, destroyAmount);
+                Bukkit.getPluginManager().callEvent(spawnerUnstackEvent);
+                if (spawnerUnstackEvent.isCancelled())
+                    continue;
+                destroyAmount = spawnerUnstackEvent.getDecreaseAmount();
+
+                int newStackSize = stackedSpawner.getStackSize() - destroyAmount;
                 if (newStackSize <= 0) {
                     block.setType(Material.AIR);
                     stackedSpawner.setStackSize(0);
@@ -400,12 +426,29 @@ public class BlockListener implements Listener {
 
                 // Handle spawner stacking
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
-                if (stackedSpawner == null)
-                    stackedSpawner = stackManager.createSpawnerStack(against, 1);
 
-                if (stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                if (stackedSpawner != null && stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
                     event.setCancelled(true);
                     return;
+                }
+
+                if (stackedSpawner != null) {
+                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount);
+                    Bukkit.getPluginManager().callEvent(spawnerStackEvent);
+                    if (spawnerStackEvent.isCancelled()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    stackAmount = spawnerStackEvent.getIncreaseAmount();
+                }
+
+                if (stackedSpawner == null) {
+                    stackedSpawner = stackManager.createSpawnerStack(against, 1);
+
+                    if (stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
 
                 stackedSpawner.increaseStackSize(stackAmount);
@@ -415,16 +458,32 @@ public class BlockListener implements Listener {
 
                 // Handle normal block stacking
                 StackedBlock stackedBlock = stackManager.getStackedBlock(against);
-                if (stackedBlock == null) {
-                    stackedBlock = stackManager.createBlockStack(against, 1);
-                } else if (stackedBlock.isLocked()) {
-                    event.setCancelled(true);
-                    return;
-                }
 
-                if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
-                    event.setCancelled(true);
-                    return;
+                if (stackedBlock != null) {
+                    if (stackedBlock.isLocked()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
+                    if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
+                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount);
+                    Bukkit.getPluginManager().callEvent(blockStackEvent);
+                    if (blockStackEvent.isCancelled()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    stackAmount = blockStackEvent.getIncreaseAmount();
+                } else {
+                    stackedBlock = stackManager.createBlockStack(against, 1);
+
+                    if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
 
                 stackedBlock.increaseStackSize(stackAmount);
@@ -456,6 +515,16 @@ public class BlockListener implements Listener {
                     return;
                 }
 
+                StackedSpawner tempStackedSpawner = new StackedSpawner(-1, 0, spawner);
+                SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount);
+                Bukkit.getPluginManager().callEvent(spawnerStackEvent);
+                if (spawnerStackEvent.isCancelled()) {
+                    tempStackedSpawner.setStackSize(0);
+                    event.setCancelled(true);
+                    return;
+                }
+                stackAmount = spawnerStackEvent.getIncreaseAmount();
+
                 stackManager.createSpawnerStack(block, stackAmount);
             } else {
                 if (stackAmount <= 1)
@@ -466,6 +535,15 @@ public class BlockListener implements Listener {
                     return;
 
                 if (stackAmount > blockStackSettings.getMaxStackSize()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                StackedBlock tempStackedBlock = new StackedBlock(0, block);
+                BlockStackEvent blockStackEvent = new BlockStackEvent(player, tempStackedBlock, stackAmount);
+                Bukkit.getPluginManager().callEvent(blockStackEvent);
+                if (blockStackEvent.isCancelled()) {
+                    tempStackedBlock.setStackSize(0);
                     event.setCancelled(true);
                     return;
                 }
