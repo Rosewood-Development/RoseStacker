@@ -79,6 +79,7 @@ public class ConfigurationManager extends Manager {
         BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED("global-block-settings.explosion-amount-fixed", -1, "The fixed amount of blocks in the stack to destroy", "If this is set to 1 or greater, overrides explosion-amount-percentage", "If a stack of 10 blocks is exploded with a fixed amount of 3, 7 blocks will be saved"),
         BLOCK_DROP_TO_INVENTORY("global-block-settings.drop-to-inventory", false, "Should blocks be dropped directly into the player's inventory when broken?"),
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
+        BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-block-settings.break-entire-stack-into-separate", true, "Should the entire stack be broken into individual blocks?"),
         BLOCK_GUI_ENABLED("global-block-settings.gui-enabled", true, "Should a GUI to edit the stack open when the player shift-right-clicks the stack?"),
         BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", "BLUE_STAINED_GLASS_PANE", "What material should be used for the border of the GUI?", "If you want no border, set it to AIR"),
 
@@ -95,6 +96,7 @@ public class ConfigurationManager extends Manager {
         SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED("global-spawner-settings.explosion-amount-fixed", -1, "The fixed amount of spawners in the stack to destroy", "If this is set to 0 or greater, overrides explosion-amount-percentage", "If a stack of 10 spawners is exploded with a fixed amount of 3, 7 blocks will be saved"),
         SPAWNER_DROP_TO_INVENTORY("global-spawner-settings.drop-to-inventory", false, "Should spawners be dropped directly into the player's inventory when broken?"),
         SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-spawner-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
+        SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-spawner-settings.break-entire-stack-into-separate", false, "Should the entire stack be broken into individual spawners?"),
         SPAWNER_SILK_TOUCH_REQUIRED("global-spawner-settings.silk-touch-required", false, "Should silk touch be required to pick up spawners?"),
         SPAWNER_SILK_TOUCH_CHANCE("global-spawner-settings.silk-touch-chance", 100, "The chance that spawners will be picked up with a silk touch tool"),
         SPAWNER_SILK_TOUCH_GUARANTEE("global-spawner-settings.silk-touch-guarantee", true, "Should silk touch of level II or higher be guaranteed to pick up the spawner?"),

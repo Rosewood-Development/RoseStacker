@@ -21,10 +21,12 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -227,7 +229,13 @@ public class StackedBlockGui {
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
         Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-            List<ItemStack> itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
+            List<ItemStack> itemsToDrop;
+            if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+                itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
+            } else {
+                itemsToDrop = Collections.singletonList(StackerUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize()));
+            }
+
             Location dropLocation = this.stackedBlock.getLocation().clone();
             dropLocation.add(0.5, 0.5, 0.5);
 
@@ -236,6 +244,8 @@ public class StackedBlockGui {
 
             stackManager.removeBlockStack(this.stackedBlock);
             this.stackedBlock.getBlock().setType(Material.AIR);
+
+            this.stackedBlock.getBlock().getWorld().playSound(this.stackedBlock.getBlock().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 0.01F);
         });
     }
 

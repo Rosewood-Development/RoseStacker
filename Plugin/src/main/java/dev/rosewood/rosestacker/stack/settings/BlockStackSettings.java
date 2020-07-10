@@ -2,14 +2,21 @@ package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
 
 public class BlockStackSettings extends StackSettings {
 
-    private static final List<Material> enabledByDefault = Arrays.asList(Material.DIAMOND_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.EMERALD_BLOCK, Material.LAPIS_BLOCK);
+    private static final List<Material> enabledByDefault;
+    static {
+        enabledByDefault = new ArrayList<>(Arrays.asList(Material.DIAMOND_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.EMERALD_BLOCK, Material.LAPIS_BLOCK));
+        if (NMSUtil.getVersionNumber() >= 16)
+            enabledByDefault.add(Material.NETHERITE_BLOCK);
+    }
 
     private Material material;
     private boolean enabled;

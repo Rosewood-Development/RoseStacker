@@ -147,7 +147,13 @@ public class BlockListener implements Listener {
             breakAmount = blockUnstackEvent.getDecreaseAmount();
 
             if (player.getGameMode() != GameMode.CREATIVE) {
-                List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), breakAmount);
+                List<ItemStack> items;
+                if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+                    items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), breakAmount);
+                } else {
+                    items = Collections.singletonList(StackerUtils.getBlockAsStackedItemStack(block.getType(), breakAmount));
+                }
+
                 if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
                     StackerUtils.dropItemsToPlayer(player, items);
                 } else {
@@ -204,26 +210,25 @@ public class BlockListener implements Listener {
                         dropAmount--;
                 }
             }
-            int destroyAmount = amount - dropAmount;
+            amount -= dropAmount;
 
-            if (dropAmount > 0) {
-                ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, dropAmount);
-                if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-                    StackerUtils.dropItemsToPlayer(player, Collections.singletonList(spawnerItem));
-                } else {
-                    dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
-                }
-            }
+            if (amount > 0)
+                StackerUtils.dropExperience(dropLocation, 15 * amount, 43 * amount, 10);
+        }
 
-            if (destroyAmount > 0)
-                StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 10);
+        List<ItemStack> items;
+        if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+            items = new ArrayList<>();
+            for (int i = 0; i < amount; i++)
+                items.add(StackerUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
         } else {
-            ItemStack spawnerItem = StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount);
-            if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-                StackerUtils.dropItemsToPlayer(player, Collections.singletonList(spawnerItem));
-            } else {
-                dropLocation.getWorld().dropItemNaturally(dropLocation, spawnerItem);
-            }
+            items = Collections.singletonList(StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
+        }
+
+        if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
+            StackerUtils.dropItemsToPlayer(player, items);
+        } else {
+            this.roseStacker.getManager(StackManager.class).preStackItems(items, dropLocation);
         }
     }
 
