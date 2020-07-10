@@ -164,7 +164,7 @@ public abstract class EntityStackSettings extends StackSettings {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
                 return false;
 
-            if (Setting.ENTITY_DONT_STACK_IN_WATER.getBoolean() &&
+            if (Setting.ENTITY_DONT_STACK_IF_IN_WATER.getBoolean() &&
                     (entity1.getLocation().getBlock().getType() == Material.WATER || entity2.getLocation().getBlock().getType() == Material.WATER))
                 return false;
         }
@@ -175,6 +175,12 @@ public abstract class EntityStackSettings extends StackSettings {
         // Don't stack if being ridden or is riding something (
         if (!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle())
             return comparingForUnstack; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
+
+        if (!comparingForUnstack && Setting.ENTITY_DONT_STACK_IF_LEASHED.getBoolean() && (entity1.isLeashed() || entity2.isLeashed()))
+            return false;
+
+        if (Setting.ENTITY_DONT_STACK_IF_INVULNERABLE.getBoolean() && (entity1.isInvulnerable() || entity2.isInvulnerable()))
+            return false;
 
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;
