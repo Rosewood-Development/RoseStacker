@@ -13,7 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 
-public class StackedSpawner extends Stack {
+public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private int size;
     private CreatureSpawner spawner;
@@ -101,6 +101,11 @@ public class StackedSpawner extends Stack {
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);
+    }
+
+    @Override
+    public SpawnerStackSettings getStackSettings() {
+        return this.stackSettings;
     }
 
     public void updateSpawnerProperties() {

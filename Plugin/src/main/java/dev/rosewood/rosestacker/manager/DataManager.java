@@ -144,7 +144,7 @@ public class DataManager extends Manager {
                     Set<Entity> chunkEntitiesCopy = new HashSet<>(chunkEntities);
                     Runnable task = () -> {
                         Set<StackedEntity> stackedEntities = new HashSet<>();
-                        Set<Stack> cleanup = new HashSet<>();
+                        Set<Stack<?>> cleanup = new HashSet<>();
 
                         for (StackedEntityData stackData : stackedEntityData) {
                             Optional<Entity> entity = chunkEntitiesCopy.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
@@ -211,7 +211,7 @@ public class DataManager extends Manager {
                     Set<Entity> chunkEntitiesCopy = new HashSet<>(chunkEntities);
                     Runnable task = () -> {
                         Set<StackedItem> stackedItems = new HashSet<>();
-                        Set<Stack> cleanup = new HashSet<>();
+                        Set<Stack<?>> cleanup = new HashSet<>();
 
                         for (StackedItemData stackData : stackedItemData) {
                             Optional<Entity> entity = chunkEntitiesCopy.stream().filter(x -> x != null && x.getUniqueId().equals(stackData.entityUUID)).findFirst();
@@ -278,7 +278,7 @@ public class DataManager extends Manager {
 
                     Runnable task = () -> {
                         Set<StackedBlock> stackedBlocks = new HashSet<>();
-                        Set<Stack> cleanup = new HashSet<>();
+                        Set<Stack<?>> cleanup = new HashSet<>();
 
                         for (StackedBlockData stackData : stackedBlockData) {
                             World world = Bukkit.getWorld(stackData.world);
@@ -354,7 +354,7 @@ public class DataManager extends Manager {
 
                     Runnable task = () -> {
                         Set<StackedSpawner> stackedSpawners = new HashSet<>();
-                        Set<Stack> cleanup = new HashSet<>();
+                        Set<Stack<?>> cleanup = new HashSet<>();
 
                         for (StackedBlockData stackData : stackedSpawnerData) {
                             World world = Bukkit.getWorld(stackData.world);
@@ -507,19 +507,19 @@ public class DataManager extends Manager {
         });
     }
 
-    public <T extends Stack> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks) {
+    public <T extends Stack<?>> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks) {
         if (stacks.isEmpty())
             return;
 
         String tableName = stacks.iterator().next() instanceof StackedBlock ? "stacked_block" : "stacked_spawner";
         this.databaseConnector.connect(connection -> {
-            Set<Stack> update = stacks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<Stack> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
+            Set<Stack<?>> update = stacks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
+            Set<Stack<?>> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
             if (!update.isEmpty()) {
                 String batchUpdate = "UPDATE " + this.getTablePrefix() + tableName + " SET stack_size = ? WHERE id = ?";
                 try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (Stack stack : update) {
+                    for (Stack<?> stack : update) {
                         statement.setInt(1, stack.getStackSize());
                         statement.setInt(2, stack.getId());
                         statement.addBatch();
@@ -533,7 +533,7 @@ public class DataManager extends Manager {
             if (!insert.isEmpty()) {
                 String batchInsert = "INSERT INTO " + this.getTablePrefix() + tableName + " (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (Stack stack : insert) {
+                    for (Stack<?> stack : insert) {
                         statement.setInt(1, stack.getStackSize());
                         statement.setString(2, stack.getLocation().getWorld().getName());
                         statement.setInt(3, stack.getLocation().getBlockX() >> 4);
@@ -551,7 +551,7 @@ public class DataManager extends Manager {
         });
     }
 
-    public void deleteStacks(Set<Stack> stacks) {
+    public void deleteStacks(Set<Stack<?>> stacks) {
         if (stacks.isEmpty())
             return;
 
@@ -561,7 +561,7 @@ public class DataManager extends Manager {
             Set<StackedItem> stackedItems = new HashSet<>();
             Set<StackedSpawner> stackedSpawners = new HashSet<>();
 
-            for (Stack stack : stacks) {
+            for (Stack<?> stack : stacks) {
                 if (stack.getId() == -1)
                     continue;
 
@@ -590,10 +590,10 @@ public class DataManager extends Manager {
         });
     }
 
-    private <T extends Stack> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {
+    private <T extends Stack<?>> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {
         String batchDelete = "DELETE FROM " + this.getTablePrefix() + tableName + " WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(batchDelete)) {
-            for (Stack stack : stacks) {
+            for (Stack<?> stack : stacks) {
                 statement.setInt(1, stack.getId());
                 statement.addBatch();
             }

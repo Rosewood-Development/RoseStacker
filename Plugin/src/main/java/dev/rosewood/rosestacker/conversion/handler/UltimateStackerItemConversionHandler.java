@@ -16,8 +16,8 @@ public class UltimateStackerItemConversionHandler extends UltimateStackerConvers
     }
 
     @Override
-    public Set<Stack> handleConversion(Set<ConversionData> conversionData) {
-        Set<Stack> stacks = new HashSet<>();
+    public Set<Stack<?>> handleConversion(Set<ConversionData> conversionData) {
+        Set<Stack<?>> stacks = new HashSet<>();
 
         for (ConversionData data : conversionData) {
             Item item = data.getItem();

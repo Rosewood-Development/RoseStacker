@@ -21,7 +21,7 @@ import org.bukkit.entity.WaterMob;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
-public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
+public abstract class EntityStackSettings extends StackSettings {
 
     // Settings that apply to every entity
     private boolean enabled;
@@ -139,16 +139,19 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         this.setDefaultsInternal();
     }
 
-    @Override
+    /**
+     * Checks if one StackedEntity can stack with another
+     *
+     * @param stack1 The first stack
+     * @param stack2 The second stack
+     * @param comparingForUnstack true if the comparison is being made for unstacking, false otherwise
+     * @return true if the two entities can stack into each other, false otherwise
+     */
     public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
         if (!this.enabled)
             return false;
 
-        int maxStackSize = Setting.ENTITY_MAX_STACK_SIZE.getInt();
-        if (this.maxStackSize != -1)
-            maxStackSize = this.maxStackSize;
-
-        if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > maxStackSize)
+        if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
             return false;
 
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (stack1.getOriginalCustomName() != null || stack2.getOriginalCustomName() != null))
@@ -376,10 +379,12 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         return this.isMerchant;
     }
 
+    @Override
     public boolean isStackingEnabled() {
         return this.enabled;
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }
@@ -390,6 +395,7 @@ public abstract class EntityStackSettings extends StackSettings<StackedEntity> {
         return Setting.ENTITY_MIN_STACK_SIZE.getInt();
     }
 
+    @Override
     public int getMaxStackSize() {
         if (this.maxStackSize != -1)
             return this.maxStackSize;

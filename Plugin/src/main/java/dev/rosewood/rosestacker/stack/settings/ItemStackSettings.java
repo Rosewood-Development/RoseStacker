@@ -1,15 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.stack.StackedItem;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Material;
 
-public class ItemStackSettings extends StackSettings<StackedItem> {
+public class ItemStackSettings extends StackSettings {
 
     private Material material;
     private boolean enabled;
     private String displayName;
+    private int maxStackSize;
 
     public ItemStackSettings(CommentedFileConfiguration settingsConfiguration, Material material) {
         super(settingsConfiguration);
@@ -18,14 +19,7 @@ public class ItemStackSettings extends StackSettings<StackedItem> {
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
-    }
-
-    @Override
-    public boolean canStackWith(StackedItem stack1, StackedItem stack2, boolean comparingForUnstack) {
-        if (!this.enabled)
-            return false;
-
-        return true;
+        this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
     }
 
     @Override
@@ -34,6 +28,7 @@ public class ItemStackSettings extends StackSettings<StackedItem> {
 
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.material.name()));
+        this.setIfNotExists("max-stack-size", -1);
     }
 
     @Override
@@ -41,16 +36,25 @@ public class ItemStackSettings extends StackSettings<StackedItem> {
         return this.material.name();
     }
 
-    public Material getType() {
-        return this.material;
-    }
-
+    @Override
     public boolean isStackingEnabled() {
         return this.enabled;
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        if (this.maxStackSize != -1)
+            return this.maxStackSize;
+        return Setting.ITEM_MAX_STACK_SIZE.getInt();
+    }
+
+    public Material getType() {
+        return this.material;
     }
 
 }

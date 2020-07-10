@@ -17,8 +17,8 @@ public class EntityConversionHandler extends ConversionHandler {
     }
 
     @Override
-    public Set<Stack> handleConversion(Set<ConversionData> conversionData) {
-        Set<Stack> stacks = new HashSet<>();
+    public Set<Stack<?>> handleConversion(Set<ConversionData> conversionData) {
+        Set<Stack<?>> stacks = new HashSet<>();
 
         for (ConversionData data : conversionData) {
             LivingEntity entity = data.getEntity();

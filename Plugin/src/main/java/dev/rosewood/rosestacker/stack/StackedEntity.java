@@ -28,7 +28,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 
-public class StackedEntity extends Stack implements Comparable<StackedEntity> {
+public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
     private String originalCustomName;
@@ -221,10 +221,6 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
         return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()), oldCustomName);
     }
 
-    public EntityStackSettings getStackSettings() {
-        return this.stackSettings;
-    }
-
     @Override
     public int getStackSize() {
         return this.serializedStackedEntities.size() + 1;
@@ -259,6 +255,11 @@ public class StackedEntity extends Stack implements Comparable<StackedEntity> {
             this.entity.setCustomNameVisible(false);
             this.entity.setCustomName(null);
         }
+    }
+
+    @Override
+    public EntityStackSettings getStackSettings() {
+        return this.stackSettings;
     }
 
     /**

@@ -24,13 +24,13 @@ public class StackMobConversionHandler extends ConversionHandler {
     }
 
     @Override
-    public Set<Stack> handleConversion(Set<ConversionData> conversionData) {
+    public Set<Stack<?>> handleConversion(Set<ConversionData> conversionData) {
         Set<LivingEntity> entities = conversionData.stream()
                 .map(ConversionData::getEntity)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        Set<Stack> stacks = new HashSet<>();
+        Set<Stack<?>> stacks = new HashSet<>();
 
         for (LivingEntity entity : entities) {
             PersistentDataContainer dataContainer = entity.getPersistentDataContainer();

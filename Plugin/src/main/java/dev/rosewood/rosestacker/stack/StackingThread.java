@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
@@ -42,7 +41,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     private final RoseStacker roseStacker;
     private final StackManager stackManager;
-    private final StackSettingManager stackSettingManager;
     private final HologramManager hologramManager;
     private final ConversionManager conversionManager;
     private final World targetWorld;
@@ -62,7 +60,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public StackingThread(RoseStacker roseStacker, StackManager stackManager, World targetWorld) {
         this.roseStacker = roseStacker;
         this.stackManager = stackManager;
-        this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
         this.hologramManager = this.roseStacker.getManager(HologramManager.class);
         this.conversionManager = this.roseStacker.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
@@ -524,7 +521,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.pendingUnloadChunks.add(chunk);
     }
 
-    private boolean containsChunk(Set<Chunk> chunks, Stack stack) {
+    private boolean containsChunk(Set<Chunk> chunks, Stack<?> stack) {
         int stackChunkX = stack.getLocation().getBlockX() >> 4;
         int stackChunkZ = stack.getLocation().getBlockZ() >> 4;
         for (Chunk chunk : chunks)
@@ -540,7 +537,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
      * @return a StackedEntity that was stacked into, or null if none
      */
     private StackedEntity tryStackEntity(StackedEntity stackedEntity) {
-        EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(stackedEntity.getEntity());
+        EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null)
             return null;
 
@@ -641,6 +638,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
      * @return a deleted StackedItem, or null if none
      */
     private StackedItem tryStackItem(StackedItem stackedItem) {
+        ItemStackSettings stackSettings = stackedItem.getStackSettings();
+        if (stackSettings == null)
+            return null;
+
         if (this.stackManager.isMarkedAsDeleted(stackedItem) || stackedItem.getItem().getPickupDelay() > 40)
             return null;
 
@@ -652,32 +653,30 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
                     || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
                     || other.getItem().getPickupDelay() > 40
-                    || stackedItem.getStackSize() + other.getStackSize() > Setting.ITEM_MAX_STACK_SIZE.getInt()
+                    || stackedItem.getStackSize() + other.getStackSize() > stackSettings.getMaxStackSize()
                     || stackedItem.getLocation().distanceSquared(other.getLocation()) > maxItemStackDistanceSqrd)
                 continue;
 
             // Check if we should merge the stacks
-            ItemStackSettings stackSettings = this.stackSettingManager.getItemStackSettings(stackedItem.getItem());
-            if (stackSettings == null)
+
+            if (!stackSettings.isStackingEnabled())
                 continue;
 
-            if (stackSettings.canStackWith(stackedItem, other, false)) {
-                StackedItem increased = stackedItem.compareTo(other) > 0 ? stackedItem : other;
-                StackedItem removed = increased == stackedItem ? other : stackedItem;
+            StackedItem increased = stackedItem.compareTo(other) > 0 ? stackedItem : other;
+            StackedItem removed = increased == stackedItem ? other : stackedItem;
 
-                increased.increaseStackSize(removed.getStackSize());
-                increased.getItem().setTicksLived(1);
+            increased.increaseStackSize(removed.getStackSize());
+            increased.getItem().setTicksLived(1);
 
-                if (Bukkit.isPrimaryThread()) {
-                    removed.getItem().remove();
-                } else {
-                    Bukkit.getScheduler().runTask(this.roseStacker, removed.getItem()::remove);
-                }
-
-                this.removeItemStack(removed);
-
-                return removed;
+            if (Bukkit.isPrimaryThread()) {
+                removed.getItem().remove();
+            } else {
+                Bukkit.getScheduler().runTask(this.roseStacker, removed.getItem()::remove);
             }
+
+            this.removeItemStack(removed);
+
+            return removed;
         }
 
         return null;

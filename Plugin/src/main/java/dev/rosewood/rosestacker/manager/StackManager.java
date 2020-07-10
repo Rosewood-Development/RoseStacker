@@ -38,7 +38,7 @@ public class StackManager extends Manager implements StackingLogic {
     private BukkitTask deleteTask;
 
     private final Map<UUID, StackingThread> stackingThreads;
-    private final Set<Stack> deletedStacks;
+    private final Set<Stack<?>> deletedStacks;
     private final ConversionManager conversionManager;
 
     private boolean isEntityStackingTemporarilyDisabled;
@@ -438,7 +438,7 @@ public class StackManager extends Manager implements StackingLogic {
      *
      * @param stack the stack to delete
      */
-    public void markStackDeleted(Stack stack) {
+    public void markStackDeleted(Stack<?> stack) {
         this.deletedStacks.add(stack);
     }
 
@@ -448,7 +448,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @param stack The stack to check
      * @return true if the stack is to be deleted, otherwise false
      */
-    public boolean isMarkedAsDeleted(Stack stack) {
+    public boolean isMarkedAsDeleted(Stack<?> stack) {
         return this.deletedStacks.contains(stack);
     }
 

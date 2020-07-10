@@ -5,8 +5,11 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.CoreProtectHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -387,7 +390,7 @@ public class BlockListener implements Listener {
                 if (stackedSpawner == null)
                     stackedSpawner = stackManager.createSpawnerStack(against, 1);
 
-                if (stackedSpawner.getStackSize() + stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
+                if (stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
                     event.setCancelled(true);
                     return;
                 }
@@ -406,7 +409,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                if (stackedBlock.getStackSize() + stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+                if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
                     event.setCancelled(true);
                     return;
                 }
@@ -418,10 +421,15 @@ public class BlockListener implements Listener {
             CoreProtectHook.recordBlockPlace(player, against);
         } else { // Handle singular items that have a stack multiplier
             // Set the spawner type
+            StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
             if (placedItem.getType() == Material.SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = StackerUtils.getStackedItemEntityType(placedItem);
                 if (spawnedType == null)
+                    return;
+
+                SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnedType);
+                if (spawnerStackSettings == null)
                     return;
 
                 spawner.setSpawnedType(spawnedType);
@@ -430,7 +438,7 @@ public class BlockListener implements Listener {
                 if (stackAmount <= 0)
                     return;
 
-                if (stackAmount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
+                if (stackAmount > spawnerStackSettings.getMaxStackSize()) {
                     event.setCancelled(true);
                     return;
                 }
@@ -440,7 +448,11 @@ public class BlockListener implements Listener {
                 if (stackAmount <= 1)
                     return;
 
-                if (stackAmount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+                BlockStackSettings blockStackSettings = stackSettingManager.getBlockStackSettings(block);
+                if (blockStackSettings == null)
+                    return;
+
+                if (stackAmount > blockStackSettings.getMaxStackSize()) {
                     event.setCancelled(true);
                     return;
                 }

@@ -138,7 +138,7 @@ public class ConversionManager extends Manager implements Listener {
 
         Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(entities, requiredStackTypes);
 
-        Set<Stack> convertedStacks = new HashSet<>();
+        Set<Stack<?>> convertedStacks = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers) {
             Set<ConversionData> data;
             if (conversionHandler.isDataAlwaysRequired()) {

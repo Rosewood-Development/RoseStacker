@@ -33,7 +33,7 @@ public abstract class ConversionHandler {
         this.alwaysRequire = alwaysRequire;
     }
 
-    public abstract Set<Stack> handleConversion(Set<ConversionData> conversionData);
+    public abstract Set<Stack<?>> handleConversion(Set<ConversionData> conversionData);
 
     public StackType getRequiredDataStackType() {
         return this.requiredDataStackType;

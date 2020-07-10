@@ -44,6 +44,7 @@ public class PigZombieStackSettings extends EntityStackSettings {
         PigZombie unstackedPigZombie = (PigZombie) unstacked;
 
         stackedPigZombie.setAnger(unstackedPigZombie.getAnger());
+        stackedPigZombie.setTarget(unstackedPigZombie.getTarget());
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class StackedItem extends Stack implements Comparable<StackedItem> {
+public class StackedItem extends Stack<ItemStackSettings> implements Comparable<StackedItem> {
 
     private int size;
     private Item item;
@@ -109,6 +109,11 @@ public class StackedItem extends Stack implements Comparable<StackedItem> {
 
         this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName));
         this.item.setCustomName(displayString);
+    }
+
+    @Override
+    public ItemStackSettings getStackSettings() {
+        return this.stackSettings;
     }
 
     /**

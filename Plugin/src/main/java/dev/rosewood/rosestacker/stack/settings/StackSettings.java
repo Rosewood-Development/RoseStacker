@@ -2,9 +2,8 @@ package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosestacker.config.CommentedConfigurationSection;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.stack.Stack;
 
-public abstract class StackSettings<T extends Stack> {
+public abstract class StackSettings {
 
     protected CommentedConfigurationSection settingsConfiguration;
     private boolean hasChanges;
@@ -13,7 +12,11 @@ public abstract class StackSettings<T extends Stack> {
         this.settingsConfiguration = settingsConfiguration;
     }
 
-    public abstract boolean canStackWith(T stack1, T stack2, boolean comparingForUnstack);
+    public abstract String getDisplayName();
+
+    public abstract boolean isStackingEnabled();
+
+    public abstract int getMaxStackSize();
 
     protected void setDefaults() {
         CommentedConfigurationSection settingsConfiguration = this.settingsConfiguration;

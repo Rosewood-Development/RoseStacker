@@ -12,7 +12,9 @@ import dev.rosewood.rosestacker.command.RoseCommand.ClearallType;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackType;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.HexUtils;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class CommandManager extends Manager {
@@ -48,29 +51,38 @@ public class CommandManager extends Manager {
             this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key)));
 
         CommandCompletions<BukkitCommandCompletionContext> completions = this.commandManager.getCommandCompletions();
-        completions.registerStaticCompletion("amount", () -> Arrays.asList("5", "16", "64", "256", "<amount>"));
         completions.registerStaticCompletion("stackableBlockMaterial", () -> stackSettingManager.getStackableBlockTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("spawnableSpawnerEntityType", () -> stackSettingManager.getStackableSpawnerTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("spawnableEggEntityType", () -> stackSettingManager.getStackableEntityTypes().stream().filter(x -> {
             EntityStackSettings stackSettings = stackSettingManager.getEntityStackSettings(x);
             return stackSettings.getSpawnEggMaterial() != null;
         }).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
-        completions.registerStaticCompletion("blockStackAmounts", () -> {
-            int maxStackAmount = Setting.BLOCK_MAX_STACK_SIZE.getInt();
+        completions.registerAsyncCompletion("blockStackAmounts", ctx -> {
+            Material blockType = ctx.getContextValue(Material.class);
+            if (blockType == null)
+                return Collections.emptyList();
+
+            BlockStackSettings blockStackSettings = stackSettingManager.getBlockStackSettings(blockType);
+            int maxStackAmount = blockStackSettings.getMaxStackSize();
             return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
         });
-        completions.registerStaticCompletion("spawnerStackAmounts", () -> {
-            int maxStackAmount = Setting.SPAWNER_MAX_STACK_SIZE.getInt();
+        completions.registerAsyncCompletion("spawnerStackAmounts", ctx -> {
+            EntityType entityType = ctx.getContextValue(EntityType.class);
+            if (entityType == null)
+                return Collections.emptySet();
+
+            SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(entityType);
+            int maxStackAmount = spawnerStackSettings.getMaxStackSize();
             return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
         });
         completions.registerAsyncCompletion("entityStackAmounts", ctx -> {
             EntityType entityType = ctx.getContextValue(EntityType.class);
-            if (entityType != null) {
-                EntityStackSettings entityStackSettings = stackSettingManager.getEntityStackSettings(entityType);
-                int maxStackAmount = entityStackSettings.getMaxStackSize();
-                return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
-            }
-            return Collections.emptySet();
+            if (entityType == null)
+                return Collections.emptySet();
+
+            EntityStackSettings entityStackSettings = stackSettingManager.getEntityStackSettings(entityType);
+            int maxStackAmount = entityStackSettings.getMaxStackSize();
+            return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
         });
         completions.registerStaticCompletion("clearallType", () -> Stream.of(ClearallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("stackType", () -> Stream.of(StackType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));

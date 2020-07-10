@@ -285,14 +285,13 @@ public class EntityListener implements Listener {
         if (!stackManager.isEntityStackingEnabled())
             return;
 
-        StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
-        ChickenStackSettings chickenStackSettings = (ChickenStackSettings) stackSettingManager.getEntityStackSettings(EntityType.CHICKEN);
-        if (!chickenStackSettings.shouldMultiplyEggDropsByStackSize())
-            return;
-
         Chicken chickenEntity = (Chicken) event.getEntity();
         StackedEntity stackedEntity = stackManager.getStackedEntity(chickenEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+            return;
+
+        ChickenStackSettings chickenStackSettings = (ChickenStackSettings) stackedEntity.getStackSettings();
+        if (!chickenStackSettings.shouldMultiplyEggDropsByStackSize())
             return;
 
         event.getItemDrop().remove();

@@ -1,19 +1,20 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
 
-public class BlockStackSettings extends StackSettings<StackedBlock> {
+public class BlockStackSettings extends StackSettings {
 
     private static final List<Material> enabledByDefault = Arrays.asList(Material.DIAMOND_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.EMERALD_BLOCK, Material.LAPIS_BLOCK);
 
     private Material material;
     private boolean enabled;
     private String displayName;
+    private int maxStackSize;
 
     public BlockStackSettings(CommentedFileConfiguration settingsConfiguration, Material material) {
         super(settingsConfiguration);
@@ -22,14 +23,7 @@ public class BlockStackSettings extends StackSettings<StackedBlock> {
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
-    }
-
-    @Override
-    public boolean canStackWith(StackedBlock stack1, StackedBlock stack2, boolean comparingForUnstack) {
-        if (!this.enabled)
-            return false;
-
-        return true;
+        this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
     }
 
     @Override
@@ -38,6 +32,7 @@ public class BlockStackSettings extends StackSettings<StackedBlock> {
 
         this.setIfNotExists("enabled", enabledByDefault.contains(this.material));
         this.setIfNotExists("display-name", StackerUtils.formatName(this.material.name()));
+        this.setIfNotExists("max-stack-size", -1);
     }
 
     @Override
@@ -45,16 +40,25 @@ public class BlockStackSettings extends StackSettings<StackedBlock> {
         return this.material.name();
     }
 
-    public Material getType() {
-        return this.material;
-    }
-
+    @Override
     public boolean isStackingEnabled() {
         return this.enabled;
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        if (this.maxStackSize != -1)
+            return this.maxStackSize;
+        return Setting.BLOCK_MAX_STACK_SIZE.getInt();
+    }
+
+    public Material getType() {
+        return this.material;
     }
 
 }

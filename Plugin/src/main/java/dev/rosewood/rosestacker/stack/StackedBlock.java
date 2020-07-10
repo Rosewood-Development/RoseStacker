@@ -13,7 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-public class StackedBlock extends Stack {
+public class StackedBlock extends Stack<BlockStackSettings> {
 
     private int size;
     private Block block;
@@ -100,6 +100,11 @@ public class StackedBlock extends Stack {
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);
+    }
+
+    @Override
+    public BlockStackSettings getStackSettings() {
+        return this.stackSettings;
     }
 
 }

@@ -146,7 +146,7 @@ public class RoseCommand extends BaseCommand {
                 return;
             }
 
-            if (amount > Setting.BLOCK_MAX_STACK_SIZE.getInt()) {
+            if (amount > stackSettings.getMaxStackSize()) {
                 localeManager.sendMessage(sender, "command-give-too-large");
                 return;
             }
@@ -171,7 +171,7 @@ public class RoseCommand extends BaseCommand {
                 return;
             }
 
-            if (amount > Setting.SPAWNER_MAX_STACK_SIZE.getInt()) {
+            if (amount > stackSettings.getMaxStackSize()) {
                 localeManager.sendMessage(sender, "command-give-too-large");
                 return;
             }

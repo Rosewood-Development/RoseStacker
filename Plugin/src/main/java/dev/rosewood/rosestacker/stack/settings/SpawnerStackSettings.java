@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.stack.settings;
 import com.google.common.collect.ImmutableSet;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,7 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.NPC;
 import org.bukkit.entity.WaterMob;
 
-public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
+public class SpawnerStackSettings extends StackSettings {
 
     private static Map<EntityType, SpawnConditions> defaultSpawnConditions;
 
@@ -68,6 +67,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     private EntityType entityType;
     private boolean enabled;
     private String displayName;
+    private int maxStackSize;
     private Boolean disableMobAI;
     private SpawnConditions spawnConditions;
     private int spawnCountStackSizeMultiplier;
@@ -84,6 +84,7 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
+        this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
         this.disableMobAI = this.settingsConfiguration.getDefaultedBoolean("disable-mob-ai");
         this.spawnCountStackSizeMultiplier = this.settingsConfiguration.getInt("spawn-count-stack-size-multiplier");
         this.minSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-minimum");
@@ -104,19 +105,12 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
     }
 
     @Override
-    public boolean canStackWith(StackedSpawner stack1, StackedSpawner stack2, boolean comparingForUnstack) {
-        if (!this.enabled)
-            return false;
-
-        return true;
-    }
-
-    @Override
     protected void setDefaults() {
         super.setDefaults();
 
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name() + '_' + Material.SPAWNER.name()));
+        this.setIfNotExists("max-stack-size", -1);
         this.setIfNotExists("disable-mob-ai", "default");
         this.setIfNotExists("spawn-count-stack-size-multiplier", -1);
         this.setIfNotExists("spawn-delay-minimum", -1);
@@ -135,16 +129,25 @@ public class SpawnerStackSettings extends StackSettings<StackedSpawner> {
         return this.entityType.name();
     }
 
-    public EntityType getEntityType() {
-        return this.entityType;
-    }
-
+    @Override
     public boolean isStackingEnabled() {
         return this.enabled;
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        if (this.maxStackSize != -1)
+            return this.maxStackSize;
+        return Setting.SPAWNER_MAX_STACK_SIZE.getInt();
+    }
+
+    public EntityType getEntityType() {
+        return this.entityType;
     }
 
     public boolean isMobAIDisabled() {

@@ -80,7 +80,7 @@ public class StackedBlockGui {
 
         GuiScreenSection editableSection = GuiFactory.createScreenSection(paginatedSlots);
         LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
-        BlockStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(this.stackedBlock.getBlock());
+        BlockStackSettings stackSettings = this.stackedBlock.getStackSettings();
 
         GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-back", StringPlaceholders.empty()));
         GuiStringHelper destroyString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy", StringPlaceholders.empty()));
@@ -161,7 +161,7 @@ public class StackedBlockGui {
         int newStackSize = items.stream().mapToInt(ItemStack::getAmount).sum();
         this.stackedBlock.setStackSize(newStackSize);
 
-        int maxStackSize = Setting.BLOCK_MAX_STACK_SIZE.getInt();
+        int maxStackSize = this.stackedBlock.getStackSettings().getMaxStackSize();
         if (newStackSize == 1) {
             stackManager.removeBlockStack(this.stackedBlock);
         } else if (newStackSize == 0) {
