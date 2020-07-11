@@ -101,7 +101,8 @@ public class StackedBlockGui {
                 .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
                 .setEditableSection(editableSection, stackItems, this::updateStackedBlock)
                 .setEditFilters(GuiFactory.createScreenEditFilters()
-                        .setWhitelist(this.stackedBlock.getBlock().getType()))
+                        .setWhitelist(this.stackedBlock.getBlock().getType())
+                        .setAllowModified(false))
                 .addButtonAt(47, GuiFactory.createButton()
                         .setIcon(Material.PAPER)
                         .setName(pageBackString.getName())
@@ -245,7 +246,7 @@ public class StackedBlockGui {
             stackManager.removeBlockStack(this.stackedBlock);
             this.stackedBlock.getBlock().setType(Material.AIR);
 
-            this.stackedBlock.getBlock().getWorld().playSound(this.stackedBlock.getBlock().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5F, 0.01F);
+            this.stackedBlock.getBlock().getWorld().playSound(this.stackedBlock.getBlock().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.1F, 0.01F);
         });
     }
 

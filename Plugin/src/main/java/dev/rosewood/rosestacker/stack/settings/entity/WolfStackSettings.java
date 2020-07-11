@@ -3,8 +3,10 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Wolf;
 
 public class WolfStackSettings extends EntityStackSettings {
@@ -34,6 +36,15 @@ public class WolfStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-angry", false);
         this.setIfNotExists("dont-stack-if-different-collar-color", false);
+    }
+
+    @Override
+    public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        Wolf stackedWolf = (Wolf) stacked;
+        Wolf unstackedWolf = (Wolf) unstacked;
+
+        stackedWolf.setAngry(unstackedWolf.isAngry());
+        unstackedWolf.setTarget(unstackedWolf.getTarget());
     }
 
     @Override
