@@ -14,7 +14,6 @@ allprojects {
         mavenCentral()
         jcenter()
 
-        maven { url = 'https://repo.codemc.org/repository/nms' }
         maven { url = 'https://repo.codemc.org/repository/maven-public' }
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }

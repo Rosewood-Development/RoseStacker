@@ -19,18 +19,17 @@ dependencies {
     shadow 'org.spigotmc:spigot:1.16.1'
     shadow 'me.clip:placeholderapi:2.10.4'
     shadow 'net.coreprotect:coreprotect:2.15.0'
-    shadow 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
     shadow 'org.jetbrains:annotations:16.0.2'
 
     // From our repo
-    shadow 'com.bgsoftware:wildstacker:3.1.0'
-    shadow 'com.gmail.filoghost:holographicdisplays:2.4.2'
-    shadow 'com.sainttx:holograms:2.12'
-    shadow 'com.songoda:epicspawners:6.3.9'
-    shadow 'com.songoda:ultimatestacker:1.11.10'
+    shadow 'com.bgsoftware:wildstacker:3.1.1'
+    shadow 'com.gmail.filoghost:holographicdisplays:2.4.3'
+    shadow 'com.sainttx:holograms:2.13'
+    shadow 'com.songoda:epicspawners:6.4'
+    shadow 'com.songoda:ultimatestacker:1.11.17'
     shadow 'me.minebuilders:clearlag:3.1.6'
-    shadow 'net.brcdev:shopgui:1.29.0'
-    shadow 'uk.antiperson:stackmob:5.1.0'
+    shadow 'net.brcdev:shopgui:1.36.0'
+    shadow 'uk.antiperson:stackmob:5.2.2'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:guiframework:1.1.0'
