@@ -30,6 +30,7 @@ dependencies {
     shadow 'me.minebuilders:clearlag:3.1.6'
     shadow 'net.brcdev:shopgui:1.36.0'
     shadow 'uk.antiperson:stackmob:5.2.2'
+    shadow 'com.gmail.nossr50:mcmmo:2.1.132'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:guiframework:1.1.1'

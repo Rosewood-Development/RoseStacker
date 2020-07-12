@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
+import dev.rosewood.rosestacker.hook.McMMOHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -76,7 +77,16 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         return this.originalCustomName;
     }
 
+    public void restoreOriginalCustomName() {
+        this.entity.setCustomName(this.originalCustomName);
+        this.entity.setCustomNameVisible(this.originalCustomName != null);
+        McMMOHook.updateCustomName(this.entity);
+    }
+
     public void updateOriginalCustomName() {
+        if (this.entity == null)
+            return;
+
         this.originalCustomName = this.entity.getCustomName();
         this.updateDisplay();
     }
@@ -233,7 +243,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     @Override
     public void updateDisplay() {
-        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
+        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || this.entity == null)
             return;
 
         if (this.getStackSize() == 1 && this.originalCustomName != null) {
@@ -255,6 +265,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             this.entity.setCustomNameVisible(false);
             this.entity.setCustomName(null);
         }
+
+        McMMOHook.updateCustomName(this.entity);
     }
 
     @Override

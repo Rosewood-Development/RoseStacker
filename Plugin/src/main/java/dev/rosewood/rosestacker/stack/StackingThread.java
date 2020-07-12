@@ -203,8 +203,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             this.pendingChunkTask.cancel();
 
         // Restore custom names
-        for (StackedEntity stackedEntity : this.stackedEntities.values())
-            stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
+        this.stackedEntities.values().forEach(StackedEntity::restoreOriginalCustomName);
 
         // Save anything that's loaded
         if (this.stackManager.isEntityStackingEnabled())
@@ -636,13 +635,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 continue;
 
             for (StackedEntity toStack : removed) {
-                if (toStack.getOriginalCustomName() != null) {
-                    toStack.getEntity().setCustomName(toStack.getOriginalCustomName());
-                } else {
-                    toStack.getEntity().setCustomName(null);
-                    toStack.getEntity().setCustomNameVisible(false);
-                }
-
+                toStack.restoreOriginalCustomName();
                 stackSettings.applyStackProperties(toStack.getEntity(), increased.getEntity());
 
                 increased.increaseStackSize(toStack.getEntity());
@@ -782,8 +775,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             Map<UUID, StackedEntity> stackedEntities = this.stackedEntities.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             // Restore custom names
-            for (StackedEntity stackedEntity : stackedEntities.values())
-                stackedEntity.getEntity().setCustomName(stackedEntity.getOriginalCustomName());
+            stackedEntities.values().forEach(StackedEntity::restoreOriginalCustomName);
 
             dataManager.createOrUpdateStackedEntities(stackedEntities.values());
             stackedEntities.keySet().forEach(this.stackedEntities::remove);

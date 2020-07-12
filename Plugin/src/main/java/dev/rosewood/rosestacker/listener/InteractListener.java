@@ -88,7 +88,7 @@ public class InteractListener implements Listener {
                 return;
 
             StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-            entity.setCustomName(stackedEntity.getOriginalCustomName());
+            stackedEntity.restoreOriginalCustomName();
             Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
         }
 
