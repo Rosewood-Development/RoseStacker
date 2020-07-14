@@ -51,7 +51,8 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     }
 
     public void kickOutGuiViewers() {
-        this.stackedBlockGui.kickOutViewers();
+        if (this.stackedBlockGui != null)
+            this.stackedBlockGui.kickOutViewers();
     }
 
     public void increaseStackSize(int amount) {

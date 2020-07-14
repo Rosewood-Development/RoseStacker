@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.Material;
 
 public class ConfigurationManager extends Manager {
 
@@ -51,8 +52,8 @@ public class ConfigurationManager extends Manager {
         ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, etc"),
         ENTITY_ONLY_STACK_ON_GROUND("global-entity-settings.only-stack-on-ground", false, "Do entities have to be on the ground in order to stack?", "This does not apply if the mobs can fly or live in the water"),
         ENTITY_DONT_STACK_IF_IN_WATER("global-entity-settings.dont-stack-if-in-water", false, "Should we stack entities if they are in the water?", "This does not apply if the mobs can fly or live in the water"),
-        ENTITY_DONT_STACK_IF_LEASHED("global-entity-settings.dont-stack-if-leashed", true, "Should we stack entities if they are leashed?", "You will still be able to leash stacks, it will just prevent them from stacking into other stacks", "This can cause some weird effects if enabled"),
-        ENTITY_DONT_STACK_IF_INVULNERABLE("global-entity-settings.dont-stack-if-invulnerable", true, "Should we stack entities if theyare invulnerable?"),
+        ENTITY_DONT_STACK_IF_LEASHED("global-entity-settings.dont-stack-if-leashed", true, "Should we stack entities if they are leashed?", "You will still be able to leash stacks, it will just prevent them from stacking into other stacks", "This can cause some weird effects if disabled"),
+        ENTITY_DONT_STACK_IF_INVULNERABLE("global-entity-settings.dont-stack-if-invulnerable", true, "Should we stack entities if they are invulnerable?"),
         ENTITY_DONT_STACK_CUSTOM_NAMED("global-entity-settings.dont-stack-custom-named", false, "Should we avoid stacking entities with custom names?"),
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
@@ -81,7 +82,7 @@ public class ConfigurationManager extends Manager {
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
         BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-block-settings.break-entire-stack-into-separate", true, "Should the entire stack be broken into individual blocks?"),
         BLOCK_GUI_ENABLED("global-block-settings.gui-enabled", true, "Should a GUI to edit the stack open when the player shift-right-clicks the stack?"),
-        BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", "BLUE_STAINED_GLASS_PANE", "What material should be used for the border of the GUI?", "If you want no border, set it to AIR"),
+        BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?", "If you want no border, set it to AIR"),
 
         GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml will override these values"),
         SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should spawner stacking be enabled at all?"),
@@ -108,6 +109,15 @@ public class ConfigurationManager extends Manager {
         SPAWNER_SPAWN_MAX_NEARBY_ENTITIES("global-spawner-settings.spawn-max-nearby-entities", 6, "If more than this number of entities are near the spawner, it will not spawn anything", "This only counts the individual mobs, and not the stack size"),
         SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?"),
         SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?"),
+        SPAWNER_GUI_ENABLED("global-spawner-settings.gui-enabled", true, "Should a GUI to view the spawner information open when the player shift-right-clicks the stack?"),
+        SPAWNER_GUI_TICK_UPDATE_RATE("global-spawner-settings.gui-tick-update-rate", 2, "How often should the time before next spawn message be updated?", "Value is measured in ticks, do not go below 1"),
+        SPAWNER_GUI_BORDER_MATERIAL("global-spawner-settings.gui-border-material", Material.GRAY_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?"),
+        SPAWNER_GUI_BORDER_CORNER_MATERIAL("global-spawner-settings.gui-border-corner-material", Material.LIGHT_BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the top right and bottom left corners of the GUI?"),
+        SPAWNER_GUI_BORDER_ACCENT_MATERIAL("global-spawner-settings.gui-border-accent-material", Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the corner accents of the GUI?"),
+        SPAWNER_GUI_SPAWNER_STATS_MATERIAL("global-spawner-settings.gui-spawner-stats-material", Material.BOOK.name(), "What material should the spawner stats icon be?"),
+        SPAWNER_GUI_CENTRAL_MATERIAL("global-spawner-settings.gui-central-material", Material.SPAWNER.name(), "What material should the central icon be?"),
+        SPAWNER_GUI_VALID_SPAWN_CONDITIONS_MATERIAL("global-spawner-settings.gui-valid-spawn-conditions-material", Material.EMERALD_BLOCK.name(), "What material should the valid spawn conditions icon be?"),
+        SPAWNER_GUI_INVALID_SPAWN_CONDITIONS_MATERIAL("global-spawner-settings.gui-invalid-spawn-conditions-material", Material.REDSTONE_BLOCK.name(), "What material should the invalid spawn conditions icon be?"),
 
         DYNAMIC_TAG_SETTINGS("dynamic-tag-settings", null, "Settings that apply to the tags above stacks", "These settings require their respective display-tags settings to be set to true to function", "These settings run at the same frequency as the stack-frequency setting", "If you are seeing impacts to server performance, consider disabling these settings"),
         ENTITY_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED("dynamic-tag-settings.entity-display-tags-dynamic-view-range-enabled", true, "Should entity tags be hidden when the player is a certain distance away?", "Note: This overrides global-entity-settings.display-tags-hover if enabled"),

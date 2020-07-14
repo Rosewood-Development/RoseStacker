@@ -1,23 +1,30 @@
 package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.InvalidSpawnCondition;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private int size;
     private CreatureSpawner spawner;
     private Location location;
+    private StackedSpawnerGui stackedSpawnerGui;
+    private List<InvalidSpawnCondition> lastInvalidConditions;
 
     private SpawnerStackSettings stackSettings;
 
@@ -27,6 +34,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.size = size;
         this.spawner = spawner;
         this.location = this.spawner.getLocation();
+        this.stackedSpawnerGui = null;
+        this.lastInvalidConditions = new ArrayList<>();
 
         if (this.spawner != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
@@ -60,6 +69,11 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         return this.spawner;
     }
 
+    public void kickOutViewers() {
+        if (this.stackedSpawnerGui != null)
+            this.stackedSpawnerGui.kickOutViewers();
+    }
+
     public void increaseStackSize(int amount) {
         this.size += amount;
         this.updateSpawnerProperties();
@@ -70,6 +84,16 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.size = size;
         this.updateSpawnerProperties();
         this.updateDisplay();
+    }
+
+    public void openGui(Player player) {
+        if (this.stackedSpawnerGui == null)
+            this.stackedSpawnerGui = new StackedSpawnerGui(this);
+        this.stackedSpawnerGui.openFor(player);
+    }
+
+    public List<InvalidSpawnCondition> getLastInvalidConditions() {
+        return this.lastInvalidConditions;
     }
 
     @Override

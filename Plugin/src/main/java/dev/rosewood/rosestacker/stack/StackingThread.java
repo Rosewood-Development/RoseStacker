@@ -325,6 +325,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     @Override
     public void removeBlockStack(StackedBlock stackedBlock) {
         Block key = stackedBlock.getBlock();
+        stackedBlock.kickOutGuiViewers();
         if (this.stackedBlocks.containsKey(key)) {
             this.stackedBlocks.remove(key);
             this.stackManager.markStackDeleted(stackedBlock);
@@ -334,6 +335,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     @Override
     public void removeSpawnerStack(StackedSpawner stackedSpawner) {
         Block key = stackedSpawner.getSpawner().getBlock();
+        stackedSpawner.kickOutViewers();
         if (this.stackedSpawners.containsKey(key)) {
             this.stackedSpawners.remove(key);
             this.stackManager.markStackDeleted(stackedSpawner);

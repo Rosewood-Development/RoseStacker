@@ -2,8 +2,12 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.InvalidSpawnCondition;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.SpawnConditions;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,7 +27,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     /**
      * At what point should we override the normal spawner spawning?
      */
-    private static final int DELAY_THRESHOLD = 3;
+    public static final int DELAY_THRESHOLD = 3;
 
     /**
      * How many times should we fail to spawn before giving up?
@@ -58,7 +62,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     @Override
     public void run() {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
 
@@ -74,7 +77,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
                 return;
 
-            SpawnerStackSettings stackSettings = stackSettingManager.getSpawnerStackSettings(entityType);
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawners().get(block);
+            SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
             SpawnConditions spawnConditions = stackSettings.getSpawnConditions();
 
             // Reset the spawn delay
@@ -85,10 +89,23 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn particles indicating the spawn occurred
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
 
-            // Make sure we meet the nearby entity constraint
+            List<InvalidSpawnCondition> invalidSpawnConditions = new ArrayList<>();
+
+            boolean meetsEntityConstraint = true;
+            boolean hasValidBiome = true;
+            boolean hasValidSpawnLocation = false;
+            boolean hasValidLightLevel = false;
+
             int spawnRange = spawner.getSpawnRange();
-            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), spawnRange, spawnRange, spawnRange, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities())
-                continue;
+            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), spawnRange, spawnRange, spawnRange, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities()) {
+                invalidSpawnConditions.add(InvalidSpawnCondition.ENTITY_CAP);
+                meetsEntityConstraint = false;
+            }
+
+            if (!spawnConditions.getSpawnBiomes().isEmpty() && !spawnConditions.getSpawnBiomes().contains(block.getBiome())) {
+                invalidSpawnConditions.add(InvalidSpawnCondition.SPAWN_BIOME);
+                hasValidBiome = false;
+            }
 
             // Spawn the mobs
             int spawnAmount;
@@ -99,14 +116,50 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 spawnAmount = spawner.getSpawnCount();
             }
 
+            boolean successfulSpawn = false;
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
                 while (attempts < MAX_FAILED_SPAWN_ATTEMPTS) {
                     int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                     int yOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                     int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+
                     Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
-                    if (this.isSpawnPlaceAvailable(spawnLocation, spawnConditions)) {
+
+                    Block target = spawnLocation.getBlock();
+                    Block below = target.getRelative(BlockFace.DOWN);
+                    Block above = target.getRelative(BlockFace.UP);
+
+                    boolean currentSpawnValid = meetsEntityConstraint && hasValidBiome;
+                    if ((spawnConditions.getSpawnBlocks().contains(Material.AIR)
+                            || spawnConditions.getSpawnBlocks().contains(below.getType()))
+                            && ((target.isPassable() || target.isEmpty()) && (above.isPassable() || above.isEmpty()))) {
+                        hasValidSpawnLocation = true;
+                    } else {
+                        currentSpawnValid = false;
+                    }
+
+                    switch (spawnConditions.getRequiredLightLevel()) {
+                        case LIGHT:
+                            if (target.getLightLevel() > 7) {
+                                hasValidLightLevel = true;
+                            } else {
+                                currentSpawnValid = false;
+                            }
+                            break;
+                        case DARK:
+                            if (target.getLightLevel() <= 7) {
+                                hasValidLightLevel = true;
+                            } else {
+                                currentSpawnValid = false;
+                            }
+                            break;
+                        case ANY:
+                            hasValidLightLevel = true;
+                            break;
+                    }
+
+                    if (currentSpawnValid) {
                         Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
 
                         SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
@@ -116,41 +169,26 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
                         if (entity.isValid()) // Don't spawn particles for auto-stacked entities
                             block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+
+                        successfulSpawn = true;
                         break;
                     }
 
                     attempts++;
                 }
             }
+
+            if (!successfulSpawn) {
+                if (!hasValidLightLevel)
+                    invalidSpawnConditions.add(InvalidSpawnCondition.LIGHT_LEVEL);
+                if (!hasValidSpawnLocation)
+                    invalidSpawnConditions.add(InvalidSpawnCondition.SPAWN_BLOCK);
+            }
+
+            stackedSpawner.getLastInvalidConditions().clear();
+            if (!successfulSpawn)
+                stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditions);
         }
-    }
-
-    // TODO: Handle spawn areas for mobs that are larger than one block
-    private boolean isSpawnPlaceAvailable(Location location, SpawnConditions spawnConditions) {
-        Block block = location.getBlock();
-        Block below = block.getRelative(BlockFace.DOWN);
-        Block above = block.getRelative(BlockFace.UP);
-
-        switch (spawnConditions.getRequiredLightLevel()) {
-            case LIGHT:
-                if (block.getLightLevel() <= 7)
-                    return false;
-                break;
-            case DARK:
-                if (block.getLightLevel() > 7)
-                    return false;
-                break;
-            case ANY:
-                break;
-        }
-
-        if (!spawnConditions.getSpawnBlocks().contains(Material.AIR) && !spawnConditions.getSpawnBlocks().contains(below.getType()))
-            return false;
-
-        if (!spawnConditions.getSpawnBiomes().isEmpty() && !spawnConditions.getSpawnBiomes().contains(below.getBiome()))
-            return false;
-
-        return (block.isPassable() || block.isEmpty()) && (above.isPassable() || above.isEmpty());
     }
 
 }

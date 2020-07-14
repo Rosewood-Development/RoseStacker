@@ -241,6 +241,13 @@ public class SpawnerStackSettings extends StackSettings {
 
     }
 
+    public enum InvalidSpawnCondition {
+        SPAWN_BLOCK,
+        SPAWN_BIOME,
+        LIGHT_LEVEL,
+        ENTITY_CAP
+    }
+
     public enum LightLevel {
         LIGHT,
         DARK,

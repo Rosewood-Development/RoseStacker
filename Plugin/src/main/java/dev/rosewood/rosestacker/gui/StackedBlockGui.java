@@ -12,6 +12,7 @@ import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
+import dev.rosewood.rosestacker.gui.GuiHelper.GuiStringHelper;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -70,7 +71,7 @@ public class StackedBlockGui {
         for (int i = 17; i <= 44; i += 9) borderSlots.add(i);
         for (int i = 46; i <= 52; i += 2) borderSlots.add(i);
         borderSlots.addAll(Arrays.asList(45, 53));
-        ItemStack borderItem = new ItemStack(Material.valueOf(Setting.BLOCK_GUI_BORDER_MATERIAL.getString()));
+        ItemStack borderItem = new ItemStack(GuiHelper.parseMaterial(Setting.BLOCK_GUI_BORDER_MATERIAL.getString()));
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
             itemMeta.setDisplayName(" ");

@@ -60,17 +60,28 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockClicked(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        if (block == null || !event.getPlayer().isSneaking() || event.getAction() != Action.RIGHT_CLICK_BLOCK || !Setting.BLOCK_GUI_ENABLED.getBoolean())
+        if (block == null || !event.getPlayer().isSneaking() || event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
 
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        if (!stackManager.isBlockStackingEnabled())
-            return;
+        if (stackManager.isBlockStackingEnabled() && Setting.BLOCK_GUI_ENABLED.getBoolean()) {
+            StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            if (stackedBlock != null) {
+                stackedBlock.openGui(event.getPlayer());
+                event.setCancelled(true);
+                return;
+            }
+        }
 
-        StackedBlock stackedBlock = stackManager.getStackedBlock(block);
-        if (stackedBlock != null) {
-            stackedBlock.openGui(event.getPlayer());
-            event.setCancelled(true);
+        if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            if (stackedSpawner == null)
+                stackManager.createSpawnerStack(block, 1); // Doesn't exist, need it to in order to open the GUI
+
+            if (stackedSpawner != null) {
+                stackedSpawner.openGui(event.getPlayer());
+                event.setCancelled(true);
+            }
         }
     }
 
