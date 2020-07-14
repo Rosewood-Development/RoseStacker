@@ -138,22 +138,24 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         }
 
         // Handle dynamic stack tags
-        boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
-        boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
-        boolean dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
-        boolean dynamicSpawnerTags = Setting.SPAWNER_DISPLAY_TAGS.getBoolean() && Setting.SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
+        boolean dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
 
-        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags || dynamicSpawnerTags))
+        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags))
             return;
 
-        double entityItemDynamicViewRange = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
-        double blockSpawnerDynamicViewRange = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE.getDouble();
+        double entityDynamicViewRange = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+        double itemDynamicViewRange = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+        double blockSpawnerDynamicViewRange = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
 
-        double entityItemDynamicViewRangeSqrd = entityItemDynamicViewRange * entityItemDynamicViewRange;
+        double entityDynamicViewRangeSqrd = entityDynamicViewRange * entityDynamicViewRange;
+        double itemDynamicViewRangeSqrd = itemDynamicViewRange * itemDynamicViewRange;
         double blockSpawnerDynamicViewRangeSqrd = blockSpawnerDynamicViewRange * blockSpawnerDynamicViewRange;
 
-        boolean entityItemDynamicWallDetection = Setting.ENTITY_ITEM_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-        boolean blockSpawnerDynamicWallDetection = Setting.BLOCK_SPAWNER_DISPLAY_TAGS_DYNAMIC_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        boolean entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        boolean itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        boolean blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
         double maxEntityRenderDistanceSqrd = 75 * 75;
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
@@ -176,13 +178,17 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     continue;
 
                 boolean visible;
-                if ((validEntities.contains(entity.getType()) || entity.getType() == EntityType.DROPPED_ITEM) && entity.isCustomNameVisible()) {
-                    visible = distanceSqrd < entityItemDynamicViewRangeSqrd;
-                    if (entityItemDynamicWallDetection)
+                if (dynamicEntityTags && (validEntities.contains(entity.getType())) && entity.isCustomNameVisible()) {
+                    visible = distanceSqrd < entityDynamicViewRangeSqrd;
+                    if (entityDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (entity.getType() == EntityType.ARMOR_STAND && this.hologramManager.isHologram(entity)) {
+                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM && entity.isCustomNameVisible()) {
+                    visible = distanceSqrd < itemDynamicViewRangeSqrd;
+                    if (itemDynamicWallDetection)
+                        visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
+                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND && this.hologramManager.isHologram(entity)) {
                     visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
-                    if (blockSpawnerDynamicWallDetection)
+                    if (blockDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
                 } else continue;
 
