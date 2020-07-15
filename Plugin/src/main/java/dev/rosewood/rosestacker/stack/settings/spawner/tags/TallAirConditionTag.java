@@ -1,0 +1,33 @@
+package dev.rosewood.rosestacker.stack.settings.spawner.tags;
+
+import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
+import java.util.Collections;
+import java.util.List;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.CreatureSpawner;
+
+public class TallAirConditionTag extends ConditionTag {
+
+    public TallAirConditionTag(String tag) {
+        super(tag, true);
+    }
+
+    @Override
+    public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
+        Block above = spawnBlock.getRelative(BlockFace.UP);
+        return spawnBlock.getType().isAir() && above.getType().isAir() && above.getRelative(BlockFace.UP).getType().isAir();
+    }
+
+    @Override
+    public boolean parseValues(String[] values) {
+        return values.length == 0;
+    }
+
+    @Override
+    protected List<String> getInfoMessageValues(LocaleManager localeManager) {
+        return Collections.emptyList();
+    }
+
+}

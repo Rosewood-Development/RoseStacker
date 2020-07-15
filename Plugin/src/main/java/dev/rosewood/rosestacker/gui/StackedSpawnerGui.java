@@ -12,8 +12,8 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.InvalidSpawnCondition;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.SpawnConditions;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,14 +102,9 @@ public class StackedSpawnerGui {
                 .setLoreSupplier(() -> {
                     List<GuiString> lore = new ArrayList<>();
 
-                    SpawnConditions spawnConditions = stackSettings.getSpawnConditions();
-                    List<String> biomes = spawnConditions.getSpawnBiomes().isEmpty() ? Collections.singletonList("ANY") : spawnConditions.getSpawnBiomes().stream().map(Enum::name).collect(Collectors.toList());
-                    List<String> blocks = spawnConditions.getSpawnBlocks().contains(Material.AIR) ? Collections.singletonList("ANY") : spawnConditions.getSpawnBlocks().stream().map(Enum::name).collect(Collectors.toList());
-
                     lore.add(this.getString("min-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMinSpawnDelay())));
                     lore.add(this.getString("max-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMaxSpawnDelay())));
-                    lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", GuiHelper.getBoolean(this.localeManager, stackSettings.isMobAIDisabled()))));
-                    lore.add(this.getString("max-nearby-entities", StringPlaceholders.single("max", stackSettings.getMaxNearbyEntities())));
+                    lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
                     lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", stackSettings.getPlayerActivationRange())));
                     lore.add(this.getString("spawn-range", StringPlaceholders.single("range", stackSettings.getSpawnRange())));
 
@@ -119,28 +114,18 @@ public class StackedSpawnerGui {
                         int minSpawnAmount = maxSpawnAmount / stackSettings.getSpawnCountStackSizeMultiplier();
 
                         lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", minSpawnAmount)));
-                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", minSpawnAmount)));
+                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", maxSpawnAmount)));
                     } else {
                         lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", creatureSpawner.getSpawnCount())));
                     }
 
                     lore.add(GuiFactory.createString());
                     lore.add(this.getString("spawn-conditions"));
-                    if (biomes.size() == 1) {
-                        lore.add(this.getString("valid-biomes-single", StringPlaceholders.single("biome", biomes.get(0))));
-                    } else {
-                        lore.add(this.getString("valid-biomes-list"));
-                        for (String biome : biomes)
-                            lore.add(this.getString("valid-biomes-list-item", StringPlaceholders.single("biome", biome)));
-                    }
-                    if (blocks.size() == 1) {
-                        lore.add(this.getString("valid-spawn-blocks-single", StringPlaceholders.single("block", blocks.get(0))));
-                    } else {
-                        lore.add(this.getString("valid-spawn-blocks-list"));
-                        for (String block : blocks)
-                            lore.add(this.getString("valid-spawn-blocks-list-item", StringPlaceholders.single("block", block)));
-                    }
-                    lore.add(this.getString("valid-light-level", StringPlaceholders.single("level", GuiHelper.getLightLevel(this.localeManager, spawnConditions.getRequiredLightLevel()))));
+
+                    List<ConditionTag> spawnConditions = stackSettings.getSpawnRequirements();
+                    for (ConditionTag conditionTag : spawnConditions)
+                        for (String line : conditionTag.getInfoMessage(this.localeManager))
+                            lore.add(GuiFactory.createString(line));
 
                     return lore;
                 }));
@@ -163,21 +148,15 @@ public class StackedSpawnerGui {
                     }
                 })
                 .setLoreSupplier(() -> {
-                    List<InvalidSpawnCondition> invalidConditions = this.stackedSpawner.getLastInvalidConditions();
+                    List<Class<? extends ConditionTag>> invalidConditions = this.stackedSpawner.getLastInvalidConditions();
                     if (invalidConditions.isEmpty())
                         return Collections.singletonList(this.getString("entities-can-spawn"));
 
                     List<GuiString> lore = new ArrayList<>();
                     lore.add(this.getString("conditions-preventing-spawns"));
 
-                    if (invalidConditions.contains(InvalidSpawnCondition.ENTITY_CAP))
-                        lore.add(this.getString("condition-nearby-entities"));
-                    if (invalidConditions.contains(InvalidSpawnCondition.SPAWN_BIOME))
-                        lore.add(this.getString("condition-biome"));
-                    if (invalidConditions.contains(InvalidSpawnCondition.SPAWN_BLOCK))
-                        lore.add(this.getString("condition-spawn-blocks"));
-                    if (invalidConditions.contains(InvalidSpawnCondition.LIGHT_LEVEL))
-                        lore.add(this.getString("condition-light-level"));
+                    for (Class<? extends ConditionTag> conditionTagClass : invalidConditions)
+                        lore.add(GuiFactory.createString(ConditionTags.getErrorMessage(conditionTagClass, this.localeManager)));
 
                     return lore;
                 }));

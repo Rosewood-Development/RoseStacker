@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Rabbit;
@@ -38,6 +40,14 @@ public class RabbitStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.RABBIT_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Arrays.asList(
+                "block:grass_block,snow,sand",
+                "lightness"
+        );
     }
 
 }

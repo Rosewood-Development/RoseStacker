@@ -11,7 +11,6 @@ import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.DataManager.StackCounts;

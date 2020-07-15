@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Slime;
@@ -38,6 +40,14 @@ public class SlimeStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.SLIME_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Arrays.asList(
+                "below-y-axis:40",
+                "lightness"
+        );
     }
 
 }

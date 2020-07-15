@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -18,6 +20,14 @@ public class DrownedStackSettings extends ZombieStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.DROWNED_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Arrays.asList(
+                "darkness",
+                "below-sea-level"
+        );
     }
 
 }

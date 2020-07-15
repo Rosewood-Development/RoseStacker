@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
@@ -447,5 +448,7 @@ public abstract class EntityStackSettings extends StackSettings {
     public abstract EntityType getEntityType();
 
     public abstract Material getSpawnEggMaterial();
+
+    public abstract List<String> getDefaultSpawnRequirements();
 
 }

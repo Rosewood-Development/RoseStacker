@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -30,6 +32,14 @@ public class HoglinStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.HOGLIN_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Arrays.asList(
+                "darkness",
+                "block-exception:nether_wart_block"
+        );
     }
 
 }

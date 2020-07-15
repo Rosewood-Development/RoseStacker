@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
@@ -78,6 +80,11 @@ public class BeeStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.BEE_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Collections.emptyList();
     }
 
 }

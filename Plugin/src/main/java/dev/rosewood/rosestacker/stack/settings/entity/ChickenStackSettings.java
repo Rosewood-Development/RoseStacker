@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -38,6 +40,11 @@ public class ChickenStackSettings extends EntityStackSettings {
 
     public boolean shouldMultiplyEggDropsByStackSize() {
         return this.multiplyEggDropsByStackSize;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

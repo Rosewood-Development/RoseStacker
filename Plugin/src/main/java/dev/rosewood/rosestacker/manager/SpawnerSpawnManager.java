@@ -4,17 +4,18 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.InvalidSpawnCondition;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.SpawnConditions;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
+import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -28,11 +29,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      * At what point should we override the normal spawner spawning?
      */
     public static final int DELAY_THRESHOLD = 3;
-
-    /**
-     * How many times should we fail to spawn before giving up?
-     */
-    private static final int MAX_FAILED_SPAWN_ATTEMPTS = 50;
 
     private Random random;
     private BukkitTask task;
@@ -64,6 +60,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         StackManager stackManager = this.roseStacker.getManager(StackManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
+        int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
 
         for (Block block : stackManager.getStackedSpawners().keySet()) {
             if (block.getType() != Material.SPAWNER)
@@ -79,7 +76,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
             StackedSpawner stackedSpawner = stackManager.getStackedSpawners().get(block);
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
-            SpawnConditions spawnConditions = stackSettings.getSpawnConditions();
 
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();
@@ -89,23 +85,16 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn particles indicating the spawn occurred
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
 
-            List<InvalidSpawnCondition> invalidSpawnConditions = new ArrayList<>();
+            List<ConditionTag> spawnRequirements = new ArrayList<>(stackSettings.getSpawnRequirements());
 
-            boolean meetsEntityConstraint = true;
-            boolean hasValidBiome = true;
-            boolean hasValidSpawnLocation = false;
-            boolean hasValidLightLevel = false;
+            // Check general spawner conditions
+            List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
+            spawnRequirements.removeAll(perSpawnConditions);
 
-            int spawnRange = spawner.getSpawnRange();
-            if (block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), spawnRange, spawnRange, spawnRange, entity -> entity.getType() == entityType).size() > spawner.getMaxNearbyEntities()) {
-                invalidSpawnConditions.add(InvalidSpawnCondition.ENTITY_CAP);
-                meetsEntityConstraint = false;
-            }
+            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, spawner.getBlock())).collect(Collectors.toSet());
+            boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
 
-            if (!spawnConditions.getSpawnBiomes().isEmpty() && !spawnConditions.getSpawnBiomes().contains(block.getBiome())) {
-                invalidSpawnConditions.add(InvalidSpawnCondition.SPAWN_BIOME);
-                hasValidBiome = false;
-            }
+            invalidSpawnConditions.addAll(perSpawnConditions); // Will be removed when they pass
 
             // Spawn the mobs
             int spawnAmount;
@@ -116,78 +105,62 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 spawnAmount = spawner.getSpawnCount();
             }
 
+            int spawnRange = spawner.getSpawnRange();
             boolean successfulSpawn = false;
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
-                while (attempts < MAX_FAILED_SPAWN_ATTEMPTS) {
+                while (attempts < maxFailedSpawnAttempts) {
                     int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int yOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                    int yOffset = this.random.nextInt(3) - 1;
                     int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
                     Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
 
-                    Block target = spawnLocation.getBlock();
-                    Block below = target.getRelative(BlockFace.DOWN);
-                    Block above = target.getRelative(BlockFace.UP);
+                    Block target = block.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
 
-                    boolean currentSpawnValid = meetsEntityConstraint && hasValidBiome;
-                    if ((spawnConditions.getSpawnBlocks().contains(Material.AIR)
-                            || spawnConditions.getSpawnBlocks().contains(below.getType()))
-                            && ((target.isPassable() || target.isEmpty()) && (above.isPassable() || above.isEmpty()))) {
-                        hasValidSpawnLocation = true;
-                    } else {
-                        currentSpawnValid = false;
+                    boolean invalid = false;
+                    for (ConditionTag conditionTag : perSpawnConditions) {
+                        if (!conditionTag.check(spawner, target)) {
+                            invalid = true;
+                        } else {
+                            invalidSpawnConditions.remove(conditionTag);
+                        }
                     }
 
-                    switch (spawnConditions.getRequiredLightLevel()) {
-                        case LIGHT:
-                            if (target.getLightLevel() > 7) {
-                                hasValidLightLevel = true;
-                            } else {
-                                currentSpawnValid = false;
-                            }
-                            break;
-                        case DARK:
-                            if (target.getLightLevel() <= 7) {
-                                hasValidLightLevel = true;
-                            } else {
-                                currentSpawnValid = false;
-                            }
-                            break;
-                        case ANY:
-                            hasValidLightLevel = true;
-                            break;
+                    if (invalid) {
+                        attempts++;
+                        continue;
                     }
 
-                    if (currentSpawnValid) {
-                        Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
-
-                        SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
-                        Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
-                        if (spawnerSpawnEvent.isCancelled())
-                            entity.remove();
-
-                        if (entity.isValid()) // Don't spawn particles for auto-stacked entities
-                            block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
-
-                        successfulSpawn = true;
+                    if (!passedSpawnerChecks)
                         break;
-                    }
 
-                    attempts++;
+                    Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
+
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
+                    Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                    if (spawnerSpawnEvent.isCancelled())
+                        entity.remove();
+
+                    if (entity.isValid()) // Don't spawn particles for auto-stacked entities
+                        block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+
+                    successfulSpawn = true;
+                    break;
                 }
             }
 
-            if (!successfulSpawn) {
-                if (!hasValidLightLevel)
-                    invalidSpawnConditions.add(InvalidSpawnCondition.LIGHT_LEVEL);
-                if (!hasValidSpawnLocation)
-                    invalidSpawnConditions.add(InvalidSpawnCondition.SPAWN_BLOCK);
-            }
-
             stackedSpawner.getLastInvalidConditions().clear();
-            if (!successfulSpawn)
-                stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditions);
+            if (!successfulSpawn) {
+                if (invalidSpawnConditions.isEmpty()) {
+                    stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
+                } else {
+                    List<Class<? extends ConditionTag>> invalidSpawnConditionClasses = new ArrayList<>();
+                    for (ConditionTag conditionTag : invalidSpawnConditions)
+                        invalidSpawnConditionClasses.add(conditionTag.getClass());
+                    stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
+                }
+            }
         }
     }
 
