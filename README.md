@@ -1,3 +1,1 @@
-## RoseStacker
-
-Created with accuracy and performance in mind.
+![](https://imgur.com/3ADh05A.png)
