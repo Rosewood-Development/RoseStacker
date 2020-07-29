@@ -71,6 +71,12 @@ public abstract class ConditionTag {
      */
     protected abstract List<String> getInfoMessageValues(LocaleManager localeManager);
 
+    /**
+     * Gets the info message to be displayed in the spawner GUI
+     *
+     * @param localeManager The LocaleManager instance
+     * @return A list of lore lines to be displayed in the spawner GUI
+     */
     public List<String> getInfoMessage(LocaleManager localeManager) {
         List<String> messages = new ArrayList<>();
 
