@@ -42,13 +42,18 @@ public class SpawnerStackSettings extends StackSettings {
         this.spawnRange = this.settingsConfiguration.getInt("spawn-range");
 
         this.spawnRequirements = new ArrayList<>();
-        for (String requirement : this.settingsConfiguration.getStringList("spawn-requirements")) {
+
+        List<String> requirementStrings = this.settingsConfiguration.getStringList("spawn-requirements");
+        for (String requirement : requirementStrings) {
             try {
                 this.spawnRequirements.add(ConditionTags.parse(requirement));
             } catch (Exception e) {
                 RoseStacker.getInstance().getLogger().warning(String.format("Invalid Spawner Requirement Tag: %s", requirement));
             }
         }
+
+        if (requirementStrings.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("air")))
+            this.spawnRequirements.add(ConditionTags.parse("air")); // All entities that don't require fluids will require air
     }
 
     @Override
@@ -67,9 +72,6 @@ public class SpawnerStackSettings extends StackSettings {
 
         List<String> defaultSpawnRequirements = new ArrayList<>(RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entityType).getDefaultSpawnRequirements());
         defaultSpawnRequirements.add("max-nearby-entities:6");
-        if (defaultSpawnRequirements.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("tall-air")))
-            defaultSpawnRequirements.add("air"); // All entities that don't require fluids will require air
-
         this.setIfNotExists("spawn-requirements", defaultSpawnRequirements);
     }
 

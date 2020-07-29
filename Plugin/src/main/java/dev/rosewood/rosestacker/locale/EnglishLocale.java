@@ -127,7 +127,7 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-above-y-axis-info", "Above Y-Axis");
             this.put("spawner-condition-above-y-axis-invalid", "No spawn area above required Y-Axis");
             this.put("spawner-condition-air-info", "Open Air");
-            this.put("spawner-condition-air-invalid", "No air spaces available");
+            this.put("spawner-condition-air-invalid", "No large enough air spaces available");
             this.put("spawner-condition-below-sea-level-info", "Below Sea Level");
             this.put("spawner-condition-below-sea-level-invalid", "No spawn area below sea level");
             this.put("spawner-condition-below-y-axis-info", "Below Y-Axis");
@@ -152,8 +152,6 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-on-ground-invalid", "No solid ground nearby");
             this.put("spawner-condition-skylight-access-info", "Skylight Access");
             this.put("spawner-condition-skylight-access-invalid", "No spawn blocks with skylight access");
-            this.put("spawner-condition-tall-air-info", "Tall Open Air");
-            this.put("spawner-condition-tall-air-invalid", "No three-high air spaces available");
             this.put("spawner-condition-none-invalid", "Exceeded maximum spawn attempts");
 
             this.put("#14", "ACF-Core Messages");

@@ -17,7 +17,6 @@ import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoSkylightAccessCond
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.SkylightAccessConditionTag;
-import dev.rosewood.rosestacker.stack.settings.spawner.tags.TallAirConditionTag;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -50,7 +49,6 @@ public final class ConditionTags {
         registerTag("no-skylight-access", NoSkylightAccessConditionTag.class);
         registerTag("on-ground", OnGroundConditionTag.class);
         registerTag("skylight-access", SkylightAccessConditionTag.class);
-        registerTag("tall-air", TallAirConditionTag.class);
 
         // Tag for when all conditions were met, but no entities were able to spawn
         registerTag("none", NoneConditionTag.class);

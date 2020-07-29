@@ -188,8 +188,20 @@ public class CommentedFileConfigurationHelper {
                 } else if (!line.trim().isEmpty()) {
                     lineHadContent = true;
 
-                    if (line.trim().startsWith("-"))
+                    if (line.trim().startsWith("-")) {
                         forceCompact = true;
+
+                        // Code below will process array string values to always contain single quotes
+//                        String[] pieces = line.split("- ", 2);
+//                        if (pieces.length == 2) {
+//                            String value = pieces[1];
+//                            if (!value.startsWith("'") && !NumberUtils.isCreatable(value)) {
+//                                value.replaceAll("'", "''");
+//                                value = "'" + value + "'";
+//                                line = pieces[0] + "- " + value;
+//                            }
+//                        }
+                    }
                 }
 
                 if (!compactLines && !forceCompact && (

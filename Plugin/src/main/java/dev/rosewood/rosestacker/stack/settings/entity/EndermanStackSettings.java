@@ -4,6 +4,7 @@ import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Enderman;
@@ -44,10 +45,7 @@ public class EndermanStackSettings extends EntityStackSettings {
 
     @Override
     public List<String> getDefaultSpawnRequirements() {
-        return Arrays.asList(
-                "darkness",
-                "tall-air"
-        );
+        return Collections.singletonList("darkness");
     }
 
 }

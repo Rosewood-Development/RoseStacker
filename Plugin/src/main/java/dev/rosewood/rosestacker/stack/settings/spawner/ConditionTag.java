@@ -38,6 +38,8 @@ public abstract class ConditionTag {
             String[] pieces = tag.split(":", 2);
             prefix = pieces[0];
             values = pieces[1].split(",");
+            for (int i = 0; i < values.length; i++)
+                values[i] = values[i].trim();
         }
 
         if (!this.parseValues(values))
