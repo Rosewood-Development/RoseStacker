@@ -4,6 +4,9 @@ import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -55,6 +58,18 @@ public class PigZombieStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return NMSUtil.getVersionNumber() >= 16 ? Material.ZOMBIFIED_PIGLIN_SPAWN_EGG : Material.valueOf("ZOMBIE_PIGMAN_SPAWN_EGG");
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        if (NMSUtil.getVersionNumber() >= 16) {
+            return Arrays.asList(
+                    "darkness",
+                    "block-exception:nether_wart_block"
+            );
+        } else {
+            return ConditionTags.MONSTER_TAGS;
+        }
     }
 
 }

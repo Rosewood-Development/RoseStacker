@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = 'Beta-61'
+    version = 'Beta-SCR'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -58,8 +58,6 @@ shadowJar {
     relocate('org.slf4j', 'dev.rosewood.rosestacker.lib.slf4j')
     relocate('co.aikar.commands', 'dev.rosewood.rosestacker.lib.acf.commands')
     relocate('co.aikar.locales', 'dev.rosewood.rosestacker.lib.acf.locales')
-    //relocate('co.aikar.timings', 'dev.rosewood.rosestacker.lib.acf.timings')
-    relocate('co.aikar.util', 'dev.rosewood.rosestacker.lib.acf.util')
     relocate('net.jodah.expiringmap', 'dev.rosewood.rosestacker.lib.expiringmap')
     relocate('org.intellij', 'dev.rosewood.rosestacker.lib.intellij')
     relocate('org.jetbrains', 'dev.rosewood.rosestacker.lib.jetbrains')

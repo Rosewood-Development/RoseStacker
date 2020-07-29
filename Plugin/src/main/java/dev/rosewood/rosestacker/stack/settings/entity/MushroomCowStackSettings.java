@@ -4,6 +4,8 @@ import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.MushroomCow;
@@ -44,6 +46,14 @@ public class MushroomCowStackSettings extends EntityStackSettings {
     @Override
     public Material getSpawnEggMaterial() {
         return Material.MOOSHROOM_SPAWN_EGG;
+    }
+
+    @Override
+    public List<String> getDefaultSpawnRequirements() {
+        return Arrays.asList(
+                "block:mycelium",
+                "lightness"
+        );
     }
 
 }

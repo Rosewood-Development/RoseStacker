@@ -10,7 +10,6 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.command.RoseCommand;
 import dev.rosewood.rosestacker.command.RoseCommand.ClearallType;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;

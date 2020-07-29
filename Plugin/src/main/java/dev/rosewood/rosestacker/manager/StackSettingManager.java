@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.ClassUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.File;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -101,7 +103,25 @@ public class StackSettingManager extends Manager {
         });
 
         // Load spawner settings
+        boolean addSpawnerHeaderComments = !spawnerSettingsFile.exists();
         CommentedFileConfiguration spawnerSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, spawnerSettingsFile);
+        if (addSpawnerHeaderComments) {
+            saveSpawnerSettingsFile.set(true);
+            Map<String, String> conditionTags = ConditionTags.getTagDescriptionMap();
+            spawnerSettingsConfiguration.addComments("Available Spawn Requirements:", "");
+            for (Entry<String, String> entry : conditionTags.entrySet()) {
+                String tag = entry.getKey();
+                String description = entry.getValue();
+                spawnerSettingsConfiguration.addComments(tag + " - " + description);
+            }
+
+            spawnerSettingsConfiguration.addComments(
+                    "",
+                    "Valid Blocks: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
+                    "Valid Biomes: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html"
+            );
+        }
+
         StackerUtils.getAlphabeticalStackableEntityTypes().forEach(x -> {
             SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, x);
             this.spawnerSettings.put(x, spawnerStackSettings);

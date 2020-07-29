@@ -100,11 +100,6 @@ public class EnglishLocale implements Locale {
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Viewing %name%");
             this.put("gui-stacked-spawner-stats", "&6Spawner Stats");
-            this.put("gui-stacked-spawner-any", "ANY");
-            this.put("gui-stacked-spawner-light", "LIGHT");
-            this.put("gui-stacked-spawner-dark", "DARK");
-            this.put("gui-stacked-spawner-true", "&atrue");
-            this.put("gui-stacked-spawner-false", "&cfalse");
             this.put("gui-stacked-spawner-min-spawn-delay", "&eMin Spawn Delay: &b%delay%");
             this.put("gui-stacked-spawner-max-spawn-delay", "&eMax Spawn Delay: &b%delay%");
             this.put("gui-stacked-spawner-disabled-mob-ai", "&eDisabled Mob AI: &b%disabled%");
@@ -115,24 +110,51 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-spawner-max-spawn-amount", "&eMax Spawn Amount: &b%amount%");
             this.put("gui-stacked-spawner-spawn-amount", "&eSpawn Amount: &b%amount%");
             this.put("gui-stacked-spawner-spawn-conditions", "&6Spawn Conditions");
-            this.put("gui-stacked-spawner-valid-biomes-single", "&eValid Biome: &b%biome%");
-            this.put("gui-stacked-spawner-valid-biomes-list", "&eValid Biomes:");
-            this.put("gui-stacked-spawner-valid-biomes-list-item", "&7 - &b%biome%");
-            this.put("gui-stacked-spawner-valid-spawn-blocks-single", "&eValid Spawn Block: &b%block%");
-            this.put("gui-stacked-spawner-valid-spawn-blocks-list", "&eValid Spawn Blocks:");
-            this.put("gui-stacked-spawner-valid-spawn-blocks-list-item", "&7 - &b%block%");
-            this.put("gui-stacked-spawner-valid-light-level", "&eValid Light Level: &b%level%");
             this.put("gui-stacked-spawner-time-until-next-spawn", "&eTime until next spawn: &b%time% ticks");
             this.put("gui-stacked-spawner-valid-spawn-conditions", "&6Valid Spawn Conditions");
             this.put("gui-stacked-spawner-invalid-spawn-conditions", "&6Invalid Spawn Conditions");
             this.put("gui-stacked-spawner-entities-can-spawn", "&aEntities are able to spawn");
             this.put("gui-stacked-spawner-conditions-preventing-spawns", "&eConditions preventing spawns:");
-            this.put("gui-stacked-spawner-condition-nearby-entities", "&7 - &cToo many nearby entities");
-            this.put("gui-stacked-spawner-condition-biome", "&7 - &cIncorrect biome");
-            this.put("gui-stacked-spawner-condition-spawn-blocks", "&7 - &cMissing valid spawn blocks");
-            this.put("gui-stacked-spawner-condition-light-level", "&7 - &cIncorrect light level");
 
-            this.put("#13", "ACF-Core Messages");
+            this.put("#13", "Spawn Condition Messages");
+            this.put("spawner-condition-invalid", "&7 - &c%message%");
+            this.put("spawner-condition-info", "&e%condition%");
+            this.put("spawner-condition-single", "&e%condition%: &b%value%");
+            this.put("spawner-condition-list", "&e%condition%:");
+            this.put("spawner-condition-list-item", "&7 - &b%message%");
+            this.put("spawner-condition-above-sea-level-info", "Above Sea Level");
+            this.put("spawner-condition-above-sea-level-invalid", "No spawn area above sea level");
+            this.put("spawner-condition-above-y-axis-info", "Above Y-Axis");
+            this.put("spawner-condition-above-y-axis-invalid", "No spawn area above required Y-Axis");
+            this.put("spawner-condition-air-info", "Open Air");
+            this.put("spawner-condition-air-invalid", "No large enough air spaces available");
+            this.put("spawner-condition-below-sea-level-info", "Below Sea Level");
+            this.put("spawner-condition-below-sea-level-invalid", "No spawn area below sea level");
+            this.put("spawner-condition-below-y-axis-info", "Below Y-Axis");
+            this.put("spawner-condition-below-y-axis-invalid", "No spawn area below required Y-Axis");
+            this.put("spawner-condition-biome-info", "Biome");
+            this.put("spawner-condition-biome-invalid", "Incorrect biome");
+            this.put("spawner-condition-block-info", "Spawn Block");
+            this.put("spawner-condition-block-invalid", "No valid spawn blocks");
+            this.put("spawner-condition-block-exception-info", "Spawn Block Exception");
+            this.put("spawner-condition-block-exception-invalid", "Excluded spawn blocks");
+            this.put("spawner-condition-darkness-info", "Low Light Level");
+            this.put("spawner-condition-darkness-invalid", "Area is too bright");
+            this.put("spawner-condition-fluid-info", "Requires Fluid");
+            this.put("spawner-condition-fluid-invalid", "No nearby fluid");
+            this.put("spawner-condition-lightness-info", "High Light Level");
+            this.put("spawner-condition-lightness-invalid", "Area is too dark");
+            this.put("spawner-condition-max-nearby-entities-info", "Max Nearby Entities");
+            this.put("spawner-condition-max-nearby-entities-invalid", "Too many nearby entities");
+            this.put("spawner-condition-no-skylight-access-info", "No Skylight Access");
+            this.put("spawner-condition-no-skylight-access-invalid", "No spawn blocks without skylight access");
+            this.put("spawner-condition-on-ground-info", "On Ground");
+            this.put("spawner-condition-on-ground-invalid", "No solid ground nearby");
+            this.put("spawner-condition-skylight-access-info", "Skylight Access");
+            this.put("spawner-condition-skylight-access-invalid", "No spawn blocks with skylight access");
+            this.put("spawner-condition-none-invalid", "Exceeded maximum spawn attempts");
+
+            this.put("#14", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -151,10 +173,10 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#14", "ACF-Minecraft Messages");
+            this.put("#15", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
 
-            this.put("#15", "Convert Lock Messages");
+            this.put("#16", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +
                     "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
                     "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +

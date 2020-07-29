@@ -7,7 +7,7 @@ import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings.InvalidSpawnCondition;
+import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private CreatureSpawner spawner;
     private Location location;
     private StackedSpawnerGui stackedSpawnerGui;
-    private List<InvalidSpawnCondition> lastInvalidConditions;
+    private List<Class<? extends ConditionTag>> lastInvalidConditions;
 
     private SpawnerStackSettings stackSettings;
 
@@ -92,7 +92,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.stackedSpawnerGui.openFor(player);
     }
 
-    public List<InvalidSpawnCondition> getLastInvalidConditions() {
+    public List<Class<? extends ConditionTag>> getLastInvalidConditions() {
         return this.lastInvalidConditions;
     }
 
@@ -146,7 +146,6 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawner.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
         this.spawner.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
         this.spawner.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
-        this.spawner.setMaxNearbyEntities(this.stackSettings.getMaxNearbyEntities());
         this.spawner.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
         this.spawner.setSpawnRange(this.stackSettings.getSpawnRange());
         this.spawner.setDelay(delay);
