@@ -121,7 +121,7 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-info", "&e%condition%");
             this.put("spawner-condition-single", "&e%condition%: &b%value%");
             this.put("spawner-condition-list", "&e%condition%:");
-            this.put("spawner-condition-list-item", "&7 - &c%message%");
+            this.put("spawner-condition-list-item", "&7 - &b%message%");
             this.put("spawner-condition-above-sea-level-info", "Above Sea Level");
             this.put("spawner-condition-above-sea-level-invalid", "No spawn area above sea level");
             this.put("spawner-condition-above-y-axis-info", "Above Y-Axis");
