@@ -87,11 +87,10 @@ public class ItemListener implements Listener {
         if (stackedItem == null)
             return;
 
-        event.setCancelled(true);
-
         Inventory inventory = event.getInventory();
 
-        this.applyInventoryItemPickup(inventory, stackedItem, null);
+        if (this.applyInventoryItemPickup(inventory, stackedItem, null))
+            event.setCancelled(true);
     }
 
     /**
