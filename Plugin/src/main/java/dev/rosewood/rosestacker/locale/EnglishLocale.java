@@ -56,17 +56,18 @@ public class EnglishLocale implements Locale {
 
             this.put("#6", "Clearall Command");
             this.put("command-clearall-description", "&8 - &d/rs clearall &7- Clears all of a stack type");
-            this.put("command-clearall-killed-entities", "&eCleared &b%amount% &eentities.");
-            this.put("command-clearall-killed-items", "&eCleared &b%amount% &eitems.");
+            this.put("command-clearall-killed-entities", "&eCleared &b%amount% &eentity stacks.");
+            this.put("command-clearall-killed-items", "&eCleared &b%amount% &eitem stacks.");
+            this.put("command-clearall-killed-all", "&eCleared &b%entityAmount% &eentity stacks and &b%itemAmount% &eitem stacks.");
 
             this.put("#7", "Stats Command");
             this.put("command-stats-description", "&8 - &d/rs stats &7- Displays stats about the plugin");
             this.put("command-stats-header", "&aCurrent Plugin Stats:");
-            this.put("command-stats-threads", "&eActive stacking threads: &b%amount%");
-            this.put("command-stats-stacked-entities", "&eLoaded entity stacks: &b%amount%");
-            this.put("command-stats-stacked-items", "&eLoaded item stacks: &b%amount%");
-            this.put("command-stats-stacked-blocks", "&eLoaded block stacks: &b%amount%");
-            this.put("command-stats-stacked-spawners", "&eLoaded spawner stacks: &b%amount%");
+            this.put("command-stats-threads", "&b%amount% &eactive stacking threads.");
+            this.put("command-stats-stacked-entities", "&b%stackAmount% &eloaded entity stacks, totaling &b%total% &eentities.");
+            this.put("command-stats-stacked-items", "&b%stackAmount% &eloaded item stacks, totaling &b%total% &eitems.");
+            this.put("command-stats-stacked-blocks", "&b%stackAmount% &eloaded block stacks, totaling &b%total% &eblocks.");
+            this.put("command-stats-stacked-spawners", "&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "&8 - &d/rs convert &7- Converts data from another stacking plugin");
@@ -160,7 +161,7 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
             this.put("acf-core-error-performing-command", "&cAn error occurred executing the command.");
             this.put("acf-core-unknown-command", "&cUnknown command. Use &b/rs&c for commands.");
-            this.put("acf-core-invalid-syntax", "&cUsage: &e{command}&7 {syntax}");
+            this.put("acf-core-invalid-syntax", "&cUsage: &e{command}&e {syntax}");
             this.put("acf-core-error-prefix", "&cError: {message}");
             this.put("acf-core-info-message", "&e{message}");
             this.put("acf-core-please-specify-one-of", "&cError: An invalid argument was given.");

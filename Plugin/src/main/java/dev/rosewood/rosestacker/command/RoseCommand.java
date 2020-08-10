@@ -17,6 +17,7 @@ import dev.rosewood.rosestacker.manager.DataManager.StackCounts;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -88,6 +89,11 @@ public class RoseCommand extends BaseCommand {
                 amount = stackManager.removeAllItemStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-items", StringPlaceholders.single("amount", amount));
                 break;
+            case ALL:
+                int entities = stackManager.removeAllEntityStacks();
+                int items = stackManager.removeAllItemStacks();
+                localeManager.sendMessage(sender, "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", entities).addPlaceholder("itemAmount", items).build());
+                break;
         }
     }
 
@@ -112,17 +118,23 @@ public class RoseCommand extends BaseCommand {
         LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
 
         int threadAmount = stackManager.getStackingThreads().size();
-        int entityAmount = stackManager.getStackedEntities().size();
-        int itemAmount = stackManager.getStackedItems().size();
-        int blockAmount = stackManager.getStackedItems().size();
-        int spawnerAmount = stackManager.getStackedSpawners().size();
+
+        int entityStackAmount = stackManager.getStackedEntities().size();
+        int itemStackAmount = stackManager.getStackedItems().size();
+        int blockStackAmount = stackManager.getStackedBlocks().size();
+        int spawnerStackAmount = stackManager.getStackedSpawners().size();
+
+        int entityAmount = stackManager.getStackedEntities().values().stream().mapToInt(Stack::getStackSize).sum();
+        int itemAmount = stackManager.getStackedItems().values().stream().mapToInt(Stack::getStackSize).sum();
+        int blockAmount = stackManager.getStackedBlocks().values().stream().mapToInt(Stack::getStackSize).sum();
+        int spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToInt(Stack::getStackSize).sum();
 
         localeManager.sendMessage(sender, "command-stats-header");
         localeManager.sendSimpleMessage(sender, "command-stats-threads", StringPlaceholders.single("amount", threadAmount));
-        localeManager.sendSimpleMessage(sender, "command-stats-stacked-entities", StringPlaceholders.single("amount", entityAmount));
-        localeManager.sendSimpleMessage(sender, "command-stats-stacked-items", StringPlaceholders.single("amount", itemAmount));
-        localeManager.sendSimpleMessage(sender, "command-stats-stacked-blocks", StringPlaceholders.single("amount", blockAmount));
-        localeManager.sendSimpleMessage(sender, "command-stats-stacked-spawners", StringPlaceholders.single("amount", spawnerAmount));
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).addPlaceholder("total", entityAmount).build());
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).addPlaceholder("total", itemAmount).build());
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).addPlaceholder("total", blockAmount).build());
+        localeManager.sendSimpleMessage(sender, "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).addPlaceholder("total", spawnerAmount).build());
     }
 
     @Subcommand("give")
@@ -256,7 +268,8 @@ public class RoseCommand extends BaseCommand {
 
     public enum ClearallType {
         ENTITY,
-        ITEM
+        ITEM,
+        ALL
     }
 
 }

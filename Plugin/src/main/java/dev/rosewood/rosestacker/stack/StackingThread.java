@@ -44,7 +44,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
-    private final static int CLEANUP_TIMER_TARGET = 100;
+    private final static int CLEANUP_TIMER_TARGET = 30;
 
     private final RoseStacker roseStacker;
     private final StackManager stackManager;
@@ -208,6 +208,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (this.pendingChunkTask != null)
             this.pendingChunkTask.cancel();
 
+        this.pendingLoadChunks.clear();
+        this.pendingUnloadChunks.clear();
+
         // Restore custom names
         this.stackedEntities.values().forEach(StackedEntity::restoreOriginalCustomName);
 
@@ -223,6 +226,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         if (this.stackManager.isSpawnerStackingEnabled())
             dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values());
+
+        this.stackedEntities.clear();
+        this.stackedItems.clear();
+        this.stackedBlocks.clear();
+        this.stackedSpawners.clear();
     }
 
     @Override
