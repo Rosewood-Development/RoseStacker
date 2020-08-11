@@ -101,38 +101,6 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSpawnerSpawn(SpawnerSpawnEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity))
-            return;
-
-        if (!this.roseStacker.getManager(StackManager.class).isSpawnerStackingEnabled())
-            return;
-
-        LivingEntity entity = (LivingEntity) event.getEntity();
-        SpawnerStackSettings spawnerStackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(event.getSpawner());
-        if (spawnerStackSettings == null)
-            return;
-
-        if (spawnerStackSettings.isMobAIDisabled()) {
-            // Make the entity unable to move
-            AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-            if (movementAttribute != null)
-                movementAttribute.setBaseValue(0);
-
-            // Make the entity unable to take knockback
-            AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-            if (knockbackAttribute != null)
-                knockbackAttribute.setBaseValue(Double.MAX_VALUE);
-
-            // Supposed to stop jumping, but only seems to work on players
-            //entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128, true, false));
-        }
-
-        // Tag the entity as spawned from a spawner
-        entity.setMetadata("spawner_spawned", new FixedMetadataValue(this.roseStacker, true));
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         if (!(event.getEntity() instanceof LivingEntity))
             return;

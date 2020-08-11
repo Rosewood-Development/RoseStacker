@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSUtil;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
@@ -14,16 +16,25 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 
 public class SpawnerSpawnManager extends Manager implements Runnable {
+
+    /**
+     * Metadata name used to keep track of if an entity is spawned from a spawner
+     */
+    private static final String METADATA_NAME = "spawner_spawned";
 
     /**
      * At what point should we override the normal spawner spawning?
@@ -135,7 +146,16 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     if (!passedSpawnerChecks)
                         break;
 
-                    Entity entity = block.getWorld().spawnEntity(spawnLocation, entityType);
+                    LivingEntity entity = (LivingEntity) block.getWorld().spawn(spawnLocation, entityType.getEntityClass(), spawnedEntity -> {
+                        LivingEntity spawnedLivingEntity = (LivingEntity) spawnedEntity;
+                        if (stackSettings.isMobAIDisabled())
+                            this.disableAI(spawnedLivingEntity);
+                        this.tagSpawnedFromSpawner(spawnedLivingEntity);
+                    });
+
+                    // Now we can try to stack the mob
+                    StackedEntity stackedEntity = new StackedEntity(entity);
+                    stackManager.addEntityStack(stackedEntity);
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
@@ -162,6 +182,48 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
             }
         }
+    }
+
+    private void tagSpawnedFromSpawner(LivingEntity entity) {
+        if (NMSUtil.getVersionNumber() > 13) {
+            entity.getPersistentDataContainer().set(new NamespacedKey(this.roseStacker, METADATA_NAME), PersistentDataType.INTEGER, 1);
+        } else {
+            entity.setMetadata(METADATA_NAME, new FixedMetadataValue(this.roseStacker, true));
+        }
+    }
+
+    /**
+     * Checks if an entity was spawned from one of our spawners
+     *
+     * @param entity The entity to check
+     * @return true if the entity was spawned from one of our spawners, otherwise false
+     */
+    public boolean isSpawnedFromSpawner(LivingEntity entity) {
+        if (NMSUtil.getVersionNumber() > 13) {
+            return entity.getPersistentDataContainer().has(new NamespacedKey(this.roseStacker, METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            return entity.hasMetadata(METADATA_NAME);
+        }
+    }
+
+    /**
+     * Disables the movement/knockback AI of a mob without using {@link LivingEntity#setAI}.
+     *
+     * @param entity The entity to disable AI for
+     */
+    public void disableAI(LivingEntity entity) {
+        // Make the entity unable to move
+        AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (movementAttribute != null)
+            movementAttribute.setBaseValue(0);
+
+        // Make the entity unable to take knockback
+        AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        if (knockbackAttribute != null)
+            knockbackAttribute.setBaseValue(Double.MAX_VALUE);
+
+        // Supposed to stop jumping, but only seems to work on players
+        //entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128, true, false));
     }
 
 }

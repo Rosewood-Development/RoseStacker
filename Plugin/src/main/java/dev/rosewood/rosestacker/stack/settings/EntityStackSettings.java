@@ -1,7 +1,9 @@
 package dev.rosewood.rosestacker.stack.settings;
 
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -170,10 +172,13 @@ public abstract class EntityStackSettings extends StackSettings {
                 return false;
         }
 
-        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean() && (!entity1.hasMetadata("spawner_spawned") || !entity2.hasMetadata("spawner_spawned")))
-            return false;
+        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean()) {
+            SpawnerSpawnManager spawnerSpawnManager = RoseStacker.getInstance().getManager(SpawnerSpawnManager.class);
+            if (!(spawnerSpawnManager.isSpawnedFromSpawner(entity1) && spawnerSpawnManager.isSpawnedFromSpawner(entity2)))
+                return false;
+        }
 
-        // Don't stack if being ridden or is riding something (
+        // Don't stack if being ridden or is riding something
         if (!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle())
             return comparingForUnstack; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
 
