@@ -605,35 +605,6 @@ public class BlockListener implements Listener {
             event.setExpToDrop(0);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSpawnerChangeWithSpawnEgg(PlayerInteractEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        if (!stackManager.isSpawnerStackingEnabled())
-            return;
-
-        Block clickedBlock = event.getClickedBlock();
-        if (clickedBlock == null
-                || clickedBlock.getType() != Material.SPAWNER
-                || event.getItem() == null
-                || !event.getItem().getType().name().endsWith("_SPAWN_EGG"))
-            return;
-
-        if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
-            event.setCancelled(true);
-            return;
-        }
-
-        Bukkit.getScheduler().runTask(this.roseStacker, () -> {
-            if (!this.isBlockOrSpawnerStack(stackManager, clickedBlock))
-                return;
-
-            // Make sure spawners convert and update their display properly
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-            stackedSpawner.updateSpawnerProperties();
-            stackedSpawner.updateDisplay();
-        });
-    }
-
     private boolean isBlockOrSpawnerStack(StackManager stackManager, Block block) {
         return stackManager.isBlockStacked(block) || stackManager.isSpawnerStacked(block);
     }

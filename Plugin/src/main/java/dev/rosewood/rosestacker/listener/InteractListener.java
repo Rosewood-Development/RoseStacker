@@ -4,6 +4,7 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
@@ -38,15 +39,41 @@ public class InteractListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         Block clickedBlock = event.getClickedBlock();
-        if (event.getItem() == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
+        ItemStack item = event.getItem();
+        if (item == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
+
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isSpawnerStackingEnabled())
+            return;
+
+        // Handle spawner conversion before we try to spawn entities
+        if (clickedBlock.getType() == Material.SPAWNER
+                && item.getType().name().endsWith("_SPAWN_EGG")
+                && StackerUtils.getStackedItemStackAmount(item) == 1) {
+
+            if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+                event.setCancelled(true);
+                return;
+            }
+
+            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+                if (!stackManager.isSpawnerStacked(clickedBlock))
+                    return;
+
+                // Make sure spawners convert and update their display properly
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                stackedSpawner.updateSpawnerProperties();
+                stackedSpawner.updateDisplay();
+            });
+
+            return;
+        }
 
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();
         spawnLocation.add(0.5, 0, 0.5); // Center on block
 
-        ItemStack itemStack = event.getItem();
-
-        if (this.spawnEntities(null, spawnLocation, itemStack)) {
+        if (this.spawnEntities(null, spawnLocation, item)) {
             StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
             event.setCancelled(true);
         }
