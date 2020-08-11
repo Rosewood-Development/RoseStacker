@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
@@ -320,6 +322,21 @@ public final class StackerUtils {
             extraItems.addAll(player.getInventory().addItem(itemStack).values());
         Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
         RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
+    }
+
+    public static void damageTool(ItemStack itemStack) {
+        Damageable damageable = (Damageable) itemStack.getItemMeta();
+        if (damageable == null)
+            return;
+
+        damageable.setDamage(damageable.getDamage() + 1);
+        itemStack.setItemMeta((ItemMeta) damageable);
+    }
+
+    public static Material getWoolMaterial(DyeColor dyeColor) {
+        if (dyeColor == null)
+            return Material.WHITE_WOOL;
+        return Material.matchMaterial(dyeColor.name() + "_WOOL");
     }
 
     /**

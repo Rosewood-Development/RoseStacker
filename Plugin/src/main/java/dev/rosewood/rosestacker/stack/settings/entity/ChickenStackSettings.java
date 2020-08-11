@@ -38,13 +38,13 @@ public class ChickenStackSettings extends EntityStackSettings {
         return Material.CHICKEN_SPAWN_EGG;
     }
 
-    public boolean shouldMultiplyEggDropsByStackSize() {
-        return this.multiplyEggDropsByStackSize;
-    }
-
     @Override
     public List<String> getDefaultSpawnRequirements() {
         return ConditionTags.ANIMAL_TAGS;
+    }
+
+    public boolean shouldMultiplyEggDropsByStackSize() {
+        return this.multiplyEggDropsByStackSize;
     }
 
 }

@@ -12,11 +12,15 @@ import org.bukkit.entity.Sheep;
 public class SheepStackSettings extends EntityStackSettings {
 
     private boolean dontStackIfSheared;
+    private boolean shearAllSheepInStack;
+    private int percentageOfWoolToRegrowPerGrassEaten;
 
     public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
         this.dontStackIfSheared = this.settingsConfiguration.getBoolean("dont-stack-if-sheared");
+        this.shearAllSheepInStack =  this.settingsConfiguration.getBoolean("shear-all-sheep-in-stack");
+        this.percentageOfWoolToRegrowPerGrassEaten = this.settingsConfiguration.getInt("percentage-of-wool-to-regrow-per-grass-eaten");
     }
 
     @Override
@@ -30,6 +34,8 @@ public class SheepStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-sheared", false);
+        this.setIfNotExists("shear-all-sheep-in-stack", true);
+        this.setIfNotExists("percentage-of-wool-to-regrow-per-grass-eaten", 10);
     }
 
     @Override
@@ -45,6 +51,14 @@ public class SheepStackSettings extends EntityStackSettings {
     @Override
     public List<String> getDefaultSpawnRequirements() {
         return ConditionTags.ANIMAL_TAGS;
+    }
+
+    public boolean shouldShearAllSheepInStack() {
+        return this.shearAllSheepInStack;
+    }
+
+    public int getPercentageOfWoolToRegrowPerGrassEaten() {
+        return this.percentageOfWoolToRegrowPerGrassEaten;
     }
 
 }

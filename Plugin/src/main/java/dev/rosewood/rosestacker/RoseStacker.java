@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
+import dev.rosewood.rosestacker.listener.BlockShearListener;
 import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
@@ -82,6 +83,10 @@ public class RoseStacker extends JavaPlugin {
         // Bees are only in 1.15+
         if (NMSUtil.getVersionNumber() >= 15)
             pluginManager.registerEvents(new BeeListener(this), this);
+
+        // Dispensers can only shear sheep in 1.14+
+        if (NMSUtil.getVersionNumber() >= 14)
+            pluginManager.registerEvents(new BlockShearListener(this), this);
 
         // Try to hook with PlaceholderAPI
         if (PlaceholderAPIHook.enabled())

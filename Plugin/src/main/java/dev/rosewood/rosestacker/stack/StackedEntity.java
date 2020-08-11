@@ -141,6 +141,17 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     /**
+     * Warning! This should not be used outside of the plugin.
+     * This method overwrites the serialized nbt and NOTHING ELSE.
+     * If the stack size were to change, there would be no way of detecting it, you have been warned!
+     *
+     * @param serializedNbt The nbt to overwrite with
+     */
+    public void setStackedEntityNBT(List<byte[]> serializedNbt) {
+        this.serializedStackedEntities = serializedNbt;
+    }
+
+    /**
      * Drops all loot and experience for all internally-stacked entities.
      * Does not include loot for the current entity.
      *

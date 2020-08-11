@@ -9,8 +9,14 @@ import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
+import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
+import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -21,6 +27,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
+import org.bukkit.entity.Sheep;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -36,6 +43,8 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.PigZapEvent;
+import org.bukkit.event.entity.SheepRegrowWoolEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -261,6 +270,126 @@ public class EntityListener implements Listener {
         event.getItemDrop().remove();
         List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
         stackManager.preStackItems(items, event.getEntity().getLocation());
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerShearSheep(PlayerShearEntityEvent event) {
+        ItemStack tool = event.getItem();
+        if (!handleSheepShear(this.roseStacker, tool, event.getEntity()))
+            return;
+
+        event.setCancelled(true);
+
+        if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
+            event.getPlayer().getInventory().setItem(event.getHand(), tool);
+    }
+
+    public static boolean handleSheepShear(RoseStacker roseStacker, ItemStack shears, Entity entity) {
+        if (entity.getType() != EntityType.SHEEP)
+            return false;
+
+        StackManager stackManager = roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return false;
+
+        Sheep sheepEntity = (Sheep) entity;
+        StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
+        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+            return false;
+
+        SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
+        if (!sheepStackSettings.shouldShearAllSheepInStack())
+            return false;
+
+        StackerUtils.damageTool(shears);
+
+        ItemStack baseSheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheepEntity.getColor()), getWoolDropAmount());
+        sheepEntity.setSheared(true);
+        List<ItemStack> drops = new ArrayList<>(Collections.singletonList(baseSheepWool));
+
+        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+            List<Sheep> sheepList = deconstructStackedSheep(stackedEntity);
+            for (Sheep sheep : sheepList) {
+                if (!sheep.isSheared()) {
+                    ItemStack sheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
+                    sheep.setSheared(true);
+                    drops.add(sheepWool);
+                }
+            }
+            reconstructStackedSheep(stackedEntity, sheepList);
+
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+        });
+
+        return true;
+    }
+
+    /**
+     * @return a number between 1 and 3 inclusively
+     */
+    private static int getWoolDropAmount() {
+        return (int) (Math.random() * 3) + 1;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSheepRegrowWool(SheepRegrowWoolEvent event) {
+        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
+        Sheep sheepEntity = event.getEntity();
+        StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
+        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+            return;
+
+        SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
+        double regrowPercentage = sheepStackSettings.getPercentageOfWoolToRegrowPerGrassEaten() / 100D;
+        int regrowAmount = Math.max(1, (int) Math.round(stackedEntity.getStackSize() * regrowPercentage));
+
+        if (sheepEntity.isSheared()) {
+            sheepEntity.setSheared(false);
+            regrowAmount--;
+        }
+
+        if (regrowAmount < 1)
+            return;
+
+        int fRegrowAmount = regrowAmount;
+        Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
+            int remaining = fRegrowAmount;
+
+            List<Sheep> sheepList = deconstructStackedSheep(stackedEntity);
+            for (Sheep sheep : sheepList) {
+                if (sheep.isSheared()) {
+                    sheep.setSheared(false);
+                    remaining--;
+                    if (remaining <= 0)
+                        break;
+                }
+            }
+            reconstructStackedSheep(stackedEntity, sheepList);
+        });
+    }
+
+    private static List<Sheep> deconstructStackedSheep(StackedEntity stackedEntity) {
+        List<byte[]> nbtList = stackedEntity.getStackedEntityNBT();
+        List<Sheep> sheepList = new ArrayList<>(nbtList.size());
+
+        NMSHandler nmsHandler = NMSUtil.getHandler();
+        for (byte[] nbt : nbtList)
+            sheepList.add((Sheep) nmsHandler.getNBTAsEntity(EntityType.SHEEP, stackedEntity.getLocation(), nbt));
+
+        return sheepList;
+    }
+
+    private static void reconstructStackedSheep(StackedEntity stackedEntity, List<Sheep> sheepList) {
+        List<byte[]> nbtList = Collections.synchronizedList(new LinkedList<>());
+
+        NMSHandler nmsHandler = NMSUtil.getHandler();
+        for (Sheep sheep : sheepList)
+            nbtList.add(nmsHandler.getEntityAsNBT(sheep, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
+
+        stackedEntity.setStackedEntityNBT(nbtList);
     }
 
 }

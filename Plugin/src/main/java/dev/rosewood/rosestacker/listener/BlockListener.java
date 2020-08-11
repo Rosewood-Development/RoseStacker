@@ -46,8 +46,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class BlockListener implements Listener {
 
@@ -193,12 +191,7 @@ public class BlockListener implements Listener {
         if (!itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
-        Damageable damageable = (Damageable) itemStack.getItemMeta();
-        if (damageable == null)
-            return;
-
-        damageable.setDamage(damageable.getDamage() + 1);
-        itemStack.setItemMeta((ItemMeta) damageable);
+        StackerUtils.damageTool(itemStack);
     }
 
     private void tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
