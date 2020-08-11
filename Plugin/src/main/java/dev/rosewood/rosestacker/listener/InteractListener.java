@@ -49,7 +49,7 @@ public class InteractListener implements Listener {
 
         // Handle spawner conversion before we try to spawn entities
         if (clickedBlock.getType() == Material.SPAWNER
-                && item.getType().name().endsWith("_SPAWN_EGG")
+                && StackerUtils.isSpawnEgg(item.getType())
                 && StackerUtils.getStackedItemStackAmount(item) == 1) {
 
             if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {

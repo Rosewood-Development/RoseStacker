@@ -61,7 +61,7 @@ public class StackSettingManager extends Manager {
 
         // Load block settings
         CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, blockSettingsFile);
-        StackerUtils.getSortedInventoriableStackableBlockMaterialsStream().forEach(x -> {
+        StackerUtils.getPossibleStackableBlockMaterials().forEach(x -> {
             BlockStackSettings blockStackSettings = new BlockStackSettings(blockSettingsConfiguration, x);
             this.blockSettings.put(x, blockStackSettings);
             if (blockStackSettings.hasChanges())

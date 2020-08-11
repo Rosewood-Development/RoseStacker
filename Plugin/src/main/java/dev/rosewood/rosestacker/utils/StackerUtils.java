@@ -23,6 +23,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -298,7 +299,7 @@ public final class StackerUtils {
 
         while (experience > step) {
             ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
-            orb.setExperience(experience);
+            orb.setExperience(step);
             experience -= step;
         }
 
@@ -323,14 +324,24 @@ public final class StackerUtils {
     }
 
     /**
-     * @return a stream of all block materials that can be placed into an Inventory
+     * @return a stream of all block materials that can be considered to be used for stacked blocks
      */
-    public static Stream<Material> getSortedInventoriableStackableBlockMaterialsStream() {
+    public static List<Material> getPossibleStackableBlockMaterials() {
         Inventory inventory = Bukkit.createInventory(null, 9);
-        return Arrays.stream(Material.values()).filter(Material::isBlock).filter(x -> {
+        return Arrays.stream(Material.values())
+                .filter(Material::isBlock)
+                .filter(Material::isSolid)
+                .filter(x -> !x.isInteractable())
+                .filter(x -> !x.hasGravity())
+                .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
+                .filter(x -> !Tag.SLABS.isTagged(x))
+                .filter(x -> !Tag.WALLS.isTagged(x))
+                .filter(x -> !Tag.BANNERS.isTagged(x))
+                .filter(x -> !Tag.PRESSURE_PLATES.isTagged(x))
+                .filter(x -> {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
-        }).sorted(Comparator.comparing(Enum::name));
+        }).sorted(Comparator.comparing(Enum::name)).collect(Collectors.toList());
     }
 
     public static boolean containsConfigSpecialCharacters(String string) {
