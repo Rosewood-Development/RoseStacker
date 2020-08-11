@@ -298,14 +298,13 @@ public final class StackerUtils {
         int experience = random.nextInt(upperBound - lowerBound + 1) + lowerBound;
 
         while (experience > step) {
-            ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
-            orb.setExperience(step);
+            world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(step));
             experience -= step;
         }
 
         if (experience > 0) {
-            ExperienceOrb orb = world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class);
-            orb.setExperience(experience);
+            int fExperience = experience;
+            world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
         }
     }
 

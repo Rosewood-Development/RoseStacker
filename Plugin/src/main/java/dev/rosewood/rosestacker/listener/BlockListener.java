@@ -209,23 +209,27 @@ public class BlockListener implements Listener {
             return;
 
         if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean()) {
+            int destroyAmount = 0;
+
             if (Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch"))
-                return;
+                destroyAmount = amount;
 
             int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
-            int dropAmount = amount;
             if (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2) {
-                for (int i = 0; i < amount; i++) {
+                for (int i = 0, n = amount - destroyAmount; i < n; i++) {
                     boolean passesChance = StackerUtils.passesChance(Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt() / 100D);
                     if (!passesChance || silkTouchLevel == 0)
-                        dropAmount--;
+                        destroyAmount++;
                 }
             }
-            amount -= dropAmount;
+            amount -= destroyAmount;
 
-            if (amount > 0)
-                StackerUtils.dropExperience(dropLocation, 15 * amount, 43 * amount, 10);
+            if (destroyAmount > 0)
+                StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 10);
         }
+
+        if (amount <= 0)
+            return;
 
         List<ItemStack> items;
         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
