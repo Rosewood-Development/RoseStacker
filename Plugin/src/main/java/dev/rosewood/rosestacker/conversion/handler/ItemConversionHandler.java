@@ -11,7 +11,7 @@ import java.util.Set;
 public class ItemConversionHandler extends ConversionHandler {
 
     public ItemConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ITEM, false);
+        super(roseStacker, StackType.ITEM);
     }
 
     @Override

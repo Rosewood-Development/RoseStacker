@@ -12,7 +12,7 @@ import org.bukkit.entity.Item;
 public class UltimateStackerItemConversionHandler extends UltimateStackerConversionHandler {
 
     public UltimateStackerItemConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ITEM, true);
+        super(roseStacker, StackType.ITEM);
     }
 
     @Override
@@ -21,11 +21,11 @@ public class UltimateStackerItemConversionHandler extends UltimateStackerConvers
 
         for (ConversionData data : conversionData) {
             Item item = data.getItem();
-            int stackSize = this.getItemAmount(item);
-            if (stackSize >= item.getItemStack().getMaxStackSize())
+            if (item == null)
                 continue;
 
-            StackedItem stackedItem = new StackedItem(data.getStackSize(), data.getItem());
+            int stackSize = this.getItemAmount(item);
+            StackedItem stackedItem = new StackedItem(stackSize, data.getItem());
             this.stackManager.addItemStack(stackedItem);
             stacks.add(stackedItem);
         }

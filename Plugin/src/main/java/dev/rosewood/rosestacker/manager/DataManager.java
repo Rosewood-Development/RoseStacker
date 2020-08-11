@@ -747,7 +747,6 @@ public class DataManager extends Manager {
             String entityUniqueIdsString = entityMap.keySet().stream().map(UUID::toString).map(x -> "'" + x + "'").collect(Collectors.joining(","));
 
             // Get data
-            Set<UUID> foundUniqueIds = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
                 String query = "SELECT entity_uuid, stack_size FROM " + this.getTablePrefix() + "convert_stacked_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
                 ResultSet result = statement.executeQuery(query);
@@ -756,7 +755,6 @@ public class DataManager extends Manager {
                     Entity entity = entityMap.get(uuid);
                     int stackSize = result.getInt("stack_size");
                     conversionData.add(new ConversionData(entity, stackSize));
-                    foundUniqueIds.add(uuid);
                 }
             }
 

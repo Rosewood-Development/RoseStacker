@@ -24,13 +24,17 @@ public abstract class ConversionHandler {
     protected StackManager stackManager;
 
     private StackType requiredDataStackType;
-    private boolean alwaysRequire;
+    private boolean useChunkEntities;
 
-    public ConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType, boolean alwaysRequire) {
+    public ConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType) {
+        this(roseStacker, requiredDataStackType, false);
+    }
+
+    public ConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType, boolean useChunkEntities) {
         this.roseStacker = roseStacker;
         this.stackManager = this.roseStacker.getManager(StackManager.class);
         this.requiredDataStackType = requiredDataStackType;
-        this.alwaysRequire = alwaysRequire;
+        this.useChunkEntities = useChunkEntities;
     }
 
     public abstract Set<Stack<?>> handleConversion(Set<ConversionData> conversionData);
@@ -39,8 +43,8 @@ public abstract class ConversionHandler {
         return this.requiredDataStackType;
     }
 
-    public boolean isDataAlwaysRequired() {
-        return this.alwaysRequire;
+    public boolean shouldUseChunkEntities() {
+        return this.useChunkEntities;
     }
 
     /**

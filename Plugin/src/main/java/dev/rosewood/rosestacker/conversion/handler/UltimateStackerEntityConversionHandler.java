@@ -13,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 public class UltimateStackerEntityConversionHandler extends UltimateStackerConversionHandler {
 
     public UltimateStackerEntityConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ENTITY, true);
+        super(roseStacker, StackType.ENTITY);
     }
 
     @Override
@@ -22,6 +22,9 @@ public class UltimateStackerEntityConversionHandler extends UltimateStackerConve
 
         for (ConversionData data : conversionData) {
             LivingEntity entity = data.getEntity();
+            if (entity == null)
+                continue;
+
             int stackSize = this.getEntityAmount(entity);
             if (stackSize == -1)
                 continue;

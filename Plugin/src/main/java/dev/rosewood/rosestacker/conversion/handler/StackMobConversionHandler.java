@@ -20,7 +20,7 @@ public class StackMobConversionHandler extends ConversionHandler {
     private static final NamespacedKey STACK_KEY = new NamespacedKey("stackmob", "stack-size");
 
     public StackMobConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ENTITY, true);
+        super(roseStacker, StackType.ENTITY);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class StackMobConversionHandler extends ConversionHandler {
             if (stackSize == -1)
                 continue;
 
-            StackedEntity stackedEntity = new StackedEntity(entity, this.createEntityStackNBT(entity.getType(), stackSize - 1, entity.getLocation()));
+            StackedEntity stackedEntity = new StackedEntity(entity, this.createEntityStackNBT(entity.getType(), stackSize, entity.getLocation()));
             this.stackManager.addEntityStack(stackedEntity);
             stacks.add(stackedEntity);
         }

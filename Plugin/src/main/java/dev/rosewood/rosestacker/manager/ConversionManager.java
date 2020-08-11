@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -141,10 +142,22 @@ public class ConversionManager extends Manager implements Listener {
         Set<Stack<?>> convertedStacks = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers) {
             Set<ConversionData> data;
-            if (conversionHandler.isDataAlwaysRequired()) {
+            if (conversionHandler.shouldUseChunkEntities()) {
                 data = new HashSet<>();
-                for (Entity entity : entities)
-                    data.add(new ConversionData(entity));
+                switch (conversionHandler.getRequiredDataStackType()) {
+                    case ENTITY:
+                        for (Entity entity : entities)
+                            if (entity.getType() != EntityType.DROPPED_ITEM)
+                                data.add(new ConversionData(entity));
+                        break;
+                    case ITEM:
+                        for (Entity entity : entities)
+                            if (entity.getType() == EntityType.DROPPED_ITEM)
+                                data.add(new ConversionData(entity));
+                        break;
+                    default:
+                        break;
+                }
             } else {
                 data = conversionData.get(conversionHandler.getRequiredDataStackType());
             }

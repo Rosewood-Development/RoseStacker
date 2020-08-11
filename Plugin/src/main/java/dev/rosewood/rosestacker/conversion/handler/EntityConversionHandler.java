@@ -13,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 public class EntityConversionHandler extends ConversionHandler {
 
     public EntityConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ENTITY, false);
+        super(roseStacker, StackType.ENTITY);
     }
 
     @Override

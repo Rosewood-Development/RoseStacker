@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class UltimateStackerConversionHandler extends ConversionHandler {
 
-    public UltimateStackerConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType, boolean alwaysRequire) {
-        super(roseStacker, requiredDataStackType, alwaysRequire);
+    public UltimateStackerConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType) {
+        super(roseStacker, requiredDataStackType, true);
     }
 
     /**
@@ -47,7 +47,7 @@ public abstract class UltimateStackerConversionHandler extends ConversionHandler
     protected int getItemAmount(Item item) {
         ItemStack itemStack = item.getItemStack();
         int amount = itemStack.getAmount();
-        if (amount >= itemStack.getMaxStackSize() / 2 && item.hasMetadata("US_AMT")) {
+        if (item.hasMetadata("US_AMT")) {
             return item.getMetadata("US_AMT").get(0).asInt();
         } else {
             return amount;
