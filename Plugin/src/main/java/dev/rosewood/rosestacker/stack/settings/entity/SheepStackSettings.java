@@ -35,7 +35,7 @@ public class SheepStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-sheared", false);
         this.setIfNotExists("shear-all-sheep-in-stack", true);
-        this.setIfNotExists("percentage-of-wool-to-regrow-per-grass-eaten", 10);
+        this.setIfNotExists("percentage-of-wool-to-regrow-per-grass-eaten", 25);
     }
 
     @Override

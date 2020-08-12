@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = 'RC-1'
+    version = 'RC-2'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -44,6 +44,7 @@ dependencies {
     implementation project(':NMS-v1_14_R1')
     implementation project(':NMS-v1_15_R1')
     implementation project(':NMS-v1_16_R1')
+    implementation project(':NMS-v1_16_R2')
 
     subprojects.each {
         childJars project(it.path)
