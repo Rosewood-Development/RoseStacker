@@ -351,9 +351,9 @@ public final class StackerUtils {
                 .filter(x -> !x.hasGravity())
                 .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
                 .filter(x -> !Tag.SLABS.isTagged(x))
-                .filter(x -> !Tag.WALLS.isTagged(x))
                 .filter(x -> !Tag.BANNERS.isTagged(x))
-                .filter(x -> !Tag.PRESSURE_PLATES.isTagged(x))
+                .filter(x -> !x.name().endsWith("_WALL")) // Tags for these don't exist in older versions
+                .filter(x -> !x.name().endsWith("_PRESSURE_PLATE"))
                 .filter(x -> {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
