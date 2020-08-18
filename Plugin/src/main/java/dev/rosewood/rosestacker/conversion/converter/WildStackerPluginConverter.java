@@ -4,12 +4,12 @@ import com.bgsoftware.wildstacker.WildStackerPlugin;
 import com.bgsoftware.wildstacker.api.WildStackerAPI;
 import com.bgsoftware.wildstacker.api.handlers.SystemManager;
 import com.bgsoftware.wildstacker.api.objects.StackedBarrel;
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.database.DatabaseConnector;
+import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
-import dev.rosewood.rosestacker.database.DatabaseConnector;
-import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackType;
@@ -32,16 +32,16 @@ public class WildStackerPluginConverter extends StackPluginConverter {
 
     private WildStackerPlugin wildStacker;
 
-    public WildStackerPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "WildStacker", StackPlugin.WildStacker, ConverterType.ENTITY, ConverterType.ITEM);
+    public WildStackerPluginConverter(RosePlugin rosePlugin) {
+        super(rosePlugin, "WildStacker", StackPlugin.WildStacker, ConverterType.ENTITY, ConverterType.ITEM);
 
         this.wildStacker = (WildStackerPlugin) this.plugin;
     }
 
     @Override
     public void convert() {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
         // Force save loaded data
         SystemManager systemHandler = WildStackerAPI.getWildStacker().getSystemManager();

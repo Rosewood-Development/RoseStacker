@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.conversion;
 
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.converter.EpicSpawnersPluginConverter;
 import dev.rosewood.rosestacker.conversion.converter.StackMobPluginConverter;
@@ -28,7 +29,7 @@ public enum StackPlugin {
 
     public StackPluginConverter getConverter() {
         try {
-            return this.converterClass.getConstructor(RoseStacker.class).newInstance(RoseStacker.getInstance());
+            return this.converterClass.getConstructor(RosePlugin.class).newInstance(RoseStacker.getInstance());
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
             return null;

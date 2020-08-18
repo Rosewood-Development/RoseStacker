@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.hook.McMMOHook;
@@ -7,11 +8,10 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,7 +97,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
-            byte[] nbtData = NMSUtil.getHandler().getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
+            byte[] nbtData = NMSAdapter.getHandler().getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
             if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
                 this.serializedStackedEntities.add(nbtData);
             } else {
@@ -131,7 +131,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         LivingEntity oldEntity = this.entity;
         Location location = this.entity.getLocation();
         this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
-        this.entity = NMSUtil.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
+        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
         this.updateOriginalCustomName();
         RoseStacker.getInstance().getManager(StackManager.class).updateStackedEntityKey(oldEntity, this.entity);
     }
@@ -168,7 +168,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
-            NMSHandler nmsHandler = NMSUtil.getHandler();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (byte[] entityNBT : this.serializedStackedEntities) {
                 LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
                 if (entity != null) {
@@ -212,7 +212,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.entity instanceof EnderDragon)
             return true;
 
-        LivingEntity entity = NMSUtil.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
+        LivingEntity entity = NMSAdapter.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
         return this.stackSettings.canStackWith(this, stackedEntity, true);
     }
@@ -232,7 +232,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         String oldCustomName = this.originalCustomName;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSUtil.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
+        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
         this.originalCustomName = this.entity.getCustomName();
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);

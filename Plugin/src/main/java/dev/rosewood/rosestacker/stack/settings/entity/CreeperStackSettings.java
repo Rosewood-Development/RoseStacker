@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.nms.NMSUtil;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -36,7 +36,7 @@ public class CreeperStackSettings extends EntityStackSettings {
 
     @Override
     public void applyStackProperties(LivingEntity stacking, LivingEntity stack) {
-        NMSUtil.getHandler().unigniteCreeper((Creeper) stacking);
+        NMSAdapter.getHandler().unigniteCreeper((Creeper) stacking);
     }
 
     @Override

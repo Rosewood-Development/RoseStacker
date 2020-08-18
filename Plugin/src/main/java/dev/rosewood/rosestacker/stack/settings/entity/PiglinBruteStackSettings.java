@@ -1,13 +1,12 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
 import org.bukkit.entity.PiglinBrute;
 
 public class PiglinBruteStackSettings extends EntityStackSettings {

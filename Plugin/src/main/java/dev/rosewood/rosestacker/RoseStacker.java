@@ -1,6 +1,12 @@
 package dev.rosewood.rosestacker;
 
-import dev.rosewood.rosestacker.hook.PlaceholderAPIHook;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.database.DataMigration;
+import dev.rosewood.rosegarden.hook.PlaceholderAPIHook;
+import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
+import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
@@ -15,62 +21,45 @@ import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.manager.DataMigrationManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.manager.Manager;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.NMSUtil;
-import dev.rosewood.rosestacker.utils.Metrics;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author Esophose
  */
-public class RoseStacker extends JavaPlugin {
+public class RoseStacker extends RosePlugin {
 
     /**
      * The running instance of RoseStacker on the server
      */
     private static RoseStacker instance;
 
-    /**
-     * The plugin managers
-     */
-    private Map<Class<? extends Manager>, Manager> managers;
-
     public static RoseStacker getInstance() {
         return instance;
     }
 
+    public RoseStacker() {
+        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class);
+
+        instance = this;
+    }
+
     @Override
-    public void onEnable() {
+    public void enable() {
         this.getLogger().info("Detected server API version as " + NMSUtil.getVersion());
-        if (!NMSUtil.isValidVersion()) {
+        if (!NMSAdapter.isValidVersion()) {
             this.getLogger().severe("This version of RoseStacker only supports 1.13.2 through 1.16.2. The plugin has been disabled.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-
-        instance = this;
-
-        // bStats Metrics
-        new Metrics(this);
-
-        // Register managers
-        this.managers = new LinkedHashMap<>();
-
-        // Load managers
-        this.reload();
 
         // Register listeners
         PluginManager pluginManager = Bukkit.getPluginManager();
@@ -102,62 +91,29 @@ public class RoseStacker extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() {
-        if (instance == null)
-            return;
-
-        this.disableManagers();
-        this.managers.clear();
-
+    public void disable() {
         Bukkit.getScheduler().cancelTasks(this);
     }
 
-    /**
-     * Reloads the plugin's settings and data
-     */
-    public void reload() {
-        this.disableManagers();
-        this.managers.values().forEach(Manager::reload);
-
-        this.getManager(ConfigurationManager.class);
-        this.getManager(DataManager.class);
-        this.getManager(DataMigrationManager.class);
-        this.getManager(LocaleManager.class);
-        this.getManager(StackSettingManager.class);
-        this.getManager(CommandManager.class);
-        this.getManager(ConversionManager.class);
-        this.getManager(HologramManager.class);
-        this.getManager(StackManager.class);
-        this.getManager(SpawnerSpawnManager.class);
+    @Override
+    protected List<Class<? extends Manager>> getManagerLoadPriority() {
+        return Arrays.asList(
+                DataManager.class,
+                StackSettingManager.class,
+                CommandManager.class,
+                ConversionManager.class,
+                HologramManager.class,
+                StackManager.class,
+                SpawnerSpawnManager.class
+        );
     }
 
-    private void disableManagers() {
-        List<Manager> managers = new ArrayList<>(this.managers.values());
-        Collections.reverse(managers);
-        managers.forEach(Manager::disable);
-    }
-
-    /**
-     * Gets a manager instance
-     *
-     * @param managerClass The class of the manager to get
-     * @param <T> extends Manager
-     * @return A new instance of the given manager class
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends Manager> T getManager(Class<T> managerClass) {
-        if (this.managers.containsKey(managerClass))
-            return (T) this.managers.get(managerClass);
-
-        try {
-            T manager = managerClass.getConstructor(RoseStacker.class).newInstance(this);
-            this.managers.put(managerClass, manager);
-            manager.reload();
-            return manager;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
+    @Override
+    public List<DataMigration> getDataMigrations() {
+        return Arrays.asList(
+                new _1_Create_Tables_Stacks(),
+                new _2_Create_Tables_Convert_Stacks()
+        );
     }
 
 }

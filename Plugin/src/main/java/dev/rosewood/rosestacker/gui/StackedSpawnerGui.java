@@ -6,6 +6,8 @@ import dev.rosewood.guiframework.gui.GuiContainer;
 import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.GuiString;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -14,7 +16,6 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,11 +37,11 @@ public class StackedSpawnerGui {
     private GuiContainer guiContainer;
 
     public StackedSpawnerGui(StackedSpawner stackedSpawner) {
-        RoseStacker roseStacker = RoseStacker.getInstance();
+        RosePlugin rosePlugin = RoseStacker.getInstance();
 
-        this.localeManager = roseStacker.getManager(LocaleManager.class);
+        this.localeManager = rosePlugin.getManager(LocaleManager.class);
         this.stackedSpawner = stackedSpawner;
-        this.guiFramework = GuiFramework.instantiate(roseStacker);
+        this.guiFramework = GuiFramework.instantiate(rosePlugin);
         this.guiContainer = null;
     }
 

@@ -1,7 +1,8 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
@@ -36,8 +37,8 @@ public class StackSettingManager extends Manager {
     private Map<Material, ItemStackSettings> itemSettings;
     private Map<EntityType, SpawnerStackSettings> spawnerSettings;
 
-    public StackSettingManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public StackSettingManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
 
         this.blockSettings = new HashMap<>();
         this.entitySettings = new HashMap<>();
@@ -48,10 +49,10 @@ public class StackSettingManager extends Manager {
     @Override
     public void reload() {
         // Settings files
-        File blockSettingsFile = new File(this.roseStacker.getDataFolder(), "block_settings.yml");
-        File entitySettingsFile = new File(this.roseStacker.getDataFolder(), "entity_settings.yml");
-        File itemSettingsFile = new File(this.roseStacker.getDataFolder(), "item_settings.yml");
-        File spawnerSettingsFile = new File(this.roseStacker.getDataFolder(), "spawner_settings.yml");
+        File blockSettingsFile = new File(this.rosePlugin.getDataFolder(), "block_settings.yml");
+        File entitySettingsFile = new File(this.rosePlugin.getDataFolder(), "entity_settings.yml");
+        File itemSettingsFile = new File(this.rosePlugin.getDataFolder(), "item_settings.yml");
+        File spawnerSettingsFile = new File(this.rosePlugin.getDataFolder(), "spawner_settings.yml");
 
         // Flags for if we should save the files
         AtomicBoolean saveBlockSettingsFile = new AtomicBoolean(false);
@@ -60,7 +61,7 @@ public class StackSettingManager extends Manager {
         AtomicBoolean saveSpawnerSettingsFile = new AtomicBoolean(false);
 
         // Load block settings
-        CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, blockSettingsFile);
+        CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(blockSettingsFile);
         StackerUtils.getPossibleStackableBlockMaterials().forEach(x -> {
             BlockStackSettings blockStackSettings = new BlockStackSettings(blockSettingsConfiguration, x);
             this.blockSettings.put(x, blockStackSettings);
@@ -69,9 +70,9 @@ public class StackSettingManager extends Manager {
         });
 
         // Load entity settings
-        CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, entitySettingsFile);
+        CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(entitySettingsFile);
         try {
-            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.roseStacker, PACKAGE_PATH, EntityStackSettings.class);
+            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.rosePlugin, PACKAGE_PATH, EntityStackSettings.class);
             List<String> ignoredLoading = new ArrayList<>();
             for (Class<EntityStackSettings> clazz : classes) {
                 try {
@@ -88,13 +89,13 @@ public class StackSettingManager extends Manager {
             }
 
             if (!ignoredLoading.isEmpty())
-                this.roseStacker.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
+                this.rosePlugin.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // Load item settings
-        CommentedFileConfiguration itemSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, itemSettingsFile);
+        CommentedFileConfiguration itemSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(itemSettingsFile);
         Stream.of(Material.values()).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
             ItemStackSettings itemStackSettings = new ItemStackSettings(itemSettingsConfiguration, x);
             this.itemSettings.put(x, itemStackSettings);
@@ -104,7 +105,7 @@ public class StackSettingManager extends Manager {
 
         // Load spawner settings
         boolean addSpawnerHeaderComments = !spawnerSettingsFile.exists();
-        CommentedFileConfiguration spawnerSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(this.roseStacker, spawnerSettingsFile);
+        CommentedFileConfiguration spawnerSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(spawnerSettingsFile);
         if (addSpawnerHeaderComments) {
             saveSpawnerSettingsFile.set(true);
             Map<String, String> conditionTags = ConditionTags.getTagDescriptionMap();

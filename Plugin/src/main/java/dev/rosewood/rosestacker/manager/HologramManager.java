@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.hologram.HologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramsHologramHandler;
 import dev.rosewood.rosestacker.hologram.HolographicDisplaysHologramHandler;
@@ -12,8 +13,8 @@ public class HologramManager extends Manager {
 
     private HologramHandler hologramHandler;
 
-    public HologramManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public HologramManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
     }
 
     @Override
@@ -22,13 +23,13 @@ public class HologramManager extends Manager {
             this.hologramHandler.deleteAllHolograms();
 
         if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
-            this.roseStacker.getLogger().info("HolographicDisplays is being used as the Hologram Handler.");
+            this.rosePlugin.getLogger().info("HolographicDisplays is being used as the Hologram Handler.");
             this.hologramHandler = new HolographicDisplaysHologramHandler();
         } else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
-            this.roseStacker.getLogger().info("Holograms is being used as the Hologram Handler.");
+            this.rosePlugin.getLogger().info("Holograms is being used as the Hologram Handler.");
             this.hologramHandler = new HologramsHologramHandler();
         } else {
-            this.roseStacker.getLogger().warning("No Hologram Handler plugin was detected. " +
+            this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
                     "If you want Stack tags to be displayed above stacked spawners or blocks, " +
                     "please install one of the following plugins: [HolographicDisplays, Holograms]");
             this.hologramHandler = null;

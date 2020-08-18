@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.stack.settings;
 
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Material;

@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -15,12 +15,12 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 public class WorldListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
     private StackManager stackManager;
 
-    public WorldListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
-        this.stackManager = this.roseStacker.getManager(StackManager.class);;
+    public WorldListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
+        this.stackManager = this.rosePlugin.getManager(StackManager.class);;
     }
 
     @EventHandler

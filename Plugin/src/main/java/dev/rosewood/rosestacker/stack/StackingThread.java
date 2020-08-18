@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
@@ -11,7 +11,7 @@ import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.nms.NMSUtil;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -46,7 +46,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     private final static int CLEANUP_TIMER_TARGET = 30;
 
-    private final RoseStacker roseStacker;
+    private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final HologramManager hologramManager;
     private final ConversionManager conversionManager;
@@ -64,15 +64,15 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     private int cleanupTimer;
 
-    public StackingThread(RoseStacker roseStacker, StackManager stackManager, World targetWorld) {
-        this.roseStacker = roseStacker;
+    public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
+        this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
-        this.hologramManager = this.roseStacker.getManager(HologramManager.class);
-        this.conversionManager = this.roseStacker.getManager(ConversionManager.class);
+        this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
+        this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
 
-        this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this, 5L, Setting.STACK_FREQUENCY.getLong());
-        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this::processPendingChunks, 0L, 3L);
+        this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this, 5L, Setting.STACK_FREQUENCY.getLong());
+        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
         this.pendingLoadChunks = new HashSet<>();
         this.pendingUnloadChunks = new HashSet<>();
 
@@ -117,7 +117,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             // Auto unstack entities
             for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
                 if (!stackedEntity.shouldStayStacked())
-                    Bukkit.getScheduler().runTask(this.roseStacker, () -> this.splitEntityStack(stackedEntity));
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.splitEntityStack(stackedEntity));
         }
 
         // Cleans up entities/items that aren't stacked
@@ -192,14 +192,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
                 } else continue;
 
-                NMSUtil.getHandler().toggleEntityNameTagForPlayer(player, entity, visible);
+                NMSAdapter.getHandler().toggleEntityNameTagForPlayer(player, entity, visible);
             }
         }
     }
 
     @Override
     public void close() {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
         // Cancel tasks
         if (this.stackTask != null)
@@ -661,7 +661,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (Bukkit.isPrimaryThread()) {
                 removed.stream().map(StackedEntity::getEntity).forEach(Entity::remove);
             } else {
-                Bukkit.getScheduler().runTask(this.roseStacker, () ->
+                Bukkit.getScheduler().runTask(this.rosePlugin, () ->
                         removed.stream().map(StackedEntity::getEntity).forEach(Entity::remove));
             }
 
@@ -717,7 +717,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (Bukkit.isPrimaryThread()) {
                 removed.getItem().remove();
             } else {
-                Bukkit.getScheduler().runTask(this.roseStacker, removed.getItem()::remove);
+                Bukkit.getScheduler().runTask(this.rosePlugin, removed.getItem()::remove);
             }
 
             this.removeItemStack(removed);
@@ -755,7 +755,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.pendingLoadChunks.isEmpty()) {
             Set<Chunk> chunks = new HashSet<>(this.pendingLoadChunks);
             this.pendingLoadChunks.clear();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
                 this.conversionManager.convertChunks(chunks);
                 this.loadChunks(chunks);
             });
@@ -764,12 +764,12 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.pendingUnloadChunks.isEmpty()) {
             Set<Chunk> chunks = new HashSet<>(this.pendingUnloadChunks);
             this.pendingUnloadChunks.clear();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.unloadChunks(chunks));
+            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.unloadChunks(chunks));
         }
     }
 
     private void loadChunks(Set<Chunk> chunks) {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
         if (this.stackManager.isEntityStackingEnabled())
             dataManager.getStackedEntities(chunks, (stack) -> stack.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
@@ -785,7 +785,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     }
 
     private void unloadChunks(Set<Chunk> chunks) {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
         if (this.stackManager.isEntityStackingEnabled()) {
             Map<UUID, StackedEntity> stackedEntities = this.stackedEntities.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

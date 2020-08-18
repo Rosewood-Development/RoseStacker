@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Dispenser;
@@ -13,10 +13,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class BlockShearListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public BlockShearListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public BlockShearListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -25,7 +25,7 @@ public class BlockShearListener implements Listener {
             return;
 
         ItemStack tool = event.getTool();
-        if (!EntityListener.handleSheepShear(this.roseStacker, tool, event.getEntity()))
+        if (!EntityListener.handleSheepShear(this.rosePlugin, tool, event.getEntity()))
             return;
 
         event.setCancelled(true);
@@ -39,7 +39,7 @@ public class BlockShearListener implements Listener {
 
             if (item.isSimilar(event.getTool())) {
                 int fSlot = slot;
-                Bukkit.getScheduler().runTask(this.roseStacker, () -> inventory.setItem(fSlot, tool));
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> inventory.setItem(fSlot, tool));
                 break;
             }
         }

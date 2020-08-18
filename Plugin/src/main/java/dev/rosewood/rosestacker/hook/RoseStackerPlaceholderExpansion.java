@@ -1,15 +1,15 @@
 package dev.rosewood.rosestacker.hook;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
 public class RoseStackerPlaceholderExpansion extends PlaceholderExpansion {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public RoseStackerPlaceholderExpansion(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public RoseStackerPlaceholderExpansion(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @Override
@@ -29,17 +29,17 @@ public class RoseStackerPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        return this.roseStacker.getDescription().getName().toLowerCase();
+        return this.rosePlugin.getDescription().getName().toLowerCase();
     }
 
     @Override
     public String getAuthor() {
-        return this.roseStacker.getDescription().getAuthors().get(0);
+        return this.rosePlugin.getDescription().getAuthors().get(0);
     }
 
     @Override
     public String getVersion() {
-        return this.roseStacker.getDescription().getVersion();
+        return this.rosePlugin.getDescription().getVersion();
     }
 
 }

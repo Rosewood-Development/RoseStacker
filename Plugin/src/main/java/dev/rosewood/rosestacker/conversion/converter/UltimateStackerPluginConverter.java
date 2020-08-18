@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.conversion.converter;
 
 import com.songoda.ultimatestacker.UltimateStacker;
 import com.songoda.ultimatestacker.core.database.DatabaseConnector;
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -19,8 +19,8 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
 
     private UltimateStacker ultimateStacker;
 
-    public UltimateStackerPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "UltimateStacker", StackPlugin.UltimateStacker, ConverterType.ULTIMATESTACKER_ENTITY, ConverterType.ULTIMATESTACKER_ITEM);
+    public UltimateStackerPluginConverter(RosePlugin rosePlugin) {
+        super(rosePlugin, "UltimateStacker", StackPlugin.UltimateStacker, ConverterType.ULTIMATESTACKER_ENTITY, ConverterType.ULTIMATESTACKER_ITEM);
 
         this.ultimateStacker = (UltimateStacker) this.plugin;
     }
@@ -31,7 +31,7 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
         if (Bukkit.getPluginManager().isPluginEnabled("EpicSpawners"))
             return;
 
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
         // Force save loaded data
         this.ultimateStacker.getDataManager().bulkUpdateSpawners(this.ultimateStacker.getSpawnerStackManager().getStacks());

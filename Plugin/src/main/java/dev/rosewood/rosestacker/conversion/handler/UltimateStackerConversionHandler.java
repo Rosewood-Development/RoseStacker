@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.stack.StackType;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class UltimateStackerConversionHandler extends ConversionHandler {
 
-    public UltimateStackerConversionHandler(RoseStacker roseStacker, StackType requiredDataStackType) {
-        super(roseStacker, requiredDataStackType, true);
+    public UltimateStackerConversionHandler(RosePlugin rosePlugin, StackType requiredDataStackType) {
+        super(rosePlugin, requiredDataStackType, true);
     }
 
     /**

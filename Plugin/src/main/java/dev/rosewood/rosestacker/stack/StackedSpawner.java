@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -8,7 +9,6 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;

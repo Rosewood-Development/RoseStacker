@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.hook;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import net.brcdev.shopgui.ShopGuiPlusApi;
 
 public final class ShopGuiPlusHook {
@@ -8,10 +8,10 @@ public final class ShopGuiPlusHook {
     /**
      * Registers the spawner provider with ShopGuiPlus
      *
-     * @param roseStacker The plugin instance
+     * @param rosePlugin The plugin instance
      */
-    public static void setupSpawners(RoseStacker roseStacker) {
-        ShopGuiPlusApi.registerSpawnerProvider(new RoseStackerSpawnerProvider(roseStacker));
+    public static void setupSpawners(RosePlugin rosePlugin) {
+        ShopGuiPlusApi.registerSpawnerProvider(new RoseStackerSpawnerProvider(rosePlugin));
     }
 
 }

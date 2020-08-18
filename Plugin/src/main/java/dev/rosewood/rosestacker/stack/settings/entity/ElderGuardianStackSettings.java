@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;

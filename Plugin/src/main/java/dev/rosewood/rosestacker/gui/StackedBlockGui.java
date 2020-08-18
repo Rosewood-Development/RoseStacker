@@ -9,6 +9,8 @@ import dev.rosewood.guiframework.gui.GuiContainer;
 import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
@@ -19,7 +21,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,17 +37,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class StackedBlockGui {
 
-    private final RoseStacker roseStacker;
+    private final RosePlugin rosePlugin;
     private final StackedBlock stackedBlock;
 
     private final GuiFramework guiFramework;
     private GuiContainer guiContainer;
 
     public StackedBlockGui(StackedBlock stackedBlock) {
-        this.roseStacker = RoseStacker.getInstance();
+        this.rosePlugin = RoseStacker.getInstance();
         this.stackedBlock = stackedBlock;
 
-        this.guiFramework = GuiFramework.instantiate(this.roseStacker);
+        this.guiFramework = GuiFramework.instantiate(this.rosePlugin);
         this.guiContainer = null;
     }
 
@@ -84,7 +85,7 @@ public class StackedBlockGui {
         destroyBorderSlots.removeAll(Arrays.asList(12, 14));
 
         GuiScreenSection editableSection = GuiFactory.createScreenSection(paginatedSlots);
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         BlockStackSettings stackSettings = this.stackedBlock.getStackSettings();
 
         GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-back", StringPlaceholders.empty()));
@@ -162,7 +163,7 @@ public class StackedBlockGui {
     }
 
     private void updateStackedBlock(Player player, List<ItemStack> items) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
         // No longer any players viewing
         this.guiContainer = null;
@@ -229,8 +230,8 @@ public class StackedBlockGui {
     private void destroyStackedBlock() {
         this.kickOutViewers();
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
             List<ItemStack> itemsToDrop;
             if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                 itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());

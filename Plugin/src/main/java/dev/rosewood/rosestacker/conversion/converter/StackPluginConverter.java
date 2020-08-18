@@ -1,8 +1,8 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedConfigurationSection;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.CommentedConfigurationSection;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.stack.StackType;
@@ -20,13 +20,13 @@ import org.bukkit.plugin.Plugin;
  */
 public abstract class StackPluginConverter {
 
-    protected RoseStacker roseStacker;
+    protected RosePlugin rosePlugin;
     protected Plugin plugin;
     private StackPlugin stackPlugin;
     private Set<ConverterType> converterTypes;
 
-    public StackPluginConverter(RoseStacker roseStacker, String pluginName, StackPlugin stackPlugin, ConverterType... converterTypes) {
-        this.roseStacker = roseStacker;
+    public StackPluginConverter(RosePlugin rosePlugin, String pluginName, StackPlugin stackPlugin, ConverterType... converterTypes) {
+        this.rosePlugin = rosePlugin;
         this.plugin = Bukkit.getPluginManager().getPlugin(pluginName);
         this.stackPlugin = stackPlugin;
         this.converterTypes = new HashSet<>(Arrays.asList(converterTypes));

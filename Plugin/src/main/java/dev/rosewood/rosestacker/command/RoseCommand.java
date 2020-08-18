@@ -9,7 +9,8 @@ import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -22,7 +23,6 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -33,26 +33,26 @@ import org.bukkit.inventory.ItemStack;
 @CommandAlias("rs|rosestacker|stacker")
 public class RoseCommand extends BaseCommand {
 
-    protected final RoseStacker roseStacker;
+    protected final RosePlugin rosePlugin;
 
-    public RoseCommand(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public RoseCommand(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @Default
     @CatchUnknown
     public void onCommand(CommandSender sender) {
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         String baseColor = localeManager.getLocaleMessage("base-command-color");
-        localeManager.sendCustomMessage(sender, baseColor + "Running <g:#8A2387:#E94057:#F27121>RoseStacker" + baseColor + " v" + this.roseStacker.getDescription().getVersion());
-        localeManager.sendCustomMessage(sender, baseColor + "Plugin created by: <g:#41e0f0:#ff8dce>" + this.roseStacker.getDescription().getAuthors().get(0));
+        localeManager.sendCustomMessage(sender, baseColor + "Running <g:#8A2387:#E94057:#F27121>RoseStacker" + baseColor + " v" + this.rosePlugin.getDescription().getVersion());
+        localeManager.sendCustomMessage(sender, baseColor + "Plugin created by: <g:#41e0f0:#ff8dce>" + this.rosePlugin.getDescription().getAuthors().get(0));
         localeManager.sendSimpleMessage(sender, "base-command-help");
     }
 
     @Subcommand("help")
     public void onHelp(CommandSender sender) {
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         localeManager.sendMessage(sender, "command-help-title");
         localeManager.sendSimpleMessage(sender, "command-convert-description");
@@ -68,16 +68,16 @@ public class RoseCommand extends BaseCommand {
     @Subcommand("reload")
     @CommandPermission("rosestacker.reload")
     public void onReload(CommandSender sender) {
-        this.roseStacker.reload();
-        this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-reload-reloaded");
+        this.rosePlugin.reload();
+        this.rosePlugin.getManager(LocaleManager.class).sendMessage(sender, "command-reload-reloaded");
     }
 
     @Subcommand("clearall")
     @CommandPermission("rosestacker.clearall")
     @CommandCompletion("@clearallType")
     public void onClearall(CommandSender sender, ClearallType clearallType) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         int amount;
         switch (clearallType) {
@@ -101,8 +101,8 @@ public class RoseCommand extends BaseCommand {
     @CommandPermission("rosestacker.convert")
     @CommandCompletion("@conversionType")
     public void onConvert(CommandSender sender, StackPlugin stackPlugin) {
-        ConversionManager conversionManager = this.roseStacker.getManager(ConversionManager.class);
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        ConversionManager conversionManager = this.rosePlugin.getManager(ConversionManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         if (conversionManager.convert(stackPlugin)) {
             localeManager.sendMessage(sender, "command-convert-converted", StringPlaceholders.single("plugin", stackPlugin.name()));
@@ -114,8 +114,8 @@ public class RoseCommand extends BaseCommand {
     @Subcommand("stats")
     @CommandPermission("rosestacker.stats")
     public void onStats(CommandSender sender) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         int threadAmount = stackManager.getStackingThreads().size();
 
@@ -144,14 +144,14 @@ public class RoseCommand extends BaseCommand {
         @Default
         @CatchUnknown
         public void onCommand(CommandSender sender) {
-            RoseCommand.this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
+            RoseCommand.this.rosePlugin.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
         }
 
         @Subcommand("block")
         @CommandCompletion("* @stackableBlockMaterial @blockStackAmounts")
         public void onBlock(CommandSender sender, OnlinePlayer target, Material material, @Conditions("limits:min=1") int amount) {
-            LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
-            BlockStackSettings stackSettings = RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(material);
+            LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
+            BlockStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(sender, "command-give-unstackable");
                 return;
@@ -175,8 +175,8 @@ public class RoseCommand extends BaseCommand {
         @Subcommand("spawner")
         @CommandCompletion("* @spawnableSpawnerEntityType @spawnerStackAmounts")
         public void onSpawner(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
-            LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
-            SpawnerStackSettings stackSettings = RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+            LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
+            SpawnerStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(sender, "command-give-unstackable");
                 return;
@@ -200,8 +200,8 @@ public class RoseCommand extends BaseCommand {
         @Subcommand("entity")
         @CommandCompletion("* @spawnableEggEntityType @entityStackAmounts")
         public void onEntity(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int amount) {
-            LocaleManager localeManager = RoseCommand.this.roseStacker.getManager(LocaleManager.class);
-            EntityStackSettings stackSettings = RoseCommand.this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+            LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
+            EntityStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(sender, "command-give-unstackable");
                 return;
@@ -215,7 +215,7 @@ public class RoseCommand extends BaseCommand {
             Player player = target.getPlayer();
             ItemStack itemStack = StackerUtils.getEntityAsStackedItemStack(entityType, amount);
             if (itemStack == null) {
-                RoseCommand.this.roseStacker.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
+                RoseCommand.this.rosePlugin.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
                 return;
             }
 
@@ -234,8 +234,8 @@ public class RoseCommand extends BaseCommand {
     @CommandPermission("rosestacker.purgedata")
     @CommandCompletion("@worlds")
     public void onPurgeData(CommandSender sender, String world) {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         int totalDeleted = dataManager.purgeData(world);
         if (totalDeleted == 0) {
             localeManager.sendMessage(sender, "command-purgedata-none");
@@ -248,8 +248,8 @@ public class RoseCommand extends BaseCommand {
     @CommandPermission("rosestacker.querydata")
     @CommandCompletion("@worlds")
     public void onQueryData(CommandSender sender, World world) {
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
         StackCounts stackCounts = dataManager.queryData(world.getName());
         int entity = stackCounts.getEntityCount();
         int item = stackCounts.getItemCount();

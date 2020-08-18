@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings;
 
-import dev.rosewood.rosestacker.config.CommentedConfigurationSection;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.config.CommentedConfigurationSection;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 
 public abstract class StackSettings {
 

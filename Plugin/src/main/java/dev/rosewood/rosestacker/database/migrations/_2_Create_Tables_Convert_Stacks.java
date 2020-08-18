@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.database.migrations;
 
-import dev.rosewood.rosestacker.database.DataMigration;
-import dev.rosewood.rosestacker.database.DatabaseConnector;
+import dev.rosewood.rosegarden.database.DataMigration;
+import dev.rosewood.rosegarden.database.DatabaseConnector;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import java.util.List;

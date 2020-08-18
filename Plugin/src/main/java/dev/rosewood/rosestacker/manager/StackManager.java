@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -43,12 +44,12 @@ public class StackManager extends Manager implements StackingLogic {
 
     private boolean isEntityStackingTemporarilyDisabled;
 
-    public StackManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public StackManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
 
         this.stackingThreads = new ConcurrentHashMap<>();
         this.deletedStacks = new ConcurrentSet<>();
-        this.conversionManager = this.roseStacker.getManager(ConversionManager.class);
+        this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -65,7 +66,7 @@ public class StackManager extends Manager implements StackingLogic {
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
-        this.deleteTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.roseStacker, this::deleteStacks, 0L, 100L);
+        this.deleteTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::deleteStacks, 0L, 100L);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class StackManager extends Manager implements StackingLogic {
             this.deleteTask = null;
         }
 
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
         if (!dataManager.isConnected()) {
             this.stackingThreads.clear();
             return;
@@ -382,7 +383,7 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.isWorldDisabled(world) || this.stackingThreads.containsKey(world.getUID()))
             return;
 
-        this.stackingThreads.put(world.getUID(), new StackingThread(this.roseStacker, this, world));
+        this.stackingThreads.put(world.getUID(), new StackingThread(this.rosePlugin, this, world));
     }
 
     /**
@@ -406,7 +407,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the block is stackable, otherwise false
      */
     public boolean isBlockTypeStackable(Block block) {
-        BlockStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(block);
+        BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(block);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
@@ -417,7 +418,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the spawner entity type is stackable, otherwise false
      */
     public boolean isSpawnerTypeStackable(EntityType entityType) {
-        SpawnerStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
@@ -476,7 +477,7 @@ public class StackManager extends Manager implements StackingLogic {
      * Deletes all stacks pending deletion
      */
     private void deleteStacks() {
-        this.roseStacker.getManager(DataManager.class).deleteStacks(new HashSet<>(this.deletedStacks));
+        this.rosePlugin.getManager(DataManager.class).deleteStacks(new HashSet<>(this.deletedStacks));
         this.deletedStacks.clear();
     }
 

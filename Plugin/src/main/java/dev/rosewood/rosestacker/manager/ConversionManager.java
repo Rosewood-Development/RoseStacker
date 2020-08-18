@@ -1,7 +1,8 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
@@ -38,14 +39,14 @@ public class ConversionManager extends Manager implements Listener {
 
     private DataManager dataManager;
 
-    public ConversionManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public ConversionManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
 
         this.converters = new HashMap<>();
         this.conversionHandlers = new HashSet<>();
-        this.dataManager = this.roseStacker.getManager(DataManager.class);
+        this.dataManager = this.rosePlugin.getManager(DataManager.class);
 
-        Bukkit.getPluginManager().registerEvents(this, this.roseStacker);
+        Bukkit.getPluginManager().registerEvents(this, this.rosePlugin);
     }
 
     @Override
@@ -75,11 +76,11 @@ public class ConversionManager extends Manager implements Listener {
         if (this.convertLockConfig == null || this.convertLockConfig.getBoolean("acknowledge-reading-warning"))
             return;
 
-        this.roseStacker.getManager(LocaleManager.class).sendMessage(player, "convert-lock-conflictions");
+        this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "convert-lock-conflictions");
     }
 
     private void loadConvertLocks() {
-        File convertLockFile = new File(this.roseStacker.getDataFolder(), FILE_NAME);
+        File convertLockFile = new File(this.rosePlugin.getDataFolder(), FILE_NAME);
         if (!convertLockFile.exists()) {
             try {
                 convertLockFile.createNewFile();
@@ -88,7 +89,7 @@ public class ConversionManager extends Manager implements Listener {
             }
         }
 
-        this.convertLockConfig = CommentedFileConfiguration.loadConfiguration(this.roseStacker, convertLockFile);
+        this.convertLockConfig = CommentedFileConfiguration.loadConfiguration(convertLockFile);
 
         if (this.convertLockConfig.get("acknowledge-reading-warning") == null) {
             this.convertLockConfig.addComments("This file is a security measure created to prevent conflictions and/or data loss",
@@ -117,7 +118,7 @@ public class ConversionManager extends Manager implements Listener {
             this.dataManager.setConversionHandlers(converter.getConverterTypes());
 
             // Reload plugin to convert and update data
-            Bukkit.getScheduler().runTask(this.roseStacker, this.roseStacker::reload);
+            Bukkit.getScheduler().runTask(this.rosePlugin, this.rosePlugin::reload);
         } catch (Exception ex) {
             return false;
         }
@@ -170,7 +171,7 @@ public class ConversionManager extends Manager implements Listener {
 
         // Update nametags synchronously
         if (!convertedStacks.isEmpty())
-            Bukkit.getScheduler().runTask(this.roseStacker, () -> convertedStacks.forEach(Stack::updateDisplay));
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> convertedStacks.forEach(Stack::updateDisplay));
     }
 
     public Set<StackPlugin> getEnabledConverters() {

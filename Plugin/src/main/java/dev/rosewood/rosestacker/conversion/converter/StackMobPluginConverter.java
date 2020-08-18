@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import uk.antiperson.stackmob.StackMob;
@@ -9,8 +9,8 @@ public class StackMobPluginConverter extends StackPluginConverter {
 
     private StackMob stackMob;
 
-    public StackMobPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "StackMob", StackPlugin.StackMob, ConverterType.STACKMOB);
+    public StackMobPluginConverter(RosePlugin rosePlugin) {
+        super(rosePlugin, "StackMob", StackPlugin.StackMob, ConverterType.STACKMOB);
 
         this.stackMob = (StackMob) this.plugin;
     }

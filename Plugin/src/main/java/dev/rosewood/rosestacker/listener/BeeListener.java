@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import org.bukkit.Bukkit;
@@ -13,10 +13,10 @@ import org.bukkit.event.entity.EntityEnterBlockEvent;
 
 public class BeeListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public BeeListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public BeeListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -24,7 +24,7 @@ public class BeeListener implements Listener {
         if (event.getEntityType() != EntityType.BEE)
             return;
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -40,7 +40,7 @@ public class BeeListener implements Listener {
         }
 
         stackedEntity.restoreOriginalCustomName();
-        Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
+        Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
     }
 
 }

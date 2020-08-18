@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner;
 
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.block.Block;

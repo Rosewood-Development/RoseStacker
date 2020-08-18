@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -30,10 +30,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class InteractListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public InteractListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public InteractListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -43,7 +43,7 @@ public class InteractListener implements Listener {
         if (item == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isSpawnerStackingEnabled())
             return;
 
@@ -57,7 +57,7 @@ public class InteractListener implements Listener {
                 return;
             }
 
-            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                 if (!stackManager.isSpawnerStacked(clickedBlock))
                     return;
 
@@ -84,7 +84,7 @@ public class InteractListener implements Listener {
         if (!(event.getRightClicked() instanceof LivingEntity))
             return;
 
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -99,7 +99,7 @@ public class InteractListener implements Listener {
                 return;
 
             StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-            Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::updateOriginalCustomName);
+            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::updateOriginalCustomName);
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
@@ -116,7 +116,7 @@ public class InteractListener implements Listener {
 
             StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
             stackedEntity.restoreOriginalCustomName();
-            Bukkit.getScheduler().runTask(this.roseStacker, stackedEntity::decreaseStackSize);
+            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
         }
 
         if (this.spawnEntities(entity, entity.getLocation(), itemStack)) {
@@ -137,7 +137,7 @@ public class InteractListener implements Listener {
 
         if (this.spawnEntities(null, spawnLocation, itemStack)) {
             Inventory inventory = ((Container) block.getState()).getInventory();
-            Bukkit.getScheduler().runTask(this.roseStacker, () -> {
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                 for (int slot = 0; slot < inventory.getSize(); slot++) {
                     ItemStack item = inventory.getItem(slot);
                     if (item == null || !item.isSimilar(itemStack))
@@ -159,7 +159,7 @@ public class InteractListener implements Listener {
 
         int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
 
-        EntityStackSettings stackSettings = this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
+        EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         EntityType entityType = stackSettings.getEntityType();
         if (original != null && original.getType() != entityType)
             return false;
@@ -167,7 +167,7 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return false;
 
-        this.roseStacker.getManager(StackManager.class).preStackEntities(entityType, spawnAmount, spawnLocation);
+        this.rosePlugin.getManager(StackManager.class).preStackEntities(entityType, spawnAmount, spawnLocation);
 
         return true;
     }

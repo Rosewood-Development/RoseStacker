@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
@@ -19,8 +19,8 @@ public class StackMobConversionHandler extends ConversionHandler {
     @SuppressWarnings("deprecated") // Need to use this constructor since we don't have a Plugin reference
     private static final NamespacedKey STACK_KEY = new NamespacedKey("stackmob", "stack-size");
 
-    public StackMobConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ENTITY);
+    public StackMobConversionHandler(RosePlugin rosePlugin) {
+        super(rosePlugin, StackType.ENTITY);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
@@ -12,8 +12,8 @@ import org.bukkit.entity.LivingEntity;
 
 public class UltimateStackerEntityConversionHandler extends UltimateStackerConversionHandler {
 
-    public UltimateStackerEntityConversionHandler(RoseStacker roseStacker) {
-        super(roseStacker, StackType.ENTITY);
+    public UltimateStackerEntityConversionHandler(RosePlugin rosePlugin) {
+        super(rosePlugin, StackType.ENTITY);
     }
 
     @Override

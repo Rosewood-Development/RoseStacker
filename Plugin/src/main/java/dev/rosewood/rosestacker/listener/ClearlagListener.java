@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackingThread;
@@ -11,15 +11,15 @@ import org.bukkit.event.Listener;
 
 public class ClearlagListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public ClearlagListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public ClearlagListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onClear(EntityRemoveEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         StackingThread stackingThread = stackManager.getStackingThread(event.getWorld());
         if (stackingThread == null)
             return;

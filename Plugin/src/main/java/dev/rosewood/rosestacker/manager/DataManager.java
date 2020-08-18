@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.database.SQLiteConnector;
+import dev.rosewood.rosegarden.manager.AbstractDataManager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
-import dev.rosewood.rosestacker.database.DatabaseConnector;
-import dev.rosewood.rosestacker.database.MySQLConnector;
-import dev.rosewood.rosestacker.database.SQLiteConnector;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -43,68 +41,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 
-public class DataManager extends Manager {
+public class DataManager extends AbstractDataManager {
 
-    private DatabaseConnector databaseConnector;
-    private boolean ranVacuum;
-
-    public DataManager(RoseStacker roseStacker) {
-        super(roseStacker);
-
-        this.ranVacuum = false;
-    }
-
-    @Override
-    public void reload() {
-        try {
-            if (Setting.MYSQL_ENABLED.getBoolean()) {
-                String hostname = Setting.MYSQL_HOSTNAME.getString();
-                int port = Setting.MYSQL_PORT.getInt();
-                String database = Setting.MYSQL_DATABASE_NAME.getString();
-                String username = Setting.MYSQL_USER_NAME.getString();
-                String password = Setting.MYSQL_USER_PASSWORD.getString();
-                boolean useSSL = Setting.MYSQL_USE_SSL.getBoolean();
-
-                this.databaseConnector = new MySQLConnector(this.roseStacker, hostname, port, database, username, password, useSSL);
-                this.roseStacker.getLogger().info("Data handler connected using MySQL.");
-            } else {
-                this.databaseConnector = new SQLiteConnector(this.roseStacker);
-                this.roseStacker.getLogger().info("Data handler connected using SQLite.");
-            }
-        } catch (Exception ex) {
-            this.roseStacker.getLogger().severe("Fatal error trying to connect to database. Please make sure all your connection settings are correct and try again. Plugin has been disabled.");
-            Bukkit.getPluginManager().disablePlugin(this.roseStacker);
-        }
-
-        // Vacuum the database to help compress it, only run once per plugin startup
-        if (!this.ranVacuum && this.databaseConnector instanceof SQLiteConnector)
-            this.databaseConnector.cleanup();
-    }
-
-    @Override
-    public void disable() {
-        if (this.databaseConnector == null)
-            return;
-
-        // Wait for all database connections to finish
-        long now = System.currentTimeMillis();
-        long deadline = now + 5000; // Wait at most 5 seconds
-        synchronized (this.databaseConnector.getLock()) {
-            while (!this.databaseConnector.isFinished() && now < deadline) {
-                try {
-                    this.databaseConnector.getLock().wait(deadline - now);
-                    now = System.currentTimeMillis();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        this.databaseConnector.closeConnection();
-    }
-
-    public boolean isConnected() {
-        return this.databaseConnector != null;
+    public DataManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
     }
 
     public void getStackedEntities(Set<Chunk> chunks, Consumer<Set<StackedEntity>> callback) {
@@ -158,13 +98,13 @@ public class DataManager extends Manager {
                         callback.accept(stackedEntities);
 
                         if (!cleanup.isEmpty())
-                            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.deleteStacks(cleanup));
+                            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
                     };
 
                     if (Bukkit.isPrimaryThread()) {
                         task.run();
                     } else {
-                        Bukkit.getScheduler().runTask(this.roseStacker, task);
+                        Bukkit.getScheduler().runTask(this.rosePlugin, task);
                     }
 
                     compoundSelect.setLength(0);
@@ -225,13 +165,13 @@ public class DataManager extends Manager {
                         callback.accept(stackedItems);
 
                         if (!cleanup.isEmpty())
-                            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.deleteStacks(cleanup));
+                            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
                     };
 
                     if (Bukkit.isPrimaryThread()) {
                         task.run();
                     } else {
-                        Bukkit.getScheduler().runTask(this.roseStacker, task);
+                        Bukkit.getScheduler().runTask(this.rosePlugin, task);
                     }
 
                     compoundSelect.setLength(0);
@@ -301,13 +241,13 @@ public class DataManager extends Manager {
                         callback.accept(stackedBlocks);
 
                         if (!cleanup.isEmpty())
-                            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.deleteStacks(cleanup));
+                            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
                     };
 
                     if (Bukkit.isPrimaryThread()) {
                         task.run();
                     } else {
-                        Bukkit.getScheduler().runTask(this.roseStacker, task);
+                        Bukkit.getScheduler().runTask(this.rosePlugin, task);
                     }
 
                     compoundSelect.setLength(0);
@@ -377,13 +317,13 @@ public class DataManager extends Manager {
                         callback.accept(stackedSpawners);
 
                         if (!cleanup.isEmpty())
-                            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () -> this.deleteStacks(cleanup));
+                            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
                     };
 
                     if (Bukkit.isPrimaryThread()) {
                         task.run();
                     } else {
-                        Bukkit.getScheduler().runTask(this.roseStacker, task);
+                        Bukkit.getScheduler().runTask(this.rosePlugin, task);
                     }
 
                     compoundSelect.setLength(0);
@@ -766,20 +706,6 @@ public class DataManager extends Manager {
         });
 
         return conversionData;
-    }
-
-    /**
-     * @return The connector to the database
-     */
-    public DatabaseConnector getDatabaseConnector() {
-        return this.databaseConnector;
-    }
-
-    /**
-     * @return the prefix to be used by all table names
-     */
-    public String getTablePrefix() {
-        return this.roseStacker.getDescription().getName().toLowerCase() + '_';
     }
 
     public static class StackCounts {

@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack.settings.spawner;
 
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.AboveSeaLevelConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.AboveYAxisConditionTag;
@@ -17,7 +18,6 @@ import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoSkylightAccessCond
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.SkylightAccessConditionTag;
-import dev.rosewood.rosestacker.utils.StringPlaceholders;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collections;

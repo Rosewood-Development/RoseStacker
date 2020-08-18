@@ -1,10 +1,10 @@
 package dev.rosewood.rosestacker.conversion.converter;
 
 import com.songoda.epicspawners.EpicSpawners;
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.database.DatabaseConnector;
+import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
-import dev.rosewood.rosestacker.database.DatabaseConnector;
-import dev.rosewood.rosestacker.database.SQLiteConnector;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
@@ -19,15 +19,15 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
 
     private EpicSpawners epicSpawners;
 
-    public EpicSpawnersPluginConverter(RoseStacker roseStacker) {
-        super(roseStacker, "EpicSpawners", StackPlugin.EpicSpawners);
+    public EpicSpawnersPluginConverter(RosePlugin rosePlugin) {
+        super(rosePlugin, "EpicSpawners", StackPlugin.EpicSpawners);
 
         this.epicSpawners = (EpicSpawners) this.plugin;
     }
 
     @Override
     public void convert() {
-        DataManager dataManager = this.roseStacker.getManager(DataManager.class);
+        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
         // Query their database ourselves
         DatabaseConnector connector = new SQLiteConnector(this.epicSpawners);

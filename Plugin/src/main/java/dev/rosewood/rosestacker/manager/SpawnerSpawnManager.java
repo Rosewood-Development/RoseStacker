@@ -1,8 +1,9 @@
 package dev.rosewood.rosestacker.manager;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.NMSUtil;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -44,18 +45,18 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     private Random random;
     private BukkitTask task;
 
-    public SpawnerSpawnManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public SpawnerSpawnManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
 
         this.random = new Random();
     }
 
     @Override
     public void reload() {
-        if (!this.roseStacker.getManager(StackManager.class).isSpawnerStackingEnabled())
+        if (!this.rosePlugin.getManager(StackManager.class).isSpawnerStackingEnabled())
             return;
 
-        this.task = Bukkit.getScheduler().runTaskTimer(this.roseStacker, this, 0, 1);
+        this.task = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this, 0, 1);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
     @Override
     public void run() {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
@@ -186,9 +187,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
     private void tagSpawnedFromSpawner(LivingEntity entity) {
         if (NMSUtil.getVersionNumber() > 13) {
-            entity.getPersistentDataContainer().set(new NamespacedKey(this.roseStacker, METADATA_NAME), PersistentDataType.INTEGER, 1);
+            entity.getPersistentDataContainer().set(new NamespacedKey(this.rosePlugin, METADATA_NAME), PersistentDataType.INTEGER, 1);
         } else {
-            entity.setMetadata(METADATA_NAME, new FixedMetadataValue(this.roseStacker, true));
+            entity.setMetadata(METADATA_NAME, new FixedMetadataValue(this.rosePlugin, true));
         }
     }
 
@@ -200,7 +201,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      */
     public boolean isSpawnedFromSpawner(LivingEntity entity) {
         if (NMSUtil.getVersionNumber() > 13) {
-            return entity.getPersistentDataContainer().has(new NamespacedKey(this.roseStacker, METADATA_NAME), PersistentDataType.INTEGER);
+            return entity.getPersistentDataContainer().has(new NamespacedKey(this.rosePlugin, METADATA_NAME), PersistentDataType.INTEGER);
         } else {
             return entity.hasMetadata(METADATA_NAME);
         }

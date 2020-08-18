@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.conversion;
 
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
 import dev.rosewood.rosestacker.conversion.handler.EntityConversionHandler;
@@ -24,7 +25,7 @@ public enum ConverterType {
 
     public ConversionHandler getConversionHandler() {
         try {
-            return this.conversionHandler.getConstructor(RoseStacker.class).newInstance(RoseStacker.getInstance());
+            return this.conversionHandler.getConstructor(RosePlugin.class).newInstance(RoseStacker.getInstance());
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
             return null;

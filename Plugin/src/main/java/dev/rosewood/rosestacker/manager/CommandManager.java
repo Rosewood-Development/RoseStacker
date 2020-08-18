@@ -6,7 +6,9 @@ import co.aikar.commands.ConditionFailedException;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.PaperCommandManager;
 import co.aikar.locales.MessageKey;
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosestacker.command.RoseCommand;
 import dev.rosewood.rosestacker.command.RoseCommand.ClearallType;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
@@ -14,7 +16,6 @@ import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.utils.HexUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -28,18 +29,18 @@ public class CommandManager extends Manager {
 
     private final PaperCommandManager commandManager;
 
-    public CommandManager(RoseStacker roseStacker) {
-        super(roseStacker);
+    public CommandManager(RosePlugin rosePlugin) {
+        super(rosePlugin);
 
-        this.commandManager = new PaperCommandManager(this.roseStacker);
-        this.commandManager.registerCommand(new RoseCommand(this.roseStacker), true);
+        this.commandManager = new PaperCommandManager(this.rosePlugin);
+        this.commandManager.registerCommand(new RoseCommand(this.rosePlugin), true);
     }
 
     @Override
     public void reload() {
-        LocaleManager localeManager = this.roseStacker.getManager(LocaleManager.class);
-        ConversionManager conversionManager = this.roseStacker.getManager(ConversionManager.class);
-        StackSettingManager stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
+        ConversionManager conversionManager = this.rosePlugin.getManager(ConversionManager.class);
+        StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
 
         // Load custom message strings
         Map<String, String> acfCoreMessages = localeManager.getAcfCoreMessages();

@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
-import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import java.util.ArrayList;
@@ -21,15 +21,15 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemListener implements Listener {
 
-    private RoseStacker roseStacker;
+    private RosePlugin rosePlugin;
 
-    public ItemListener(RoseStacker roseStacker) {
-        this.roseStacker = roseStacker;
+    public ItemListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isItemStackingEnabled())
             return;
 
@@ -40,7 +40,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemMerge(ItemMergeEvent event) {
-        if (!this.roseStacker.getManager(StackManager.class).isItemStackingEnabled())
+        if (!this.rosePlugin.getManager(StackManager.class).isItemStackingEnabled())
             return;
 
         // We will handle all item merging ourselves, thank you very much
@@ -49,7 +49,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isItemStackingEnabled())
             return;
 
@@ -79,7 +79,7 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryPickup(InventoryPickupItemEvent event) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isItemStackingEnabled())
             return;
 
@@ -102,7 +102,7 @@ public class ItemListener implements Listener {
      * @return true if the pickup event should be cancelled, otherwise false
      */
     private boolean applyInventoryItemPickup(Inventory inventory, StackedItem stackedItem, Entity eventEntity) {
-        StackManager stackManager = this.roseStacker.getManager(StackManager.class);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
         ItemStack target = stackedItem.getItem().getItemStack();
         int maxStackSize = target.getMaxStackSize();
