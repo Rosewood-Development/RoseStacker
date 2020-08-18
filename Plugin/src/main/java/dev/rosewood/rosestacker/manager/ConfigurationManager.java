@@ -1,11 +1,11 @@
 package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
 import java.util.Collections;
-import java.util.List;
 import org.bukkit.Material;
 
 public class ConfigurationManager extends AbstractConfigurationManager {
@@ -152,78 +152,13 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         }
 
         @Override
-        public boolean getBoolean() {
-            this.loadValue();
-            return (boolean) this.value;
+        public void setCachedValue(Object value) {
+            this.value = value;
         }
 
         @Override
-        public int getInt() {
-            this.loadValue();
-            return (int) this.getNumber();
-        }
-
-        @Override
-        public long getLong() {
-            this.loadValue();
-            return (long) this.getNumber();
-        }
-
-        @Override
-        public double getDouble() {
-            this.loadValue();
-            return this.getNumber();
-        }
-
-        @Override
-        public float getFloat() {
-            this.loadValue();
-            return (float) this.getNumber();
-        }
-
-        @Override
-        public String getString() {
-            this.loadValue();
-            return (String) this.value;
-        }
-
-        private double getNumber() {
-            if (this.value instanceof Integer) {
-                return (int) this.value;
-            } else if (this.value instanceof Short) {
-                return (short) this.value;
-            } else if (this.value instanceof Byte) {
-                return (byte) this.value;
-            } else if (this.value instanceof Float) {
-                return (float) this.value;
-            }
-
-            return (double) this.value;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public List<String> getStringList() {
-            this.loadValue();
-            return (List<String>) this.value;
-        }
-
-        @Override
-        public boolean isSection() {
-            return this.defaultValue == null;
-        }
-
-        @Override
-        public void loadValue() {
-            if (this.value != null)
-                return;
-
-            this.value = RoseStacker.getInstance().getManager(ConfigurationManager.class).getConfig().get(this.key);
-        }
-
-        @Override
-        public void reset() {
-            this.value = null;
+        public CommentedFileConfiguration getBaseConfig() {
+            return RoseStacker.getInstance().getManager(ConfigurationManager.class).getConfig();
         }
     }
 
@@ -233,7 +168,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
     @Override
     protected String[] getHeader() {
-        return new String[] {
+        return new String[]{
                 "     __________                      _________ __                 __                 ",
                 "     \\______   \\ ____  ______ ____  /   _____//  |______    ____ |  | __ ___________ ",
                 "      |       _//  _ \\/  ___// __ \\ \\_____  \\\\   __\\__  \\ _/ ___\\|  |/ // __ \\_  __ \\",

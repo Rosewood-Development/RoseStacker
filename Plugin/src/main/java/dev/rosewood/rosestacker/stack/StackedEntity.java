@@ -130,9 +130,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void decreaseStackSize() {
         LivingEntity oldEntity = this.entity;
         Location location = this.entity.getLocation();
+        StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
+        stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
+        stackManager.setEntityStackingTemporarilyDisabled(false);
         this.updateOriginalCustomName();
-        RoseStacker.getInstance().getManager(StackManager.class).updateStackedEntityKey(oldEntity, this.entity);
+        stackManager.updateStackedEntityKey(oldEntity, this.entity);
     }
 
     public List<byte[]> getStackedEntityNBT() {
@@ -170,32 +173,28 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (byte[] entityNBT : this.serializedStackedEntities) {
                 LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
-                if (entity != null) {
-                    entity.setFireTicks(fireTicks);
-                    Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
-                    if (callEvents) {
-                        EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
-                        Bukkit.getPluginManager().callEvent(deathEvent);
-                        totalExp += deathEvent.getDroppedExp();
-                        loot.addAll(deathEvent.getDrops());
-                    } else {
-                        loot.addAll(entityLoot);
-                        totalExp += droppedExp;
-                    }
+                if (entity == null)
+                    continue;
+
+                entity.setFireTicks(fireTicks);
+                Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                if (callEvents) {
+                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    Bukkit.getPluginManager().callEvent(deathEvent);
+                    totalExp += deathEvent.getDroppedExp();
+                    loot.addAll(deathEvent.getDrops());
+                } else {
+                    loot.addAll(entityLoot);
+                    totalExp += droppedExp;
                 }
             }
 
             int finalTotalExp = totalExp;
-            World world = this.entity.getLocation().getWorld();
-            if (world != null) {
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
-                    RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, this.entity.getLocation());
-                    if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0) {
-                        ExperienceOrb experienceOrb = world.spawn(this.entity.getLocation(), ExperienceOrb.class);
-                        experienceOrb.setExperience(finalTotalExp);
-                    }
-                });
-            }
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, thisEntity.getLocation());
+                if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
+                    StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, 30);
+            });
         });
     }
 

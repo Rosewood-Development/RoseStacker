@@ -79,8 +79,7 @@ public final class StackerUtils {
     public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation) {
         if (entity instanceof Lootable) {
             Lootable lootable = (Lootable) entity;
-            Location dropLocation = entity.getLocation();
-            if (lootable.getLootTable() == null || dropLocation.getWorld() == null)
+            if (lootable.getLootTable() == null)
                 return Collections.emptySet();
 
             LootContext lootContext = new LootContext.Builder(lootedLocation)
