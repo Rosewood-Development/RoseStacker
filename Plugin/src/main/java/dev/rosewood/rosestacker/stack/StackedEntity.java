@@ -130,7 +130,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void decreaseStackSize() {
         LivingEntity oldEntity = this.entity;
         Location location = this.entity.getLocation();
-        this.entity = null; // Null it first so the CreatureSpawnEvent doesn't conflict with this Stack
         this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
         this.updateOriginalCustomName();
         RoseStacker.getInstance().getManager(StackManager.class).updateStackedEntityKey(oldEntity, this.entity);
