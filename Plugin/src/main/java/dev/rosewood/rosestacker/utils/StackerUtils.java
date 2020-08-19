@@ -44,7 +44,7 @@ import org.bukkit.util.Vector;
 
 public final class StackerUtils {
 
-    private static Random random = new Random();
+    private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
     private static Set<EntityType> cachedStackableEntityTypes;
 
@@ -87,7 +87,7 @@ public final class StackerUtils {
                     .killer(killer)
                     .build();
 
-            return lootable.getLootTable().populateLoot(random, lootContext);
+            return lootable.getLootTable().populateLoot(RANDOM, lootContext);
         }
 
         return Collections.emptySet();
@@ -105,8 +105,8 @@ public final class StackerUtils {
 
         itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
-                ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
-                ChatColor.GRAY + "Block Type: " + ChatColor.RED + formatName(material.name())
+                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
+                ItemLoreValue.BLOCK_TYPE.getValue(formatName(material.name()))
         ));
 
         itemStack.setItemMeta(itemMeta);
@@ -129,8 +129,8 @@ public final class StackerUtils {
 
         itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
-                ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
-                ChatColor.GRAY + "Spawner Type: " + ChatColor.RED + formatName(entityType.name())
+                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
+                ItemLoreValue.SPAWNER_TYPE.getValue(formatName(entityType.name()))
         ));
 
         itemStack.setItemMeta(itemMeta);
@@ -153,8 +153,8 @@ public final class StackerUtils {
 
         itemMeta.setDisplayName(displayString);
         itemMeta.setLore(Arrays.asList(
-                ChatColor.GRAY + "Stack Size: " + ChatColor.RED + amount + "x",
-                ChatColor.GRAY + "Entity Type: " + ChatColor.RED + formatName(entityType.name())
+                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
+                ItemLoreValue.ENTITY_TYPE.getValue(formatName(entityType.name()))
         ));
 
         itemStack.setItemMeta(itemMeta);
@@ -168,7 +168,7 @@ public final class StackerUtils {
 
         String lore = ChatColor.stripColor(itemMeta.getLore().get(0));
         try {
-            return Integer.parseInt(lore.substring("Stack Size: ".length(), lore.length() - 1));
+            return Integer.parseInt(lore.substring(ItemLoreValue.STACK_SIZE.getValueStripped().length(), lore.length() - 1));
         } catch (Exception ignored) { }
 
         return 1;
@@ -184,7 +184,7 @@ public final class StackerUtils {
 
         // Use the lore to determine the type
         if (itemMeta.getLore() != null && itemMeta.getLore().size() >= 2) {
-            String name = ChatColor.stripColor(itemMeta.getLore().get(1)).replace("Spawner Type: ", "");
+            String name = ChatColor.stripColor(itemMeta.getLore().get(1)).replace(ItemLoreValue.SPAWNER_TYPE.getValueStripped(), "");
             try {
                 return EntityType.valueOf(name.toUpperCase().replaceAll(" ", "_"));
             } catch (Exception ignored) { }
@@ -281,7 +281,7 @@ public final class StackerUtils {
     }
 
     public static boolean passesChance(double chance) {
-        return random.nextDouble() <= chance;
+        return RANDOM.nextDouble() <= chance;
     }
 
     /**
@@ -297,16 +297,16 @@ public final class StackerUtils {
         if (world == null)
             return;
 
-        int experience = random.nextInt(upperBound - lowerBound + 1) + lowerBound;
+        int experience = RANDOM.nextInt(upperBound - lowerBound + 1) + lowerBound;
 
         while (experience > step) {
-            world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(step));
+            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(step));
             experience -= step;
         }
 
         if (experience > 0) {
             int fExperience = experience;
-            world.spawn(location.clone().add(random.nextDouble() - 0.5, random.nextDouble() - 0.5, random.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
+            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
         }
     }
 
@@ -358,6 +358,26 @@ public final class StackerUtils {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
         }).sorted(Comparator.comparing(Enum::name)).collect(Collectors.toList());
+    }
+
+    private enum ItemLoreValue {
+        STACK_SIZE,
+        ENTITY_TYPE,
+        BLOCK_TYPE,
+        SPAWNER_TYPE;
+
+        public String getValue(Object placeholderValue) {
+            LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
+            return localeManager.getLocaleMessage("stack-item-lore-" + this.getKey()) + placeholderValue;
+        }
+
+        public String getValueStripped() {
+            return ChatColor.stripColor(this.getValue(""));
+        }
+
+        private String getKey() {
+            return this.name().toLowerCase().replace("_", "-");
+        }
     }
 
 }

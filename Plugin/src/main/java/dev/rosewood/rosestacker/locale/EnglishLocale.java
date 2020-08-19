@@ -156,7 +156,14 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-skylight-access-invalid", "No spawn blocks with skylight access");
             this.put("spawner-condition-none-invalid", "Exceeded maximum spawn attempts");
 
-            this.put("#14", "ACF-Core Messages");
+            this.put("#14", "Given Stack Item Lore");
+            this.put("#15", "Note: Changing these will invalidate items with the old lore");
+            this.put("stack-item-lore-stack-size", "&7Stack Size: &c");
+            this.put("stack-item-lore-entity-type", "&7Entity Type: &c");
+            this.put("stack-item-lore-block-type", "&7Block Type: &c");
+            this.put("stack-item-lore-spawner-type", "&7Spawner Type: &c");
+
+            this.put("#16", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -175,10 +182,11 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#15", "ACF-Minecraft Messages");
+            this.put("#17", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
+            this.put("acf-minecraft-is-not-a-valid-name", "&cError: &b{name} &cis not a valid player name.");
 
-            this.put("#16", "Convert Lock Messages");
+            this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +
                     "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
                     "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +
