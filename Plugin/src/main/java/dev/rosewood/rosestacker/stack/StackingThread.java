@@ -89,8 +89,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void run() {
+        boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
+        boolean itemStackingEnabled = this.stackManager.isItemStackingEnabled();
+
         // Auto stack items
-        if (this.stackManager.isItemStackingEnabled()) {
+        if (itemStackingEnabled) {
             for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
                 Item item = stackedItem.getItem();
                 if (item == null || !item.isValid()) {
@@ -103,7 +106,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         }
 
         // Auto stack entities
-        if (this.stackManager.isEntityStackingEnabled()) {
+        if (entityStackingEnabled) {
             for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
                 LivingEntity livingEntity = stackedEntity.getEntity();
                 if (livingEntity == null || !livingEntity.isValid()) {
@@ -121,20 +124,22 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         }
 
         // Cleans up entities/items that aren't stacked
-        this.cleanupTimer++;
-        if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
-            for (Entity entity : this.targetWorld.getEntities()) {
-                if (entity instanceof LivingEntity) {
-                    LivingEntity livingEntity = (LivingEntity) entity;
-                    if (!this.isEntityStacked(livingEntity))
-                        this.createEntityStack(livingEntity, true);
-                } else if (entity instanceof Item) {
-                    Item item = (Item) entity;
-                    if (!this.isItemStacked(item))
-                        this.createItemStack(item, true);
+        if (entityStackingEnabled || itemStackingEnabled) {
+            this.cleanupTimer++;
+            if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
+                for (Entity entity : this.targetWorld.getEntities()) {
+                    if (entityStackingEnabled && entity instanceof LivingEntity) {
+                        LivingEntity livingEntity = (LivingEntity) entity;
+                        if (!this.isEntityStacked(livingEntity))
+                            this.createEntityStack(livingEntity, true);
+                    } else if (itemStackingEnabled && entity instanceof Item) {
+                        Item item = (Item) entity;
+                        if (!this.isItemStacked(item))
+                            this.createItemStack(item, true);
+                    }
                 }
+                this.cleanupTimer = 0;
             }
-            this.cleanupTimer = 0;
         }
 
         // Handle dynamic stack tags
@@ -491,12 +496,18 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
+        if (!this.stackManager.isEntityStackingEnabled())
+            return;
+
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
         this.tryStackEntity(stackedEntity);
     }
 
     @Override
     public void addItemStack(StackedItem stackedItem) {
+        if (!this.stackManager.isItemStackingEnabled())
+            return;
+
         this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
         this.tryStackItem(stackedItem);
     }
@@ -536,6 +547,12 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public void preStackItems(Collection<ItemStack> items, Location location) {
         if (location.getWorld() == null)
             return;
+
+        if (!this.stackManager.isItemStackingEnabled()) {
+            for (ItemStack item : items)
+                location.getWorld().dropItemNaturally(location, item);
+            return;
+        }
 
         this.stackManager.setEntityStackingTemporarilyDisabled(true);
 
