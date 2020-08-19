@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import net.minecraft.server.v1_16_R2.BlockPosition;
+import net.minecraft.server.v1_16_R2.Chunk;
+import net.minecraft.server.v1_16_R2.ChunkStatus;
 import net.minecraft.server.v1_16_R2.DamageSource;
 import net.minecraft.server.v1_16_R2.DataWatcher;
 import net.minecraft.server.v1_16_R2.DataWatcherObject;
@@ -22,12 +24,15 @@ import net.minecraft.server.v1_16_R2.EntityCreeper;
 import net.minecraft.server.v1_16_R2.EntityLiving;
 import net.minecraft.server.v1_16_R2.EntityTypes;
 import net.minecraft.server.v1_16_R2.EnumMobSpawn;
+import net.minecraft.server.v1_16_R2.IChunkAccess;
 import net.minecraft.server.v1_16_R2.IRegistry;
+import net.minecraft.server.v1_16_R2.MathHelper;
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagDouble;
 import net.minecraft.server.v1_16_R2.NBTTagList;
 import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_16_R2.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftCreeper;
@@ -45,6 +50,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
     private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
 
+    private static Method method_WorldServer_registerEntity; // Method to register an entity into a world
+
     private static DataWatcherObject<Boolean> value_EntityCreeper_d; // DataWatcherObject that determines if a creeper is ignited, normally private
     private static Field field_EntityCreeper_fuseTicks; // Field to set the remianing fuse ticks of a creeper, normally private
 
@@ -59,11 +66,15 @@ public class NMSHandlerImpl implements NMSHandler {
             field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
             field_PacketPlayOutEntityMetadata_b.setAccessible(true);
 
+            method_WorldServer_registerEntity = WorldServer.class.getDeclaredMethod("registerEntity", Entity.class);
+            method_WorldServer_registerEntity.setAccessible(true);
+
             Field field_EntityCreeper_d = EntityCreeper.class.getDeclaredField("d");
             field_EntityCreeper_d.setAccessible(true);
             value_EntityCreeper_d = (DataWatcherObject<Boolean>) field_EntityCreeper_d.get(null);
 
             field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
+            field_EntityCreeper_fuseTicks.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -110,8 +121,10 @@ public class NMSHandlerImpl implements NMSHandler {
 
             Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
             if (optionalEntity.isPresent()) {
-                Entity spawned = optionalEntity.get().spawnCreature(
-                        ((CraftWorld) location.getWorld()).getHandle(),
+                WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
+
+                Entity entity = optionalEntity.get().createCreature(
+                        world,
                         nbt,
                         null,
                         null,
@@ -121,10 +134,19 @@ public class NMSHandlerImpl implements NMSHandler {
                         false
                 );
 
-                if (spawned != null) {
-                    this.setNBT(spawned, nbt, location);
-                    return (LivingEntity) spawned.getBukkitEntity();
-                }
+                if (entity == null)
+                    throw new NullPointerException("Unable to create entity from NBT");
+
+                this.setNBT(entity, nbt, location);
+
+                IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, entity.attachedToPlayer);
+                if (!(ichunkaccess instanceof Chunk))
+                    throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
+
+                ichunkaccess.a(entity);
+                method_WorldServer_registerEntity.invoke(world, entity);
+
+                return (LivingEntity) entity.getBukkitEntity();
             }
         } catch (Exception e) {
             e.printStackTrace();

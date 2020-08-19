@@ -19,7 +19,7 @@ public interface NMSHandler {
     byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes);
 
     /**
-     * Deserializes and spawns the entity at the given location
+     * Deserializes and forcefully spawns the entity at the given location
      *
      * @param serialized entity
      * @param location to spawn the entity at
