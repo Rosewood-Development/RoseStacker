@@ -274,6 +274,7 @@ public class RoseCommand extends BaseCommand {
 
     @Subcommand("translate")
     @CommandPermission("rosestacker.translate")
+    @CommandCompletion("@translationLocales *")
     public void onTranslate(CommandSender sender, String locale, @Optional String spawnerFormat) {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);

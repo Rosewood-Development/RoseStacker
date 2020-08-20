@@ -17,12 +17,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,6 +42,7 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class DataManager extends AbstractDataManager {
 
@@ -706,6 +709,43 @@ public class DataManager extends AbstractDataManager {
         });
 
         return conversionData;
+    }
+
+    public List<String> getTranslationLocales(String requiredVersion) {
+        List<String> locales = new ArrayList<>();
+
+        this.databaseConnector.connect(connection -> {
+            String delete = "DELETE FROM " + this.getTablePrefix() + "translation_locale WHERE version IS NOT ?";
+            try (PreparedStatement statement = connection.prepareStatement(delete)) {
+                statement.setString(1, requiredVersion);
+                statement.executeUpdate();
+            }
+
+            String query = "SELECT name FROM " + this.getTablePrefix() + "translation_locale";
+            try (Statement statement = connection.createStatement()) {
+                ResultSet result = statement.executeQuery(query);
+                while (result.next())
+                    locales.add(result.getString("name"));
+            }
+        });
+
+        locales.sort(String::compareTo);
+
+        return locales;
+    }
+
+    public void saveTranslationLocales(String version, List<String> locales) {
+        this.databaseConnector.connect(connection -> {
+            String insertQuery = "INSERT INTO " + this.getTablePrefix() + "translation_locale (version, name) VALUES (?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(insertQuery)) {
+                for (String locale : locales) {
+                    statement.setString(1, version);
+                    statement.setString(2, locale);
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+        });
     }
 
     public static class StackCounts {

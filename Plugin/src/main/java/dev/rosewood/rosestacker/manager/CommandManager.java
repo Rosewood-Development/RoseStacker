@@ -89,6 +89,8 @@ public class CommandManager extends Manager {
         completions.registerAsyncCompletion("conversionType", ctx -> conversionManager.getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
         completions.registerAsyncCompletion("conversionEnabledType", ctx -> conversionManager.getEnabledHandlers().stream().map(ConversionHandler::getRequiredDataStackType).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
 
+        completions.registerAsyncCompletion("translationLocales", ctx -> localeManager.getPossibleTranslationLocales());
+
         this.commandManager.getCommandConditions().addCondition(int.class, "limits", (c, exec, value) -> {
             if (value == null)
                 return;

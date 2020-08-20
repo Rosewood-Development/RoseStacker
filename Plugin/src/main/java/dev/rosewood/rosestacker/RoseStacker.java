@@ -7,6 +7,7 @@ import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
+import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
@@ -89,6 +90,9 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with Clearlag
         if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
             pluginManager.registerEvents(new ClearlagListener(this), this);
+
+        // Try fetching the translation locales
+        this.getManager(LocaleManager.class).fetchMinecraftTranslationLocales();
     }
 
     @Override
@@ -113,7 +117,8 @@ public class RoseStacker extends RosePlugin {
     public List<DataMigration> getDataMigrations() {
         return Arrays.asList(
                 new _1_Create_Tables_Stacks(),
-                new _2_Create_Tables_Convert_Stacks()
+                new _2_Create_Tables_Convert_Stacks(),
+                new _3_Create_Tables_Translation_Locales()
         );
     }
 

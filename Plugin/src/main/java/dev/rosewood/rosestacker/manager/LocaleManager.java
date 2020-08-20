@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.manager;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,10 +13,10 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -31,8 +33,12 @@ import org.bukkit.entity.EntityType;
 
 public class LocaleManager extends AbstractLocaleManager {
 
+    private List<String> translationLocales;
+
     public LocaleManager(RosePlugin rosePlugin) {
         super(rosePlugin);
+
+        this.translationLocales = new ArrayList<>();
     }
 
     @Override
@@ -73,6 +79,50 @@ public class LocaleManager extends AbstractLocaleManager {
         return message;
     }
 
+    public void fetchMinecraftTranslationLocales() {
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            String version;
+            if (NMSUtil.getVersionNumber() >= 16) {
+                version = StackerUtils.MAX_SUPPORTED_VERSION;
+            } else {
+                version = "1.15.2";
+            }
+
+            DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
+
+            List<String> locales = dataManager.getTranslationLocales(version);
+            if (!locales.isEmpty()) {
+                this.translationLocales = locales;
+                return;
+            }
+
+            String queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
+
+            try {
+                URL url = new URL(queryLink);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
+
+                JsonParser parser = new JsonParser();
+                try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
+                    JsonArray json = parser.parse(reader).getAsJsonArray();
+                    for (JsonElement element : json) {
+                        String name = element.getAsJsonObject().get("name").getAsString().replaceAll(Pattern.quote(".json"), "");
+                        locales.add(name);
+                    }
+                }
+            } catch (Exception ignored) { }
+
+            locales.sort(String::compareTo);
+
+            this.translationLocales = locales;
+
+            dataManager.saveTranslationLocales(version, locales);
+
+            this.rosePlugin.getLogger().info("Fetched " + locales.size() + " translation locales.");
+        });
+    }
+
     public void getMinecraftTranslationValues(String locale, Consumer<TranslationResponse> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
             Map<Material, String> materialValues = new EnumMap<>(Material.class);
@@ -85,11 +135,11 @@ public class LocaleManager extends AbstractLocaleManager {
                 version = "1.15.2";
             }
 
-            String link = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
+            String fileLink = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
 
             Result result;
             try {
-                URL url = new URL(link);
+                URL url = new URL(fileLink);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 if (connection.getResponseCode() == 200) {
                     JsonParser parser = new JsonParser();
@@ -137,6 +187,10 @@ public class LocaleManager extends AbstractLocaleManager {
 
             callback.accept(new TranslationResponse(materialValues, entityValues, result));
         });
+    }
+
+    public List<String> getPossibleTranslationLocales() {
+        return this.translationLocales;
     }
 
     public static class TranslationResponse {
