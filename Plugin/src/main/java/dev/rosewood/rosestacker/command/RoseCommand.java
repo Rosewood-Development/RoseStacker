@@ -7,15 +7,18 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.DataManager.StackCounts;
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.Stack;
@@ -23,6 +26,8 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -63,6 +68,7 @@ public class RoseCommand extends BaseCommand {
         localeManager.sendSimpleMessage(sender, "command-querydata-description");
         localeManager.sendSimpleMessage(sender, "command-reload-description");
         localeManager.sendSimpleMessage(sender, "command-stats-description");
+        localeManager.sendSimpleMessage(sender, "command-translate-description");
     }
 
     @Subcommand("reload")
@@ -264,6 +270,76 @@ public class RoseCommand extends BaseCommand {
             localeManager.sendSimpleMessage(sender, "command-querydata-block", StringPlaceholders.single("amount", block));
             localeManager.sendSimpleMessage(sender, "command-querydata-spawner", StringPlaceholders.single("amount", spawner));
         }
+    }
+
+    @Subcommand("translate")
+    @CommandPermission("rosestacker.translate")
+    public void onTranslate(CommandSender sender, String locale, @Optional String spawnerFormat) {
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
+        StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
+
+        if (spawnerFormat == null) {
+            spawnerFormat = "{}";
+            localeManager.sendMessage(sender, "command-translate-spawner-format");
+        }
+
+        if (!spawnerFormat.contains("{}")) {
+            localeManager.sendMessage(sender, "command-translate-spawner-format-invalid");
+            return;
+        }
+
+        localeManager.sendMessage(sender, "command-translate-loading");
+
+        String finalSpawnerFormat = spawnerFormat;
+        localeManager.getMinecraftTranslationValues(locale, response -> {
+            if (response.getResult() == Result.FAILURE) {
+                localeManager.sendMessage(sender, "command-translate-failure");
+                return;
+            }
+
+            if (response.getResult() == Result.INVALID_LOCALE) {
+                localeManager.sendMessage(sender, "command-translate-invalid-locale");
+                return;
+            }
+
+            CommentedFileConfiguration blockStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getBlockSettingsFile());
+            CommentedFileConfiguration entityStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getEntitySettingsFile());
+            CommentedFileConfiguration itemStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getItemSettingsFile());
+            CommentedFileConfiguration spawnerStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getSpawnerSettingsFile());
+
+            Map<Material, String> materialValues = response.getMaterialValues();
+            Map<EntityType, String> entityValues = response.getEntityValues();
+
+            for (Material material : materialValues.keySet()) {
+                String value = materialValues.get(material);
+
+                if (blockStackConfig.isConfigurationSection(material.name()))
+                    blockStackConfig.set(material.name() + ".display-name", value);
+
+                if (itemStackConfig.isConfigurationSection(material.name()))
+                    itemStackConfig.set(material.name() + ".display-name", value);
+            }
+
+            for (EntityType entityType : entityValues.keySet()) {
+                String value = entityValues.get(entityType);
+
+                if (entityStackConfig.isConfigurationSection(entityType.name()))
+                    entityStackConfig.set(entityType.name() + ".display-name", value);
+
+                if (spawnerStackConfig.isConfigurationSection(entityType.name())) {
+                    String name = finalSpawnerFormat.replaceAll(Pattern.quote("{}"), value);
+                    spawnerStackConfig.set(entityType.name() + ".display-name", name);
+                }
+            }
+
+            blockStackConfig.save();
+            entityStackConfig.save();
+            itemStackConfig.save();
+            spawnerStackConfig.save();
+
+            this.rosePlugin.reload();
+            localeManager.sendMessage(sender, "command-translate-success");
+        });
     }
 
     public enum ClearallType {

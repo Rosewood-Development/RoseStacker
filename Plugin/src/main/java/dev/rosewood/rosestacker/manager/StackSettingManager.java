@@ -49,10 +49,10 @@ public class StackSettingManager extends Manager {
     @Override
     public void reload() {
         // Settings files
-        File blockSettingsFile = new File(this.rosePlugin.getDataFolder(), "block_settings.yml");
-        File entitySettingsFile = new File(this.rosePlugin.getDataFolder(), "entity_settings.yml");
-        File itemSettingsFile = new File(this.rosePlugin.getDataFolder(), "item_settings.yml");
-        File spawnerSettingsFile = new File(this.rosePlugin.getDataFolder(), "spawner_settings.yml");
+        File blockSettingsFile = this.getBlockSettingsFile();
+        File entitySettingsFile = this.getEntitySettingsFile();
+        File itemSettingsFile = this.getItemSettingsFile();
+        File spawnerSettingsFile = this.getSpawnerSettingsFile();
 
         // Flags for if we should save the files
         AtomicBoolean saveBlockSettingsFile = new AtomicBoolean(false);
@@ -147,6 +147,22 @@ public class StackSettingManager extends Manager {
         this.entitySettings.clear();
         this.itemSettings.clear();
         this.spawnerSettings.clear();
+    }
+
+    public File getBlockSettingsFile() {
+        return new File(this.rosePlugin.getDataFolder(), "block_settings.yml");
+    }
+
+    public File getEntitySettingsFile() {
+        return new File(this.rosePlugin.getDataFolder(), "entity_settings.yml");
+    }
+
+    public File getItemSettingsFile() {
+        return new File(this.rosePlugin.getDataFolder(), "item_settings.yml");
+    }
+
+    public File getSpawnerSettingsFile() {
+        return new File(this.rosePlugin.getDataFolder(), "spawner_settings.yml");
     }
 
     public BlockStackSettings getBlockStackSettings(Material material) {
