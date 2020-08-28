@@ -10,7 +10,6 @@ import dev.rosewood.rosestacker.hook.CitizensHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -34,14 +33,17 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.spigotmc.SpigotWorldConfig;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
@@ -49,7 +51,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
-    private final HologramManager hologramManager;
     private final ConversionManager conversionManager;
     private final World targetWorld;
 
@@ -63,12 +64,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final Map<Block, StackedBlock> stackedBlocks;
     private final Map<Block, StackedSpawner> stackedSpawners;
 
+    private final SpigotWorldConfig worldConfig;
+
     private int cleanupTimer;
 
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
-        this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
 
@@ -81,6 +83,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.stackedItems = new ConcurrentHashMap<>();
         this.stackedBlocks = new ConcurrentHashMap<>();
         this.stackedSpawners = new ConcurrentHashMap<>();
+
+        this.worldConfig = new SpigotWorldConfig(this.targetWorld.getName());
 
         this.cleanupTimer = 0;
 
@@ -163,7 +167,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         boolean itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         boolean blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
-        double maxEntityRenderDistanceSqrd = 75 * 75;
+        int animalRangeSqrd = this.worldConfig.animalTrackingRange * this.worldConfig.animalTrackingRange - 1;
+        int monsterRangeSqrd = this.worldConfig.monsterTrackingRange * this.worldConfig.monsterTrackingRange - 1;
+        int miscRangeSqrd = this.worldConfig.miscTrackingRange * this.worldConfig.miscTrackingRange - 1;
+        int otherRangeSqrd = this.worldConfig.otherTrackingRange * this.worldConfig.otherTrackingRange - 1;
+
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
         for (Player player : this.targetWorld.getPlayers()) {
             if (player.getWorld() != this.targetWorld)
@@ -180,8 +188,19 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     continue;
                 }
 
-                if (distanceSqrd > maxEntityRenderDistanceSqrd)
-                    continue;
+                if (entity instanceof Animals) {
+                    if (distanceSqrd > animalRangeSqrd)
+                        continue;
+                } else if (entity instanceof Monster) {
+                    if (distanceSqrd > monsterRangeSqrd)
+                        continue;
+                } else if (entity.getType() == EntityType.ARMOR_STAND) {
+                    if (distanceSqrd > otherRangeSqrd)
+                        continue;
+                } else {
+                    if (distanceSqrd > miscRangeSqrd)
+                        continue;
+                }
 
                 boolean visible;
                 if (dynamicEntityTags && (validEntities.contains(entity.getType())) && entity.isCustomNameVisible()) {
@@ -192,7 +211,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     visible = distanceSqrd < itemDynamicViewRangeSqrd;
                     if (itemDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND && this.hologramManager.isHologram(entity)) {
+                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND && entity.isCustomNameVisible()) {
                     visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
                     if (blockDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
