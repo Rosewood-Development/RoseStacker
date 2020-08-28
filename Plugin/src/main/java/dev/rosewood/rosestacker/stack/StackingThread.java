@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import dev.rosewood.rosestacker.event.ItemStackClearEvent;
 import dev.rosewood.rosestacker.event.ItemStackEvent;
+import dev.rosewood.rosestacker.hook.CitizensHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -444,7 +445,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.stackManager.isEntityStackingEnabled())
             return null;
 
-        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
+        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand || CitizensHook.isCitizen(livingEntity))
             return null;
 
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
@@ -496,7 +497,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
-        if (!this.stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled() || CitizensHook.isCitizen(stackedEntity.getEntity()))
             return;
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
