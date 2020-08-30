@@ -6,7 +6,7 @@ import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import dev.rosewood.rosestacker.event.ItemStackClearEvent;
 import dev.rosewood.rosestacker.event.ItemStackEvent;
-import dev.rosewood.rosestacker.hook.CitizensHook;
+import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -202,16 +202,19 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                         continue;
                 }
 
+                if (entity.getCustomName() == null || !entity.isCustomNameVisible())
+                    continue;
+
                 boolean visible;
-                if (dynamicEntityTags && (validEntities.contains(entity.getType())) && entity.isCustomNameVisible()) {
+                if (dynamicEntityTags && (validEntities.contains(entity.getType()))) {
                     visible = distanceSqrd < entityDynamicViewRangeSqrd;
                     if (entityDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM && entity.isCustomNameVisible()) {
+                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
                     visible = distanceSqrd < itemDynamicViewRangeSqrd;
                     if (itemDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND && entity.isCustomNameVisible()) {
+                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND) {
                     visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
                     if (blockDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
@@ -464,7 +467,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.stackManager.isEntityStackingEnabled())
             return null;
 
-        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand || CitizensHook.isCitizen(livingEntity))
+        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand || NPCsHook.isNPC(livingEntity))
             return null;
 
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
@@ -516,7 +519,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
-        if (!this.stackManager.isEntityStackingEnabled() || CitizensHook.isCitizen(stackedEntity.getEntity()))
+        if (!this.stackManager.isEntityStackingEnabled() || NPCsHook.isNPC(stackedEntity.getEntity()))
             return;
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
