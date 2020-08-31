@@ -4,7 +4,7 @@ authors: [Esophose]
 website: https://www.spigotmc.org/resources/rosestacker.82729/
 main: dev.rosewood.rosestacker.RoseStacker
 api-version: '1.13'
-softdepend: [HolographicDisplays, Holograms, UltimateStacker, EpicSpawners, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag, mcMMO, Citizens, Shopkeepers]
+softdepend: [HolographicDisplays, Holograms, UltimateStacker, EpicSpawners, WildStacker, StackMob, PlaceholderAPI, ShopGUIPlus, CoreProtect, ClearLag, mcMMO, Citizens, Shopkeepers, ViaVersion]
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions

@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'net.coreprotect:coreprotect:2.15.0'
     compileOnly 'me.clip:placeholderapi:2.10.4'
     compileOnly 'org.jetbrains:annotations:16.0.2'
+    compileOnly 'us.myles:viaversion:3.1.0'
 
     // From our repo
     compileOnly 'com.bgsoftware:wildstacker:3.1.1'

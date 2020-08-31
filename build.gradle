@@ -18,6 +18,7 @@ allprojects {
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'http://maven.playpro.com' }
+        maven { url = 'https://repo.viaversion.com/' }
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
         maven {

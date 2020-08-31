@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
+import dev.rosewood.rosestacker.hook.ViaVersionHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
 import dev.rosewood.rosestacker.listener.BlockShearListener;
@@ -88,6 +89,10 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with Clearlag
         if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
             pluginManager.registerEvents(new ClearlagListener(this), this);
+
+        // Try to hook with ViaVersion
+        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion"))
+            ViaVersionHook.suppressMetadataErrors();
     }
 
     @Override
