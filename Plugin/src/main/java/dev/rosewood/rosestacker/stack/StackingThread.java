@@ -33,8 +33,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -178,7 +178,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 continue;
 
             for (Entity entity : this.targetWorld.getEntities()) {
-                if (entity.getType() == EntityType.PLAYER)
+                if (entity.getType() == EntityType.PLAYER || entity.getCustomName() == null || !entity.isCustomNameVisible())
                     continue;
 
                 double distanceSqrd;
@@ -188,11 +188,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     continue;
                 }
 
-                if (entity instanceof Animals) {
-                    if (distanceSqrd > animalRangeSqrd)
-                        continue;
-                } else if (entity instanceof Monster) {
+                if (entity instanceof Monster) {
                     if (distanceSqrd > monsterRangeSqrd)
+                        continue;
+                } if (entity instanceof Creature) {
+                    if (distanceSqrd > animalRangeSqrd)
                         continue;
                 } else if (entity.getType() == EntityType.ARMOR_STAND) {
                     if (distanceSqrd > otherRangeSqrd)
@@ -201,9 +201,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     if (distanceSqrd > miscRangeSqrd)
                         continue;
                 }
-
-                if (entity.getCustomName() == null || !entity.isCustomNameVisible())
-                    continue;
 
                 boolean visible;
                 if (dynamicEntityTags && (validEntities.contains(entity.getType()))) {
