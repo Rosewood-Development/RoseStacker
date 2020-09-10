@@ -44,30 +44,29 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (!stackManager.isSpawnerStackingEnabled())
-            return;
+        if (stackManager.isSpawnerStackingEnabled()) {
+            // Handle spawner conversion before we try to spawn entities
+            if (clickedBlock.getType() == Material.SPAWNER
+                    && StackerUtils.isSpawnEgg(item.getType())
+                    && StackerUtils.getStackedItemStackAmount(item) == 1) {
 
-        // Handle spawner conversion before we try to spawn entities
-        if (clickedBlock.getType() == Material.SPAWNER
-                && StackerUtils.isSpawnEgg(item.getType())
-                && StackerUtils.getStackedItemStackAmount(item) == 1) {
+                if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+                    event.setCancelled(true);
+                    return;
+                }
 
-            if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
-                event.setCancelled(true);
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    if (!stackManager.isSpawnerStacked(clickedBlock))
+                        return;
+
+                    // Make sure spawners convert and update their display properly
+                    StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                    stackedSpawner.updateSpawnerProperties();
+                    stackedSpawner.updateDisplay();
+                });
+
                 return;
             }
-
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                if (!stackManager.isSpawnerStacked(clickedBlock))
-                    return;
-
-                // Make sure spawners convert and update their display properly
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-                stackedSpawner.updateSpawnerProperties();
-                stackedSpawner.updateDisplay();
-            });
-
-            return;
         }
 
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();

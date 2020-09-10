@@ -56,13 +56,6 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void reload() {
-        // Close and clear StackingThreads
-        this.stackingThreads.values().forEach(StackingThread::close);
-        this.stackingThreads.clear();
-
-        // Delete pending stacks
-        this.deleteStacks();
-
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 

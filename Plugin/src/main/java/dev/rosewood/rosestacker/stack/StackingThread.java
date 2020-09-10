@@ -6,10 +6,10 @@ import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import dev.rosewood.rosestacker.event.ItemStackClearEvent;
 import dev.rosewood.rosestacker.event.ItemStackEvent;
+import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -41,6 +41,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.spigotmc.SpigotWorldConfig;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
@@ -48,7 +49,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
-    private final HologramManager hologramManager;
     private final ConversionManager conversionManager;
     private final World targetWorld;
 
@@ -67,7 +67,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
-        this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
 
@@ -162,14 +161,15 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         boolean itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         boolean blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
-        double maxEntityRenderDistanceSqrd = 75 * 75;
+        int maxRangeSqrd = 75 * 75;
+
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
         for (Player player : this.targetWorld.getPlayers()) {
             if (player.getWorld() != this.targetWorld)
                 continue;
 
             for (Entity entity : this.targetWorld.getEntities()) {
-                if (entity.getType() == EntityType.PLAYER)
+                if (entity.getType() == EntityType.PLAYER || entity.getCustomName() == null || !entity.isCustomNameVisible())
                     continue;
 
                 double distanceSqrd;
@@ -179,19 +179,19 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     continue;
                 }
 
-                if (distanceSqrd > maxEntityRenderDistanceSqrd)
+                if (distanceSqrd > maxRangeSqrd)
                     continue;
 
                 boolean visible;
-                if (dynamicEntityTags && (validEntities.contains(entity.getType())) && entity.isCustomNameVisible()) {
+                if (dynamicEntityTags && (validEntities.contains(entity.getType()))) {
                     visible = distanceSqrd < entityDynamicViewRangeSqrd;
                     if (entityDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM && entity.isCustomNameVisible()) {
+                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
                     visible = distanceSqrd < itemDynamicViewRangeSqrd;
                     if (itemDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND && this.hologramManager.isHologram(entity)) {
+                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND) {
                     visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
                     if (blockDynamicWallDetection)
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
@@ -444,7 +444,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (!this.stackManager.isEntityStackingEnabled())
             return null;
 
-        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
+        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand || NPCsHook.isNPC(livingEntity))
             return null;
 
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
@@ -496,7 +496,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
-        if (!this.stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled() || NPCsHook.isNPC(stackedEntity.getEntity()))
             return;
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
@@ -600,6 +600,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null)
             return null;
+
+        if (stackedEntity.checkNPC()) {
+            this.removeEntityStack(stackedEntity);
+            return null;
+        }
 
         double maxEntityMergeDistanceSqrd = stackSettings.getMergeRadius() * stackSettings.getMergeRadius();
 

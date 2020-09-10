@@ -19,9 +19,6 @@ public class HologramManager extends Manager {
 
     @Override
     public void reload() {
-        if (this.hologramHandler != null)
-            this.hologramHandler.deleteAllHolograms();
-
         if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
             this.rosePlugin.getLogger().info("HolographicDisplays is being used as the Hologram Handler.");
             this.hologramHandler = new HolographicDisplaysHologramHandler();

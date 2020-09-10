@@ -144,8 +144,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         int delay = this.spawner.getDelay();
         this.spawner.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
-        this.spawner.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
         this.spawner.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
+        this.spawner.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
         this.spawner.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
         this.spawner.setSpawnRange(this.stackSettings.getSpawnRange());
         this.spawner.setDelay(delay);
