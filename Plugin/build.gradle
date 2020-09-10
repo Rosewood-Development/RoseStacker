@@ -28,12 +28,14 @@ dependencies {
     compileOnly 'com.sainttx:holograms:2.13'
     compileOnly 'com.songoda:epicspawners:6.4'
     compileOnly 'com.songoda:ultimatestacker:2.0.2'
+    compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'me.minebuilders:clearlag:3.1.6'
     compileOnly 'net.brcdev:shopgui:1.36.0'
     compileOnly 'uk.antiperson:stackmob:5.2.2'
     compileOnly 'com.gmail.nossr50:mcmmo:2.1.132'
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
+    compileOnly 'io.lumine.xikage:mythicmobs:4.10.0'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:rosegarden:1.0.2'

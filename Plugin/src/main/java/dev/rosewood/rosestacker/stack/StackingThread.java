@@ -601,6 +601,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (stackSettings == null)
             return null;
 
+        if (stackedEntity.checkNPC()) {
+            this.removeEntityStack(stackedEntity);
+            return null;
+        }
+
         double maxEntityMergeDistanceSqrd = stackSettings.getMergeRadius() * stackSettings.getMergeRadius();
 
         for (StackedEntity other : this.stackedEntities.values()) {

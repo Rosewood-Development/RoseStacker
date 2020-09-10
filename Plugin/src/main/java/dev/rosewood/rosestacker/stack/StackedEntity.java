@@ -4,6 +4,7 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.hook.McMMOHook;
+import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -32,6 +33,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     private LivingEntity entity;
     private String originalCustomName;
     private List<byte[]> serializedStackedEntities;
+    private int npcCheckCounter;
 
     private EntityStackSettings stackSettings;
 
@@ -40,6 +42,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
+        this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
 
         if (this.entity != null) {
             this.originalCustomName = originalCustomName;
@@ -56,6 +59,18 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public StackedEntity(LivingEntity entity) {
         this(entity, Collections.synchronizedList(new LinkedList<>()));
+    }
+
+    // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
+    // actually register it as an NPC until a few ticks after it spawns
+    public boolean checkNPC() {
+        boolean npc = false;
+        if (this.npcCheckCounter > 0) {
+            if (NPCsHook.isNPC(this.entity))
+                npc = true;
+            this.npcCheckCounter--;
+        }
+        return npc;
     }
 
     public LivingEntity getEntity() {
