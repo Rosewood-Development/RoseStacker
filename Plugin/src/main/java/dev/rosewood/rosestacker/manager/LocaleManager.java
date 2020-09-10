@@ -83,7 +83,7 @@ public class LocaleManager extends AbstractLocaleManager {
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
             String version;
             if (NMSUtil.getVersionNumber() >= 16) {
-                version = StackerUtils.MAX_SUPPORTED_VERSION;
+                version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
             } else {
                 version = "1.15.2";
             }
@@ -130,7 +130,7 @@ public class LocaleManager extends AbstractLocaleManager {
 
             String version;
             if (NMSUtil.getVersionNumber() >= 16) {
-                version = StackerUtils.MAX_SUPPORTED_VERSION;
+                version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
             } else {
                 version = "1.15.2";
             }

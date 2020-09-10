@@ -95,10 +95,8 @@ public class EnglishLocale implements Locale {
             this.put("command-translate-loading", "&eDownloading and applying translation data, this may take a moment.");
             this.put("command-translate-failure", "&cUnable to translate the stack names. There was a problem fetching the locale data. Please try again later.");
             this.put("command-translate-invalid-locale", "&cUnable to translate the stack names. The locale that you specified is invalid.");
-            this.put("command-translate-spawner-format", "&eA spawner name format was not provided, so only the mob name will be used for spawner names. " +
-                    "Spawner names cannot be translated accurately, so to fix this you can provide a spawner name format. " +
-                    "For example, you can use &b/rs translate en_us &3{} Spawner &eto make a spawner appear as \"Cow Spawner\". Use &b{} &eas the placeholder for the mob name. " +
-                    "If the spawner name format will not work for your language, you will unfortunately have to modify the spawner names manually.");
+            this.put("command-translate-spawner-format", "&eSpawner names cannot be translated accurately. To fix this, you can use &b/rs translate en_us &3{} " +
+                    "Spawner &eto make a spawner appear as \"Cow Spawner\". Use &b{} &eas the placeholder for the mob name.");
             this.put("command-translate-spawner-format-invalid", "&cThe spawner format you provided is invalid. It must contain &b{} &cfor the mob name placement.");
             this.put("command-translate-success", "&aSuccessfully translated the stack names.");
 
