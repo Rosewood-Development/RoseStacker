@@ -118,6 +118,12 @@ public class NMSHandlerImpl implements NMSHandler {
             // Read NBT
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
+            NBTTagList nbtTagList = nbt.getList("Pos", 6);
+            nbtTagList.set(0, NBTTagDouble.a(location.getX()));
+            nbtTagList.set(1, NBTTagDouble.a(location.getY()));
+            nbtTagList.set(2, NBTTagDouble.a(location.getZ()));
+            nbt.set("Pos", nbtTagList);
+
             Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
             if (optionalEntity.isPresent()) {
                 WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
@@ -136,14 +142,14 @@ public class NMSHandlerImpl implements NMSHandler {
                 if (entity == null)
                     throw new NullPointerException("Unable to create entity from NBT");
 
-                this.setNBT(entity, nbt, location);
-
                 IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, entity.attachedToPlayer);
                 if (!(ichunkaccess instanceof Chunk))
                     throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
 
                 ichunkaccess.a(entity);
                 method_WorldServer_registerEntity.invoke(world, entity);
+
+                entity.load(nbt);
 
                 return (LivingEntity) entity.getBukkitEntity();
             }
@@ -172,7 +178,7 @@ public class NMSHandlerImpl implements NMSHandler {
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
             // Set NBT
-            this.setNBT(entity, nbt, location);
+            entity.load(nbt);
 
             // Update loot table
             method_EntityLiving_a.invoke(entity, DamageSource.GENERIC, false);
@@ -218,22 +224,6 @@ public class NMSHandlerImpl implements NMSHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Sets the NBT data for an entity
-     *
-     * @param entity The entity to apply NBT data to
-     * @param nbt The NBT data
-     * @param desiredLocation The location of the entity
-     */
-    private void setNBT(Entity entity, NBTTagCompound nbt, Location desiredLocation) {
-        NBTTagList nbtTagList = nbt.getList("Pos", 6);
-        nbtTagList.set(0, NBTTagDouble.a(desiredLocation.getX()));
-        nbtTagList.set(1, NBTTagDouble.a(desiredLocation.getY()));
-        nbtTagList.set(2, NBTTagDouble.a(desiredLocation.getZ()));
-        nbt.set("Pos", nbtTagList);
-        entity.load(nbt);
     }
 
 }
