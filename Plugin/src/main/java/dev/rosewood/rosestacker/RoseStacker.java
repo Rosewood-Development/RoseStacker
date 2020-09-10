@@ -7,6 +7,7 @@ import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
+import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;
@@ -28,6 +29,7 @@ import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -57,7 +59,7 @@ public class RoseStacker extends RosePlugin {
     public void enable() {
         this.getLogger().info("Detected server API version as " + NMSUtil.getVersion());
         if (!NMSAdapter.isValidVersion()) {
-            this.getLogger().severe("RoseStacker currently only supports 1.13.2 through 1.16.3. The plugin has been disabled.");
+            this.getLogger().severe("RoseStacker only supports 1.13.2 through " + StackerUtils.MAX_SUPPORTED_VERSION + ". The plugin has been disabled.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -93,6 +95,9 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with ViaVersion
         if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion"))
             ViaVersionHook.suppressMetadataErrors();
+
+        // Try fetching the translation locales
+        this.getManager(LocaleManager.class).fetchMinecraftTranslationLocales();
     }
 
     @Override
@@ -117,7 +122,8 @@ public class RoseStacker extends RosePlugin {
     public List<DataMigration> getDataMigrations() {
         return Arrays.asList(
                 new _1_Create_Tables_Stacks(),
-                new _2_Create_Tables_Convert_Stacks()
+                new _2_Create_Tables_Convert_Stacks(),
+                new _3_Create_Tables_Translation_Locales()
         );
     }
 
