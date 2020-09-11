@@ -42,7 +42,6 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
-import org.jetbrains.annotations.NotNull;
 
 public class DataManager extends AbstractDataManager {
 
@@ -715,7 +714,7 @@ public class DataManager extends AbstractDataManager {
         List<String> locales = new ArrayList<>();
 
         this.databaseConnector.connect(connection -> {
-            String delete = "DELETE FROM " + this.getTablePrefix() + "translation_locale WHERE version IS NOT ?";
+            String delete = "DELETE FROM " + this.getTablePrefix() + "translation_locale WHERE version != ?";
             try (PreparedStatement statement = connection.prepareStatement(delete)) {
                 statement.setString(1, requiredVersion);
                 statement.executeUpdate();
