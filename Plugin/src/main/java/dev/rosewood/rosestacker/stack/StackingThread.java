@@ -41,7 +41,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
-import org.spigotmc.SpigotWorldConfig;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
@@ -127,6 +126,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             this.cleanupTimer++;
             if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
                 for (Entity entity : this.targetWorld.getEntities()) {
+                    // Don't create stacks from chunks we are about to load
+                    if (this.pendingLoadChunks.contains(entity.getLocation().getChunk()))
+                        continue;
+
                     if (entityStackingEnabled && entity instanceof LivingEntity) {
                         LivingEntity livingEntity = (LivingEntity) entity;
                         if (!this.isEntityStacked(livingEntity))

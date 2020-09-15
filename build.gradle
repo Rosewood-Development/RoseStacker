@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.0.4'
+    version = '1.0.5'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
