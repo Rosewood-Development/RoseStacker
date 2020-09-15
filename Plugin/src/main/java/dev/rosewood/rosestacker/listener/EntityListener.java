@@ -61,6 +61,9 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntitySpawn(EntitySpawnEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isItemStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
@@ -71,6 +74,9 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
@@ -83,6 +89,9 @@ public class EntityListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity) {
             if (!stackManager.isEntityStackingEnabled())
@@ -134,6 +143,9 @@ public class EntityListener implements Listener {
 
     private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(entity.getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -193,6 +205,9 @@ public class EntityListener implements Listener {
 
     private void handleEntityTransformation(EntityTransformEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -257,6 +272,9 @@ public class EntityListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -291,6 +309,12 @@ public class EntityListener implements Listener {
             return false;
 
         StackManager stackManager = rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(entity.getWorld()))
+            return false;
+
+        if (stackManager.isWorldDisabled(entity.getWorld()))
+            return false;
+
         if (!stackManager.isEntityStackingEnabled())
             return false;
 
@@ -336,6 +360,9 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSheepRegrowWool(SheepRegrowWoolEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 

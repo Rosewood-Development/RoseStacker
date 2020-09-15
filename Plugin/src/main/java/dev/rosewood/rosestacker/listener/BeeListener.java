@@ -25,6 +25,9 @@ public class BeeListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 

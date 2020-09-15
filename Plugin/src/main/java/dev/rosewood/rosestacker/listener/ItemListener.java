@@ -30,6 +30,9 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isItemStackingEnabled())
             return;
 
@@ -40,7 +43,11 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemMerge(ItemMergeEvent event) {
-        if (!this.rosePlugin.getManager(StackManager.class).isItemStackingEnabled())
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
+        if (!stackManager.isItemStackingEnabled())
             return;
 
         // We will handle all item merging ourselves, thank you very much
@@ -50,6 +57,9 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         if (!stackManager.isItemStackingEnabled())
             return;
 
@@ -80,6 +90,9 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryPickup(InventoryPickupItemEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getItem().getWorld()))
+            return;
+
         if (!stackManager.isItemStackingEnabled())
             return;
 

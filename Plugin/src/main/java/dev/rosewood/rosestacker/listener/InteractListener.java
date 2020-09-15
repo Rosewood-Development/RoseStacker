@@ -44,6 +44,9 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+            return;
+
         if (stackManager.isSpawnerStackingEnabled()) {
             // Handle spawner conversion before we try to spawn entities
             if (clickedBlock.getType() == Material.SPAWNER
@@ -84,6 +87,9 @@ public class InteractListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+            return;
+
         if (!stackManager.isEntityStackingEnabled())
             return;
 
@@ -167,7 +173,11 @@ public class InteractListener implements Listener {
         if (spawnLocation.getWorld() == null)
             return false;
 
-        this.rosePlugin.getManager(StackManager.class).preStackEntities(entityType, spawnAmount, spawnLocation);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(spawnLocation.getWorld()))
+            return false;
+
+        stackManager.preStackEntities(entityType, spawnAmount, spawnLocation);
 
         return true;
     }
