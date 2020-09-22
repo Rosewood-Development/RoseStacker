@@ -91,8 +91,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public void restoreOriginalCustomName() {
-        this.entity.setCustomName(this.originalCustomName);
         this.entity.setCustomNameVisible(this.originalCustomName != null);
+        this.entity.setCustomName(this.originalCustomName);
         McMMOHook.updateCustomName(this.entity);
     }
 
@@ -269,7 +269,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
 
         if (this.getStackSize() == 1 && this.originalCustomName != null) {
-            this.entity.setCustomNameVisible(true);
+            this.entity.setCustomNameVisible(false);
             this.entity.setCustomName(this.originalCustomName);
         } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
