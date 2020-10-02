@@ -47,6 +47,8 @@ public final class StackerUtils {
     public static final String MAX_SUPPORTED_VERSION = "1.16.3";
     public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.16.2";
 
+    public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
+
     private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
     private static Set<EntityType> cachedStackableEntityTypes;

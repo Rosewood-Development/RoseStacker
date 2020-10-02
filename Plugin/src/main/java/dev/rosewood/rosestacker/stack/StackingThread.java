@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -44,7 +45,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
-    private final static int CLEANUP_TIMER_TARGET = 30;
+    private final static int CLEANUP_TIMER_TARGET = 10;
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
@@ -52,6 +53,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final World targetWorld;
 
     private final BukkitTask stackTask;
+    private final BukkitTask nametagTask;
     private final BukkitTask pendingChunkTask;
     private final Set<Chunk> pendingLoadChunks;
     private final Set<Chunk> pendingUnloadChunks;
@@ -70,6 +72,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.targetWorld = targetWorld;
 
         this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this, 5L, Setting.STACK_FREQUENCY.getLong());
+        this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
         this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
         this.pendingLoadChunks = new HashSet<>();
         this.pendingUnloadChunks = new HashSet<>();
@@ -89,6 +92,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     public void run() {
         boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
         boolean itemStackingEnabled = this.stackManager.isItemStackingEnabled();
+
+        if (!entityStackingEnabled && !itemStackingEnabled)
+            return;
 
         // Auto stack items
         if (itemStackingEnabled) {
@@ -122,28 +128,28 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         }
 
         // Cleans up entities/items that aren't stacked
-        if (entityStackingEnabled || itemStackingEnabled) {
-            this.cleanupTimer++;
-            if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
-                for (Entity entity : this.targetWorld.getEntities()) {
-                    // Don't create stacks from chunks we are about to load
-                    if (this.pendingLoadChunks.contains(entity.getLocation().getChunk()))
-                        continue;
+        this.cleanupTimer++;
+        if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
+            for (Entity entity : this.targetWorld.getEntities()) {
+                // Don't create stacks from chunks we are about to load
+                if (this.pendingLoadChunks.contains(entity.getLocation().getChunk()))
+                    continue;
 
-                    if (entityStackingEnabled && entity instanceof LivingEntity) {
-                        LivingEntity livingEntity = (LivingEntity) entity;
-                        if (!this.isEntityStacked(livingEntity))
-                            this.createEntityStack(livingEntity, true);
-                    } else if (itemStackingEnabled && entity instanceof Item) {
-                        Item item = (Item) entity;
-                        if (!this.isItemStacked(item))
-                            this.createItemStack(item, true);
-                    }
+                if (entityStackingEnabled && entity instanceof LivingEntity) {
+                    LivingEntity livingEntity = (LivingEntity) entity;
+                    if (!this.isEntityStacked(livingEntity))
+                        this.createEntityStack(livingEntity, true);
+                } else if (itemStackingEnabled && entity instanceof Item) {
+                    Item item = (Item) entity;
+                    if (!this.isItemStacked(item))
+                        this.createItemStack(item, true);
                 }
-                this.cleanupTimer = 0;
             }
+            this.cleanupTimer = 0;
         }
+    }
 
+    private void processNametags() {
         // Handle dynamic stack tags
         boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
         boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
@@ -164,15 +170,18 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         boolean itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         boolean blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
-        int maxRangeSqrd = 75 * 75;
-
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
         for (Player player : this.targetWorld.getPlayers()) {
             if (player.getWorld() != this.targetWorld)
                 continue;
 
             for (Entity entity : this.targetWorld.getEntities()) {
-                if (entity.getType() == EntityType.PLAYER || entity.getCustomName() == null || !entity.isCustomNameVisible())
+                if (entity.getType() == EntityType.PLAYER)
+                    continue;
+
+                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.ARMOR_STAND)
+                        && (entity.getCustomName() == null || !entity.isCustomNameVisible()))
                     continue;
 
                 double distanceSqrd;
@@ -182,7 +191,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     continue;
                 }
 
-                if (distanceSqrd > maxRangeSqrd)
+                if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
                     continue;
 
                 boolean visible;
@@ -200,7 +209,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                         visible &= StackerUtils.hasLineOfSight(player, entity, 0.75, true);
                 } else continue;
 
-                NMSAdapter.getHandler().toggleEntityNameTagForPlayer(player, entity, visible);
+                if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity) {
+                    StackedEntity stackedEntity = this.getStackedEntity((LivingEntity) entity);
+                    if (stackedEntity != null)
+                        nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
+                } else {
+                    nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
+                }
             }
         }
     }
@@ -213,14 +228,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (this.stackTask != null)
             this.stackTask.cancel();
 
+        if (this.nametagTask != null)
+            this.nametagTask.cancel();
+
         if (this.pendingChunkTask != null)
             this.pendingChunkTask.cancel();
 
         this.pendingLoadChunks.clear();
         this.pendingUnloadChunks.clear();
-
-        // Restore custom names
-        this.stackedEntities.values().forEach(StackedEntity::restoreOriginalCustomName);
 
         // Save anything that's loaded
         if (this.stackManager.isEntityStackingEnabled())
@@ -676,7 +691,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 continue;
 
             for (StackedEntity toStack : removed) {
-                toStack.restoreOriginalCustomName();
                 stackSettings.applyStackProperties(toStack.getEntity(), increased.getEntity());
 
                 increased.increaseStackSize(toStack.getEntity());
@@ -814,10 +828,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         if (this.stackManager.isEntityStackingEnabled()) {
             Map<UUID, StackedEntity> stackedEntities = this.stackedEntities.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-            // Restore custom names
-            stackedEntities.values().forEach(StackedEntity::restoreOriginalCustomName);
-
             dataManager.createOrUpdateStackedEntities(stackedEntities.values());
             stackedEntities.keySet().forEach(this.stackedEntities::remove);
         }

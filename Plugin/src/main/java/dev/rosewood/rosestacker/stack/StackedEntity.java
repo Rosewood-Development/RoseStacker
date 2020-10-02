@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.stack;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
-import dev.rosewood.rosestacker.hook.McMMOHook;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -24,6 +23,7 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
@@ -31,21 +31,25 @@ import org.bukkit.inventory.Merchant;
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
-    private String originalCustomName;
     private List<byte[]> serializedStackedEntities;
     private int npcCheckCounter;
 
+    private String displayName;
+    private boolean displayNameVisible;
+
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(int id, LivingEntity entity, List<byte[]> serializedStackedEntities, String originalCustomName) {
+    public StackedEntity(int id, LivingEntity entity, List<byte[]> serializedStackedEntities) {
         super(id);
 
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
 
+        this.displayName = null;
+        this.displayNameVisible = false;
+
         if (this.entity != null) {
-            this.originalCustomName = originalCustomName;
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
 
             if (Bukkit.isPrimaryThread())
@@ -54,7 +58,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public StackedEntity(LivingEntity entity, List<byte[]> serializedStackedEntities) {
-        this(-1, entity, serializedStackedEntities, null);
+        this(-1, entity, serializedStackedEntities);
     }
 
     public StackedEntity(LivingEntity entity) {
@@ -83,24 +87,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
 
         this.entity = entity;
-        this.updateDisplay();
-    }
-
-    public String getOriginalCustomName() {
-        return this.originalCustomName;
-    }
-
-    public void restoreOriginalCustomName() {
-        this.entity.setCustomNameVisible(this.originalCustomName != null);
-        this.entity.setCustomName(this.originalCustomName);
-        McMMOHook.updateCustomName(this.entity);
-    }
-
-    public void updateOriginalCustomName() {
-        if (this.entity == null)
-            return;
-
-        this.originalCustomName = this.entity.getCustomName();
         this.updateDisplay();
     }
 
@@ -147,8 +133,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
         stackManager.setEntityStackingTemporarilyDisabled(false);
-        this.updateOriginalCustomName();
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
+        this.updateDisplay();
     }
 
     public List<byte[]> getStackedEntityNBT() {
@@ -240,17 +226,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
         LivingEntity oldEntity = this.entity;
-        String oldCustomName = this.originalCustomName;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
-        this.originalCustomName = this.entity.getCustomName();
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
 
-        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()), oldCustomName);
+        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
 
     @Override
@@ -263,32 +247,53 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         return this.entity.getLocation();
     }
 
-    @Override
-    public void updateDisplay() {
-        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || this.entity == null)
-            return;
+    public String getDisplayName() {
+        if (this.displayName != null)
+            return this.displayName;
 
-        if (this.getStackSize() == 1 && this.originalCustomName != null) {
-            this.entity.setCustomNameVisible(false);
-            this.entity.setCustomName(this.originalCustomName);
-        } else if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
+        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || this.entity == null) {
+            this.displayNameVisible = false;
+            return this.displayName = this.entity == null ? null : this.entity.getCustomName();
+        }
+
+        if (this.entity.isDead()) {
+            this.displayNameVisible = false;
+            return null;
+        }
+
+        String customName = this.entity.getCustomName();
+        if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
-            if (this.originalCustomName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
+            if (customName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", this.getStackSize())
-                        .addPlaceholder("name", this.originalCustomName).build());
+                        .addPlaceholder("name", customName).build());
             } else {
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
                         .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
             }
 
-            this.entity.setCustomNameVisible(!Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean());
-            this.entity.setCustomName(displayString);
-        } else {
-            this.entity.setCustomNameVisible(false);
-            this.entity.setCustomName(null);
+            this.displayNameVisible = !Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean();
+            return this.displayName = displayString;
+        } else if (this.getStackSize() == 1 && customName != null) {
+            this.displayNameVisible = false;
+            return this.displayName = this.entity.getCustomName();
         }
 
-        McMMOHook.updateCustomName(this.entity);
+        this.displayNameVisible = false;
+        return null;
+    }
+
+    public boolean isDisplayNameVisible() {
+        return this.displayNameVisible;
+    }
+
+    @Override
+    public void updateDisplay() {
+        this.displayName = null;
+        String displayName = this.getDisplayName();
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (Player player : this.getPlayersInVisibleRange())
+            nmsHandler.updateEntityNameTagForPlayer(player, this.entity, displayName, this.displayNameVisible);
     }
 
     @Override

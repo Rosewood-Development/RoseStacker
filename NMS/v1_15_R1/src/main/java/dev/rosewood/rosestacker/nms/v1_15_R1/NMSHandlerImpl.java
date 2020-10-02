@@ -9,6 +9,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.server.v1_15_R1.BlockPosition;
@@ -16,14 +18,15 @@ import net.minecraft.server.v1_15_R1.Chunk;
 import net.minecraft.server.v1_15_R1.ChunkStatus;
 import net.minecraft.server.v1_15_R1.DamageSource;
 import net.minecraft.server.v1_15_R1.DataWatcher;
+import net.minecraft.server.v1_15_R1.DataWatcher.Item;
 import net.minecraft.server.v1_15_R1.DataWatcherObject;
 import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
-import net.minecraft.server.v1_15_R1.DataWatcherSerializer;
 import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityCreeper;
 import net.minecraft.server.v1_15_R1.EntityLiving;
 import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.EnumMobSpawn;
+import net.minecraft.server.v1_15_R1.IChatBaseComponent;
 import net.minecraft.server.v1_15_R1.IChunkAccess;
 import net.minecraft.server.v1_15_R1.IRegistry;
 import net.minecraft.server.v1_15_R1.MathHelper;
@@ -38,6 +41,7 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -201,14 +205,29 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public void toggleEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, boolean visible) {
+    public void updateEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, String customName, boolean customNameVisible) {
         try {
-            DataWatcherSerializer<Boolean> dataWatcherSerializer = DataWatcherRegistry.i;
-            DataWatcher.Item<Boolean> dataWatcherItem = new DataWatcher.Item<>(dataWatcherSerializer.a(3), visible);
+            List<Item<?>> dataWatchers = new ArrayList<>();
+            Optional<IChatBaseComponent> nameComponent = Optional.ofNullable(CraftChatMessage.fromStringOrNull(customName));
+            dataWatchers.add(new DataWatcher.Item<>(DataWatcherRegistry.f.a(2), nameComponent));
+            dataWatchers.add(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible));
 
             PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
             field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
-            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Lists.newArrayList(dataWatcherItem));
+            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, dataWatchers);
+
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateEntityNameTagVisibilityForPlayer(Player player, org.bukkit.entity.Entity entity, boolean customNameVisible) {
+        try {
+            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
+            field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
+            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Lists.newArrayList(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible)));
 
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {

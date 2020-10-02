@@ -93,7 +93,7 @@ public class DataManager extends AbstractDataManager {
                             if (entity.isPresent()) {
                                 stackedEntities.add(EntitySerializer.fromBlob(stackData.id, (LivingEntity) entity.get(), stackData.stackEntities));
                             } else {
-                                cleanup.add(new StackedEntity(stackData.id, null, null, null));
+                                cleanup.add(new StackedEntity(stackData.id, null, null));
                             }
                         }
 

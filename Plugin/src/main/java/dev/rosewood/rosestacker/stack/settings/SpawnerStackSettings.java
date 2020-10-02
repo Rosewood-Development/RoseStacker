@@ -14,17 +14,17 @@ import org.bukkit.entity.EntityType;
 
 public class SpawnerStackSettings extends StackSettings {
 
-    private EntityType entityType;
-    private boolean enabled;
-    private String displayName;
-    private int maxStackSize;
-    private Boolean disableMobAI;
-    private int spawnCountStackSizeMultiplier;
-    private int minSpawnDelay;
-    private int maxSpawnDelay;
-    private int playerActivationRange;
-    private int spawnRange;
-    private List<ConditionTag> spawnRequirements;
+    private final EntityType entityType;
+    private final boolean enabled;
+    private final String displayName;
+    private final int maxStackSize;
+    private final Boolean disableMobAI;
+    private final int spawnCountStackSizeMultiplier;
+    private final int minSpawnDelay;
+    private final int maxSpawnDelay;
+    private final int playerActivationRange;
+    private final int spawnRange;
+    private final List<ConditionTag> spawnRequirements;
 
     public SpawnerStackSettings(CommentedFileConfiguration settingsConfiguration, EntityType entityType) {
         super(settingsConfiguration);

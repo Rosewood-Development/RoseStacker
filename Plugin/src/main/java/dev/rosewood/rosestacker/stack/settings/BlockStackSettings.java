@@ -18,10 +18,10 @@ public class BlockStackSettings extends StackSettings {
             enabledByDefault.add(Material.NETHERITE_BLOCK);
     }
 
-    private Material material;
-    private boolean enabled;
-    private String displayName;
-    private int maxStackSize;
+    private final Material material;
+    private final boolean enabled;
+    private final String displayName;
+    private final int maxStackSize;
 
     public BlockStackSettings(CommentedFileConfiguration settingsConfiguration, Material material) {
         super(settingsConfiguration);
