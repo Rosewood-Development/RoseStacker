@@ -180,12 +180,9 @@ public class EntityListener implements Listener {
             return;
         }
 
-        // Decrease stack size by 1, hide the name so it doesn't display two stack tags at once
-        entity.setCustomName(null);
-        entity.setCustomNameVisible(false);
-        stackManager.setEntityStackingTemporarilyDisabled(true);
+        // Decrease stack size by 1
+        stackedEntity.updateDisplay();
         stackedEntity.decreaseStackSize();
-        stackManager.setEntityStackingTemporarilyDisabled(false);
 
         if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean()) {
             stackedEntity.getEntity().setVelocity(entity.getVelocity());

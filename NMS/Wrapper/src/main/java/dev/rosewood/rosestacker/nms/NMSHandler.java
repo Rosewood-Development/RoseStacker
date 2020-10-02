@@ -47,13 +47,23 @@ public interface NMSHandler {
     LivingEntity createEntityUnspawned(EntityType entityType, Location location);
 
     /**
-     * Toggles the visibility of an Entity's nametag for a Player
+     * Updates the name and visibility of an Entity's nametag for a Player
      *
      * @param player The Player to send the packet to
      * @param entity The Entity to toggle
-     * @param visible true to make the nametag visible, otherwise false
+     * @param customName The name to display for the entity, nullable
+     * @param customNameVisible true to make the nametag visible, otherwise false
      */
-    void toggleEntityNameTagForPlayer(Player player, Entity entity, boolean visible);
+    void updateEntityNameTagForPlayer(Player player, Entity entity, String customName, boolean customNameVisible);
+
+    /**
+     * Updates the visibility of an Entity's nametag for a Player
+     *
+     * @param player The Player to send the packet to
+     * @param entity The Entity to toggle
+     * @param customNameVisible true to make the nametag visible, otherwise false
+     */
+    void updateEntityNameTagVisibilityForPlayer(Player player, Entity entity, boolean customNameVisible);
 
     /**
      * Unignites a creeper

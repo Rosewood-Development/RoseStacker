@@ -27,12 +27,12 @@ import org.bukkit.material.Colorable;
 public abstract class EntityStackSettings extends StackSettings {
 
     // Settings that apply to every entity
-    private boolean enabled;
-    private String displayName;
-    private int minStackSize;
-    private int maxStackSize;
-    private Boolean killEntireStackOnDeath;
-    private double mergeRadius;
+    private final boolean enabled;
+    private final String displayName;
+    private final int minStackSize;
+    private final int maxStackSize;
+    private final Boolean killEntireStackOnDeath;
+    private final double mergeRadius;
 
     // Settings that apply to multiple entities through interfaces
     private boolean dontStackIfDifferentColor;
@@ -157,7 +157,7 @@ public abstract class EntityStackSettings extends StackSettings {
         if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
             return false;
 
-        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (stack1.getOriginalCustomName() != null || stack2.getOriginalCustomName() != null))
+        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (stack1.getEntity().getCustomName() != null || stack2.getEntity().getCustomName() != null))
             return false;
 
         LivingEntity entity1 = stack1.getEntity();

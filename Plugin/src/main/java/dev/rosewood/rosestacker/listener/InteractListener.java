@@ -94,17 +94,14 @@ public class InteractListener implements Listener {
             return;
 
         LivingEntity entity = (LivingEntity) event.getRightClicked();
-        if (!stackManager.isEntityStacked(entity))
+        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        if (stackedEntity == null)
             return;
 
         Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
-            if (!stackManager.isEntityStacked(entity))
-                return;
-
-            StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::updateOriginalCustomName);
+            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::updateDisplay);
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
@@ -116,12 +113,8 @@ public class InteractListener implements Listener {
                 default: return;
             }
 
-            if (!stackManager.isEntityStacked(entity))
-                return;
-
-            StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
-            stackedEntity.restoreOriginalCustomName();
-            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
+            if (stackedEntity.getStackSize() != 1)
+                Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
             return;
         }
 

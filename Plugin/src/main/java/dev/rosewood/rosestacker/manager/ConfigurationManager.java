@@ -12,7 +12,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
     public enum Setting implements RoseSetting {
         DISABLED_WORLDS("disabled-worlds", Collections.singletonList("disabled_world_name"), "A list of worlds that the plugin is disabled in"),
-        STACK_FREQUENCY("stack-frequency", 10, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "If you are having issues with TPS, increase this value", "Values are in ticks, do not set lower than 1"),
+        STACK_FREQUENCY("stack-frequency", 20, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "If you are having issues with TPS, increase this value", "Values are in ticks, do not set lower than 1"),
+        NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 10, "How often should we update stacked entity nametags?"),
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),

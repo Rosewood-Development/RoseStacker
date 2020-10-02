@@ -34,8 +34,8 @@ public final class EntitySerializer {
             }
 
             // Write the original mob name
-            String originalCustomName = stackedEntity.getOriginalCustomName();
-            dataOutput.writeUTF(originalCustomName == null ? "" : originalCustomName);
+            // UNUSED: Kept for legacy purposes
+            dataOutput.writeUTF("");
 
             // Serialize that array
             dataOutput.close();
@@ -72,9 +72,10 @@ public final class EntitySerializer {
             }
 
             // Read original mob name, if any
+            // UNUSED: Kept for legacy purposes
             String originalCustomName = dataInput.readUTF();
 
-            return new StackedEntity(id, livingEntity, stackNbtData, originalCustomName.isEmpty() ? null : originalCustomName);
+            return new StackedEntity(id, livingEntity, stackNbtData);
         } catch (Exception e) {
             e.printStackTrace();
         }
