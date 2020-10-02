@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.UUID;
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.DataWatcher;
 import net.minecraft.server.v1_13_R2.DataWatcherObject;
@@ -108,11 +109,12 @@ public class NMSHandlerImpl implements NMSHandler {
             // Read NBT
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
 
-            NBTTagList nbtTagList = nbt.getList("Pos", 6);
-            nbtTagList.set(0, new NBTTagDouble(location.getX()));
-            nbtTagList.set(1, new NBTTagDouble(location.getY()));
-            nbtTagList.set(2, new NBTTagDouble(location.getZ()));
-            nbt.set("Pos", nbtTagList);
+            NBTTagList positionTagList = nbt.getList("Pos", 6);
+            positionTagList.set(0, new NBTTagDouble(location.getX()));
+            positionTagList.set(1, new NBTTagDouble(location.getY()));
+            positionTagList.set(2, new NBTTagDouble(location.getZ()));
+            nbt.set("Pos", positionTagList);
+            nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
             EntityTypes<?> entityTypes = EntityTypes.a(entityType);
             if (entityTypes != null) {
