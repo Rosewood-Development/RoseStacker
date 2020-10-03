@@ -32,10 +32,10 @@ public class StackSettingManager extends Manager {
 
     private static final String PACKAGE_PATH = "dev.rosewood.rosestacker.stack.settings.entity";
 
-    private Map<Material, BlockStackSettings> blockSettings;
-    private Map<EntityType, EntityStackSettings> entitySettings;
-    private Map<Material, ItemStackSettings> itemSettings;
-    private Map<EntityType, SpawnerStackSettings> spawnerSettings;
+    private final Map<Material, BlockStackSettings> blockSettings;
+    private final Map<EntityType, EntityStackSettings> entitySettings;
+    private final Map<Material, ItemStackSettings> itemSettings;
+    private final Map<EntityType, SpawnerStackSettings> spawnerSettings;
 
     public StackSettingManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -165,22 +165,52 @@ public class StackSettingManager extends Manager {
         return new File(this.rosePlugin.getDataFolder(), "spawner_settings.yml");
     }
 
+    /**
+     * Gets the BlockStackSettings for a block type
+     *
+     * @param material The block material to get the settings of
+     * @return The BlockStackSettings for the block type, or null if the block type is not stackable
+     */
     public BlockStackSettings getBlockStackSettings(Material material) {
         return this.blockSettings.get(material);
     }
 
+    /**
+     * Gets the BlockStackSettings for a block
+     *
+     * @param block The block to get the settings of
+     * @return The BlockStackSettings for the block, or null if the block type is not stackable
+     */
     public BlockStackSettings getBlockStackSettings(Block block) {
         return this.getBlockStackSettings(block.getType());
     }
 
+    /**
+     * Gets the EntityStackSettings for an entity type
+     *
+     * @param entityType The entity type to get the settings of
+     * @return The EntityStackSettings for the entity type
+     */
     public EntityStackSettings getEntityStackSettings(EntityType entityType) {
         return this.entitySettings.get(entityType);
     }
 
+    /**
+     * Gets the EntityStackSettings for an entity
+     *
+     * @param entity The entity to get the settings of
+     * @return The EntityStackSettings for the entity
+     */
     public EntityStackSettings getEntityStackSettings(LivingEntity entity) {
         return this.getEntityStackSettings(entity.getType());
     }
 
+    /**
+     * Gets the EntityStackSettings for a spawn egg material
+     *
+     * @param material The spawn egg material to get the settings of
+     * @return The EntityStackSettings for the spawn egg material, or null if the material is not a spawn egg
+     */
     public EntityStackSettings getEntityStackSettings(Material material) {
         if (!StackerUtils.isSpawnEgg(material))
             return null;
@@ -194,18 +224,42 @@ public class StackSettingManager extends Manager {
         return null;
     }
 
+    /**
+     * Gets the ItemStackSettings for an item type
+     *
+     * @param material The item type to get the settings of
+     * @return The ItemStackSettings for the item type
+     */
     public ItemStackSettings getItemStackSettings(Material material) {
         return this.itemSettings.get(material);
     }
 
+    /**
+     * Gets the ItemStackSettings for an item
+     *
+     * @param item The item to get the settings of
+     * @return The ItemStackSettings for the item
+     */
     public ItemStackSettings getItemStackSettings(Item item) {
         return this.getItemStackSettings(item.getItemStack().getType());
     }
 
+    /**
+     * Gets the SpawnerStackSettings for a spawner entity type
+     *
+     * @param entityType The spawner entity type to get the settings of
+     * @return The SpawnerStackSettings for the spawner entity type
+     */
     public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
         return this.spawnerSettings.get(entityType);
     }
 
+    /**
+     * Gets the SpawnerStackSettings for a spawner
+     *
+     * @param creatureSpawner The spawner to get the settings of
+     * @return The SpawnerStackSettings for the spawner
+     */
     public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
         return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
     }
