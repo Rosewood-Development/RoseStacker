@@ -28,7 +28,7 @@ public abstract class Stack<T extends StackSettings> {
 
     public abstract T getStackSettings();
 
-    public Set<Player> getPlayersInVisibleRange() {
+    protected Set<Player> getPlayersInVisibleRange() {
         Set<Player> players = new HashSet<>();
 
         Location location = this.getLocation();

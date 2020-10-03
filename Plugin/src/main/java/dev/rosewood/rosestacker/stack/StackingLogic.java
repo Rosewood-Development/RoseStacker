@@ -221,6 +221,7 @@ public interface StackingLogic {
 
     /**
      * Pre-stacks a number of entities of a given type and spawns StackedEntities at the given location
+     *
      * @param entityType the type of entity to spawn
      * @param amount the amount of entities to spawn
      * @param location the location to spawn at
