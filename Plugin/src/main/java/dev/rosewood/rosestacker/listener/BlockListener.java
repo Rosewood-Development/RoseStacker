@@ -108,7 +108,7 @@ public class BlockListener implements Listener {
             // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
                 this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
-                block.setType(Material.AIR);
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
                 event.setCancelled(true);
                 CoreProtectHook.recordBlockBreak(player, block);
                 this.damageTool(player);
@@ -130,7 +130,7 @@ public class BlockListener implements Listener {
             this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), breakAmount);
             if (breakAmount == stackedSpawner.getStackSize()) {
                 stackedSpawner.setStackSize(0);
-                block.setType(Material.AIR);
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
             } else {
                 stackedSpawner.increaseStackSize(-breakAmount);
             }
@@ -178,7 +178,7 @@ public class BlockListener implements Listener {
             CoreProtectHook.recordBlockBreak(player, block);
             if (breakAmount == stackedBlock.getStackSize()) {
                 stackedBlock.setStackSize(0);
-                block.setType(Material.AIR);
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
             } else {
                 stackedBlock.increaseStackSize(-1);
             }
