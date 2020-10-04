@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -84,6 +85,7 @@ public class CommandManager extends Manager {
             int maxStackAmount = entityStackSettings.getMaxStackSize();
             return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<amount>");
         });
+        completions.registerStaticCompletion("giveAmounts", () -> IntStream.rangeClosed(1, 5).mapToObj(String::valueOf).collect(Collectors.toList()));
         completions.registerStaticCompletion("clearallType", () -> Stream.of(ClearallType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("stackType", () -> Stream.of(StackType.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerAsyncCompletion("conversionType", ctx -> conversionManager.getEnabledConverters().stream().map(Enum::name).collect(Collectors.toSet()));
