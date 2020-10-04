@@ -26,6 +26,9 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private StackedSpawnerGui stackedSpawnerGui;
     private List<Class<? extends ConditionTag>> lastInvalidConditions;
 
+    private boolean powered;
+    private int lastDelay;
+
     private SpawnerStackSettings stackSettings;
 
     public StackedSpawner(int id, int size, CreatureSpawner spawner) {
@@ -36,6 +39,9 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.location = this.spawner.getLocation();
         this.stackedSpawnerGui = null;
         this.lastInvalidConditions = new ArrayList<>();
+
+        this.powered = false;
+        this.lastDelay = spawner.getDelay();
 
         if (this.spawner != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
@@ -149,7 +155,23 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawner.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
         this.spawner.setSpawnRange(this.stackSettings.getSpawnRange());
         this.spawner.setDelay(delay);
-        this.spawner.update();
+        this.spawner.update(false, false);
+    }
+
+    public void setPowered(boolean powered) {
+        this.powered = powered;
+    }
+
+    public boolean isPowered() {
+        return this.powered;
+    }
+
+    public void setLastDelay(int lastDelay) {
+        this.lastDelay = lastDelay;
+    }
+
+    public int getLastDelay() {
+        return this.lastDelay;
     }
 
 }

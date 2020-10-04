@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.bukkit.Material;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -109,15 +108,12 @@ public class StackedSpawnerGui {
                     lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", stackSettings.getPlayerActivationRange())));
                     lore.add(this.getString("spawn-range", StringPlaceholders.single("range", stackSettings.getSpawnRange())));
 
-                    CreatureSpawner creatureSpawner = (CreatureSpawner) this.stackedSpawner.getSpawner().getBlock().getState();
+                    int spawnCount = this.stackedSpawner.getStackSize() * stackSettings.getSpawnCountStackSizeMultiplier();
                     if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
-                        int maxSpawnAmount = creatureSpawner.getSpawnCount();
-                        int minSpawnAmount = maxSpawnAmount / stackSettings.getSpawnCountStackSizeMultiplier();
-
-                        lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", minSpawnAmount)));
-                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", maxSpawnAmount)));
+                        lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", this.stackedSpawner.getStackSize())));
+                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnCount)));
                     } else {
-                        lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", creatureSpawner.getSpawnCount())));
+                        lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", spawnCount)));
                     }
 
                     lore.add(GuiFactory.createString());
@@ -135,8 +131,7 @@ public class StackedSpawnerGui {
                 .setNameSupplier(() -> GuiFactory.createString(RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
                         .addPlaceholder("name", stackSettings.getDisplayName()).build())))
                 .setLoreSupplier(() -> {
-                    CreatureSpawner creatureSpawner = (CreatureSpawner) this.stackedSpawner.getSpawner().getBlock().getState();
-                    return Collections.singletonList(this.getString("time-until-next-spawn", StringPlaceholders.single("time", creatureSpawner.getDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)));
+                    return Collections.singletonList(this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)));
                 }
             ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()

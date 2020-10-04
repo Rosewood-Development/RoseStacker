@@ -4,12 +4,12 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -73,26 +73,58 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
+        boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
 
-        for (Block block : stackManager.getStackedSpawners().keySet()) {
+        for (Block block : new HashMap<>(stackManager.getStackedSpawners()).keySet()) {
             if (block.getType() != Material.SPAWNER)
                 continue;
 
-            CreatureSpawner spawner = (CreatureSpawner) block.getState();
-            if (spawner.getDelay() >= DELAY_THRESHOLD)
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawners().get(block);
+            SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
+            CreatureSpawner spawner = (CreatureSpawner) block.getState(); // Need to refetch the state so the delay is the latest
+            if (redstoneSpawners) {
+                boolean isPowered = block.isBlockPowered();
+                boolean wasPowered = stackedSpawner.isPowered();
+                boolean changed = false;
+                if (isPowered && !wasPowered) {
+                    // Prevent the spawner from spinning and counting down the delay (in most cases)
+                    spawner.setRequiredPlayerRange(1);
+                    changed = true;
+                } else if (!isPowered && wasPowered) {
+                    spawner.setRequiredPlayerRange(stackSettings.getPlayerActivationRange());
+                    changed = true;
+                }
+
+                int delay = spawner.getDelay();
+                if (isPowered) {
+                    int lastDelay = stackedSpawner.getLastDelay();
+
+                    // If the spawner is still spinning, prevent it from counting down
+                    if (lastDelay != delay) {
+                        spawner.setDelay(lastDelay);
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    spawner.update(false, false);
+                    stackedSpawner.setPowered(isPowered);
+                }
+            }
+
+            stackedSpawner.setLastDelay(spawner.getDelay());
+            if (stackedSpawner.getLastDelay() >= DELAY_THRESHOLD)
                 continue;
 
             EntityType entityType = spawner.getSpawnedType();
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
                 return;
 
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawners().get(block);
-            SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
-
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();
+            stackedSpawner.setLastDelay(newDelay);
             spawner.setDelay(newDelay);
-            spawner.update();
+            spawner.update(false, false);
 
             // Spawn particles indicating the spawn occurred
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
@@ -103,7 +135,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
             spawnRequirements.removeAll(perSpawnConditions);
 
-            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, spawner.getBlock())).collect(Collectors.toSet());
+            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, block)).collect(Collectors.toSet());
             boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
 
             invalidSpawnConditions.addAll(perSpawnConditions); // Will be removed when they pass
@@ -111,8 +143,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn the mobs
             int spawnAmount;
             if (randomizeSpawnAmounts) {
-                int minSpawnAmount = spawner.getSpawnCount() / stackSettings.getSpawnCountStackSizeMultiplier();
-                spawnAmount = this.random.nextInt(spawner.getSpawnCount() - minSpawnAmount + 1) + minSpawnAmount;
+                spawnAmount = this.random.nextInt(spawner.getSpawnCount() - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
             } else {
                 spawnAmount = spawner.getSpawnCount();
             }
@@ -153,10 +184,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                             this.disableAI(spawnedLivingEntity);
                         this.tagSpawnedFromSpawner(spawnedLivingEntity);
                     });
-
-                    // Now we can try to stack the mob
-                    StackedEntity stackedEntity = new StackedEntity(entity);
-                    stackManager.addEntityStack(stackedEntity);
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
