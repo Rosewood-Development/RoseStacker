@@ -46,6 +46,8 @@ public class WolfStackSettings extends EntityStackSettings {
 
         stackedWolf.setAngry(unstackedWolf.isAngry());
         unstackedWolf.setTarget(unstackedWolf.getTarget());
+
+        super.applyUnstackProperties(stacked, unstacked);
     }
 
     @Override

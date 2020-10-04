@@ -69,7 +69,8 @@ public class BeeStackSettings extends EntityStackSettings {
         Bee unstackedBee = (Bee) unstacked;
 
         stackedBee.setAnger(unstackedBee.getAnger());
-        stackedBee.setTarget(unstackedBee.getTarget());
+
+        super.applyUnstackProperties(stacked, unstacked);
     }
 
     @Override

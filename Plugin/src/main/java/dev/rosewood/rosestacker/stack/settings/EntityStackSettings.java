@@ -17,6 +17,7 @@ import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
@@ -447,7 +448,14 @@ public abstract class EntityStackSettings extends StackSettings {
      * @param unstacked The unstacked entity
      */
     public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
-        // Does nothing by default, override in a subclass to add functionality
+        if (stacked instanceof Mob) {
+            Mob stackedMob = (Mob) stacked;
+            Mob unstackedMob = (Mob) unstacked;
+
+            unstackedMob.setTarget(stackedMob.getTarget());
+        }
+
+        unstacked.setLastDamageCause(stacked.getLastDamageCause());
     }
 
     public abstract EntityType getEntityType();

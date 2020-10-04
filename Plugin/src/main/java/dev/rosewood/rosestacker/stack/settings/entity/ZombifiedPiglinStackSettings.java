@@ -12,12 +12,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
 
-public class PigZombieStackSettings extends EntityStackSettings {
+public class ZombifiedPiglinStackSettings extends EntityStackSettings {
 
     protected boolean dontStackIfAngry;
     protected boolean dontStackIfDifferentAge;
 
-    public PigZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
+    public ZombifiedPiglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
         this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
@@ -48,6 +48,8 @@ public class PigZombieStackSettings extends EntityStackSettings {
 
         stackedPigZombie.setAnger(unstackedPigZombie.getAnger());
         stackedPigZombie.setTarget(unstackedPigZombie.getTarget());
+
+        super.applyUnstackProperties(stacked, unstacked);
     }
 
     @Override

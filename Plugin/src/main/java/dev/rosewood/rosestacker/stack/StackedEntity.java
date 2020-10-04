@@ -133,6 +133,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.setEntityStackingTemporarilyDisabled(true);
         this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
         stackManager.setEntityStackingTemporarilyDisabled(false);
+        this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.updateDisplay();
     }
