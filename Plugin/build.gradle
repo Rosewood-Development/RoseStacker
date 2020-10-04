@@ -36,6 +36,7 @@ dependencies {
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'io.lumine.xikage:mythicmobs:4.10.0'
+    compileOnly 'com.magmaguy:elitemobs:7.1.0'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:rosegarden:1.0.2'

@@ -21,6 +21,7 @@ softdepend:
   - ViaVersion
   - MythicMobs
   - EpicBosses
+  - EliteMobs
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions

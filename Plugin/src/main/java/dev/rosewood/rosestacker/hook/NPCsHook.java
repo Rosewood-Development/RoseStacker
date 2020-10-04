@@ -1,11 +1,15 @@
 package dev.rosewood.rosestacker.hook;
 
+import com.magmaguy.elitemobs.EliteMobs;
+import com.magmaguy.elitemobs.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
+import net.lanus.xlm.ExtremeLevelMobs;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class NPCsHook {
 
@@ -13,6 +17,7 @@ public class NPCsHook {
     private static Boolean shopkeepersEnabled;
     private static Boolean mythicMobsEnabled;
     private static Boolean epicBossesEnabled;
+    private static Boolean eliteMobsEnabled;
 
     public static boolean citizensEnabled() {
         if (citizensEnabled != null)
@@ -42,8 +47,19 @@ public class NPCsHook {
         return epicBossesEnabled = Bukkit.getPluginManager().isPluginEnabled("EpicBosses");
     }
 
+    public static boolean eliteMobsEnabled() {
+        if (eliteMobsEnabled != null)
+            return eliteMobsEnabled;
+
+        return eliteMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("EliteMobs");
+    }
+
     public static boolean anyEnabled() {
-        return citizensEnabled() || shopkeepersEnabled() || mythicMobsEnabled() || epicBossesEnabled();
+        return citizensEnabled()
+                || shopkeepersEnabled()
+                || mythicMobsEnabled()
+                || epicBossesEnabled()
+                || eliteMobsEnabled();
     }
 
     public static boolean isNPC(LivingEntity entity) {
@@ -60,6 +76,9 @@ public class NPCsHook {
 
         if (!npc && epicBossesEnabled())
             npc = EpicBosses.getInstance().getBossEntityManager().getActiveBossHolder(entity) != null;
+
+        if (!npc && eliteMobsEnabled())
+            npc = EntityTracker.isEliteMob(entity) && EntityTracker.isNPCEntity(entity);
 
         return npc;
     }
