@@ -542,7 +542,7 @@ public class BlockListener implements Listener {
                     return;
 
                 spawner.setSpawnedType(spawnedType);
-                spawner.update();
+                spawner.update(false, false);
 
                 if (stackAmount <= 0)
                     return;

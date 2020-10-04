@@ -1,15 +1,12 @@
 package dev.rosewood.rosestacker.hook;
 
-import com.magmaguy.elitemobs.EliteMobs;
 import com.magmaguy.elitemobs.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
-import net.lanus.xlm.ExtremeLevelMobs;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class NPCsHook {
 
