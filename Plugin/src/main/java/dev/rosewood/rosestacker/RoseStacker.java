@@ -18,6 +18,7 @@ import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
+import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
@@ -64,6 +65,8 @@ public class RoseStacker extends RosePlugin {
             return;
         }
 
+        StackerUtils.clearCache();
+
         // Register listeners
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new BlockListener(this), this);
@@ -71,6 +74,7 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new EntityListener(this), this);
         pluginManager.registerEvents(new InteractListener(this), this);
         pluginManager.registerEvents(new ItemListener(this), this);
+        pluginManager.registerEvents(new StackToolListener(this), this);
 
         // Bees are only in 1.15+
         if (NMSUtil.getVersionNumber() >= 15)
@@ -119,11 +123,11 @@ public class RoseStacker extends RosePlugin {
     }
 
     @Override
-    public List<DataMigration> getDataMigrations() {
+    public List<Class<? extends DataMigration>> getDataMigrations() {
         return Arrays.asList(
-                new _1_Create_Tables_Stacks(),
-                new _2_Create_Tables_Convert_Stacks(),
-                new _3_Create_Tables_Translation_Locales()
+                _1_Create_Tables_Stacks.class,
+                _2_Create_Tables_Convert_Stacks.class,
+                _3_Create_Tables_Translation_Locales.class
         );
     }
 

@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
+import org.bukkit.util.Vector;
 
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
@@ -126,16 +127,27 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.updateDisplay();
     }
 
-    public void decreaseStackSize() {
-        LivingEntity oldEntity = this.entity;
-        Location location = this.entity.getLocation();
+    /**
+     * Unstacks the visible entity from the stack and moves the next in line to the front
+     *
+     * @return The new StackedEntity of size 1 that was just created
+     */
+    public StackedEntity decreaseStackSize() {
+        if (this.serializedStackedEntities.isEmpty())
+            throw new IllegalStateException();
+
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
+        LivingEntity oldEntity = this.entity;
+
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), location);
+        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
+        this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
         this.updateDisplay();
+
+        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
 
     public List<byte[]> getStackedEntityNBT() {
@@ -213,29 +225,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         LivingEntity entity = NMSAdapter.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
         return this.stackSettings.canStackWith(this, stackedEntity, true);
-    }
-
-    /**
-     * Removes the visible entity from the stack and moves the next in line to the front
-     *
-     * @return The new StackedEntity of size 1 that was just created
-     */
-    public StackedEntity split() {
-        if (this.serializedStackedEntities.isEmpty())
-            throw new IllegalStateException();
-
-        StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
-
-        LivingEntity oldEntity = this.entity;
-
-        stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
-        stackManager.setEntityStackingTemporarilyDisabled(false);
-        this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
-        stackManager.updateStackedEntityKey(oldEntity, this.entity);
-        this.updateDisplay();
-
-        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
 
     @Override

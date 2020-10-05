@@ -31,6 +31,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -176,6 +178,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (player.getWorld() != this.targetWorld)
                 continue;
 
+            ItemStack itemStack = player.getInventory().getItemInMainHand();
+            boolean displayStackingToolParticles = StackerUtils.isStackingTool(itemStack);
+
             for (Entity entity : this.targetWorld.getEntities()) {
                 if (entity.getType() == EntityType.PLAYER)
                     continue;
@@ -210,9 +215,22 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 } else continue;
 
                 if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity) {
-                    StackedEntity stackedEntity = this.getStackedEntity((LivingEntity) entity);
+                    LivingEntity livingEntity = (LivingEntity) entity;
+                    StackedEntity stackedEntity = this.getStackedEntity(livingEntity);
                     if (stackedEntity != null)
                         nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
+
+                    // Spawn particles for holding the stacking tool
+                    if (visible && displayStackingToolParticles && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.DROPPED_ITEM) {
+                        Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
+                        DustOptions dustOptions;
+                        if (StackerUtils.isUnstackable(livingEntity)) {
+                            dustOptions = StackerUtils.UNSTACKABLE_DUST_OPTIONS;
+                        } else {
+                            dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;
+                        }
+                        player.spawnParticle(Particle.REDSTONE, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
+                    }
                 } else {
                     nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
                 }
@@ -429,7 +447,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (entityUnstackEvent.isCancelled())
             return null;
 
-        StackedEntity newlySplit = stackedEntity.split();
+        StackedEntity newlySplit = stackedEntity.decreaseStackSize();
         this.stackedEntities.put(newlySplit.getEntity().getUniqueId(), newlySplit);
         return newlySplit;
     }

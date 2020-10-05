@@ -155,14 +155,17 @@ public abstract class EntityStackSettings extends StackSettings {
         if (!this.enabled)
             return false;
 
-        if (!comparingForUnstack && stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
-            return false;
-
-        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (stack1.getEntity().getCustomName() != null || stack2.getEntity().getCustomName() != null))
+        if (stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
             return false;
 
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
+
+        if (StackerUtils.isUnstackable(entity1) || StackerUtils.isUnstackable(entity2))
+            return false;
+
+        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
+            return false;
 
         if (!comparingForUnstack && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))

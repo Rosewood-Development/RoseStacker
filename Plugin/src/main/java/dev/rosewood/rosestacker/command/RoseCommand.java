@@ -13,6 +13,7 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
@@ -68,6 +69,7 @@ public class RoseCommand extends BaseCommand {
         localeManager.sendSimpleMessage(sender, "command-purgedata-description");
         localeManager.sendSimpleMessage(sender, "command-querydata-description");
         localeManager.sendSimpleMessage(sender, "command-reload-description");
+        localeManager.sendSimpleMessage(sender, "command-stacktool-description");
         localeManager.sendSimpleMessage(sender, "command-stats-description");
         localeManager.sendSimpleMessage(sender, "command-translate-description");
     }
@@ -386,6 +388,27 @@ public class RoseCommand extends BaseCommand {
             this.rosePlugin.reload();
             localeManager.sendMessage(sender, "command-translate-success");
         });
+    }
+
+    @Subcommand("stacktool")
+    @CommandPermission("rosestacker.stacktool.give")
+    @CommandCompletion("*")
+    public void onStackToolOther(CommandSender sender, OnlinePlayer target) {
+        Player player = target.getPlayer();
+        player.getInventory().addItem(StackerUtils.getStackingTool());
+        LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
+        if (sender == player) {
+            localeManager.sendMessage(player, "command-stacktool-given");
+        } else {
+            localeManager.sendMessage(sender, "command-stacktool-given-other", StringPlaceholders.single("player", player.getName()));
+        }
+    }
+
+    @Subcommand("stacktool")
+    @CommandPermission("rosestacker.stacktool.give")
+    public void onStackTool(Player player) {
+        player.getInventory().addItem(StackerUtils.getStackingTool());
+        RoseStacker.getInstance().getManager(LocaleManager.class).sendMessage(player, "command-stacktool-given");
     }
 
     public enum ClearallType {

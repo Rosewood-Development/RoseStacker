@@ -1,7 +1,11 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.HexUtils;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -21,13 +25,17 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -35,11 +43,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 public final class StackerUtils {
@@ -48,6 +59,12 @@ public final class StackerUtils {
     public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.16.2";
 
     public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
+
+    public static final DustOptions STACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0x00FF00), 1.5F);
+    public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
+
+    private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
+    private static ItemStack cachedStackingTool;
 
     private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
@@ -363,6 +380,69 @@ public final class StackerUtils {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
         }).sorted(Comparator.comparing(Enum::name)).collect(Collectors.toList());
+    }
+
+    public static void setUnstackable(LivingEntity entity, boolean unstackable) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (unstackable) {
+            if (NMSUtil.getVersionNumber() > 13) {
+                entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER, 1);
+            } else {
+                entity.setMetadata(UNSTACKABLE_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
+            }
+        } else {
+            if (NMSUtil.getVersionNumber() > 13) {
+                entity.getPersistentDataContainer().remove(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME));
+            } else {
+                entity.removeMetadata(UNSTACKABLE_METADATA_NAME, rosePlugin);
+            }
+        }
+    }
+
+    public static boolean isUnstackable(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            return entity.hasMetadata(UNSTACKABLE_METADATA_NAME);
+        }
+    }
+
+    public static ItemStack getStackingTool() {
+        if (cachedStackingTool != null)
+            return cachedStackingTool;
+
+        Material material = Material.matchMaterial(Setting.STACK_TOOL_MATERIAL.getString());
+        if (material == null) {
+            material = Material.STICK;
+            RoseStacker.getInstance().getLogger().warning("Invalid material for stacking tool in config.yml!");
+        }
+
+        String name = HexUtils.colorify(Setting.STACK_TOOL_NAME.getString());
+        List<String> lore = Setting.STACK_TOOL_LORE.getStringList().stream().map(HexUtils::colorify).collect(Collectors.toList());
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return item;
+
+        meta.setDisplayName(name);
+        meta.setLore(lore);
+        meta.addItemFlags(ItemFlag.values());
+        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static boolean isStackingTool(ItemStack item) {
+        return getStackingTool().isSimilar(item);
+    }
+
+    public static void clearCache() {
+        cachedAlphabeticalEntityTypes = null;
+        cachedStackableEntityTypes = null;
+        cachedStackingTool = null;
     }
 
     private enum ItemLoreValue {
