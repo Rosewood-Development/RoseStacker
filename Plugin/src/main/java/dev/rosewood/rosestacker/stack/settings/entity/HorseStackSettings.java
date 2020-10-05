@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,9 +12,9 @@ import org.bukkit.entity.Horse;
 
 public class HorseStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfArmored;
-    private boolean dontStackIfDifferentStyle;
-    private boolean dontStackIfDifferentColor;
+    private final boolean dontStackIfArmored;
+    private final boolean dontStackIfDifferentStyle;
+    private final boolean dontStackIfDifferentColor;
 
     public HorseStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -24,17 +25,20 @@ public class HorseStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Horse horse1 = (Horse) stack1.getEntity();
         Horse horse2 = (Horse) stack2.getEntity();
 
         if (this.dontStackIfArmored && (horse1.getInventory().getArmor() != null || horse2.getInventory().getArmor() != null))
-            return false;
+            return EntityStackComparisonResult.HAS_ARMOR;
 
         if (this.dontStackIfDifferentStyle && horse1.getStyle() != horse2.getStyle())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_STYLES;
 
-        return !this.dontStackIfDifferentColor || (horse1.getColor() == horse2.getColor());
+        if (this.dontStackIfDifferentColor && horse1.getColor() != horse2.getColor())
+            return EntityStackComparisonResult.DIFFERENT_COLORS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,9 +12,9 @@ import org.bukkit.entity.PiglinBrute;
 
 public class PiglinBruteStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfConverting;
-    private boolean dontStackIfDifferentAge;
-    private boolean dontStackIfImmuneToZombification;
+    private final boolean dontStackIfConverting;
+    private final boolean dontStackIfDifferentAge;
+    private final boolean dontStackIfImmuneToZombification;
 
     public PiglinBruteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -24,17 +25,20 @@ public class PiglinBruteStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         PiglinBrute piglinBrute1 = (PiglinBrute) stack1.getEntity();
         PiglinBrute piglinBrute2 = (PiglinBrute) stack2.getEntity();
 
         if (this.dontStackIfConverting && (piglinBrute1.isConverting() || piglinBrute2.isConverting()))
-            return false;
+            return EntityStackComparisonResult.CONVERTING;
 
         if (this.dontStackIfDifferentAge && (piglinBrute1.isBaby() != piglinBrute2.isBaby()))
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_AGES;
 
-        return !this.dontStackIfImmuneToZombification || !(piglinBrute1.isImmuneToZombification() || piglinBrute2.isImmuneToZombification());
+        if (this.dontStackIfImmuneToZombification && (piglinBrute1.isImmuneToZombification() || piglinBrute2.isImmuneToZombification()))
+            return EntityStackComparisonResult.IMMUNE_TO_ZOMBIFICATION;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

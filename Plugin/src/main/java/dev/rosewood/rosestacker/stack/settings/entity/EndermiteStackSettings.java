@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,7 +12,7 @@ import org.bukkit.entity.EntityType;
 
 public class EndermiteStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfPlayerSpawned;
+    private final boolean dontStackIfPlayerSpawned;
 
     public EndermiteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class EndermiteStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Endermite endermite1 = (Endermite) stack1.getEntity();
         Endermite endermite2 = (Endermite) stack2.getEntity();
 
-        return !this.dontStackIfPlayerSpawned || (!endermite1.isPlayerSpawned() && !endermite2.isPlayerSpawned());
+        if (this.dontStackIfPlayerSpawned && (endermite1.isPlayerSpawned() || endermite2.isPlayerSpawned()))
+            return EntityStackComparisonResult.SPAWNED_BY_PLAYER;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

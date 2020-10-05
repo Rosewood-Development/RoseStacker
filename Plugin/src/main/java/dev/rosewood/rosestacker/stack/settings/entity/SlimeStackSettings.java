@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Slime;
 
 public class SlimeStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentSize;
+    private final boolean dontStackIfDifferentSize;
 
     public SlimeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class SlimeStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Slime slime1 = (Slime) stack1.getEntity();
         Slime slime2 = (Slime) stack2.getEntity();
 
-        return !this.dontStackIfDifferentSize || (slime1.getSize() == slime2.getSize());
+        if (this.dontStackIfDifferentSize && slime1.getSize() != slime2.getSize())
+            return EntityStackComparisonResult.DIFFERENT_SIZES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Parrot;
 
 public class ParrotStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentType;
 
     public ParrotStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class ParrotStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Parrot parrot1 = (Parrot) stack1.getEntity();
         Parrot parrot2 = (Parrot) stack2.getEntity();
 
-        return !this.dontStackIfDifferentType || (parrot1.getVariant() == parrot2.getVariant());
+        if (this.dontStackIfDifferentType && parrot1.getVariant() != parrot2.getVariant())
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

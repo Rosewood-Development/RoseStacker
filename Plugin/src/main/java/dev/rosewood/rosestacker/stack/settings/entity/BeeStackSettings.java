@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -12,12 +13,12 @@ import org.bukkit.entity.LivingEntity;
 
 public class BeeStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfAngry;
-    private boolean dontStackIfHasHive;
-    private boolean dontStackIfDifferentHives;
-    private boolean dontStackIfStung;
-    private boolean dontStackIfHasFlower;
-    private boolean dontStackIfHasNectar;
+    private final boolean dontStackIfAngry;
+    private final boolean dontStackIfHasHive;
+    private final boolean dontStackIfDifferentHives;
+    private final boolean dontStackIfStung;
+    private final boolean dontStackIfHasFlower;
+    private final boolean dontStackIfHasNectar;
 
     public BeeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -31,26 +32,29 @@ public class BeeStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Bee bee1 = (Bee) stack1.getEntity();
         Bee bee2 = (Bee) stack2.getEntity();
 
         if (this.dontStackIfAngry && (bee1.getAnger() > 0 || bee2.getAnger() > 0))
-            return false;
+            return EntityStackComparisonResult.ANGRY;
 
         if (this.dontStackIfHasHive && (bee1.getHive() != null || bee2.getHive() != null))
-            return false;
+            return EntityStackComparisonResult.HAS_HIVE;
 
         if (this.dontStackIfDifferentHives && (bee1.getHive() != null && bee2.getHive() != null && !bee1.getHive().equals(bee2.getHive())))
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_HIVES;
 
         if (this.dontStackIfStung && (bee1.hasStung() || bee2.hasStung()))
-            return false;
+            return EntityStackComparisonResult.HAS_STUNG;
 
         if (this.dontStackIfHasFlower && (bee1.getFlower() != null || bee2.getFlower() != null))
-            return false;
+            return EntityStackComparisonResult.HAS_FLOWER;
 
-        return !this.dontStackIfHasNectar || (!bee1.hasNectar() && !bee2.hasNectar());
+        if (this.dontStackIfHasNectar && (bee1.hasNectar() || bee2.hasNectar()))
+            return EntityStackComparisonResult.HAS_NECTAR;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

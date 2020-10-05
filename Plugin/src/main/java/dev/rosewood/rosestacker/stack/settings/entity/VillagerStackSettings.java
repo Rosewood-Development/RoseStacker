@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -12,34 +13,33 @@ import org.bukkit.entity.Villager;
 
 public class VillagerStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentProfession;
-    private boolean dontStackIfDifferentType;
-    private boolean dontStackIfDifferentLevel;
+    private final boolean dontStackIfDifferentProfession;
+    private final boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentLevel;
 
     public VillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
-        if (NMSUtil.getVersionNumber() >= 14)
-            this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
+        this.dontStackIfDifferentLevel = NMSUtil.getVersionNumber() >= 14 && this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Villager villager1 = (Villager) stack1.getEntity();
         Villager villager2 = (Villager) stack2.getEntity();
 
         if (this.dontStackIfDifferentProfession && villager1.getProfession() != villager2.getProfession())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_PROFESSIONS;
 
         if (this.dontStackIfDifferentType && villager1.getType() != villager2.getType())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
 
-        if (NMSUtil.getVersionNumber() <= 13)
-            return true;
+        if (this.dontStackIfDifferentLevel && villager1.getVillagerLevel() != villager2.getVillagerLevel())
+            return EntityStackComparisonResult.DIFFERENT_LEVELS;
 
-        return !this.dontStackIfDifferentLevel || villager1.getVillagerLevel() == villager2.getVillagerLevel();
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import org.bukkit.entity.IronGolem;
 
 public class IronGolemStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfPlayerCreated;
+    private final boolean dontStackIfPlayerCreated;
 
     public IronGolemStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class IronGolemStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         IronGolem ironGolem1 = (IronGolem) stack1.getEntity();
         IronGolem ironGolem2 = (IronGolem) stack2.getEntity();
 
-        return !this.dontStackIfPlayerCreated || (!ironGolem1.isPlayerCreated() && !ironGolem2.isPlayerCreated());
+        if (this.dontStackIfPlayerCreated && (ironGolem1.isPlayerCreated() || ironGolem2.isPlayerCreated()))
+            return EntityStackComparisonResult.SPAWNED_BY_PLAYER;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

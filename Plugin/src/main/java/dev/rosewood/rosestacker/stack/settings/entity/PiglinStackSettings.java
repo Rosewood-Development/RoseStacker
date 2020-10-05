@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,10 +12,10 @@ import org.bukkit.entity.Piglin;
 
 public class PiglinStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfConverting;
-    private boolean dontStackIfDifferentAge;
-    private boolean dontStackIfUnableToHunt;
-    private boolean dontStackIfImmuneToZombification;
+    private final boolean dontStackIfConverting;
+    private final boolean dontStackIfDifferentAge;
+    private final boolean dontStackIfUnableToHunt;
+    private final boolean dontStackIfImmuneToZombification;
 
     public PiglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -26,20 +27,23 @@ public class PiglinStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Piglin piglin1 = (Piglin) stack1.getEntity();
         Piglin piglin2 = (Piglin) stack2.getEntity();
 
         if (this.dontStackIfConverting && (piglin1.isConverting() || piglin2.isConverting()))
-            return false;
+            return EntityStackComparisonResult.CONVERTING;
 
         if (this.dontStackIfDifferentAge && (piglin1.isBaby() != piglin2.isBaby()))
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_AGES;
 
         if (this.dontStackIfUnableToHunt && (!piglin1.isAbleToHunt() || !piglin2.isAbleToHunt()))
-            return false;
+            return EntityStackComparisonResult.UNABLE_TO_HUNT;
 
-        return !this.dontStackIfImmuneToZombification || !(piglin1.isImmuneToZombification() || piglin2.isImmuneToZombification());
+        if (this.dontStackIfImmuneToZombification && (piglin1.isImmuneToZombification() || piglin2.isImmuneToZombification()))
+            return EntityStackComparisonResult.IMMUNE_TO_ZOMBIFICATION;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

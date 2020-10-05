@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -11,9 +12,9 @@ import org.bukkit.entity.TropicalFish;
 
 public class TropicalFishStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentBodyColor;
-    private boolean dontStackIfDifferentPattern;
-    private boolean dontStackIfDifferentPatternColor;
+    private final boolean dontStackIfDifferentBodyColor;
+    private final boolean dontStackIfDifferentPattern;
+    private final boolean dontStackIfDifferentPatternColor;
 
     public TropicalFishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -24,17 +25,20 @@ public class TropicalFishStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         TropicalFish tropicalFish1 = (TropicalFish) stack1.getEntity();
         TropicalFish tropicalFish2 = (TropicalFish) stack2.getEntity();
 
         if (this.dontStackIfDifferentBodyColor && (tropicalFish1.getBodyColor() != tropicalFish2.getBodyColor()))
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_BODY_COLORS;
 
         if (this.dontStackIfDifferentPattern && tropicalFish1.getPattern() != tropicalFish2.getPattern())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_PATTERNS;
 
-        return !this.dontStackIfDifferentPatternColor || tropicalFish1.getPatternColor() == tropicalFish2.getPatternColor();
+        if (this.dontStackIfDifferentPatternColor && tropicalFish1.getPatternColor() != tropicalFish2.getPatternColor())
+            return EntityStackComparisonResult.DIFFERENT_PATTERN_COLORS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

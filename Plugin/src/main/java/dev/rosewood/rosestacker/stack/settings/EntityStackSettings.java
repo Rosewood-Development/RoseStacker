@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.List;
@@ -144,60 +145,75 @@ public abstract class EntityStackSettings extends StackSettings {
     }
 
     /**
-     * Checks if one StackedEntity can stack with another
+     * Tests if one StackedEntity can stack with another
      *
      * @param stack1 The first stack
      * @param stack2 The second stack
      * @param comparingForUnstack true if the comparison is being made for unstacking, false otherwise
      * @return true if the two entities can stack into each other, false otherwise
      */
-    public boolean canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
-        if (!this.enabled)
-            return false;
+    public boolean testCanStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
+        return this.canStackWith(stack1, stack2, comparingForUnstack) == EntityStackComparisonResult.CAN_STACK;
+    }
 
-        if (stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
-            return false;
-
+    /**
+     * Checks if one StackedEntity can stack with another and returns the comparison result
+     *
+     * @param stack1 The first stack
+     * @param stack2 The second stack
+     * @param comparingForUnstack true if the comparison is being made for unstacking, false otherwise
+     * @return the comparison result
+     */
+    public EntityStackComparisonResult canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
 
+        if (entity1.getType() != entity2.getType())
+            return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+
+        if (!this.enabled)
+            return EntityStackComparisonResult.STACKING_NOT_ENABLED;
+
+        if (stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
+            return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
+
         if (StackerUtils.isUnstackable(entity1) || StackerUtils.isUnstackable(entity2))
-            return false;
+            return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
-            return false;
+            return EntityStackComparisonResult.CUSTOM_NAMED;
 
         if (!comparingForUnstack && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
-                return false;
+                return EntityStackComparisonResult.NOT_ON_GROUND;
 
             if (Setting.ENTITY_DONT_STACK_IF_IN_WATER.getBoolean() &&
                     (entity1.getLocation().getBlock().getType() == Material.WATER || entity2.getLocation().getBlock().getType() == Material.WATER))
-                return false;
+                return EntityStackComparisonResult.IN_WATER;
         }
 
         if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean()) {
             SpawnerSpawnManager spawnerSpawnManager = RoseStacker.getInstance().getManager(SpawnerSpawnManager.class);
             if (!(spawnerSpawnManager.isSpawnedFromSpawner(entity1) && spawnerSpawnManager.isSpawnedFromSpawner(entity2)))
-                return false;
+                return EntityStackComparisonResult.SPAWNED_BY_SPAWNER;
         }
 
         // Don't stack if being ridden or is riding something
-        if (!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle())
-            return comparingForUnstack; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
+        if ((!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle()) && !comparingForUnstack)
+            return EntityStackComparisonResult.PART_OF_VEHICLE; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
 
         if (!comparingForUnstack && Setting.ENTITY_DONT_STACK_IF_LEASHED.getBoolean() && (entity1.isLeashed() || entity2.isLeashed()))
-            return false;
+            return EntityStackComparisonResult.LEASHED;
 
         if (Setting.ENTITY_DONT_STACK_IF_INVULNERABLE.getBoolean() && (entity1.isInvulnerable() || entity2.isInvulnerable()))
-            return false;
+            return EntityStackComparisonResult.INVULNERABLE;
 
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;
             Colorable colorable2 = (Colorable) entity2;
 
             if (this.dontStackIfDifferentColor && colorable1.getColor() != colorable2.getColor())
-                return false;
+                return EntityStackComparisonResult.DIFFERENT_COLORS;
         }
 
         if (this.isEntitySittable()) {
@@ -205,7 +221,7 @@ public abstract class EntityStackSettings extends StackSettings {
             Sittable sittable2 = (Sittable) entity2;
 
             if (this.dontStackIfSitting && (sittable1.isSitting() || sittable2.isSitting()))
-                return false;
+                return EntityStackComparisonResult.SITTING;
         }
 
         if (this.isEntityTameable()) {
@@ -213,14 +229,14 @@ public abstract class EntityStackSettings extends StackSettings {
             Tameable tameable2 = (Tameable) entity2;
 
             if (this.dontStackIfTamed && (tameable1.isTamed() || tameable2.isTamed()))
-                return false;
+                return EntityStackComparisonResult.TAMED;
 
             if (this.dontStackIfDifferentOwners) {
                 AnimalTamer tamer1 = tameable1.getOwner();
                 AnimalTamer tamer2 = tameable2.getOwner();
 
                 if (tamer1 != null && tamer2 != null && !tamer1.getUniqueId().equals(tamer2.getUniqueId()))
-                    return false;
+                    return EntityStackComparisonResult.DIFFERENT_OWNERS;
             }
         }
 
@@ -229,13 +245,13 @@ public abstract class EntityStackSettings extends StackSettings {
             Animals animals2 = (Animals) entity2;
 
             if (this.dontStackIfDifferentAge && animals1.isAdult() != animals2.isAdult())
-                return false;
+                return EntityStackComparisonResult.DIFFERENT_AGES;
 
             if (this.dontStackIfBaby && (!animals1.isAdult() || !animals2.isAdult()))
-                return false;
+                return EntityStackComparisonResult.BABY;
 
             if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || (!animals1.canBreed() && animals1.isAdult()) || (!animals2.canBreed() && animals2.isAdult())))
-                return false;
+                return EntityStackComparisonResult.BREEDING;
         }
 
         if (this.isEntityAbstractHorse()) {
@@ -243,7 +259,7 @@ public abstract class EntityStackSettings extends StackSettings {
             AbstractHorse abstractHorse2 = (AbstractHorse) entity2;
 
             if (this.dontStackIfSaddled && (abstractHorse1.getInventory().getSaddle() != null || abstractHorse2.getInventory().getSaddle() != null))
-                return false;
+                return EntityStackComparisonResult.SADDLED;
         }
 
         if (this.isEntityChestedHorse()) {
@@ -251,7 +267,7 @@ public abstract class EntityStackSettings extends StackSettings {
             ChestedHorse chestedHorse2 = (ChestedHorse) entity2;
 
             if (this.dontStackIfChested && (chestedHorse1.isCarryingChest() || chestedHorse2.isCarryingChest()))
-                return false;
+                return EntityStackComparisonResult.HAS_CHEST;
         }
 
         if (NMSUtil.getVersionNumber() >= 14 && this.isEntityRaider()) {
@@ -259,7 +275,7 @@ public abstract class EntityStackSettings extends StackSettings {
             Raider raider2 = (Raider) entity2;
 
             if (this.dontStackIfPatrolLeader && (raider1.isPatrolLeader() || raider2.isPatrolLeader()))
-                return false;
+                return EntityStackComparisonResult.PATROL_LEADER;
         }
 
         if (this.isEntityMerchant()) {
@@ -267,7 +283,7 @@ public abstract class EntityStackSettings extends StackSettings {
             Merchant merchant2 = (Merchant) entity2;
 
             if (this.dontStackIfTrading && (merchant1.isTrading() || merchant2.isTrading()))
-                return false;
+                return EntityStackComparisonResult.TRADING;
         }
 
         return this.canStackWithInternal(stack1, stack2);
@@ -432,7 +448,7 @@ public abstract class EntityStackSettings extends StackSettings {
 
     protected abstract void setDefaultsInternal();
 
-    protected abstract boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2);
+    protected abstract EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2);
 
     /**
      * Applies special properties to an entity when it stacks

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,8 +12,8 @@ import org.bukkit.entity.Panda;
 
 public class PandaStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentMainGene;
-    private boolean dontStackIfDifferentRecessiveGene;
+    private final boolean dontStackIfDifferentMainGene;
+    private final boolean dontStackIfDifferentRecessiveGene;
 
     public PandaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -22,14 +23,17 @@ public class PandaStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Panda panda1 = (Panda) stack1.getEntity();
         Panda panda2 = (Panda) stack2.getEntity();
 
         if (this.dontStackIfDifferentMainGene && panda1.getMainGene() != panda2.getMainGene())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_MAIN_GENES;
 
-        return !this.dontStackIfDifferentRecessiveGene || (panda1.getHiddenGene() == panda2.getHiddenGene());
+        if (this.dontStackIfDifferentRecessiveGene && panda1.getHiddenGene() != panda2.getHiddenGene())
+            return EntityStackComparisonResult.DIFFERENT_RECESSIVE_GENES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

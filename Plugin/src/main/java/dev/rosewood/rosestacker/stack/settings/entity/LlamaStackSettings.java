@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,8 +12,8 @@ import org.bukkit.entity.Llama;
 
 public class LlamaStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentDecor;
-    private boolean dontStackIfDifferentColor;
+    private final boolean dontStackIfDifferentDecor;
+    private final boolean dontStackIfDifferentColor;
 
     public LlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -22,14 +23,17 @@ public class LlamaStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Llama llama1 = (Llama) stack1.getEntity();
         Llama llama2 = (Llama) stack2.getEntity();
 
         if (this.dontStackIfDifferentDecor && llama1.getInventory().getDecor() != llama2.getInventory().getDecor())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_DECORS;
 
-        return !this.dontStackIfDifferentColor || (llama1.getColor() == llama2.getColor());
+        if (this.dontStackIfDifferentColor && llama1.getColor() != llama2.getColor())
+            return EntityStackComparisonResult.DIFFERENT_COLORS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

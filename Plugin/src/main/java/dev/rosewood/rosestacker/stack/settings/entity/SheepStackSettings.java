@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,9 +12,9 @@ import org.bukkit.entity.Sheep;
 
 public class SheepStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfSheared;
-    private boolean shearAllSheepInStack;
-    private int percentageOfWoolToRegrowPerGrassEaten;
+    private final boolean dontStackIfSheared;
+    private final boolean shearAllSheepInStack;
+    private final int percentageOfWoolToRegrowPerGrassEaten;
 
     public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -24,11 +25,14 @@ public class SheepStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Sheep sheep1 = (Sheep) stack1.getEntity();
         Sheep sheep2 = (Sheep) stack2.getEntity();
 
-        return !this.dontStackIfSheared || (!sheep1.isSheared() && !sheep2.isSheared());
+        if (this.dontStackIfSheared && (sheep1.isSheared() || sheep2.isSheared()))
+            return EntityStackComparisonResult.SHEARED;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

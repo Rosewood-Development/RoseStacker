@@ -664,7 +664,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             }
 
             // Check if we should merge the stacks
-            if (!stackSettings.canStackWith(stackedEntity, other, false))
+            if (!stackSettings.testCanStackWith(stackedEntity, other, false))
                 continue;
 
             if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !StackerUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity(), 0.75, false))
@@ -680,14 +680,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
                         if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
                                 && stackedEntity.getLocation().distanceSquared(nearbyStackedEntity.getLocation()) <= maxEntityMergeDistanceSqrd
-                                && stackSettings.canStackWith(stackedEntity, nearbyStackedEntity, false))
+                                && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
                             targetEntities.add(nearbyStackedEntity);
                     }
                 } else {
                     for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
                         if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
                                 && nearbyStackedEntity.getLocation().getChunk() == stackedEntity.getLocation().getChunk()
-                                && stackSettings.canStackWith(stackedEntity, nearbyStackedEntity, false))
+                                && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
                             targetEntities.add(nearbyStackedEntity);
                     }
                 }
@@ -700,7 +700,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             targetEntities.remove(increased);
 
             List<StackedEntity> removed = targetEntities.stream()
-                    .filter(x -> stackSettings.canStackWith(increased, x, false))
+                    .filter(x -> stackSettings.testCanStackWith(increased, x, false))
                     .collect(Collectors.toList());
 
             EntityStackEvent entityStackEvent = new EntityStackEvent(removed, increased);

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.bukkit.entity.EntityType;
 
 public class BatStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfSleeping;
+    private final boolean dontStackIfSleeping;
 
     public BatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class BatStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Bat bat1 = (Bat) stack1.getEntity();
         Bat bat2 = (Bat) stack2.getEntity();
 
-        return !this.dontStackIfSleeping || (bat1.isAwake() && bat2.isAwake());
+        if (this.dontStackIfSleeping && (!bat1.isAwake() || !bat2.isAwake()))
+            return EntityStackComparisonResult.SLEEPING;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

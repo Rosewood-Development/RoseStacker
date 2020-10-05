@@ -224,7 +224,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         LivingEntity entity = NMSAdapter.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
-        return this.stackSettings.canStackWith(this, stackedEntity, true);
+        return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 
     @Override

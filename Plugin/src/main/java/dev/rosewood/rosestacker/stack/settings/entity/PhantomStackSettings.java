@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Phantom;
 
 public class PhantomStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentSize;
+    private final boolean dontStackIfDifferentSize;
 
     public PhantomStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class PhantomStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Phantom phantom1 = (Phantom) stack1.getEntity();
         Phantom phantom2 = (Phantom) stack2.getEntity();
 
-        return !this.dontStackIfDifferentSize || phantom1.getSize() == phantom2.getSize();
+        if (this.dontStackIfDifferentSize && phantom1.getSize() != phantom2.getSize())
+            return EntityStackComparisonResult.DIFFERENT_SIZES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override
