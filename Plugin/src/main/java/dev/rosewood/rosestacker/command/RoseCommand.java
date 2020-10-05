@@ -274,11 +274,7 @@ public class RoseCommand extends BaseCommand {
         private void giveDuplicates(Player player, ItemStack item, int amount) {
             ItemStack[] items = new ItemStack[amount];
             Arrays.fill(items, item);
-            int overflow = player.getInventory().addItem(items).size();
-            if (overflow > 0) {
-                ItemStack[] slice = Arrays.copyOfRange(items, 0, overflow);
-                RoseCommand.this.rosePlugin.getManager(StackManager.class).preStackItems(Arrays.asList(slice), player.getLocation());
-            }
+            StackerUtils.dropItemsToPlayer(player, Arrays.asList(items));
         }
 
     }

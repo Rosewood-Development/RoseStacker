@@ -9,6 +9,9 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -17,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -39,6 +43,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -262,6 +267,25 @@ public final class StackerUtils {
         return true;
     }
 
+    /**
+     * Checks if a Player is looking at a dropped item
+     *
+     * @param player The Player
+     * @param item The Item
+     * @return true if the Player is looking at the Item, otherwise false
+     */
+    public static boolean isLookingAtItem(Player player, Item item) {
+        Location playerLocation = player.getEyeLocation();
+        Vector playerVision = playerLocation.getDirection();
+
+        Vector playerVector = playerLocation.toVector();
+        Vector itemLocation = item.getLocation().toVector().add(new Vector(0, 0.3, 0));
+        Vector direction = playerVector.clone().subtract(itemLocation).normalize();
+
+        Vector crossProduct = playerVision.getCrossProduct(direction);
+        return crossProduct.lengthSquared() <= 0.01;
+    }
+
     public static List<EntityType> getAlphabeticalStackableEntityTypes() {
         if (cachedAlphabeticalEntityTypes != null)
             return cachedAlphabeticalEntityTypes;
@@ -338,12 +362,15 @@ public final class StackerUtils {
      * @param player The Player to give items to
      * @param itemStacks The ItemStacks to give
      */
-    public static void dropItemsToPlayer(Player player, List<ItemStack> itemStacks) {
+    public static void dropItemsToPlayer(Player player, Collection<ItemStack> itemStacks) {
         List<ItemStack> extraItems = new ArrayList<>();
         for (ItemStack itemStack : itemStacks)
             extraItems.addAll(player.getInventory().addItem(itemStack).values());
-        Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
-        RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
+
+        if (!extraItems.isEmpty()) {
+            Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
+            RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
+        }
     }
 
     public static void damageTool(ItemStack itemStack) {
@@ -437,6 +464,29 @@ public final class StackerUtils {
 
     public static boolean isStackingTool(ItemStack item) {
         return getStackingTool().isSimilar(item);
+    }
+
+    public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
+        List<byte[]> nbtList = stackedEntity.getStackedEntityNBT();
+        List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
+        EntityType entityType = stackedEntity.getEntity().getType();
+        Location location = stackedEntity.getLocation();
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (byte[] nbt : nbtList)
+            livingEntities.add(nmsHandler.getNBTAsEntity(entityType, location, nbt));
+
+        return livingEntities;
+    }
+
+    public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
+        List<byte[]> nbtList = Collections.synchronizedList(new LinkedList<>());
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (LivingEntity livingEntity : livingEntities)
+            nbtList.add(nmsHandler.getEntityAsNBT(livingEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
+
+        stackedEntity.setStackedEntityNBT(nbtList);
     }
 
     public static void clearCache() {

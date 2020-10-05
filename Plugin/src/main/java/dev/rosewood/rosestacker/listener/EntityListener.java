@@ -15,8 +15,8 @@ import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -331,7 +331,10 @@ public class EntityListener implements Listener {
         List<ItemStack> drops = new ArrayList<>(Collections.singletonList(baseSheepWool));
 
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
-            List<Sheep> sheepList = deconstructStackedSheep(stackedEntity);
+            List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
+                    .map(x -> (Sheep) x)
+                    .collect(Collectors.toList());
+
             for (Sheep sheep : sheepList) {
                 if (!sheep.isSheared()) {
                     ItemStack sheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
@@ -339,7 +342,7 @@ public class EntityListener implements Listener {
                     drops.add(sheepWool);
                 }
             }
-            reconstructStackedSheep(stackedEntity, sheepList);
+            StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
 
             Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
         });
@@ -384,7 +387,10 @@ public class EntityListener implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
             int remaining = fRegrowAmount;
 
-            List<Sheep> sheepList = deconstructStackedSheep(stackedEntity);
+            List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
+                    .map(x -> (Sheep) x)
+                    .collect(Collectors.toList());
+
             for (Sheep sheep : sheepList) {
                 if (sheep.isSheared()) {
                     sheep.setSheared(false);
@@ -393,29 +399,8 @@ public class EntityListener implements Listener {
                         break;
                 }
             }
-            reconstructStackedSheep(stackedEntity, sheepList);
+            StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
         });
-    }
-
-    private static List<Sheep> deconstructStackedSheep(StackedEntity stackedEntity) {
-        List<byte[]> nbtList = stackedEntity.getStackedEntityNBT();
-        List<Sheep> sheepList = new ArrayList<>(nbtList.size());
-
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (byte[] nbt : nbtList)
-            sheepList.add((Sheep) nmsHandler.getNBTAsEntity(EntityType.SHEEP, stackedEntity.getLocation(), nbt));
-
-        return sheepList;
-    }
-
-    private static void reconstructStackedSheep(StackedEntity stackedEntity, List<Sheep> sheepList) {
-        List<byte[]> nbtList = Collections.synchronizedList(new LinkedList<>());
-
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (Sheep sheep : sheepList)
-            nbtList.add(nmsHandler.getEntityAsNBT(sheep, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
-
-        stackedEntity.setStackedEntityNBT(nbtList);
     }
 
 }

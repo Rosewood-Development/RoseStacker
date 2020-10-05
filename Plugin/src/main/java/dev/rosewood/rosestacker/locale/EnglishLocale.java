@@ -107,7 +107,10 @@ public class EnglishLocale implements Locale {
             this.put("command-stacktool-given-other", "&b%player% &ahas been given the stacking tool.");
             this.put("command-stacktool-marked-unstackable", "&eThe &b%type% &ehas been marked as &cunstackable&e.");
             this.put("command-stacktool-marked-stackable", "&eThe &b%type% &ehas been marked as &astackable&e.");
-            this.put("command-stacktool-marked-all-unstackable", "&eThe entire stack of &b%type% &ehas been marked as &cunstackable&e.");
+            this.put("command-stacktool-marked-all-unstackable", "&eThe entire &b%type% &estack has been marked as &cunstackable&e.");
+            this.put("command-stacktool-select-1", "&eThe &b%type% &ehas been selected as entity #1. Select another entity to see if they can stack.");
+            this.put("command-stacktool-select-2", "&eThe &b%type% &ehas been selected as entity #2.");
+
 
             this.put("#13", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");
