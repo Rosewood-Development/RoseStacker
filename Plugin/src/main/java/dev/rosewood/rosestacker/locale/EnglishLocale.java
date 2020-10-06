@@ -105,12 +105,32 @@ public class EnglishLocale implements Locale {
             this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Gives a player the stacking tool");
             this.put("command-stacktool-given", "&eYou have been given the stacking tool.");
             this.put("command-stacktool-given-other", "&b%player% &ahas been given the stacking tool.");
+            this.put("command-stacktool-no-permission", "&cYou do not have permission to use the stacking tool.");
             this.put("command-stacktool-marked-unstackable", "&eThe &b%type% &ehas been marked as &cunstackable&e.");
             this.put("command-stacktool-marked-stackable", "&eThe &b%type% &ehas been marked as &astackable&e.");
             this.put("command-stacktool-marked-all-unstackable", "&eThe entire &b%type% &estack has been marked as &cunstackable&e.");
-            this.put("command-stacktool-select-1", "&eThe &b%type% &ehas been selected as entity #1. Select another entity to see if they can stack.");
-            this.put("command-stacktool-select-2", "&eThe &b%type% &ehas been selected as entity #2.");
-
+            this.put("command-stacktool-select-1", "&eThe &b%type% &ehas been selected as Entity #1. Select another entity to test if they can stack.");
+            this.put("command-stacktool-unselect-1", "&eThe &b%type% &ehas been unselected.");
+            this.put("command-stacktool-select-2", "&eThe &b%type% &ehas been selected as Entity #2.");
+            this.put("command-stacktool-can-stack", "&aEntity #1 can stack with Entity #2.");
+            this.put("command-stacktool-can-not-stack", "&cEntity 1 can not stack with Entity 2. Reason: &b%reason%");
+            this.put("command-stacktool-info", "&eStack Info:");
+            this.put("command-stacktool-info-id", "&eStack ID: &b%id%");
+            this.put("command-stacktool-info-uuid", "&eUUID: &b%uuid%");
+            this.put("command-stacktool-info-entity-id", "&eEntity ID: &b%id%");
+            this.put("command-stacktool-info-custom-name", "&eCustom Name: &r%name%");
+            this.put("command-stacktool-info-location", "&eLocation: X: &b%x% &eY: &b%y% &eZ: &b%z% &eWorld: &b%world%");
+            this.put("command-stacktool-info-chunk", "&eChunk: &b%x%&e, &b%z%");
+            this.put("command-stacktool-info-true", "&atrue");
+            this.put("command-stacktool-info-false", "&cfalse");
+            this.put("command-stacktool-info-entity-type", "&eEntity Type: &b%type%");
+            this.put("command-stacktool-info-entity-stackable", "&eStackable: %value%");
+            this.put("command-stacktool-info-entity-has-ai", "&eHas AI: %value%");
+            this.put("command-stacktool-info-entity-from-spawner", "&eFrom Spawner: %value%");
+            this.put("command-stacktool-info-item-type", "&eItem Type: &b%type%");
+            this.put("command-stacktool-info-block-type", "&eBlock Type: &b%type%");
+            this.put("command-stacktool-info-spawner-type", "&eSpawner Type: &b%type%");
+            this.put("command-stacktool-info-stack-size", "&eStack Size: &b%amount%");
 
             this.put("#13", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");

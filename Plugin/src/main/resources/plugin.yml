@@ -33,6 +33,9 @@ permissions:
       rosestacker.convert: true
       rosestacker.purgedata: true
       rosestacker.querydata: true
+      rosestacker.translate: true
+      rosestacker.stacktool: true
+      rosestacker.stacktool.give: true
       rosestacker.silktouch: true
       rosestacker.spawnerconvert: true
   rosestacker.reload:
@@ -55,6 +58,15 @@ permissions:
     default: op
   rosestacker.querydata:
     description: Allows using the querydata command
+    default: op
+  rosestacker.translate:
+    description: Allows using the translate command
+    default: op
+  rosestacker.stacktool:
+    description: Allows using the stacking tool
+    default: op
+  rosestacker.stacktool.give:
+    description: Allows using the stacktool command
     default: op
   rosestacker.silktouch:
     description: Allows picking up spawners with silk touch
