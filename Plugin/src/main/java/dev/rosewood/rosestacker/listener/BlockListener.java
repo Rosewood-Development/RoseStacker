@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.event.SpawnerStackEvent;
 import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
 import dev.rosewood.rosestacker.hook.CoreProtectHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -49,7 +50,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class BlockListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public BlockListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
@@ -107,11 +108,12 @@ public class BlockListener implements Listener {
 
             // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
-                this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1);
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
+                if (this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1)) {
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
+                    CoreProtectHook.recordBlockBreak(player, block);
+                    this.damageTool(player);
+                }
                 event.setCancelled(true);
-                CoreProtectHook.recordBlockBreak(player, block);
-                this.damageTool(player);
                 return;
             }
 
@@ -127,16 +129,20 @@ public class BlockListener implements Listener {
             }
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
-            this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), breakAmount);
-            if (breakAmount == stackedSpawner.getStackSize()) {
-                stackedSpawner.setStackSize(0);
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
-            } else {
-                stackedSpawner.increaseStackSize(-breakAmount);
-            }
+            if (this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), breakAmount)) {
+                if (breakAmount == stackedSpawner.getStackSize()) {
+                    stackedSpawner.setStackSize(0);
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
+                } else {
+                    stackedSpawner.increaseStackSize(-breakAmount);
+                }
 
-            if (stackedSpawner.getStackSize() <= 0) {
-                stackManager.removeSpawnerStack(stackedSpawner);
+                if (stackedSpawner.getStackSize() <= 0) {
+                    stackManager.removeSpawnerStack(stackedSpawner);
+                    return;
+                }
+            } else {
+                event.setCancelled(true);
                 return;
             }
         } else {
@@ -199,12 +205,21 @@ public class BlockListener implements Listener {
         StackerUtils.damageTool(itemStack);
     }
 
-    private void tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
+    /**
+     * Tries to drop spawners that a player broke
+     *
+     * @param player The Player
+     * @param dropLocation The location to drop the items
+     * @param spawnedType The type of entity the spawner spawns
+     * @param amount The amount to try to drop
+     * @return true if spawners weren't protected, false otherwise
+     */
+    private boolean tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
         if (player.getGameMode() == GameMode.CREATIVE
                 || dropLocation.getWorld() == null
                 || !itemInHand.getType().name().endsWith("PICKAXE"))
-            return;
+            return true;
 
         if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean()) {
             int destroyAmount = 0;
@@ -220,14 +235,21 @@ public class BlockListener implements Listener {
                         destroyAmount++;
                 }
             }
+
             amount -= destroyAmount;
 
-            if (destroyAmount > 0)
+            if (destroyAmount > 0) {
+                if (Setting.SPAWNER_SILK_TOUCH_PROTECT.getBoolean() && silkTouchLevel <= 0) {
+                    this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-silk-touch-protect");
+                    return false;
+                }
+
                 StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 10);
+            }
         }
 
         if (amount <= 0)
-            return;
+            return true;
 
         List<ItemStack> items;
         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
@@ -243,6 +265,8 @@ public class BlockListener implements Listener {
         } else {
             this.rosePlugin.getManager(StackManager.class).preStackItems(items, dropLocation);
         }
+
+        return true;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

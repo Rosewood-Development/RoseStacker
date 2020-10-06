@@ -89,6 +89,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SILK_TOUCH_CHANCE("global-spawner-settings.silk-touch-chance", 100, "The chance that spawners will be picked up with a silk touch tool"),
         SPAWNER_SILK_TOUCH_GUARANTEE("global-spawner-settings.silk-touch-guarantee", true, "Should silk touch of level II or higher be guaranteed to pick up the spawner?"),
         SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION("global-spawner-settings.silk-touch-require-permission", false, "Should the permission rosestacker.silktouch be required", "to be able to pick up spawners with silk touch?"),
+        SPAWNER_SILK_TOUCH_PROTECT("global-spawner-settings.silk-touch-protect", false, "Should spawners be protected from being destroyed without silk touch?", "A message will be sent to the player explaining why it cannot be broken"),
         SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER("global-spawner-settings.spawn-count-stack-size-multiplier", 4, "How many mobs should spawn per stacked spawner?"),
         SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED("global-spawner-settings.spawn-count-stack-size-randomized", true, "Should the amount of mobs spawned be randomized between the stack size and the max spawn amount?"),
         SPAWNER_SPAWN_DELAY_MINIMUM("global-spawner-settings.spawn-delay-minimum", 200, "The minimum number of ticks between spawn attempts"),

@@ -233,6 +233,9 @@ public class EnglishLocale implements Locale {
                     "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
                     "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +
                     "That file will also allow you to acknowledge that you have read this warning and let you to disable this message.");
+
+            this.put("#21", "Misc Messages");
+            this.put("spawner-silk-touch-protect", "&cWarning! &eYou need to use a silk touch pickaxe to pick up spawners. You will be unable to do so otherwise.");
         }};
     }
 }
