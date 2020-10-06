@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import org.bukkit.entity.PufferFish;
 
 public class PufferfishStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentInflation;
+    private final boolean dontStackIfDifferentInflation;
 
     public PufferfishStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class PufferfishStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         PufferFish pufferFish1 = (PufferFish) stack1.getEntity();
         PufferFish pufferFish2 = (PufferFish) stack2.getEntity();
 
-        return !this.dontStackIfDifferentInflation || pufferFish1.getPuffState() == pufferFish2.getPuffState();
+        if (this.dontStackIfDifferentInflation && pufferFish1.getPuffState() != pufferFish2.getPuffState())
+            return EntityStackComparisonResult.DIFFERENT_INFLATIONS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

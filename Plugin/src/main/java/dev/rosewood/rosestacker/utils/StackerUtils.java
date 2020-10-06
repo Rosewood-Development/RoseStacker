@@ -1,10 +1,17 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.HexUtils;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -13,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -21,25 +29,33 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 public final class StackerUtils {
@@ -48,6 +64,12 @@ public final class StackerUtils {
     public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.16.2";
 
     public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
+
+    public static final DustOptions STACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0x00FF00), 1.5F);
+    public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
+
+    private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
+    private static ItemStack cachedStackingTool;
 
     private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
@@ -245,6 +267,25 @@ public final class StackerUtils {
         return true;
     }
 
+    /**
+     * Checks if a Player is looking at a dropped item
+     *
+     * @param player The Player
+     * @param item The Item
+     * @return true if the Player is looking at the Item, otherwise false
+     */
+    public static boolean isLookingAtItem(Player player, Item item) {
+        Location playerLocation = player.getEyeLocation();
+        Vector playerVision = playerLocation.getDirection();
+
+        Vector playerVector = playerLocation.toVector();
+        Vector itemLocation = item.getLocation().toVector().add(new Vector(0, 0.3, 0));
+        Vector direction = playerVector.clone().subtract(itemLocation).normalize();
+
+        Vector crossProduct = playerVision.getCrossProduct(direction);
+        return crossProduct.lengthSquared() <= 0.01;
+    }
+
     public static List<EntityType> getAlphabeticalStackableEntityTypes() {
         if (cachedAlphabeticalEntityTypes != null)
             return cachedAlphabeticalEntityTypes;
@@ -321,12 +362,15 @@ public final class StackerUtils {
      * @param player The Player to give items to
      * @param itemStacks The ItemStacks to give
      */
-    public static void dropItemsToPlayer(Player player, List<ItemStack> itemStacks) {
+    public static void dropItemsToPlayer(Player player, Collection<ItemStack> itemStacks) {
         List<ItemStack> extraItems = new ArrayList<>();
         for (ItemStack itemStack : itemStacks)
             extraItems.addAll(player.getInventory().addItem(itemStack).values());
-        Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
-        RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
+
+        if (!extraItems.isEmpty()) {
+            Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
+            RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
+        }
     }
 
     public static void damageTool(ItemStack itemStack) {
@@ -363,6 +407,92 @@ public final class StackerUtils {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
         }).sorted(Comparator.comparing(Enum::name)).collect(Collectors.toList());
+    }
+
+    public static void setUnstackable(LivingEntity entity, boolean unstackable) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (unstackable) {
+            if (NMSUtil.getVersionNumber() > 13) {
+                entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER, 1);
+            } else {
+                entity.setMetadata(UNSTACKABLE_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
+            }
+        } else {
+            if (NMSUtil.getVersionNumber() > 13) {
+                entity.getPersistentDataContainer().remove(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME));
+            } else {
+                entity.removeMetadata(UNSTACKABLE_METADATA_NAME, rosePlugin);
+            }
+        }
+    }
+
+    public static boolean isUnstackable(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            return entity.hasMetadata(UNSTACKABLE_METADATA_NAME);
+        }
+    }
+
+    public static ItemStack getStackingTool() {
+        if (cachedStackingTool != null)
+            return cachedStackingTool;
+
+        Material material = Material.matchMaterial(Setting.STACK_TOOL_MATERIAL.getString());
+        if (material == null) {
+            material = Material.STICK;
+            RoseStacker.getInstance().getLogger().warning("Invalid material for stacking tool in config.yml!");
+        }
+
+        String name = HexUtils.colorify(Setting.STACK_TOOL_NAME.getString());
+        List<String> lore = Setting.STACK_TOOL_LORE.getStringList().stream().map(HexUtils::colorify).collect(Collectors.toList());
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return item;
+
+        meta.setDisplayName(name);
+        meta.setLore(lore);
+        meta.addItemFlags(ItemFlag.values());
+        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static boolean isStackingTool(ItemStack item) {
+        return getStackingTool().isSimilar(item);
+    }
+
+    public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
+        List<byte[]> nbtList = stackedEntity.getStackedEntityNBT();
+        List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
+        EntityType entityType = stackedEntity.getEntity().getType();
+        Location location = stackedEntity.getLocation();
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (byte[] nbt : nbtList)
+            livingEntities.add(nmsHandler.getNBTAsEntity(entityType, location, nbt));
+
+        return livingEntities;
+    }
+
+    public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
+        List<byte[]> nbtList = Collections.synchronizedList(new LinkedList<>());
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (LivingEntity livingEntity : livingEntities)
+            nbtList.add(nmsHandler.getEntityAsNBT(livingEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
+
+        stackedEntity.setStackedEntityNBT(nbtList);
+    }
+
+    public static void clearCache() {
+        cachedAlphabeticalEntityTypes = null;
+        cachedStackableEntityTypes = null;
+        cachedStackingTool = null;
     }
 
     private enum ItemLoreValue {

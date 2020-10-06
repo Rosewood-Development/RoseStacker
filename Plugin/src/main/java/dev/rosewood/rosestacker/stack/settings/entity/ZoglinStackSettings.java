@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Zoglin;
 
 public class ZoglinStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentAge;
+    private final boolean dontStackIfDifferentAge;
 
     public ZoglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class ZoglinStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Zoglin zoglin1 = (Zoglin) stack1.getEntity();
         Zoglin zoglin2 = (Zoglin) stack2.getEntity();
 
-        return !this.dontStackIfDifferentAge || zoglin1.isBaby() == zoglin2.isBaby();
+        if (this.dontStackIfDifferentAge && zoglin1.isBaby() != zoglin2.isBaby())
+            return EntityStackComparisonResult.DIFFERENT_AGES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

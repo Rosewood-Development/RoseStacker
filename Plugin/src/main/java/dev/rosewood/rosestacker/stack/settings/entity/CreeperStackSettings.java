@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -13,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 
 public class CreeperStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfCharged;
+    private final boolean dontStackIfCharged;
 
     public CreeperStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -22,11 +23,14 @@ public class CreeperStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Creeper creeper1 = (Creeper) stack1.getEntity();
         Creeper creeper2 = (Creeper) stack2.getEntity();
 
-        return !this.dontStackIfCharged || (!creeper1.isPowered() && !creeper2.isPowered());
+        if (this.dontStackIfCharged && (creeper1.isPowered() || creeper2.isPowered()))
+            return EntityStackComparisonResult.CHARGED;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

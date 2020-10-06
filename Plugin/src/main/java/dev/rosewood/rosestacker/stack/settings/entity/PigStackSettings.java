@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Pig;
 
 public class PigStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfSaddled;
+    private final boolean dontStackIfSaddled;
 
     public PigStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class PigStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Pig pig1 = (Pig) stack1.getEntity();
         Pig pig2 = (Pig) stack2.getEntity();
 
-        return !this.dontStackIfSaddled || (!pig1.hasSaddle() && !pig2.hasSaddle());
+        if (this.dontStackIfSaddled && (pig1.hasSaddle() || pig2.hasSaddle()))
+            return EntityStackComparisonResult.SADDLED;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

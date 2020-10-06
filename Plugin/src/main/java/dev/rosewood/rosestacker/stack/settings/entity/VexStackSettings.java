@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Vex;
 
 public class VexStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfCharging;
+    private final boolean dontStackIfCharging;
 
     public VexStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class VexStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Vex vex1 = (Vex) stack1.getEntity();
         Vex vex2 = (Vex) stack2.getEntity();
 
-        return !this.dontStackIfCharging || (!vex1.isCharging() && !vex2.isCharging());
+        if (this.dontStackIfCharging && (vex1.isCharging() || vex2.isCharging()))
+            return EntityStackComparisonResult.CHARGING;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

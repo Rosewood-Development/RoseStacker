@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Fox;
 
 public class FoxStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentType;
 
     public FoxStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class FoxStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Fox fox1 = (Fox) stack1.getEntity();
         Fox fox2 = (Fox) stack2.getEntity();
 
-        return !this.dontStackIfDifferentType || fox1.getFoxType() == fox2.getFoxType();
+        if (this.dontStackIfDifferentType && fox1.getFoxType() != fox2.getFoxType())
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

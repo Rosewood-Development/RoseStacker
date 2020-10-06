@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,8 +12,8 @@ import org.bukkit.entity.Strider;
 
 public class StriderStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfShivering;
-    private boolean dontStackIfSaddled;
+    private final boolean dontStackIfShivering;
+    private final boolean dontStackIfSaddled;
 
     public StriderStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -22,14 +23,17 @@ public class StriderStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Strider strider1 = (Strider) stack1.getEntity();
         Strider strider2 = (Strider) stack2.getEntity();
 
         if (this.dontStackIfShivering && (strider1.isShivering() || strider2.isShivering()))
-            return false;
+            return EntityStackComparisonResult.SHIVERING;
 
-        return !this.dontStackIfSaddled || (!strider1.hasSaddle() && !strider2.hasSaddle());
+        if (this.dontStackIfSaddled && (strider1.hasSaddle() || strider2.hasSaddle()))
+            return EntityStackComparisonResult.SADDLED;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

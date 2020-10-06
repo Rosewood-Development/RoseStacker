@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -24,17 +25,20 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         ZombieVillager zombieVillager1 = (ZombieVillager) stack1.getEntity();
         ZombieVillager zombieVillager2 = (ZombieVillager) stack2.getEntity();
 
         if (this.dontStackIfDifferentProfession && zombieVillager1.getVillagerProfession() != zombieVillager2.getVillagerProfession())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_PROFESSIONS;
 
         if (this.dontStackIfConverting && (zombieVillager1.isConverting() || zombieVillager2.isConverting()))
-            return false;
+            return EntityStackComparisonResult.CONVERTING;
 
-        return !this.dontStackIfDifferentAge || zombieVillager1.isBaby() == zombieVillager2.isBaby();
+        if (this.dontStackIfDifferentAge && zombieVillager1.isBaby() != zombieVillager2.isBaby())
+            return EntityStackComparisonResult.DIFFERENT_AGES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
+import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;
 
@@ -115,6 +116,25 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED("dynamic-tag-settings.entity-dynamic-tag-view-range-wall-detection-enabled", true, "Should entity tags be hidden if they are out of view?"),
         ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED("dynamic-tag-settings.item-dynamic-tag-view-range-wall-detection-enabled", true, "Should item tags be hidden if they are out of view?"),
         BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED("dynamic-tag-settings.block-dynamic-tag-view-range-wall-detection-enabled", true, "Should block/spawner tags be hidden if they are out of view?"),
+
+        STACK_TOOL_SETTINGS("stack-tool-settings", null, "Settings that apply to the item given from '/rs stacktool'"),
+        STACK_TOOL_MATERIAL("stack-tool-settings.material", Material.STICK.name(), "The material of the stacking tool"),
+        STACK_TOOL_NAME("stack-tool-settings.name", "<g:#ed3737:#ffaf3e>Stacking Tool", "The name to display on the stacking tool"),
+        STACK_TOOL_LORE("stack-tool-settings.lore", Arrays.asList(
+                "&bLeft Click:",
+                "&7- &eSelect two mobs to test if they can stack together.",
+                "&bShift Left Click:",
+                "&7- &eView stack details, works on all stack types.",
+                "&bRight Click:",
+                "&7- &eToggle if a mob is stackable or not.",
+                "&bShift Right Click:",
+                "&7- &eMark an entire entity stack as unstackable.",
+                "&7- &eThis will cause everything to unstack.",
+                "&bWhile Held:",
+                "&7- &eA particle will appear above nearby mobs.",
+                "&7- &aGreen &emeans the mob can stack.",
+                "&7- &cRed &emeans the mob can not stack."
+        ), "The lore to display on the stacking tool"),
 
         MISC_SETTINGS("misc-settings", null, "Miscellaneous other settings for the plugin"),
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),

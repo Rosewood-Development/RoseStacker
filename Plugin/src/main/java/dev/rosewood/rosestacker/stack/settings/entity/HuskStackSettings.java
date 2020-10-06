@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import java.util.List;
@@ -15,14 +16,17 @@ public class HuskStackSettings extends ZombieStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Husk husk1 = (Husk) stack1.getEntity();
         Husk husk2 = (Husk) stack2.getEntity();
 
         if (this.dontStackIfConverting && (husk1.isConverting() || husk2.isConverting()))
-            return false;
+            return EntityStackComparisonResult.CONVERTING;
 
-        return !this.dontStackIfDifferentAge || husk1.isBaby() == husk2.isBaby();
+        if (this.dontStackIfDifferentAge && husk1.isBaby() != husk2.isBaby())
+            return EntityStackComparisonResult.DIFFERENT_AGES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

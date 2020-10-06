@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -14,8 +15,8 @@ import org.bukkit.entity.PigZombie;
 
 public class ZombifiedPiglinStackSettings extends EntityStackSettings {
 
-    protected boolean dontStackIfAngry;
-    protected boolean dontStackIfDifferentAge;
+    protected final boolean dontStackIfAngry;
+    protected final boolean dontStackIfDifferentAge;
 
     public ZombifiedPiglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -25,14 +26,17 @@ public class ZombifiedPiglinStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         PigZombie pigZombie1 = (PigZombie) stack1.getEntity();
         PigZombie pigZombie2 = (PigZombie) stack2.getEntity();
 
         if (this.dontStackIfAngry && (pigZombie1.isAngry() || pigZombie2.isAngry()))
-            return false;
+            return EntityStackComparisonResult.ANGRY;
 
-        return !this.dontStackIfDifferentAge || pigZombie1.isBaby() == pigZombie2.isBaby();
+        if (this.dontStackIfDifferentAge || pigZombie1.isBaby() == pigZombie2.isBaby())
+            return EntityStackComparisonResult.DIFFERENT_AGES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -10,7 +11,7 @@ import org.bukkit.entity.EntityType;
 
 public class ChickenStackSettings extends EntityStackSettings {
 
-    private boolean multiplyEggDropsByStackSize;
+    private final boolean multiplyEggDropsByStackSize;
 
     public ChickenStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -19,8 +20,8 @@ public class ChickenStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
-        return true;
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

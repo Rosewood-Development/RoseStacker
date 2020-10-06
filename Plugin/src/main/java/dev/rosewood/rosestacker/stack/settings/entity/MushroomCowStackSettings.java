@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -12,24 +13,26 @@ import org.bukkit.entity.MushroomCow;
 
 public class MushroomCowStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentType;
 
     public MushroomCowStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
 
-        if (NMSUtil.getVersionNumber() >= 14)
-            this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentType = NMSUtil.getVersionNumber() >= 14 && this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         if (NMSUtil.getVersionNumber() <= 13)
-            return true;
+            return EntityStackComparisonResult.CAN_STACK;
 
         MushroomCow mushroomCow1 = (MushroomCow) stack1.getEntity();
         MushroomCow mushroomCow2 = (MushroomCow) stack2.getEntity();
 
-        return !this.dontStackIfDifferentType || (mushroomCow1.getVariant() == mushroomCow2.getVariant());
+        if (this.dontStackIfDifferentType && mushroomCow1.getVariant() != mushroomCow2.getVariant())
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Snowman;
 
 public class SnowmanStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfNoPumpkin;
+    private final boolean dontStackIfNoPumpkin;
 
     public SnowmanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class SnowmanStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Snowman snowman1 = (Snowman) stack1.getEntity();
         Snowman snowman2 = (Snowman) stack2.getEntity();
 
-        return !this.dontStackIfNoPumpkin || (!snowman1.isDerp() && !snowman2.isDerp());
+        if (this.dontStackIfNoPumpkin && (snowman1.isDerp() || snowman2.isDerp()))
+            return EntityStackComparisonResult.NO_PUMPKIN;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

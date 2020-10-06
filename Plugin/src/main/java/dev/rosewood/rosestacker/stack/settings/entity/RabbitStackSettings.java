@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Rabbit;
 
 public class RabbitStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentType;
 
     public RabbitStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -20,11 +21,14 @@ public class RabbitStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Rabbit rabbit1 = (Rabbit) stack1.getEntity();
         Rabbit rabbit2 = (Rabbit) stack2.getEntity();
 
-        return !this.dontStackIfDifferentType || rabbit1.getRabbitType() == rabbit2.getRabbitType();
+        if (this.dontStackIfDifferentType && rabbit1.getRabbitType() != rabbit2.getRabbitType())
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

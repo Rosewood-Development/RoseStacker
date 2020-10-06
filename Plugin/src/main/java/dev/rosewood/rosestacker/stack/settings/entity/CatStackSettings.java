@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -11,8 +12,8 @@ import org.bukkit.entity.EntityType;
 
 public class CatStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfDifferentType;
-    private boolean dontStackIfDifferentCollarColor;
+    private final boolean dontStackIfDifferentType;
+    private final boolean dontStackIfDifferentCollarColor;
 
     public CatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -22,14 +23,17 @@ public class CatStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Cat cat1 = (Cat) stack1.getEntity();
         Cat cat2 = (Cat) stack2.getEntity();
 
         if (this.dontStackIfDifferentType && cat1.getCatType() != cat2.getCatType())
-            return false;
+            return EntityStackComparisonResult.DIFFERENT_TYPES;
 
-        return !this.dontStackIfDifferentCollarColor || cat1.getCollarColor() == cat2.getCollarColor();
+        if (this.dontStackIfDifferentCollarColor && cat1.getCollarColor() != cat2.getCollarColor())
+            return EntityStackComparisonResult.DIFFERENT_COLLAR_COLORS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

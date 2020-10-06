@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
@@ -12,8 +13,8 @@ import org.bukkit.entity.Wolf;
 
 public class WolfStackSettings extends EntityStackSettings {
 
-    private boolean dontStackIfAngry;
-    private boolean dontStackIfDifferentCollarColor;
+    private final boolean dontStackIfAngry;
+    private final boolean dontStackIfDifferentCollarColor;
 
     public WolfStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
         super(entitySettingsFileConfiguration);
@@ -23,14 +24,17 @@ public class WolfStackSettings extends EntityStackSettings {
     }
 
     @Override
-    protected boolean canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
+    protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Wolf wolf1 = (Wolf) stack1.getEntity();
         Wolf wolf2 = (Wolf) stack2.getEntity();
 
         if (this.dontStackIfAngry && (wolf1.isAngry() || wolf2.isAngry()))
-            return false;
+            return EntityStackComparisonResult.ANGRY;
 
-        return !this.dontStackIfDifferentCollarColor || wolf1.getCollarColor() == wolf2.getCollarColor();
+        if (this.dontStackIfDifferentCollarColor && wolf1.getCollarColor() != wolf2.getCollarColor())
+            return EntityStackComparisonResult.DIFFERENT_COLLAR_COLORS;
+
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override
