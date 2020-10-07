@@ -9,8 +9,8 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      */
     public static final int DELAY_THRESHOLD = 3;
 
-    private Random random;
+    private final Random random;
     private BukkitTask task;
 
     public SpawnerSpawnManager(RosePlugin rosePlugin) {
@@ -75,11 +75,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
         boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
 
-        for (Block block : new HashMap<>(stackManager.getStackedSpawners()).keySet()) {
+        Map<Block, StackedSpawner> stackedSpawners = stackManager.getStackedSpawners();
+        for (Block block : stackedSpawners.keySet()) {
             if (block.getType() != Material.SPAWNER)
                 continue;
 
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawners().get(block);
+            StackedSpawner stackedSpawner = stackedSpawners.get(block);
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
             CreatureSpawner spawner = (CreatureSpawner) block.getState(); // Need to refetch the state so the delay is the latest
             if (redstoneSpawners) {

@@ -27,7 +27,7 @@ dependencies {
     compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
     compileOnly 'com.sainttx:holograms:2.13'
     compileOnly 'com.songoda:epicspawners:6.4'
-    compileOnly 'com.songoda:ultimatestacker:2.0.2'
+    compileOnly 'com.songoda:ultimatestacker:2.0.8'
     compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'me.minebuilders:clearlag:3.1.6'
     compileOnly 'net.brcdev:shopgui:1.36.0'
