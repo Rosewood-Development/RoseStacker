@@ -174,7 +174,8 @@ public abstract class EntityStackSettings extends StackSettings {
         if (!this.enabled)
             return EntityStackComparisonResult.STACKING_NOT_ENABLED;
 
-        if (stack1.getStackSize() + stack2.getStackSize() > this.getMaxStackSize())
+        int offset = comparingForUnstack ? -1 : 0;
+        if (stack1.getStackSize() + stack2.getStackSize() + offset > this.getMaxStackSize())
             return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
 
         if (StackerUtils.isUnstackable(entity1) || StackerUtils.isUnstackable(entity2))
