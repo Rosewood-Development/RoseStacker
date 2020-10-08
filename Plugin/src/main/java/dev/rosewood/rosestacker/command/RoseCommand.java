@@ -29,6 +29,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -354,8 +355,9 @@ public class RoseCommand extends BaseCommand {
             Map<Material, String> materialValues = response.getMaterialValues();
             Map<EntityType, String> entityValues = response.getEntityValues();
 
-            for (Material material : materialValues.keySet()) {
-                String value = materialValues.get(material);
+            for (Entry<Material, String> entry : materialValues.entrySet()) {
+                Material material = entry.getKey();
+                String value = entry.getValue();
 
                 if (blockStackConfig.isConfigurationSection(material.name()))
                     blockStackConfig.set(material.name() + ".display-name", value);
@@ -364,8 +366,9 @@ public class RoseCommand extends BaseCommand {
                     itemStackConfig.set(material.name() + ".display-name", value);
             }
 
-            for (EntityType entityType : entityValues.keySet()) {
-                String value = entityValues.get(entityType);
+            for (Entry<EntityType, String> entry : entityValues.entrySet()) {
+                EntityType entityType = entry.getKey();
+                String value = entry.getValue();
 
                 if (entityStackConfig.isConfigurationSection(entityType.name()))
                     entityStackConfig.set(entityType.name() + ".display-name", value);

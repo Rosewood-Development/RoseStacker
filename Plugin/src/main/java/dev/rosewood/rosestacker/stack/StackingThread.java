@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -345,9 +346,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             }
         } else {
             // Entity is null so we have to remove by value instead
-            for (UUID key : this.stackedEntities.keySet()) {
-                if (this.stackedEntities.get(key) == stackedEntity) {
-                    this.stackedEntities.remove(key);
+            for (Entry<UUID, StackedEntity> entry : this.stackedEntities.entrySet()) {
+                if (entry.getValue() == stackedEntity) {
+                    this.stackedEntities.remove(entry.getKey());
                     this.stackManager.markStackDeleted(stackedEntity);
                     return;
                 }
@@ -366,9 +367,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             }
         } else {
             // Item is null so we have to remove by value instead
-            for (UUID key : this.stackedItems.keySet()) {
-                if (this.stackedItems.get(key) == stackedItem) {
-                    this.stackedItems.remove(key);
+            for (Entry<UUID, StackedItem> entry : this.stackedItems.entrySet()) {
+                if (entry.getValue() == stackedItem) {
+                    this.stackedItems.remove(entry.getKey());
                     this.stackManager.markStackDeleted(stackedItem);
                     return;
                 }

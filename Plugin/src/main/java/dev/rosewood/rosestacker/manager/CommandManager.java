@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -46,10 +47,10 @@ public class CommandManager extends Manager {
         // Load custom message strings
         Map<String, String> acfCoreMessages = localeManager.getAcfCoreMessages();
         Map<String, String> acfMinecraftMessages = localeManager.getAcfMinecraftMessages();
-        for (String key : acfCoreMessages.keySet())
-            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + key), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + acfCoreMessages.get(key)));
-        for (String key : acfMinecraftMessages.keySet())
-            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + key), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + acfMinecraftMessages.get(key)));
+        for (Entry<String, String> entry : acfCoreMessages.entrySet())
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-core." + entry.getKey()), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + entry.getValue()));
+        for (Entry<String, String> entry : acfMinecraftMessages.entrySet())
+            this.commandManager.getLocales().addMessage(Locale.ENGLISH, MessageKey.of("acf-minecraft." + entry.getKey()), HexUtils.colorify(localeManager.getLocaleMessage("prefix") + entry.getValue()));
 
         CommandCompletions<BukkitCommandCompletionContext> completions = this.commandManager.getCommandCompletions();
         completions.registerStaticCompletion("stackableBlockMaterial", () -> stackSettingManager.getStackableBlockTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));

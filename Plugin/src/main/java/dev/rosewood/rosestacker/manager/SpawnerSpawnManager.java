@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,11 +77,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
 
         Map<Block, StackedSpawner> stackedSpawners = stackManager.getStackedSpawners();
-        for (Block block : stackedSpawners.keySet()) {
+        for (Entry<Block, StackedSpawner> entry : stackedSpawners.entrySet()) {
+            Block block = entry.getKey();
             if (block.getType() != Material.SPAWNER)
                 continue;
 
-            StackedSpawner stackedSpawner = stackedSpawners.get(block);
+            StackedSpawner stackedSpawner = entry.getValue();
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
             CreatureSpawner spawner = (CreatureSpawner) block.getState(); // Need to refetch the state so the delay is the latest
             if (redstoneSpawners) {

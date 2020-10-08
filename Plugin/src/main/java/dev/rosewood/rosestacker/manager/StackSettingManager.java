@@ -215,11 +215,9 @@ public class StackSettingManager extends Manager {
         if (!StackerUtils.isSpawnEgg(material))
             return null;
 
-        for (EntityType key : this.entitySettings.keySet()) {
-            EntityStackSettings settings = this.entitySettings.get(key);
+        for (EntityStackSettings settings : this.entitySettings.values())
             if (settings.getSpawnEggMaterial() == material)
                 return settings;
-        }
 
         return null;
     }
