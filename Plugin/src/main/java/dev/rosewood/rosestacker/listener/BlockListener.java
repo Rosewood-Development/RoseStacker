@@ -103,6 +103,12 @@ public class BlockListener implements Listener {
         Location dropLocation = block.getLocation().clone().add(0.5, 0.5, 0.5);
 
         if (isSpawner) {
+
+            if (!event.getPlayer().hasPermission("rosestacker.spawnermine")){
+                event.setCancelled(true);
+                return;
+            }
+
             if (!stackManager.isSpawnerStackingEnabled())
                 return;
 

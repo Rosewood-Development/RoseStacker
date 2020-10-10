@@ -38,6 +38,7 @@ permissions:
       rosestacker.stacktool.give: true
       rosestacker.silktouch: true
       rosestacker.spawnerconvert: true
+      rosestacker.spawnermine: true
   rosestacker.reload:
     description: Allows using the reload command
     default: op
@@ -73,4 +74,7 @@ permissions:
     default: op
   rosestacker.spawnerconvert:
     description: Allows converting spawners with mob spawn eggs
+    default: op
+  rosestacker.spawnermine:
+    description: Allows for breaking spawners
     default: op
