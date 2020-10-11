@@ -62,10 +62,10 @@ public class NPCsHook {
     public static boolean isNPC(LivingEntity entity) {
         boolean npc = false;
 
-        if (citizensEnabled())
+        if (citizensEnabled() && CitizensAPI.hasImplementation())
             npc = CitizensAPI.getNPCRegistry().isNPC(entity);
 
-        if (!npc && shopkeepersEnabled())
+        if (!npc && shopkeepersEnabled() && ShopkeepersAPI.isEnabled())
             npc = ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity);
 
         if (!npc && mythicMobsEnabled())
