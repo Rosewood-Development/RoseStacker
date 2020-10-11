@@ -47,13 +47,12 @@ public class ZombifiedPiglinStackSettings extends EntityStackSettings {
 
     @Override
     public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        super.applyUnstackProperties(stacked, unstacked);
+
         PigZombie stackedPigZombie = (PigZombie) stacked;
         PigZombie unstackedPigZombie = (PigZombie) unstacked;
 
         stackedPigZombie.setAnger(unstackedPigZombie.getAnger());
-        stackedPigZombie.setTarget(unstackedPigZombie.getTarget());
-
-        super.applyUnstackProperties(stacked, unstacked);
     }
 
     @Override

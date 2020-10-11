@@ -472,10 +472,10 @@ public abstract class EntityStackSettings extends StackSettings {
             Mob stackedMob = (Mob) stacked;
             Mob unstackedMob = (Mob) unstacked;
 
-            unstackedMob.setTarget(stackedMob.getTarget());
+            stackedMob.setTarget(unstackedMob.getTarget());
         }
 
-        unstacked.setLastDamageCause(stacked.getLastDamageCause());
+        stacked.setLastDamageCause(unstacked.getLastDamageCause());
     }
 
     public abstract EntityType getEntityType();

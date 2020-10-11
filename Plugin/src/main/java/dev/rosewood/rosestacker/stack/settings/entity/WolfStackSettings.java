@@ -45,13 +45,12 @@ public class WolfStackSettings extends EntityStackSettings {
 
     @Override
     public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
+        super.applyUnstackProperties(stacked, unstacked);
+
         Wolf stackedWolf = (Wolf) stacked;
         Wolf unstackedWolf = (Wolf) unstacked;
 
         stackedWolf.setAngry(unstackedWolf.isAngry());
-        unstackedWolf.setTarget(unstackedWolf.getTarget());
-
-        super.applyUnstackProperties(stacked, unstacked);
     }
 
     @Override
