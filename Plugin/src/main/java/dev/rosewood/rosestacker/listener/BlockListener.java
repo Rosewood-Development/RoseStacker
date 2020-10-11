@@ -224,7 +224,8 @@ public class BlockListener implements Listener {
         if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean()) {
             int destroyAmount = 0;
 
-            if (Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch"))
+            boolean destroyFromMissingPermission = Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch");
+            if (destroyFromMissingPermission)
                 destroyAmount = amount;
 
             int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
@@ -239,7 +240,7 @@ public class BlockListener implements Listener {
             amount -= destroyAmount;
 
             if (destroyAmount > 0) {
-                if (Setting.SPAWNER_SILK_TOUCH_PROTECT.getBoolean() && silkTouchLevel <= 0) {
+                if (Setting.SPAWNER_SILK_TOUCH_PROTECT.getBoolean() && (silkTouchLevel <= 0 || destroyFromMissingPermission)) {
                     this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-silk-touch-protect");
                     return false;
                 }
