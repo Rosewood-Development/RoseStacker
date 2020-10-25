@@ -33,7 +33,7 @@ public class ZombifiedPiglinStackSettings extends EntityStackSettings {
         if (this.dontStackIfAngry && (pigZombie1.isAngry() || pigZombie2.isAngry()))
             return EntityStackComparisonResult.ANGRY;
 
-        if (this.dontStackIfDifferentAge || pigZombie1.isBaby() == pigZombie2.isBaby())
+        if (this.dontStackIfDifferentAge && pigZombie1.isBaby() != pigZombie2.isBaby())
             return EntityStackComparisonResult.DIFFERENT_AGES;
 
         return EntityStackComparisonResult.CAN_STACK;
