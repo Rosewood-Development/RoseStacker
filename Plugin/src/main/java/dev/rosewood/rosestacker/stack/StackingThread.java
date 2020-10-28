@@ -138,11 +138,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 if (this.pendingLoadChunks.contains(entity.getLocation().getChunk()))
                     continue;
 
-                if (entityStackingEnabled && entity instanceof LivingEntity) {
+                if (entityStackingEnabled && entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
                     LivingEntity livingEntity = (LivingEntity) entity;
                     if (!this.isEntityStacked(livingEntity))
                         this.createEntityStack(livingEntity, true);
-                } else if (itemStackingEnabled && entity instanceof Item) {
+                } else if (itemStackingEnabled && entity.getType() == EntityType.DROPPED_ITEM) {
                     Item item = (Item) entity;
                     if (!this.isItemStacked(item))
                         this.createItemStack(item, true);
@@ -222,7 +222,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                         nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
 
                     // Spawn particles for holding the stacking tool
-                    if (visible && displayStackingToolParticles && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.DROPPED_ITEM) {
+                    if (visible && displayStackingToolParticles) {
                         Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
                         DustOptions dustOptions;
                         if (StackerUtils.isUnstackable(livingEntity)) {
