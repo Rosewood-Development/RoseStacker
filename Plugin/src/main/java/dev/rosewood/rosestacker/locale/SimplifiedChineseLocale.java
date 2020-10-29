@@ -97,7 +97,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-translate-failure", "&c无法翻译堆叠整体的显示名称。在获取语言数据时发生了错误，请稍后再试一次。");
             this.put("command-translate-invalid-locale", "&c无法翻译堆叠整体的显示名称。您所指定的语言文件是无效的。");
             this.put("command-translate-spawner-format", "&e刷怪笼名称无法被精准地翻译。为了修复这个问题，您可以输入 &b/rs translate zh_cn &3{} " +
-                    "刷怪笼 &e以确保刷怪笼堆叠的显示名称为 \"牛 刷怪笼"\。请使用 &b{} &e作为生物名字的占位符变量。");
+                    "刷怪笼 &e以确保刷怪笼堆叠的显示名称为 \"牛 刷怪笼\"。请使用 &b{} &e作为生物名字的占位符变量。");
             this.put("command-translate-spawner-format-invalid", "&c您所提供的刷怪笼翻译名称格式是无效的。其必须包含 &b{} &c作为生物名字的占位符变量。");
             this.put("command-translate-success", "&a成功翻译堆叠整体的显示名称。");
 
