@@ -27,7 +27,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("#0", "插件信息前缀");
             this.put("prefix", "&7[<g:#8A2387:#E94057:#F27121>RoseStacker&7] ");
 
-            this.put("#1", "Stack Display Tags");
+            this.put("#1", "堆叠整体显示名称");
             this.put("entity-stack-display", "&c%amount%x &7%name%");
             this.put("entity-stack-display-custom-name", "%name% &7[&c%amount%x&7]");
             this.put("entity-stack-display-spawn-egg", "&c%amount%x &7%name% 生成蛋");
@@ -40,7 +40,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("base-command-color", "&e");
             this.put("base-command-help", "&e使用 &b/rs help &e来获取更多命令信息。");
 
-            this.put("#3", "Help Command");
+            this.put("#3", "帮助命令");
             this.put("command-help-description", "8 - &d/rs help &7- 显示命令帮助菜单... 就是您现在看着的这个");
             this.put("command-help-title", "&e可用的命令:");
 
