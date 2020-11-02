@@ -20,3 +20,6 @@ project(':NMS-v1_16_R1').projectDir = file('NMS/v1_16_R1')
 
 include(':NMS-v1_16_R2')
 project(':NMS-v1_16_R2').projectDir = file('NMS/v1_16_R2')
+
+include(':NMS-v1_16_R3')
+project(':NMS-v1_16_R3').projectDir = file('NMS/v1_16_R3')

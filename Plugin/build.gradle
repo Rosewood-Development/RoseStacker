@@ -16,7 +16,7 @@ dependencies {
     implementation project(':NMS-Wrapper')
 
     // Referenced dependencies
-    compileOnly 'org.spigotmc:spigot:1.16.2'
+    compileOnly 'org.spigotmc:spigot:1.16.4'
     compileOnly 'net.coreprotect:coreprotect:2.15.0'
     compileOnly 'me.clip:placeholderapi:2.10.4'
     compileOnly 'org.jetbrains:annotations:16.0.2'
