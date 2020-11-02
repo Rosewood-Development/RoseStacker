@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -8,10 +10,12 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -53,19 +57,38 @@ public class InteractListener implements Listener {
                     && StackerUtils.isSpawnEgg(item.getType())
                     && StackerUtils.getStackedItemStackAmount(item) == 1) {
 
+                CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
+                EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
+                if (stackSettings != null && stackSettings.getEntityType() == creatureSpawner.getSpawnedType()) {
+                    // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
+                    event.setCancelled(true);
+                    return;
+                }
+
                 if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
                     event.setCancelled(true);
                     return;
                 }
 
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                    if (!stackManager.isSpawnerStacked(clickedBlock))
-                        return;
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                if (stackedSpawner == null)
+                    return;
 
+                if (Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean()
+                        && item.getAmount() < stackedSpawner.getStackSize()
+                        && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                    event.setCancelled(true);
+                    this.rosePlugin.getManager(LocaleManager.class).sendMessage(event.getPlayer(), "spawner-convert-not-enough");
+                    return;
+                }
+
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                     // Make sure spawners convert and update their display properly
-                    StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
                     stackedSpawner.updateSpawnerProperties();
                     stackedSpawner.updateDisplay();
+
+                    if (stackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
+                        item.setAmount(item.getAmount() - stackedSpawner.getStackSize() + 1);
                 });
 
                 return;

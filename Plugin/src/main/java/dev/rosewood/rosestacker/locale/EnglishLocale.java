@@ -236,6 +236,7 @@ public class EnglishLocale implements Locale {
 
             this.put("#21", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.");
+            this.put("spawner-convert-not-enough", "&cWarning! &eUnable to convert spawners using spawn eggs. You are not holding enough spawn eggs to do this conversion.");
         }};
     }
 }
