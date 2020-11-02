@@ -11,12 +11,14 @@ import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
+import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -43,7 +45,10 @@ public class LocaleManager extends AbstractLocaleManager {
 
     @Override
     public List<Locale> getLocales() {
-        return Collections.singletonList(new EnglishLocale());
+        return Arrays.asList(
+                new EnglishLocale(),
+                new SimplifiedChineseLocale()
+        );
     }
 
     /**
