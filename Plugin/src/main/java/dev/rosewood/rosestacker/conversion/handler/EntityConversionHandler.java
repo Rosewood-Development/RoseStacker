@@ -22,6 +22,9 @@ public class EntityConversionHandler extends ConversionHandler {
 
         for (ConversionData data : conversionData) {
             LivingEntity entity = data.getEntity();
+            entity.setCustomName(null); // This could cause data loss if the entity actually has a custom name, but we have to remove the stack tag
+            entity.setCustomNameVisible(false);
+
             List<byte[]> entityStackData = this.createEntityStackNBT(entity.getType(), data.getStackSize(), entity.getLocation());
             StackedEntity stackedEntity = new StackedEntity(data.getEntity(), entityStackData);
             this.stackManager.addEntityStack(stackedEntity);

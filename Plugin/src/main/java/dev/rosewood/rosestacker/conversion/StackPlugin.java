@@ -15,7 +15,7 @@ import java.util.List;
 public enum StackPlugin {
 
     WildStacker(WildStackerPluginConverter.class, StackType.ENTITY, StackType.ITEM, StackType.BLOCK, StackType.SPAWNER),
-    UltimateStacker(UltimateStackerPluginConverter.class, StackType.ENTITY, StackType.ITEM, StackType.SPAWNER),
+    UltimateStacker(UltimateStackerPluginConverter.class, StackType.ENTITY, StackType.ITEM, StackType.BLOCK, StackType.SPAWNER),
     EpicSpawners(EpicSpawnersPluginConverter.class, StackType.SPAWNER),
     StackMob(StackMobPluginConverter.class, StackType.ENTITY);
 

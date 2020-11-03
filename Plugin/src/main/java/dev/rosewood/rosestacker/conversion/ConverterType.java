@@ -6,15 +6,13 @@ import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
 import dev.rosewood.rosestacker.conversion.handler.EntityConversionHandler;
 import dev.rosewood.rosestacker.conversion.handler.ItemConversionHandler;
 import dev.rosewood.rosestacker.conversion.handler.StackMobConversionHandler;
-import dev.rosewood.rosestacker.conversion.handler.UltimateStackerEntityConversionHandler;
-import dev.rosewood.rosestacker.conversion.handler.UltimateStackerItemConversionHandler;
+import dev.rosewood.rosestacker.conversion.handler.UltimateStackerConversionHandler;
 
 public enum ConverterType {
 
     ENTITY(EntityConversionHandler.class),
     ITEM(ItemConversionHandler.class),
-    ULTIMATESTACKER_ENTITY(UltimateStackerEntityConversionHandler.class),
-    ULTIMATESTACKER_ITEM(UltimateStackerItemConversionHandler.class),
+    ULTIMATESTACKER(UltimateStackerConversionHandler.class),
     STACKMOB(StackMobConversionHandler.class);
 
     private final Class<? extends ConversionHandler> conversionHandler;

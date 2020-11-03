@@ -1,38 +1,37 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.conversion.ConversionData;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
-import org.bukkit.ChatColor;
+import dev.rosewood.rosestacker.stack.StackedItem;
+import java.util.HashSet;
+import java.util.Set;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-public abstract class UltimateStackerConversionHandler extends ConversionHandler {
+public class UltimateStackerConversionHandler extends ConversionHandler {
 
-    public UltimateStackerConversionHandler(RosePlugin rosePlugin, StackType requiredDataStackType) {
-        super(rosePlugin, requiredDataStackType, true);
+    public UltimateStackerConversionHandler(RosePlugin rosePlugin) {
+        super(rosePlugin, StackType.ITEM, true);
     }
 
-    /**
-     * Gets the entity stack size FROM THE CUSTOM NAMETAG. WHY WOULD YOU DO THIS???
-     *
-     * @param entity The entity to get the stack size of
-     * @return The entity stack size, or -1 if it couldn't be determined
-     */
-    protected int getEntityAmount(LivingEntity entity) {
-        String customName = entity.getCustomName();
-        if (customName != null && customName.contains(String.valueOf(ChatColor.COLOR_CHAR))) {
-            String name = customName.replace(String.valueOf(ChatColor.COLOR_CHAR), "").replace(";", "");
-            if (!name.contains(":"))
-                return 1;
+    @Override
+    public Set<Stack<?>> handleConversion(Set<ConversionData> conversionData) {
+        Set<Stack<?>> stacks = new HashSet<>();
 
-            try {
-                return Integer.parseInt(name.split(":")[0]);
-            } catch (NumberFormatException ex) {
-                return 1;
-            }
+        for (ConversionData data : conversionData) {
+            Item item = data.getItem();
+            if (item == null)
+                continue;
+
+            int stackSize = this.getItemAmount(item);
+            StackedItem stackedItem = new StackedItem(stackSize, data.getItem());
+            this.stackManager.addItemStack(stackedItem);
+            stacks.add(stackedItem);
         }
-        return 1;
+
+        return stacks;
     }
 
     /**
