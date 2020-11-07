@@ -18,11 +18,15 @@ public class AirConditionTag extends ConditionTag {
     @Override
     public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
         Block above = spawnBlock.getRelative(BlockFace.UP);
-        boolean isAir = spawnBlock.getType().isAir() && above.getType().isAir();
+        boolean spawnIsAir = spawnBlock.getType().isAir() || !spawnBlock.getType().isOccluding();
+        boolean aboveIsAir = above.getType().isAir() || !above.getType().isOccluding();
+        boolean isAir = spawnIsAir && aboveIsAir;
         EntityType entityType = creatureSpawner.getSpawnedType();
         // TODO: Check to make sure all entities will fit here. Probably going to have to do AABB checks somehow.
-        if (entityType == EntityType.ENDERMAN)
-            isAir &= above.getRelative(BlockFace.UP).getType().isAir();
+        if (entityType == EntityType.ENDERMAN) {
+            Block third = above.getRelative(BlockFace.UP);
+            isAir &= third.getType().isAir() || !third.getType().isOccluding();
+        }
         return isAir;
     }
 
