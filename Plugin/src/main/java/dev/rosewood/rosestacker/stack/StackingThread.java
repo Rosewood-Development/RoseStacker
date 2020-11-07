@@ -401,6 +401,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     @Override
     public int removeAllEntityStacks() {
         List<StackedEntity> toRemove = this.stackedEntities.values().stream()
+                .filter(x -> x.getEntity() != null && x.getEntity().getType() != EntityType.PLAYER)
                 .filter(x -> x.getStackSize() != 1 || Setting.MISC_CLEARALL_REMOVE_SINGLE.getBoolean())
                 .collect(Collectors.toList());
 
