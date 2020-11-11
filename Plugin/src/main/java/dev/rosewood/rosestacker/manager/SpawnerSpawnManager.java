@@ -82,6 +82,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             if (block.getType() != Material.SPAWNER)
                 continue;
 
+            // Make sure the chunk is loaded
+            if (!block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4))
+                continue;
+
             StackedSpawner stackedSpawner = entry.getValue();
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
             CreatureSpawner spawner = (CreatureSpawner) block.getState(); // Need to refetch the state so the delay is the latest
