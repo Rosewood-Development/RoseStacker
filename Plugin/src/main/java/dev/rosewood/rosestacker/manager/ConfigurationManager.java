@@ -140,8 +140,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
         MISC_SETTINGS("misc-settings", null, "Miscellaneous other settings for the plugin"),
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),
-        MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", true, "If Clearlag is installed, should we clear stacked entities?"),
-        MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", true, "If Clearlag is installed, should we clear stacked items?"),
+        MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", false, "If Clearlag is installed, should we clear stacked entities?"),
+        MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
         MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above");
 
         private final String key;
