@@ -26,6 +26,11 @@ public class SalmonStackSettings extends EntityStackSettings {
     }
 
     @Override
+    public boolean isSwimmingMob() {
+        return true;
+    }
+
+    @Override
     public EntityType getEntityType() {
         return EntityType.SALMON;
     }

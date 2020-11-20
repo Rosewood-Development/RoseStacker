@@ -13,6 +13,11 @@ public class ElderGuardianStackSettings extends GuardianStackSettings {
     }
 
     @Override
+    public boolean isSwimmingMob() {
+        return true;
+    }
+
+    @Override
     public EntityType getEntityType() {
         return EntityType.ELDER_GUARDIAN;
     }

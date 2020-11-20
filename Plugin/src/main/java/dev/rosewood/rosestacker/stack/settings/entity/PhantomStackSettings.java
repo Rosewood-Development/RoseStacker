@@ -37,6 +37,11 @@ public class PhantomStackSettings extends EntityStackSettings {
     }
 
     @Override
+    public boolean isFlyingMob() {
+        return true;
+    }
+
+    @Override
     public EntityType getEntityType() {
         return EntityType.PHANTOM;
     }

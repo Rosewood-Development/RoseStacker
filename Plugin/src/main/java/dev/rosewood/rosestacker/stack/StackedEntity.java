@@ -21,7 +21,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -305,7 +304,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this == stack2)
             return 0;
 
-        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && entity1 instanceof Flying)
+        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && this.stackSettings.isFlyingMob())
             return entity1.getLocation().getY() < entity2.getLocation().getY() ? 3 : -3;
 
         if (this.getStackSize() == stack2.getStackSize())
