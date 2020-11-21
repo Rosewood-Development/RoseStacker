@@ -42,11 +42,13 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
@@ -246,6 +248,36 @@ public class NMSHandlerImpl implements NMSHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public ItemStack setItemStackNBT(ItemStack itemStack, String key, String value) {
+        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
+        tagCompound.setString(key, value);
+        return CraftItemStack.asBukkitCopy(nmsItem);
+    }
+
+    @Override
+    public ItemStack setItemStackNBT(ItemStack itemStack, String key, int value) {
+        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
+        tagCompound.setInt(key, value);
+        return CraftItemStack.asBukkitCopy(nmsItem);
+    }
+
+    @Override
+    public String getItemStackNBTString(ItemStack itemStack, String key) {
+        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
+        return tagCompound.getString(key);
+    }
+
+    @Override
+    public int getItemStackNBTInt(ItemStack itemStack, String key) {
+        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
+        return tagCompound.getInt(key);
     }
 
 }

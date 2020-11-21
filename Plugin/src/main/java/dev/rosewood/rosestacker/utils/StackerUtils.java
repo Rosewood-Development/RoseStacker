@@ -131,12 +131,12 @@ public final class StackerUtils {
                 .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.BLOCK_TYPE.getValue(formatName(material.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+
         return itemStack;
     }
 
@@ -155,12 +155,13 @@ public final class StackerUtils {
                 .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.SPAWNER_TYPE.getValue(formatName(entityType.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size and spawned entity type
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
+
         return itemStack;
     }
 
@@ -179,16 +180,23 @@ public final class StackerUtils {
                 .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.ENTITY_TYPE.getValue(formatName(entityType.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+
         return itemStack;
     }
 
     public static int getStackedItemStackAmount(ItemStack itemStack) {
+        // First, check the NBT
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        int stackSize = nmsHandler.getItemStackNBTInt(itemStack, "StackSize");
+        if (stackSize > 0)
+            return stackSize;
+
+        // Fall back to the legacy lore checking
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null || itemMeta.getLore() == null || itemMeta.getLore().isEmpty())
             return 1;
@@ -205,6 +213,16 @@ public final class StackerUtils {
         if (itemStack.getType() != Material.SPAWNER)
             return null;
 
+        // First, check the NBT
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        String entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "EntityType");
+        if (!entityTypeName.isEmpty()) {
+            try {
+                return EntityType.valueOf(entityTypeName);
+            } catch (Exception ignored) { }
+        }
+
+        // Fall back to the legacy lore checking
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return EntityType.PIG;
