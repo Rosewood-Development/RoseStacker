@@ -172,12 +172,17 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
+        // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
         if (existingLoot != null)
             loot.addAll(existingLoot);
 
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        // The stack loot can either be processed synchronously or asynchronously depending on a setting
+        // It should always be processed async unless errors are caused by other plugins
+        boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
+
+        Runnable mainTask = () -> {
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
@@ -190,7 +195,13 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 entity.setFireTicks(fireTicks);
                 Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    EntityDeathEvent deathEvent;
+                    if (async) {
+                        deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    } else {
+                        deathEvent = new EntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    }
+
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     totalExp += deathEvent.getDroppedExp();
                     loot.addAll(deathEvent.getDrops());
@@ -201,12 +212,24 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             }
 
             int finalTotalExp = totalExp;
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+            Runnable finishTask = () -> {
                 RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, thisEntity.getLocation());
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
                     StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, 30);
-            });
-        });
+            };
+
+            if (async) {
+                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
+            } else {
+                finishTask.run();
+            }
+        };
+
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), mainTask);
+        } else {
+            mainTask.run();
+        }
     }
 
     /**
