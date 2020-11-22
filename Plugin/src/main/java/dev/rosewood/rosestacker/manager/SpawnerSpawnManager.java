@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
@@ -71,6 +72,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     @Override
     public void run() {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
@@ -190,6 +192,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         if (stackSettings.isMobAIDisabled())
                             this.disableAI(spawnedLivingEntity);
                         this.tagSpawnedFromSpawner(spawnedLivingEntity);
+
+                        EntityStackSettings entitySettings = stackSettingManager.getEntityStackSettings(spawnedLivingEntity);
+                        if (entitySettings != null)
+                            entitySettings.applySpawnerSpawnedProperties(spawnedLivingEntity);
                     });
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);

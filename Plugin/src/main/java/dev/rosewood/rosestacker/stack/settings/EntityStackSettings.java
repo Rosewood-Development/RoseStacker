@@ -477,6 +477,19 @@ public abstract class EntityStackSettings extends StackSettings {
     }
 
     /**
+     * Applies properties to an entity after being spawned by a spawner
+     *
+     * @param entity The entity being spawned
+     */
+    public void applySpawnerSpawnedProperties(LivingEntity entity) {
+        if (this.isEntityRaider() && Setting.SPAWNER_NERF_PATROL_LEADERS.getBoolean()) {
+            Raider raider = (Raider) entity;
+
+            raider.setPatrolLeader(false);
+        }
+    }
+
+    /**
      * @return true if the entity lives in the water, otherwise false
      */
     public boolean isSwimmingMob() {

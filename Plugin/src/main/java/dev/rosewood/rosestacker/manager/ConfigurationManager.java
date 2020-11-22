@@ -99,6 +99,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SPAWN_MAX_NEARBY_ENTITIES("global-spawner-settings.spawn-max-nearby-entities", 6, "If more than this number of entities are near the spawner, it will not spawn anything", "This only counts the individual mobs, and not the stack size", "Can be overridden for each spawner type using the max-nearby-entities:# spawn requirement"),
         SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?"),
         SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?"),
+        SPAWNER_NERF_PATROL_LEADERS("global-spawner-settings.nerf-patrol-leaders", false, "Should patrol leaders be prevented when spawning potential raid member mobs?"),
         SPAWNER_GUI_ENABLED("global-spawner-settings.gui-enabled", true, "Should a GUI to view the spawner information open when the player shift-right-clicks the stack?"),
         SPAWNER_GUI_TICK_UPDATE_RATE("global-spawner-settings.gui-tick-update-rate", 2, "How often should the time before next spawn message be updated?", "Value is measured in ticks, do not go below 1"),
         SPAWNER_GUI_BORDER_MATERIAL("global-spawner-settings.gui-border-material", Material.GRAY_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?"),
