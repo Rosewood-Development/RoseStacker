@@ -175,14 +175,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
-        for (Player player : this.targetWorld.getPlayers()) {
+        for (Player player : new ArrayList<>(this.targetWorld.getPlayers())) {
             if (player.getWorld() != this.targetWorld)
                 continue;
 
             ItemStack itemStack = player.getInventory().getItemInMainHand();
             boolean displayStackingToolParticles = StackerUtils.isStackingTool(itemStack);
 
-            for (Entity entity : this.targetWorld.getEntities()) {
+            for (Entity entity : new ArrayList<>(this.targetWorld.getEntities())) {
                 if (entity.getType() == EntityType.PLAYER)
                     continue;
 
