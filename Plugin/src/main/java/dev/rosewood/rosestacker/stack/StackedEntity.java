@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderDragon;
@@ -162,6 +163,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public void setStackedEntityNBT(List<byte[]> serializedNbt) {
         this.serializedStackedEntities = serializedNbt;
+        this.updateDisplay();
     }
 
     /**
@@ -172,6 +174,32 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
+        // Cache the current entity just in case it somehow changes while we are processing the loot
+        LivingEntity thisEntity = this.entity;
+
+        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+            List<LivingEntity> internalEntities = new ArrayList<>();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            for (byte[] entityNBT : this.serializedStackedEntities) {
+                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
+                if (entity == null)
+                    continue;
+                internalEntities.add(entity);
+            }
+
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> this.dropPartialStackLoot(internalEntities, existingLoot, droppedExp));
+        });
+    }
+
+    /**
+     * Drops loot for entities that are part of the stack.
+     * Does not include loot for the current entity.
+     *
+     * @param internalEntities The entities which should be part of this stack
+     * @param existingLoot The loot from this.entity, nullable
+     * @param droppedExp The exp dropped from this.entity
+     */
+    public void dropPartialStackLoot(List<LivingEntity> internalEntities, Collection<ItemStack> existingLoot, int droppedExp) {
         // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
@@ -186,12 +214,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (byte[] entityNBT : this.serializedStackedEntities) {
-                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
-                if (entity == null)
-                    continue;
-
+            for (LivingEntity entity : internalEntities) {
                 entity.setFireTicks(fireTicks);
                 Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents) {

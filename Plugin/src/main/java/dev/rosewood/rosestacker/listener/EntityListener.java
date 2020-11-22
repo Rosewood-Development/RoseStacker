@@ -129,6 +129,44 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity().getType() == EntityType.ARMOR_STAND || event.getEntity().getType() == EntityType.PLAYER)
+            return;
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(entity.getWorld()))
+            return;
+
+        if (!stackManager.isEntityStackingEnabled())
+            return;
+
+        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+            return;
+
+        if (Setting.ENTITY_SHARE_DAMAGE_CONDITIONS.getStringList().stream().noneMatch(x -> x.equalsIgnoreCase(event.getCause().name())))
+            return;
+
+        double damage = event.getFinalDamage();
+
+        List<LivingEntity> killedEntities = new ArrayList<>();
+        List<LivingEntity> internalEntities = StackerUtils.deconstructStackedEntities(stackedEntity);
+        for (LivingEntity internal : internalEntities) {
+            double health = internal.getHealth();
+            if (health - damage <= 0) {
+                killedEntities.add(internal);
+            } else {
+                internal.setHealth(health - damage);
+            }
+        }
+
+        internalEntities.removeIf(killedEntities::contains);
+        stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), 0);
+        StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         if (!(event.getEntity() instanceof LivingEntity))
             return;
