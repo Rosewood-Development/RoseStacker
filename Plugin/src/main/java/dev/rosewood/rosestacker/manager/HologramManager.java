@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosestacker.hologram.CMIHologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramsHologramHandler;
 import dev.rosewood.rosestacker.hologram.HolographicDisplaysHologramHandler;
@@ -25,10 +26,13 @@ public class HologramManager extends Manager {
         } else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
             this.rosePlugin.getLogger().info("Holograms is being used as the Hologram Handler.");
             this.hologramHandler = new HologramsHologramHandler();
+        } else if (Bukkit.getPluginManager().isPluginEnabled("CMI")) {
+            this.rosePlugin.getLogger().info("CMI is being used as the Hologram Handler.");
+            this.hologramHandler = new CMIHologramHandler();
         } else {
             this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
-                    "If you want Stack tags to be displayed above stacked spawners or blocks, " +
-                    "please install one of the following plugins: [HolographicDisplays, Holograms]");
+                    "If you want stack tags to be displayed above stacked spawners or blocks, " +
+                    "please install one of the following plugins: [HolographicDisplays, Holograms, CMI]");
             this.hologramHandler = null;
         }
     }

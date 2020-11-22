@@ -37,6 +37,7 @@ dependencies {
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'io.lumine.xikage:mythicmobs:4.10.0'
     compileOnly 'com.magmaguy:elitemobs:7.1.0'
+    compileOnly 'com.zrips:cmi:8.6.9.4'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:rosegarden:1.0.4'
@@ -49,6 +50,10 @@ processResources {
         include '**/*.yml'
         filter ReplaceTokens, tokens: ["version": project.property("version")]
     }
+}
+
+shadowJar {
+    archiveClassifier.set(null)
 }
 
 publishing {
