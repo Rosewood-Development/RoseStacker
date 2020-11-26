@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderDragon;
@@ -180,7 +179,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (byte[] entityNBT : this.serializedStackedEntities) {
+            for (byte[] entityNBT : new ArrayList<>(this.serializedStackedEntities)) {
                 LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
                 if (entity == null)
                     continue;

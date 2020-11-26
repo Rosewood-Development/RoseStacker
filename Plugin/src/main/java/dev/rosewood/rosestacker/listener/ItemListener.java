@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -18,6 +19,7 @@ import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 public class ItemListener implements Listener {
 
@@ -160,14 +162,26 @@ public class ItemListener implements Listener {
         int maxStackSize = target.getMaxStackSize();
 
         int inventorySpace = 0;
-        for (ItemStack itemStack : inventory.getStorageContents()) {
-            if (itemStack == null) {
+        for (ItemStack itemStack : inventory.getContents()) {
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
                 inventorySpace += maxStackSize;
                 continue;
             }
 
             if (itemStack.isSimilar(target))
                 inventorySpace += maxStackSize - itemStack.getAmount();
+        }
+
+        if (inventory instanceof PlayerInventory) {
+            PlayerInventory playerInventory = (PlayerInventory) inventory;
+            for (ItemStack itemStack : playerInventory.getExtraContents()) {
+                // Can't pick up items directly to the offhand slot unless it already has that item in it
+                if (itemStack == null || itemStack.getType() == Material.AIR)
+                    continue;
+
+                if (itemStack.isSimilar(target))
+                    inventorySpace += maxStackSize - itemStack.getAmount();
+            }
         }
 
         return inventorySpace;
