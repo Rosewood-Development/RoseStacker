@@ -12,14 +12,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.ControllerMove;
 import net.minecraft.server.v1_13_R2.DataWatcher;
 import net.minecraft.server.v1_13_R2.DataWatcher.Item;
 import net.minecraft.server.v1_13_R2.DataWatcherObject;
 import net.minecraft.server.v1_13_R2.DataWatcherRegistry;
 import net.minecraft.server.v1_13_R2.Entity;
 import net.minecraft.server.v1_13_R2.EntityCreeper;
+import net.minecraft.server.v1_13_R2.EntityInsentient;
 import net.minecraft.server.v1_13_R2.EntityLiving;
 import net.minecraft.server.v1_13_R2.EntityTypes;
 import net.minecraft.server.v1_13_R2.IChatBaseComponent;
@@ -30,6 +33,7 @@ import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import net.minecraft.server.v1_13_R2.NBTTagDouble;
 import net.minecraft.server.v1_13_R2.NBTTagList;
 import net.minecraft.server.v1_13_R2.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_13_R2.PathfinderGoalSelector;
 import net.minecraft.server.v1_13_R2.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -55,7 +59,10 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Method method_WorldServer_b; // Method to register an entity into a world
 
     private static DataWatcherObject<Boolean> value_EntityCreeper_d; // DataWatcherObject that determines if a creeper is ignited, normally private
-    private static Field field_EntityCreeper_fuseTicks; // Field to set the remianing fuse ticks of a creeper, normally private
+    private static Field field_EntityCreeper_fuseTicks; // Field to set the remaining fuse ticks of a creeper, normally private
+
+    private static Field field_PathfinderGoalSelector_b; // Field to get a PathfinderGoalSelector of an insentient entity, normally private
+    private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
 
     static {
         try {
@@ -74,6 +81,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
             field_EntityCreeper_fuseTicks.setAccessible(true);
+
+            field_PathfinderGoalSelector_b = PathfinderGoalSelector.class.getDeclaredField("b");
+            field_PathfinderGoalSelector_b.setAccessible(true);
+
+            field_EntityInsentient_moveController = EntityInsentient.class.getDeclaredField("moveController");
+            field_EntityInsentient_moveController.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -251,6 +264,36 @@ public class NMSHandlerImpl implements NMSHandler {
             field_EntityCreeper_fuseTicks.set(entityCreeper, entityCreeper.maxFuseTicks);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void removeEntityGoals(LivingEntity livingEntity) {
+        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+        if (!(nmsEntity instanceof EntityInsentient))
+            return;
+
+        try {
+            EntityInsentient insentient = (EntityInsentient) nmsEntity;
+
+            // Remove all goal AI
+            ((Set<?>) field_PathfinderGoalSelector_b.get(insentient.goalSelector)).clear();
+
+            // Remove all targetting AI
+            ((Set<?>) field_PathfinderGoalSelector_b.get(insentient.targetSelector)).clear();
+
+            // Forget any existing targets
+            insentient.setGoalTarget(null);
+
+            // Remove the move controller and replace it with a dummy one
+            ControllerMove dummyMoveController = new ControllerMove(insentient) {
+                @Override
+                public void a() { }
+            };
+
+            field_EntityInsentient_moveController.set(insentient, dummyMoveController);
+        } catch (ReflectiveOperationException ex) {
+            ex.printStackTrace();
         }
     }
 

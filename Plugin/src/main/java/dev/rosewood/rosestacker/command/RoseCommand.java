@@ -212,7 +212,8 @@ public class RoseCommand extends BaseCommand {
 
             String displayString;
             if (amount == 1) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-item-single", StringPlaceholders.single("name", stackSettings.getDisplayName()));
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
+                        .addPlaceholder("name", stackSettings.getDisplayName()).build());
             } else {
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());

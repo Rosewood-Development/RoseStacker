@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -248,23 +249,18 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     }
 
     /**
-     * Disables the movement/knockback AI of a mob without using {@link LivingEntity#setAI}.
+     * Disables the AI/knockback of a mob without using {@link LivingEntity#setAI}.
      *
      * @param entity The entity to disable AI for
      */
     public void disableAI(LivingEntity entity) {
-        // Make the entity unable to move
-        AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-        if (movementAttribute != null)
-            movementAttribute.setBaseValue(0);
+        // Remove all applicable AI goals
+        StackerUtils.removeEntityAi(entity);
 
         // Make the entity unable to take knockback
         AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
         if (knockbackAttribute != null)
             knockbackAttribute.setBaseValue(Double.MAX_VALUE);
-
-        // Supposed to stop jumping, but only seems to work on players
-        //entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128, true, false));
     }
 
 }

@@ -73,6 +73,7 @@ public final class StackerUtils {
 
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
     private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
+    private static final String NO_AI_METADATA_NAME = "no_ai";
     private static ItemStack cachedStackingTool;
 
     private static final Random RANDOM = new Random();
@@ -160,7 +161,8 @@ public final class StackerUtils {
         SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
         String displayString;
         if (amount == 1) {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-item-single", StringPlaceholders.single("name", stackSettings.getDisplayName()));
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
         } else {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
                     .addPlaceholder("name", stackSettings.getDisplayName()).build());
@@ -478,7 +480,7 @@ public final class StackerUtils {
             PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
             NamespacedKey key = new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME);
             if (!dataContainer.has(key, PersistentDataType.STRING))
-                dataContainer.set(key, PersistentDataType.STRING, spawnReason.name());;
+                dataContainer.set(key, PersistentDataType.STRING, spawnReason.name());
         } else {
             if (!entity.hasMetadata(SPAWN_REASON_METADATA_NAME))
                 entity.setMetadata(SPAWN_REASON_METADATA_NAME, new FixedMetadataValue(rosePlugin, spawnReason.name()));
@@ -515,6 +517,37 @@ public final class StackerUtils {
                 } catch (Exception ignored) { }
             }
             return spawnReason != null ? spawnReason : SpawnReason.CUSTOM;
+        }
+    }
+
+    public static void removeEntityAi(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.INTEGER))
+                dataContainer.set(key, PersistentDataType.INTEGER, 1);
+        } else {
+            if (!entity.hasMetadata(NO_AI_METADATA_NAME))
+                entity.setMetadata(NO_AI_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
+        }
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        nmsHandler.removeEntityGoals(entity);
+    }
+
+    public static void applyDisabledAi(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        boolean isDisabled;
+        if (NMSUtil.getVersionNumber() > 13) {
+            isDisabled = entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            isDisabled = entity.hasMetadata(NO_AI_METADATA_NAME);
+        }
+
+        if (isDisabled) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            nmsHandler.removeEntityGoals(entity);
         }
     }
 

@@ -35,7 +35,7 @@ public class EnglishLocale implements Locale {
             this.put("item-stack-display-single", "&7%name%");
             this.put("block-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
-            this.put("spawner-stack-display-item-single", "&7%name%");
+            this.put("spawner-stack-display-single", "&7%name%");
 
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");

@@ -10,12 +10,15 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.Chunk;
 import net.minecraft.server.v1_16_R1.ChunkStatus;
+import net.minecraft.server.v1_16_R1.ControllerMove;
 import net.minecraft.server.v1_16_R1.DamageSource;
 import net.minecraft.server.v1_16_R1.DataWatcher;
 import net.minecraft.server.v1_16_R1.DataWatcher.Item;
@@ -23,6 +26,7 @@ import net.minecraft.server.v1_16_R1.DataWatcherObject;
 import net.minecraft.server.v1_16_R1.DataWatcherRegistry;
 import net.minecraft.server.v1_16_R1.Entity;
 import net.minecraft.server.v1_16_R1.EntityCreeper;
+import net.minecraft.server.v1_16_R1.EntityInsentient;
 import net.minecraft.server.v1_16_R1.EntityLiving;
 import net.minecraft.server.v1_16_R1.EntityTypes;
 import net.minecraft.server.v1_16_R1.EnumMobSpawn;
@@ -35,6 +39,9 @@ import net.minecraft.server.v1_16_R1.NBTTagCompound;
 import net.minecraft.server.v1_16_R1.NBTTagDouble;
 import net.minecraft.server.v1_16_R1.NBTTagList;
 import net.minecraft.server.v1_16_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_16_R1.PathfinderGoalFloat;
+import net.minecraft.server.v1_16_R1.PathfinderGoalSelector;
+import net.minecraft.server.v1_16_R1.PathfinderGoalWrapped;
 import net.minecraft.server.v1_16_R1.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -61,7 +68,10 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Method method_WorldServer_registerEntity; // Method to register an entity into a world
 
     private static DataWatcherObject<Boolean> value_EntityCreeper_d; // DataWatcherObject that determines if a creeper is ignited, normally private
-    private static Field field_EntityCreeper_fuseTicks; // Field to set the remianing fuse ticks of a creeper, normally private
+    private static Field field_EntityCreeper_fuseTicks; // Field to set the remaining fuse ticks of a creeper, normally private
+
+    private static Field field_PathfinderGoalSelector_d; // Field to get a PathfinderGoalSelector of an insentient entity, normally private
+    private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
 
     static {
         try {
@@ -83,6 +93,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
             field_EntityCreeper_fuseTicks.setAccessible(true);
+
+            field_PathfinderGoalSelector_d = PathfinderGoalSelector.class.getDeclaredField("d");
+            field_PathfinderGoalSelector_d.setAccessible(true);
+
+            field_EntityInsentient_moveController = EntityInsentient.class.getDeclaredField("moveController");
+            field_EntityInsentient_moveController.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -262,6 +278,44 @@ public class NMSHandlerImpl implements NMSHandler {
             field_EntityCreeper_fuseTicks.set(entityCreeper, entityCreeper.maxFuseTicks);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void removeEntityGoals(LivingEntity livingEntity) {
+        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+        if (!(nmsEntity instanceof EntityInsentient))
+            return;
+
+        try {
+            EntityInsentient insentient = (EntityInsentient) nmsEntity;
+
+            // Remove all goal AI other than floating in water
+            Set<PathfinderGoalWrapped> goals = (Set<PathfinderGoalWrapped>) field_PathfinderGoalSelector_d.get(insentient.goalSelector);
+            Iterator<PathfinderGoalWrapped> goalsIterator = goals.iterator();
+            while (goalsIterator.hasNext()) {
+                PathfinderGoalWrapped goal = goalsIterator.next();
+                if (goal.j() instanceof PathfinderGoalFloat)
+                    continue;
+
+                goalsIterator.remove();
+            }
+
+            // Remove all targetting AI
+            ((Set<PathfinderGoalWrapped>) field_PathfinderGoalSelector_d.get(insentient.targetSelector)).clear();
+
+            // Forget any existing targets
+            insentient.setGoalTarget(null);
+
+            // Remove the move controller and replace it with a dummy one
+            ControllerMove dummyMoveController = new ControllerMove(insentient) {
+                @Override
+                public void a() { }
+            };
+
+            field_EntityInsentient_moveController.set(insentient, dummyMoveController);
+        } catch (ReflectiveOperationException ex) {
+            ex.printStackTrace();
         }
     }
 

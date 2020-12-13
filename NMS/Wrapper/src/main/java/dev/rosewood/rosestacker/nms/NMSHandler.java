@@ -85,6 +85,13 @@ public interface NMSHandler {
     void unigniteCreeper(Creeper creeper);
 
     /**
+     * Removes entity goals and movement
+     *
+     * @param livingEntity The entity to remove goals and movement from
+     */
+    void removeEntityGoals(LivingEntity livingEntity);
+
+    /**
      * Sets a String value into an ItemStack's NBT
      *
      * @param itemStack The ItemStack

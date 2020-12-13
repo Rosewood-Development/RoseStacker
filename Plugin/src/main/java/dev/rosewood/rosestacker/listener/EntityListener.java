@@ -82,6 +82,8 @@ public class EntityListener implements Listener {
 
         StackerUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
         stackManager.createEntityStack(event.getEntity(), true);
+
+        StackerUtils.applyDisabledAi(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -115,18 +117,6 @@ public class EntityListener implements Listener {
             if (stackedItem != null)
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
         }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityTarget(EntityTargetEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity))
-            return;
-
-        LivingEntity entity = (LivingEntity) event.getEntity();
-
-        AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-        if (movementAttribute != null && movementAttribute.getBaseValue() == 0)
-            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

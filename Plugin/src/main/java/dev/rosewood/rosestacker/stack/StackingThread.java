@@ -91,6 +91,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
         // Load all existing stacks in the target world
         this.pendingLoadChunks.addAll(Arrays.asList(this.targetWorld.getLoadedChunks()));
+
+        // Disable AI for all existing stacks in the target world
+        this.targetWorld.getLivingEntities().forEach(StackerUtils::applyDisabledAi);
     }
 
     @Override

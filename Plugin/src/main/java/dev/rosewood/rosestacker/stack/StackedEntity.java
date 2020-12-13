@@ -145,6 +145,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
         this.updateDisplay();
+        StackerUtils.applyDisabledAi(this.entity);
 
         return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
