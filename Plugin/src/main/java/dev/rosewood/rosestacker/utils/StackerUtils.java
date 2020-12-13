@@ -126,6 +126,9 @@ public final class StackerUtils {
 
     public static ItemStack getBlockAsStackedItemStack(Material material, int amount) {
         ItemStack itemStack = new ItemStack(material);
+        if (amount == 1)
+            return itemStack;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return itemStack;
@@ -155,8 +158,13 @@ public final class StackerUtils {
             return itemStack;
 
         SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
-                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        String displayString;
+        if (amount == 1) {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-item-single", StringPlaceholders.single("name", stackSettings.getDisplayName()));
+        } else {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        }
 
         itemMeta.setDisplayName(displayString);
         itemStack.setItemMeta(itemMeta);
