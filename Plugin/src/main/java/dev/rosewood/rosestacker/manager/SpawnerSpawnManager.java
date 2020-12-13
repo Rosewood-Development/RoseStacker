@@ -122,12 +122,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             }
 
             stackedSpawner.setLastDelay(spawner.getDelay());
-            if (stackedSpawner.getLastDelay() >= DELAY_THRESHOLD)
+            if (stackedSpawner.getLastDelay() > DELAY_THRESHOLD)
                 continue;
 
             EntityType entityType = spawner.getSpawnedType();
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
-                return;
+                continue;
 
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();

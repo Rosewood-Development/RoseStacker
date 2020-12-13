@@ -28,6 +28,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -291,7 +292,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public void preStackEntities(EntityType entityType, int amount, Location location) {
+    public void preStackEntities(EntityType entityType, int amount, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
             return;
@@ -300,7 +301,12 @@ public class StackManager extends Manager implements StackingLogic {
         if (stackingThread == null)
             return;
 
-        stackingThread.preStackEntities(entityType, amount, location);
+        stackingThread.preStackEntities(entityType, amount, location, spawnReason);
+    }
+
+    @Override
+    public void preStackEntities(EntityType entityType, int amount, Location location) {
+        this.preStackEntities(entityType, amount, location, SpawnReason.CUSTOM);
     }
 
     @Override

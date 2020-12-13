@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
 public interface NMSHandler {
@@ -46,6 +47,16 @@ public interface NMSHandler {
      * @return The newly created LivingEntity instance
      */
     LivingEntity createEntityUnspawned(EntityType entityType, Location location);
+
+    /**
+     * Spawns a LivingEntity at the given location with a custom SpawnReason
+     *
+     * @param entityType The type of entity to spawn
+     * @param location The location to spawn the entity at
+     * @param spawnReason The reason for the entity spawning
+     * @return The entity that was spawned
+     */
+    LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason);
 
     /**
      * Updates the name and visibility of an Entity's nametag for a Player

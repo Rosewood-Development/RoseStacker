@@ -31,6 +31,7 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -309,6 +310,18 @@ public final class RoseStackerAPI {
     @Nullable
     public StackedSpawner createSpawnerStack(Block block, int amount) {
         return this.stackManager.createSpawnerStack(block, amount);
+    }
+
+    /**
+     * Pre-stacks a number of entities of a given type and a custom spawn reason and spawns StackedEntities at the given location
+     *
+     * @param entityType the type of entity to spawn
+     * @param amount the amount of entities to spawn
+     * @param location the location to spawn at
+     * @param spawnReason The reason the entities are being spawned
+     */
+    public void preStackEntities(EntityType entityType, int amount, Location location, SpawnReason spawnReason) {
+        this.stackManager.preStackEntities(entityType, amount, location, spawnReason);
     }
 
     /**

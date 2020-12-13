@@ -26,6 +26,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -180,6 +181,8 @@ public class InteractListener implements Listener {
             return false;
 
         int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
+        if (spawnAmount == 1)
+            return false;
 
         EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         EntityType entityType = stackSettings.getEntityType();
@@ -193,7 +196,7 @@ public class InteractListener implements Listener {
         if (stackManager.isWorldDisabled(spawnLocation.getWorld()))
             return false;
 
-        stackManager.preStackEntities(entityType, spawnAmount, spawnLocation);
+        stackManager.preStackEntities(entityType, spawnAmount, spawnLocation, SpawnReason.SPAWNER_EGG);
 
         return true;
     }

@@ -38,6 +38,7 @@ import net.minecraft.server.v1_16_R2.NBTTagList;
 import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_16_R2.WorldServer;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
@@ -48,6 +49,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("unchecked")
@@ -205,6 +207,20 @@ public class NMSHandlerImpl implements NMSHandler {
 
         CraftWorld craftWorld = (CraftWorld) location.getWorld();
         return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
+    }
+
+    @Override
+    public LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason) {
+        World world = location.getWorld();
+        if (world == null)
+            throw new IllegalArgumentException("Cannot spawn into null world");
+
+        Class<? extends org.bukkit.entity.Entity> entityClass = entityType.getEntityClass();
+        if (entityClass == null || !LivingEntity.class.isAssignableFrom(entityClass))
+            throw new IllegalArgumentException("EntityType must be of a LivingEntity");
+
+        CraftWorld craftWorld = (CraftWorld) world;
+        return (LivingEntity) craftWorld.spawn(location, entityClass, null, spawnReason);
     }
 
     @Override

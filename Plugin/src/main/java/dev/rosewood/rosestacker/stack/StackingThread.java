@@ -43,8 +43,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
@@ -551,34 +553,21 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     }
 
     @Override
-    public void preStackEntities(EntityType entityType, int amount, Location location) {
+    public void preStackEntities(EntityType entityType, int amount, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
             return;
 
-//        this.stackManager.setEntityStackingTemporarilyDisabled(true);
-//
-//        EntityStackSettings stackSettings = this.stackSettingManager.getEntityStackSettings(entityType);
-//        Set<StackedEntity> stackedEntities = new HashSet<>();
-//        NMSHandler nmsHandler = NMSUtil.getHandler();
-//        for (int i = 0; i < amount; i++) {
-//            LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location);
-//            Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x -> stackSettings.canStackWith(x, new StackedEntity(entity), false)).findFirst();
-//            if (matchingEntity.isPresent()) {
-//                matchingEntity.get().increaseStackSize(entity);
-//            } else {
-//                entity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
-//                LivingEntity spawnedEntity = nmsHandler.spawnEntityFromNBT(nmsHandler.getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()), location);
-//                stackedEntities.add(new StackedEntity(spawnedEntity));
-//            }
-//        }
-//
-//        stackedEntities.forEach(this::addEntityStack);
-//        this.stackManager.setEntityStackingTemporarilyDisabled(false);
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (int i = 0; i < amount; i++) {
+            LivingEntity entity = nmsHandler.spawnEntityWithReason(entityType, location, spawnReason);
+            entity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
+        }
+    }
 
-        // Couldn't get the above to apply entity variants (such as sheep color)
-        for (int i = 0; i < amount; i++)
-            world.spawnEntity(location, entityType);
+    @Override
+    public void preStackEntities(EntityType entityType, int amount, Location location) {
+        this.preStackEntities(entityType, amount, location, SpawnReason.CUSTOM);
     }
 
     @Override

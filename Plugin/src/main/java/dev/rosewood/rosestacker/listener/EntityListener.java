@@ -80,6 +80,7 @@ public class EntityListener implements Listener {
         if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
+        StackerUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
         stackManager.createEntityStack(event.getEntity(), true);
     }
 

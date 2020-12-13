@@ -46,6 +46,7 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -55,6 +56,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
@@ -69,6 +72,7 @@ public final class StackerUtils {
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
+    private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
     private static ItemStack cachedStackingTool;
 
     private static final Random RANDOM = new Random();
@@ -450,6 +454,59 @@ public final class StackerUtils {
             return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
         } else {
             return entity.hasMetadata(UNSTACKABLE_METADATA_NAME);
+        }
+    }
+
+    /**
+     * Sets the spawn reason for the given LivingEntity.
+     * Does not overwrite an existing spawn reason.
+     *
+     * @param entity The entity to set the spawn reason of
+     * @param spawnReason The spawn reason to set
+     */
+    public static void setEntitySpawnReason(LivingEntity entity, SpawnReason spawnReason) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.STRING))
+                dataContainer.set(key, PersistentDataType.STRING, spawnReason.name());;
+        } else {
+            if (!entity.hasMetadata(SPAWN_REASON_METADATA_NAME))
+                entity.setMetadata(SPAWN_REASON_METADATA_NAME, new FixedMetadataValue(rosePlugin, spawnReason.name()));
+        }
+    }
+
+    /**
+     * Gets the spawn reason of the given LivingEntity
+     *
+     * @param entity The entity to get the spawn reason of
+     * @return The SpawnReason, or SpawnReason.CUSTOM if none is saved
+     */
+    public static SpawnReason getEntitySpawnReason(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            String reason = entity.getPersistentDataContainer().get(new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME), PersistentDataType.STRING);
+            SpawnReason spawnReason;
+            if (reason != null) {
+                try {
+                    spawnReason = SpawnReason.valueOf(reason);
+                } catch (Exception ex) {
+                    spawnReason = SpawnReason.CUSTOM;
+                }
+            } else {
+                spawnReason = SpawnReason.CUSTOM;
+            }
+            return spawnReason;
+        } else {
+            List<MetadataValue> metaValues = entity.getMetadata(SPAWN_REASON_METADATA_NAME);
+            SpawnReason spawnReason = null;
+            for (MetadataValue meta : metaValues) {
+                try {
+                    spawnReason = SpawnReason.valueOf(meta.asString());
+                } catch (Exception ignored) { }
+            }
+            return spawnReason != null ? spawnReason : SpawnReason.CUSTOM;
         }
     }
 
