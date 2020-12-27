@@ -26,6 +26,11 @@ public class EnderDragonStackSettings extends EntityStackSettings {
     }
 
     @Override
+    public boolean isFlyingMob() {
+        return true;
+    }
+
+    @Override
     public EntityType getEntityType() {
         return EntityType.ENDER_DRAGON;
     }

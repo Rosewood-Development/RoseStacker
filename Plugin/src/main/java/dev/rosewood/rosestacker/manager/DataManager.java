@@ -635,8 +635,11 @@ public class DataManager extends AbstractDataManager {
             String query = "SELECT name FROM " + this.getTablePrefix() + "convert_handler";
             try (Statement statement = connection.createStatement()) {
                 ResultSet result = statement.executeQuery(query);
-                while (result.next())
-                    conversionHandlers.add(ConverterType.valueOf(result.getString(1)));
+                while (result.next()) {
+                    ConverterType converterType = ConverterType.get(result.getString(1));
+                    if (converterType != null)
+                        conversionHandlers.add(converterType);
+                }
             }
         });
         return conversionHandlers;

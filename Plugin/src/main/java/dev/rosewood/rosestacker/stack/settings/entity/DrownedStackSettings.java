@@ -13,6 +13,11 @@ public class DrownedStackSettings extends ZombieStackSettings {
     }
 
     @Override
+    public boolean isSwimmingMob() {
+        return true;
+    }
+
+    @Override
     public EntityType getEntityType() {
         return EntityType.DROWNED;
     }

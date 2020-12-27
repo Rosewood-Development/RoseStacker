@@ -210,8 +210,14 @@ public class RoseCommand extends BaseCommand {
             ItemStack item = StackerUtils.getSpawnerAsStackedItemStack(entityType, stackSize);
             this.giveDuplicates(player, item, amount);
 
-            String displayString = localeManager.getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", stackSize)
-                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+            String displayString;
+            if (amount == 1) {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
+                        .addPlaceholder("name", stackSettings.getDisplayName()).build());
+            } else {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                        .addPlaceholder("name", stackSettings.getDisplayName()).build());
+            }
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", player.getName())
                     .addPlaceholder("amount", amount)

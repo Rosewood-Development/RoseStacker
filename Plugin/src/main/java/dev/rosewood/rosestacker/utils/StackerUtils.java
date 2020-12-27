@@ -46,6 +46,7 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -55,6 +56,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
@@ -69,6 +72,8 @@ public final class StackerUtils {
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
+    private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
+    private static final String NO_AI_METADATA_NAME = "no_ai";
     private static ItemStack cachedStackingTool;
 
     private static final Random RANDOM = new Random();
@@ -122,6 +127,9 @@ public final class StackerUtils {
 
     public static ItemStack getBlockAsStackedItemStack(Material material, int amount) {
         ItemStack itemStack = new ItemStack(material);
+        if (amount == 1)
+            return itemStack;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return itemStack;
@@ -131,12 +139,12 @@ public final class StackerUtils {
                 .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.BLOCK_TYPE.getValue(formatName(material.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+
         return itemStack;
     }
 
@@ -151,16 +159,23 @@ public final class StackerUtils {
             return itemStack;
 
         SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
-                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        String displayString;
+        if (amount == 1) {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        } else {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        }
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.SPAWNER_TYPE.getValue(formatName(entityType.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size and spawned entity type
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
+
         return itemStack;
     }
 
@@ -179,16 +194,23 @@ public final class StackerUtils {
                 .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
         itemMeta.setDisplayName(displayString);
-        itemMeta.setLore(Arrays.asList(
-                ItemLoreValue.STACK_SIZE.getValue(amount + "x"),
-                ItemLoreValue.ENTITY_TYPE.getValue(formatName(entityType.name()))
-        ));
-
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+
         return itemStack;
     }
 
     public static int getStackedItemStackAmount(ItemStack itemStack) {
+        // First, check the NBT
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        int stackSize = nmsHandler.getItemStackNBTInt(itemStack, "StackSize");
+        if (stackSize > 0)
+            return stackSize;
+
+        // Fall back to the legacy lore checking
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null || itemMeta.getLore() == null || itemMeta.getLore().isEmpty())
             return 1;
@@ -205,6 +227,16 @@ public final class StackerUtils {
         if (itemStack.getType() != Material.SPAWNER)
             return null;
 
+        // First, check the NBT
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        String entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "EntityType");
+        if (!entityTypeName.isEmpty()) {
+            try {
+                return EntityType.valueOf(entityTypeName);
+            } catch (Exception ignored) { }
+        }
+
+        // Fall back to the legacy lore checking
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return EntityType.PIG;
@@ -432,6 +464,90 @@ public final class StackerUtils {
             return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
         } else {
             return entity.hasMetadata(UNSTACKABLE_METADATA_NAME);
+        }
+    }
+
+    /**
+     * Sets the spawn reason for the given LivingEntity.
+     * Does not overwrite an existing spawn reason.
+     *
+     * @param entity The entity to set the spawn reason of
+     * @param spawnReason The spawn reason to set
+     */
+    public static void setEntitySpawnReason(LivingEntity entity, SpawnReason spawnReason) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.STRING))
+                dataContainer.set(key, PersistentDataType.STRING, spawnReason.name());
+        } else {
+            if (!entity.hasMetadata(SPAWN_REASON_METADATA_NAME))
+                entity.setMetadata(SPAWN_REASON_METADATA_NAME, new FixedMetadataValue(rosePlugin, spawnReason.name()));
+        }
+    }
+
+    /**
+     * Gets the spawn reason of the given LivingEntity
+     *
+     * @param entity The entity to get the spawn reason of
+     * @return The SpawnReason, or SpawnReason.CUSTOM if none is saved
+     */
+    public static SpawnReason getEntitySpawnReason(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            String reason = entity.getPersistentDataContainer().get(new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME), PersistentDataType.STRING);
+            SpawnReason spawnReason;
+            if (reason != null) {
+                try {
+                    spawnReason = SpawnReason.valueOf(reason);
+                } catch (Exception ex) {
+                    spawnReason = SpawnReason.CUSTOM;
+                }
+            } else {
+                spawnReason = SpawnReason.CUSTOM;
+            }
+            return spawnReason;
+        } else {
+            List<MetadataValue> metaValues = entity.getMetadata(SPAWN_REASON_METADATA_NAME);
+            SpawnReason spawnReason = null;
+            for (MetadataValue meta : metaValues) {
+                try {
+                    spawnReason = SpawnReason.valueOf(meta.asString());
+                } catch (Exception ignored) { }
+            }
+            return spawnReason != null ? spawnReason : SpawnReason.CUSTOM;
+        }
+    }
+
+    public static void removeEntityAi(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.INTEGER))
+                dataContainer.set(key, PersistentDataType.INTEGER, 1);
+        } else {
+            if (!entity.hasMetadata(NO_AI_METADATA_NAME))
+                entity.setMetadata(NO_AI_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
+        }
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        nmsHandler.removeEntityGoals(entity);
+    }
+
+    public static void applyDisabledAi(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        boolean isDisabled;
+        if (NMSUtil.getVersionNumber() > 13) {
+            isDisabled = entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            isDisabled = entity.hasMetadata(NO_AI_METADATA_NAME);
+        }
+
+        if (isDisabled) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            nmsHandler.removeEntityGoals(entity);
         }
     }
 

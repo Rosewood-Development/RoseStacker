@@ -29,6 +29,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_KILL_ENTIRE_STACK_ON_DEATH("global-entity-settings.kill-entire-stack-on-death", false, "Should the entire stack of entities always be killed when the main entity dies?"),
         ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", Collections.singletonList("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
+        ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", Collections.singletonList("FALL"), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_SAVE_ATTRIBUTES("global-entity-settings.save-attributes", false, "Should entity attributes (custom max health, custom damage, etc.) be saved in the stack data?", "Disabled by default, as it increases the database size to have this enabled"),
@@ -43,6 +44,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
         ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you use custom drops plugins, make sure to enable this", "Note to developers: The death events are asynchronous"),
+        ENTITY_DEATH_EVENT_RUN_ASYNC("global-entity-settings.death-event-trigger-async", true, "Should the entity loot be calculated asynchronously?", "If the above setting is true and you get errors that say something like '<SomeEvent> may only be triggered synchronously'", "and has RoseStacker in the stacktrace, you should set this to false.", "Keep this as true for optimal performance if you are not having issues."),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
@@ -74,6 +76,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 32, "The maximum number of spawners that can be in a single stack"),
         SPAWNER_DISPLAY_TAGS("global-spawner-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         SPAWNER_DISPLAY_TAGS_SINGLE("global-spawner-settings.display-tags-single", false, "Should tags be displayed if the stack only has one spawner?"),
+        SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT("global-spawner-settings.display-tags-single-amount", false, "Should stacks of size one show the amount on their tags if enabled?"),
         SPAWNER_DISABLE_MOB_AI("global-spawner-settings.disable-mob-ai", false, "Should mob AI be disabled for mobs spawned by spawners?", "If you enable this, it is highly recommended to enable global-entity-settings.save-attributes", "Enabling attribute saving will make sure all mob AIs get disabled properly"),
         SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS("global-spawner-settings.max-failed-spawn-attempts", 50, "How many random blocks should we check to spawn a mob before giving up?"),
         SPAWNER_DEACTIVATE_WHEN_POWERED("global-spawner-settings.deactivate-when-powered", false, "Should spawners turn off when powered by redstone?"),
@@ -98,6 +101,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SPAWN_MAX_NEARBY_ENTITIES("global-spawner-settings.spawn-max-nearby-entities", 6, "If more than this number of entities are near the spawner, it will not spawn anything", "This only counts the individual mobs, and not the stack size", "Can be overridden for each spawner type using the max-nearby-entities:# spawn requirement"),
         SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?"),
         SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?"),
+        SPAWNER_NERF_PATROL_LEADERS("global-spawner-settings.nerf-patrol-leaders", false, "Should patrol leaders be prevented when spawning potential raid member mobs?"),
         SPAWNER_GUI_ENABLED("global-spawner-settings.gui-enabled", true, "Should a GUI to view the spawner information open when the player shift-right-clicks the stack?"),
         SPAWNER_GUI_TICK_UPDATE_RATE("global-spawner-settings.gui-tick-update-rate", 2, "How often should the time before next spawn message be updated?", "Value is measured in ticks, do not go below 1"),
         SPAWNER_GUI_BORDER_MATERIAL("global-spawner-settings.gui-border-material", Material.GRAY_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?"),
@@ -140,8 +144,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
         MISC_SETTINGS("misc-settings", null, "Miscellaneous other settings for the plugin"),
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),
-        MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", true, "If Clearlag is installed, should we clear stacked entities?"),
-        MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", true, "If Clearlag is installed, should we clear stacked items?"),
+        MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", false, "If Clearlag is installed, should we clear stacked entities?"),
+        MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
         MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above");
 
         private final String key;

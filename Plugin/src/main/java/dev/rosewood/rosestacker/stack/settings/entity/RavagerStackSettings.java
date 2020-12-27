@@ -17,7 +17,7 @@ public class RavagerStackSettings extends EntityStackSettings {
 
     @Override
     protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
-        return EntityStackComparisonResult.DIFFERENT_INFLATIONS;
+        return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override

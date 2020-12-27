@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -218,6 +219,16 @@ public interface StackingLogic {
      * @param stackedItem the StackedItem to add
      */
     void addItemStack(StackedItem stackedItem);
+
+    /**
+     * Pre-stacks a number of entities of a given type and a custom spawn reason and spawns StackedEntities at the given location
+     *
+     * @param entityType the type of entity to spawn
+     * @param amount the amount of entities to spawn
+     * @param location the location to spawn at
+     * @param spawnReason The reason the entities are being spawned
+     */
+    void preStackEntities(EntityType entityType, int amount, Location location, SpawnReason spawnReason);
 
     /**
      * Pre-stacks a number of entities of a given type and spawns StackedEntities at the given location

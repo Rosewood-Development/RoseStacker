@@ -16,13 +16,11 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Boss;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
-import org.bukkit.entity.WaterMob;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -184,7 +182,7 @@ public abstract class EntityStackSettings extends StackSettings {
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
             return EntityStackComparisonResult.CUSTOM_NAMED;
 
-        if (!comparingForUnstack && !(entity1 instanceof WaterMob) && !(entity1 instanceof Flying)) {
+        if (!comparingForUnstack && !this.isSwimmingMob() && !this.isFlyingMob()) {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
                 return EntityStackComparisonResult.NOT_ON_GROUND;
 
@@ -476,6 +474,33 @@ public abstract class EntityStackSettings extends StackSettings {
         }
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
+    }
+
+    /**
+     * Applies properties to an entity after being spawned by a spawner
+     *
+     * @param entity The entity being spawned
+     */
+    public void applySpawnerSpawnedProperties(LivingEntity entity) {
+        if (this.isEntityRaider() && Setting.SPAWNER_NERF_PATROL_LEADERS.getBoolean()) {
+            Raider raider = (Raider) entity;
+
+            raider.setPatrolLeader(false);
+        }
+    }
+
+    /**
+     * @return true if the entity lives in the water, otherwise false
+     */
+    public boolean isSwimmingMob() {
+        return false;
+    }
+
+    /**
+     * @return true if the entity can fly, otherwise false
+     */
+    public boolean isFlyingMob() {
+        return false;
     }
 
     public abstract EntityType getEntityType();

@@ -21,7 +21,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Flying;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -146,6 +145,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
         this.updateDisplay();
+        StackerUtils.applyDisabledAi(this.entity);
 
         return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
@@ -163,6 +163,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public void setStackedEntityNBT(List<byte[]> serializedNbt) {
         this.serializedStackedEntities = serializedNbt;
+        this.updateDisplay();
     }
 
     /**
@@ -173,25 +174,57 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
+        // Cache the current entity just in case it somehow changes while we are processing the loot
+        LivingEntity thisEntity = this.entity;
+
+        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+            List<LivingEntity> internalEntities = new ArrayList<>();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            for (byte[] entityNBT : new ArrayList<>(this.serializedStackedEntities)) {
+                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
+                if (entity == null)
+                    continue;
+                internalEntities.add(entity);
+            }
+
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> this.dropPartialStackLoot(internalEntities, existingLoot, droppedExp));
+        });
+    }
+
+    /**
+     * Drops loot for entities that are part of the stack.
+     * Does not include loot for the current entity.
+     *
+     * @param internalEntities The entities which should be part of this stack
+     * @param existingLoot The loot from this.entity, nullable
+     * @param droppedExp The exp dropped from this.entity
+     */
+    public void dropPartialStackLoot(List<LivingEntity> internalEntities, Collection<ItemStack> existingLoot, int droppedExp) {
+        // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
         if (existingLoot != null)
             loot.addAll(existingLoot);
 
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        // The stack loot can either be processed synchronously or asynchronously depending on a setting
+        // It should always be processed async unless errors are caused by other plugins
+        boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
+
+        Runnable mainTask = () -> {
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (byte[] entityNBT : this.serializedStackedEntities) {
-                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
-                if (entity == null)
-                    continue;
-
+            for (LivingEntity entity : internalEntities) {
                 entity.setFireTicks(fireTicks);
                 Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    EntityDeathEvent deathEvent;
+                    if (async) {
+                        deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    } else {
+                        deathEvent = new EntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    }
+
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     totalExp += deathEvent.getDroppedExp();
                     loot.addAll(deathEvent.getDrops());
@@ -202,12 +235,24 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             }
 
             int finalTotalExp = totalExp;
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+            Runnable finishTask = () -> {
                 RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, thisEntity.getLocation());
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
                     StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, 30);
-            });
-        });
+            };
+
+            if (async) {
+                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
+            } else {
+                finishTask.run();
+            }
+        };
+
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), mainTask);
+        } else {
+            mainTask.run();
+        }
     }
 
     /**
@@ -305,7 +350,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this == stack2)
             return 0;
 
-        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && entity1 instanceof Flying)
+        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && this.stackSettings.isFlyingMob())
             return entity1.getLocation().getY() < entity2.getLocation().getY() ? 3 : -3;
 
         if (this.getStackSize() == stack2.getStackSize())

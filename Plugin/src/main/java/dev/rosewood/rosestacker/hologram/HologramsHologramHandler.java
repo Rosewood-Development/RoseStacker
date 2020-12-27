@@ -33,7 +33,7 @@ public class HologramsHologramHandler implements HologramHandler {
         String key = StackerUtils.locationAsKey(location);
         Hologram hologram = this.hologramManager.getHologram(key);
         if (hologram == null) {
-            hologram = new Hologram(StackerUtils.locationAsKey(location), location.add(0, 0.5, 0));
+            hologram = new Hologram(StackerUtils.locationAsKey(location), location.clone().add(0, 0.5, 0));
             hologram.addLine(new TextLine(hologram, text));
             this.hologramManager.addActiveHologram(hologram);
             this.holograms.add(key);
@@ -52,7 +52,7 @@ public class HologramsHologramHandler implements HologramHandler {
             hologram.despawn();
             this.hologramManager.deleteHologram(hologram);
         }
-        this.holograms.remove(location);
+        this.holograms.remove(key);
     }
 
     @Override

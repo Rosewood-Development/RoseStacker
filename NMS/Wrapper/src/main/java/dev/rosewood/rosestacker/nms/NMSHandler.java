@@ -6,6 +6,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.inventory.ItemStack;
 
 public interface NMSHandler {
 
@@ -47,6 +49,16 @@ public interface NMSHandler {
     LivingEntity createEntityUnspawned(EntityType entityType, Location location);
 
     /**
+     * Spawns a LivingEntity at the given location with a custom SpawnReason
+     *
+     * @param entityType The type of entity to spawn
+     * @param location The location to spawn the entity at
+     * @param spawnReason The reason for the entity spawning
+     * @return The entity that was spawned
+     */
+    LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason);
+
+    /**
      * Updates the name and visibility of an Entity's nametag for a Player
      *
      * @param player The Player to send the packet to
@@ -71,5 +83,50 @@ public interface NMSHandler {
      * @param creeper The creeper to unignite
      */
     void unigniteCreeper(Creeper creeper);
+
+    /**
+     * Removes entity goals and movement
+     *
+     * @param livingEntity The entity to remove goals and movement from
+     */
+    void removeEntityGoals(LivingEntity livingEntity);
+
+    /**
+     * Sets a String value into an ItemStack's NBT
+     *
+     * @param itemStack The ItemStack
+     * @param key The key to store the value at
+     * @param value The value to store
+     * @return A copy of the ItemStack with the applied NBT value
+     */
+    ItemStack setItemStackNBT(ItemStack itemStack, String key, String value);
+
+    /**
+     * Sets an int value into an ItemStack's NBT
+     *
+     * @param itemStack The ItemStack
+     * @param key The key to store the value at
+     * @param value The value to store
+     * @return A copy of the ItemStack with the applied NBT value
+     */
+    ItemStack setItemStackNBT(ItemStack itemStack, String key, int value);
+
+    /**
+     * Gets a String value from an ItemStack's NBT
+     *
+     * @param itemStack The ItemStack
+     * @param key The key the value is stored at
+     * @return The value stored on the ItemStack, or an empty String if none found
+     */
+    String getItemStackNBTString(ItemStack itemStack, String key);
+
+    /**
+     * Gets an int value from an ItemStack's NBT
+     *
+     * @param itemStack The ItemStack
+     * @param key The key the value is stored at
+     * @return The value stored on the ItemStack, or 0 if none found
+     */
+    int getItemStackNBTInt(ItemStack itemStack, String key);
 
 }

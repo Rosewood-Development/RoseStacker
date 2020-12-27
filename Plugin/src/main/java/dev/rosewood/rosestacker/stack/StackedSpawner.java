@@ -127,8 +127,14 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
             return;
         }
 
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
-                .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+        String displayString;
+        if (this.size == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.getStackSize())
+                    .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+        } else {
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+                    .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+        }
 
         hologramManager.createOrUpdateHologram(location, displayString);
     }

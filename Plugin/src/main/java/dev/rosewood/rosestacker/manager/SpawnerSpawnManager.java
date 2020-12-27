@@ -5,9 +5,11 @@ import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     @Override
     public void run() {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
@@ -120,12 +123,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             }
 
             stackedSpawner.setLastDelay(spawner.getDelay());
-            if (stackedSpawner.getLastDelay() >= DELAY_THRESHOLD)
+            if (stackedSpawner.getLastDelay() > DELAY_THRESHOLD)
                 continue;
 
             EntityType entityType = spawner.getSpawnedType();
             if (entityType.getEntityClass() == null || !LivingEntity.class.isAssignableFrom(entityType.getEntityClass()))
-                return;
+                continue;
 
             // Reset the spawn delay
             int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();
@@ -190,6 +193,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         if (stackSettings.isMobAIDisabled())
                             this.disableAI(spawnedLivingEntity);
                         this.tagSpawnedFromSpawner(spawnedLivingEntity);
+
+                        EntityStackSettings entitySettings = stackSettingManager.getEntityStackSettings(spawnedLivingEntity);
+                        if (entitySettings != null)
+                            entitySettings.applySpawnerSpawnedProperties(spawnedLivingEntity);
                     });
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
@@ -242,23 +249,18 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     }
 
     /**
-     * Disables the movement/knockback AI of a mob without using {@link LivingEntity#setAI}.
+     * Disables the AI/knockback of a mob without using {@link LivingEntity#setAI}.
      *
      * @param entity The entity to disable AI for
      */
     public void disableAI(LivingEntity entity) {
-        // Make the entity unable to move
-        AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-        if (movementAttribute != null)
-            movementAttribute.setBaseValue(0);
+        // Remove all applicable AI goals
+        StackerUtils.removeEntityAi(entity);
 
         // Make the entity unable to take knockback
         AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
         if (knockbackAttribute != null)
             knockbackAttribute.setBaseValue(Double.MAX_VALUE);
-
-        // Supposed to stop jumping, but only seems to work on players
-        //entity.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 128, true, false));
     }
 
 }
