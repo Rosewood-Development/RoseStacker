@@ -19,7 +19,9 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,8 +62,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final BukkitTask stackTask;
     private final BukkitTask nametagTask;
     private final BukkitTask pendingChunkTask;
-    private final Set<Chunk> pendingLoadChunks;
-    private final Set<Chunk> pendingUnloadChunks;
+
+    private final Map<Chunk, Long> pendingLoadChunks;
+    private final Map<Chunk, Long> pendingUnloadChunks;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -69,6 +72,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final Map<Block, StackedSpawner> stackedSpawners;
 
     private int cleanupTimer;
+    private volatile boolean processingChunks;
+    private long processingChunksTime;
 
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
@@ -79,8 +84,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this, 5L, Setting.STACK_FREQUENCY.getLong());
         this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
         this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
-        this.pendingLoadChunks = new HashSet<>();
-        this.pendingUnloadChunks = new HashSet<>();
+        this.pendingLoadChunks = new HashMap<>();
+        this.pendingUnloadChunks = new HashMap<>();
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
@@ -88,9 +93,12 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.stackedSpawners = new ConcurrentHashMap<>();
 
         this.cleanupTimer = 0;
+        this.processingChunks = false;
+        this.processingChunksTime = System.currentTimeMillis();
 
         // Load all existing stacks in the target world
-        this.pendingLoadChunks.addAll(Arrays.asList(this.targetWorld.getLoadedChunks()));
+        for (Chunk chunk : this.targetWorld.getLoadedChunks())
+            this.pendingLoadChunks.put(chunk, System.nanoTime());
 
         // Disable AI for all existing stacks in the target world
         this.targetWorld.getLivingEntities().forEach(StackerUtils::applyDisabledAi);
@@ -140,7 +148,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : this.targetWorld.getEntities()) {
                 // Don't create stacks from chunks we are about to load
-                if (this.pendingLoadChunks.contains(entity.getLocation().getChunk()))
+                if (this.pendingLoadChunks.containsKey(entity.getLocation().getChunk()))
                     continue;
 
                 if (entityStackingEnabled && entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
@@ -246,8 +254,6 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void close() {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
         // Cancel tasks
         if (this.stackTask != null)
             this.stackTask.cancel();
@@ -258,26 +264,13 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (this.pendingChunkTask != null)
             this.pendingChunkTask.cancel();
 
+        // Save anything that's loaded
+        Set<Chunk> chunks = new HashSet<>(Arrays.asList(this.targetWorld.getLoadedChunks()));
+        chunks.addAll(this.pendingUnloadChunks.keySet());
+        this.unloadChunks(chunks);
+
         this.pendingLoadChunks.clear();
         this.pendingUnloadChunks.clear();
-
-        // Save anything that's loaded
-        if (this.stackManager.isEntityStackingEnabled())
-            dataManager.createOrUpdateStackedEntities(this.stackedEntities.values());
-
-        if (this.stackManager.isItemStackingEnabled())
-            dataManager.createOrUpdateStackedItems(this.stackedItems.values());
-
-        if (this.stackManager.isBlockStackingEnabled())
-            dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedBlocks.values());
-
-        if (this.stackManager.isSpawnerStackingEnabled())
-            dataManager.createOrUpdateStackedBlocksOrSpawners(this.stackedSpawners.values());
-
-        this.stackedEntities.clear();
-        this.stackedItems.clear();
-        this.stackedBlocks.clear();
-        this.stackedSpawners.clear();
     }
 
     @Override
@@ -603,12 +596,12 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
     @Override
     public void loadChunk(Chunk chunk) {
-        this.pendingLoadChunks.add(chunk);
+        this.pendingLoadChunks.put(chunk, System.nanoTime());
     }
 
     @Override
     public void unloadChunk(Chunk chunk) {
-        this.pendingUnloadChunks.add(chunk);
+        this.pendingUnloadChunks.put(chunk, System.nanoTime());
     }
 
     private boolean containsChunk(Set<Chunk> chunks, Stack<?> stack) {
@@ -801,22 +794,67 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     }
 
     private void processPendingChunks() {
-        this.pendingLoadChunks.removeIf(this.pendingUnloadChunks::contains);
-        this.pendingUnloadChunks.removeIf(this.pendingLoadChunks::contains);
+        // This is here just for safety, it should hopefully never be used
+        if (this.processingChunks && System.currentTimeMillis() - this.processingChunksTime >= 10000)
+            this.processingChunks = false;
 
-        if (!this.pendingLoadChunks.isEmpty()) {
-            Set<Chunk> chunks = new HashSet<>(this.pendingLoadChunks);
-            this.pendingLoadChunks.clear();
-            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-                this.conversionManager.convertChunks(chunks);
-                this.loadChunks(chunks);
-            });
+        if (this.processingChunks)
+            return;
+
+        // Don't try to load data for unloaded chunks, or save data for loaded chunks
+        this.pendingUnloadChunks.keySet().removeIf(this.pendingLoadChunks::containsKey);
+        this.pendingLoadChunks.keySet().removeIf(this.pendingUnloadChunks::containsKey);
+
+        // Filter chunks so we don't load/unload the same chunk twice
+        Iterator<Entry<Chunk, Long>> loadIterator = this.pendingLoadChunks.entrySet().iterator();
+        while (loadIterator.hasNext()) {
+            Entry<Chunk, Long> entry = loadIterator.next();
+            for (Entry<Chunk, Long> otherEntry : this.pendingLoadChunks.entrySet()) {
+                if (entry == otherEntry)
+                    continue;
+
+                if (entry.getKey().getX() == otherEntry.getKey().getX() && entry.getKey().getZ() == otherEntry.getKey().getZ() && entry.getValue() < otherEntry.getValue()) {
+                    loadIterator.remove();
+                    break;
+                }
+            }
         }
 
-        if (!this.pendingUnloadChunks.isEmpty()) {
-            Set<Chunk> chunks = new HashSet<>(this.pendingUnloadChunks);
+        Iterator<Entry<Chunk, Long>> unloadIterator = this.pendingUnloadChunks.entrySet().iterator();
+        while (unloadIterator.hasNext()) {
+            Entry<Chunk, Long> entry = unloadIterator.next();
+            for (Entry<Chunk, Long> otherEntry : this.pendingUnloadChunks.entrySet()) {
+                if (entry == otherEntry)
+                    continue;
+
+                if (entry.getKey().getX() == otherEntry.getKey().getX() && entry.getKey().getZ() == otherEntry.getKey().getZ() && entry.getValue() < otherEntry.getValue()) {
+                    unloadIterator.remove();
+                    break;
+                }
+            }
+        }
+
+        if (!this.pendingLoadChunks.isEmpty() || !this.pendingUnloadChunks.isEmpty()) {
+            this.processingChunks = true;
+            this.processingChunksTime = System.currentTimeMillis();
+
+            Set<Chunk> load = new HashSet<>(this.pendingLoadChunks.keySet());
+            Set<Chunk> unload = new HashSet<>(this.pendingUnloadChunks.keySet());
+
+            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+                if (!load.isEmpty()) {
+                    this.conversionManager.convertChunks(load);
+                    this.loadChunks(load);
+                }
+
+                if (!unload.isEmpty())
+                    this.unloadChunks(unload);
+
+                this.processingChunks = false;
+            });
+
+            this.pendingLoadChunks.clear();
             this.pendingUnloadChunks.clear();
-            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.unloadChunks(chunks));
         }
     }
 
