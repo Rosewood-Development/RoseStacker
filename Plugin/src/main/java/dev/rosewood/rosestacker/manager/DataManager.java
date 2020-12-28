@@ -82,8 +82,8 @@ public class DataManager extends AbstractDataManager {
         Set<StackedEntityData> stackedEntityData = new HashSet<>();
         this.databaseConnector.connect(connection -> {
             for (String query : queries) {
-                try (Statement statement = connection.createStatement()) {
-                    ResultSet result = statement.executeQuery(query);
+                try (Statement statement = connection.createStatement();
+                     ResultSet result = statement.executeQuery(query)) {
                     while (result.next()) {
                         stackedEntityData.add(new StackedEntityData(
                                 result.getInt("id"),
@@ -154,8 +154,8 @@ public class DataManager extends AbstractDataManager {
         Set<StackedItemData> stackedItemData = new HashSet<>();
         this.databaseConnector.connect(connection -> {
             for (String query : queries) {
-                try (Statement statement = connection.createStatement()) {
-                    ResultSet result = statement.executeQuery(query);
+                try (Statement statement = connection.createStatement();
+                     ResultSet result = statement.executeQuery(query)) {
                     while (result.next()) {
                         stackedItemData.add(new StackedItemData(
                                 result.getInt("id"),
@@ -219,8 +219,8 @@ public class DataManager extends AbstractDataManager {
         Set<StackedBlockData> stackedBlockData = new HashSet<>();
         this.databaseConnector.connect(connection -> {
             for (String query : queries) {
-                try (Statement statement = connection.createStatement()) {
-                    ResultSet result = statement.executeQuery(query);
+                try (Statement statement = connection.createStatement();
+                     ResultSet result = statement.executeQuery(query)) {
                     while (result.next()) {
                         stackedBlockData.add(new StackedBlockData(
                                 result.getInt("id"),
@@ -298,8 +298,8 @@ public class DataManager extends AbstractDataManager {
         Set<StackedBlockData> stackedSpawnerData = new HashSet<>();
         this.databaseConnector.connect(connection -> {
             for (String query : queries) {
-                try (Statement statement = connection.createStatement()) {
-                    ResultSet result = statement.executeQuery(query);
+                try (Statement statement = connection.createStatement();
+                     ResultSet result = statement.executeQuery(query)) {
                     while (result.next()) {
                         stackedSpawnerData.add(new StackedBlockData(
                                 result.getInt("id"),
@@ -602,9 +602,10 @@ public class DataManager extends AbstractDataManager {
         String query = "SELECT COUNT(*) FROM " + this.getTablePrefix() + "stacked_" + stackType.name().toLowerCase() + " WHERE world = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, world);
-            ResultSet result = statement.executeQuery();
-            result.next();
-            total.addAndGet(result.getInt(1));
+            try (ResultSet result = statement.executeQuery()) {
+                result.next();
+                total.addAndGet(result.getInt(1));
+            }
         }
         return total.get();
     }
@@ -633,8 +634,8 @@ public class DataManager extends AbstractDataManager {
         Set<ConverterType> conversionHandlers = EnumSet.noneOf(ConverterType.class);
         this.databaseConnector.connect(connection -> {
             String query = "SELECT name FROM " + this.getTablePrefix() + "convert_handler";
-            try (Statement statement = connection.createStatement()) {
-                ResultSet result = statement.executeQuery(query);
+            try (Statement statement = connection.createStatement();
+                 ResultSet result = statement.executeQuery(query)) {
                 while (result.next()) {
                     ConverterType converterType = ConverterType.get(result.getString(1));
                     if (converterType != null)
@@ -709,12 +710,13 @@ public class DataManager extends AbstractDataManager {
         // Get data
         try (Statement statement = connection.createStatement()) {
             String query = "SELECT entity_uuid, stack_size FROM " + this.getTablePrefix() + "convert_stacked_" + tableName + " WHERE entity_uuid IN (" + entityUniqueIdsString + ")";
-            ResultSet result = statement.executeQuery(query);
-            while (result.next()) {
-                UUID uuid = UUID.fromString(result.getString("entity_uuid"));
-                Entity entity = entityMap.get(uuid);
-                int stackSize = result.getInt("stack_size");
-                conversionData.add(new ConversionData(entity, stackSize));
+            try (ResultSet result = statement.executeQuery(query)) {
+                while (result.next()) {
+                    UUID uuid = UUID.fromString(result.getString("entity_uuid"));
+                    Entity entity = entityMap.get(uuid);
+                    int stackSize = result.getInt("stack_size");
+                    conversionData.add(new ConversionData(entity, stackSize));
+                }
             }
         }
 
@@ -738,8 +740,8 @@ public class DataManager extends AbstractDataManager {
             }
 
             String query = "SELECT name FROM " + this.getTablePrefix() + "translation_locale";
-            try (Statement statement = connection.createStatement()) {
-                ResultSet result = statement.executeQuery(query);
+            try (Statement statement = connection.createStatement();
+                 ResultSet result = statement.executeQuery(query)) {
                 while (result.next())
                     locales.add(result.getString("name"));
             }
