@@ -4,6 +4,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -91,38 +92,38 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
             StackedSpawner stackedSpawner = entry.getValue();
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
-            CreatureSpawner spawner = (CreatureSpawner) block.getState(); // Need to refetch the state so the delay is the latest
+            SpawnerTileWrapper spawnerTile = stackedSpawner.getSpawnerTile();
+            CreatureSpawner spawner = stackedSpawner.getSpawner();
             if (redstoneSpawners) {
                 boolean isPowered = block.isBlockPowered();
                 boolean wasPowered = stackedSpawner.isPowered();
                 boolean changed = false;
                 if (isPowered && !wasPowered) {
                     // Prevent the spawner from spinning and counting down the delay (in most cases)
-                    spawner.setRequiredPlayerRange(1);
+                    spawnerTile.setRequiredPlayerRange(1);
                     changed = true;
                 } else if (!isPowered && wasPowered) {
-                    spawner.setRequiredPlayerRange(stackSettings.getPlayerActivationRange());
+                    spawnerTile.setRequiredPlayerRange(stackSettings.getPlayerActivationRange());
                     changed = true;
                 }
 
-                int delay = spawner.getDelay();
+                int delay = spawnerTile.getDelay();
                 if (isPowered) {
                     int lastDelay = stackedSpawner.getLastDelay();
 
                     // If the spawner is still spinning, prevent it from counting down
                     if (lastDelay != delay) {
-                        spawner.setDelay(lastDelay);
+                        spawnerTile.setDelay(lastDelay);
                         changed = true;
                     }
                 }
 
                 if (changed) {
-                    spawner.update(false, false);
                     stackedSpawner.setPowered(isPowered);
                 }
             }
 
-            stackedSpawner.setLastDelay(spawner.getDelay());
+            stackedSpawner.setLastDelay(spawnerTile.getDelay());
             if (stackedSpawner.getLastDelay() > DELAY_THRESHOLD)
                 continue;
 
@@ -131,10 +132,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 continue;
 
             // Reset the spawn delay
-            int newDelay = this.random.nextInt(spawner.getMaxSpawnDelay() - spawner.getMinSpawnDelay() + 1) + spawner.getMinSpawnDelay();
+            int newDelay = this.random.nextInt(spawnerTile.getMaxSpawnDelay() - spawnerTile.getMinSpawnDelay() + 1) + spawnerTile.getMinSpawnDelay();
             stackedSpawner.setLastDelay(newDelay);
-            spawner.setDelay(newDelay);
-            spawner.update(false, false);
+            spawnerTile.setDelay(newDelay);
 
             // Spawn particles indicating the spawn occurred
             block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
@@ -153,12 +153,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn the mobs
             int spawnAmount;
             if (randomizeSpawnAmounts) {
-                spawnAmount = this.random.nextInt(spawner.getSpawnCount() - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
+                spawnAmount = this.random.nextInt(spawnerTile.getSpawnCount() - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
             } else {
-                spawnAmount = spawner.getSpawnCount();
+                spawnAmount = spawnerTile.getSpawnCount();
             }
 
-            int spawnRange = spawner.getSpawnRange();
+            int spawnRange = spawnerTile.getSpawnRange();
             boolean successfulSpawn = false;
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
@@ -199,7 +199,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                             entitySettings.applySpawnerSpawnedProperties(spawnedLivingEntity);
                     });
 
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner);
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                     if (spawnerSpawnEvent.isCancelled())
                         entity.remove();

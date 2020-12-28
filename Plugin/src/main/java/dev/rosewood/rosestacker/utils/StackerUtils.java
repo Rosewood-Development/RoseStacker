@@ -63,8 +63,8 @@ import org.bukkit.util.Vector;
 
 public final class StackerUtils {
 
-    public static final String MAX_SUPPORTED_VERSION = "1.16.3";
-    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.16.2";
+    public static final String MAX_SUPPORTED_VERSION = "1.16.4";
+    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.16.4";
 
     public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
 
@@ -186,6 +186,9 @@ public final class StackerUtils {
             return null;
 
         ItemStack itemStack = new ItemStack(spawnEggMaterial);
+        if (amount == 1)
+            return itemStack;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return itemStack;

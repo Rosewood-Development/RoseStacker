@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.nms;
 
+import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
 import org.bukkit.Location;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -128,5 +130,14 @@ public interface NMSHandler {
      * @return The value stored on the ItemStack, or 0 if none found
      */
     int getItemStackNBTInt(ItemStack itemStack, String key);
+
+    /**
+     * Gets an object that allows manipulating a CreatureSpawner without having to use Bukkit's BlockState system.
+     * This is preferrable because of how slow generating a BlockState snapshot is.
+     *
+     * @param spawner The spawner to get the tile wrapper for
+     * @return A SpawnerTileWrapper for a CreatureSpawner
+     */
+    SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner);
 
 }

@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.nms.v1_15_R1;
 
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.v1_15_R1.object.SpawnerTileWrapperImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -45,6 +47,7 @@ import net.minecraft.server.v1_15_R1.PathfinderGoalWrapped;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
@@ -347,6 +350,11 @@ public class NMSHandlerImpl implements NMSHandler {
         net.minecraft.server.v1_15_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
         NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
         return tagCompound.getInt(key);
+    }
+
+    @Override
+    public SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner) {
+        return new SpawnerTileWrapperImpl(spawner);
     }
 
 }
