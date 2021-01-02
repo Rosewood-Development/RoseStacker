@@ -20,7 +20,7 @@ public class BlockExceptionConditionTag extends ConditionTag {
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
-        return !this.blocks.contains(spawnBlock.getRelative(BlockFace.DOWN).getType()) && !spawnBlock.isPassable();
+        return !this.blocks.contains(spawnBlock.getRelative(BlockFace.DOWN).getType());
     }
 
     @Override
