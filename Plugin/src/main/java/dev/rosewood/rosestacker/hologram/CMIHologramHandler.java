@@ -14,8 +14,8 @@ import org.bukkit.entity.Entity;
 
 public class CMIHologramHandler implements HologramHandler {
 
-    private HologramManager hologramManager;
-    private Map<Location, CMIHologram> holograms;
+    private final HologramManager hologramManager;
+    private final Map<Location, CMIHologram> holograms;
 
     public CMIHologramHandler() {
         this.hologramManager = CMI.getInstance().getHologramManager();

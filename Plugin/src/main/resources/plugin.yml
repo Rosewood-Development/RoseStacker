@@ -8,6 +8,7 @@ softdepend:
   - HolographicDisplays
   - Holograms
   - CMI
+  - TrHologram
   - UltimateStacker
   - EpicSpawners
   - WildStacker

@@ -22,22 +22,27 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:16.0.2'
     compileOnly 'us.myles:viaversion:3.1.0'
 
-    // From our repo
-    compileOnly 'com.bgsoftware:wildstacker:3.1.1'
+    // Hologram plugins
     compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
     compileOnly 'com.sainttx:holograms:2.13'
+    compileOnly 'com.zrips:cmi:8.6.9.4'
+    compileOnly 'me.arasple.mc:trhologram:1.11'
+
+    // Stacker plugins
+    compileOnly 'com.bgsoftware:wildstacker:3.1.1'
     compileOnly 'com.songoda:epicspawners:6.4'
     compileOnly 'com.songoda:ultimatestacker:2.0.8'
+    compileOnly 'uk.antiperson:stackmob:5.2.2'
+
+    // Misc other
     compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'me.minebuilders:clearlag:3.1.6'
     compileOnly 'net.brcdev:shopgui:1.36.0'
-    compileOnly 'uk.antiperson:stackmob:5.2.2'
     compileOnly 'com.gmail.nossr50:mcmmo:2.1.132'
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'io.lumine.xikage:mythicmobs:4.10.0'
     compileOnly 'com.magmaguy:elitemobs:7.1.0'
-    compileOnly 'com.zrips:cmi:8.6.9.4'
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:rosegarden:1.0.4'
