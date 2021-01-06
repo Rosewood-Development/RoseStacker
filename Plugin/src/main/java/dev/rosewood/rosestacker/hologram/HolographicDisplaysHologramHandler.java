@@ -14,7 +14,7 @@ import org.bukkit.entity.Entity;
 
 public class HolographicDisplaysHologramHandler implements HologramHandler {
 
-    private Map<Location, Hologram> holograms;
+    private final Map<Location, Hologram> holograms;
 
     public HolographicDisplaysHologramHandler() {
         this.holograms = new HashMap<>();

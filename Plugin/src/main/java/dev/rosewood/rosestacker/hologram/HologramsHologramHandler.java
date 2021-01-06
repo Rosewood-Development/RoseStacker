@@ -17,9 +17,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class HologramsHologramHandler implements HologramHandler {
 
-    private HologramManager hologramManager;
-    private HologramEntityController hologramEntityController;
-    private Set<String> holograms;
+    private final HologramManager hologramManager;
+    private final HologramEntityController hologramEntityController;
+    private final Set<String> holograms;
 
     public HologramsHologramHandler() {
         HologramPlugin hologramPlugin = JavaPlugin.getPlugin(HologramPlugin.class);
