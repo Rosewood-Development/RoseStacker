@@ -23,7 +23,7 @@ public class TrHologramHandler implements HologramHandler {
     public void createOrUpdateHologram(Location location, String text) {
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = TrHologramAPI.createHologram(RoseStacker.getInstance(), StackerUtils.locationAsKey(location), location, text);
+            hologram = TrHologramAPI.createHologram(RoseStacker.getInstance(), StackerUtils.locationAsKey(location), location.clone().subtract(0, 0.5, 0), text);
             this.holograms.put(location, hologram);
         } else {
             hologram.updateLines(Collections.singletonList(text));
