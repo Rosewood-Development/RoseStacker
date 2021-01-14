@@ -14,7 +14,7 @@ public enum EntityStackComparisonResult {
     CUSTOM_NAMED,
     NOT_ON_GROUND,
     IN_WATER,
-    SPAWNED_BY_SPAWNER,
+    NOT_SPAWNED_FROM_SPAWNER,
     PART_OF_VEHICLE,
     LEASHED,
     INVULNERABLE,

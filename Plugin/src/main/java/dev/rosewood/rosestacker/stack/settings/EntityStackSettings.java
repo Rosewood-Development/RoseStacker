@@ -193,8 +193,8 @@ public abstract class EntityStackSettings extends StackSettings {
 
         if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean()) {
             SpawnerSpawnManager spawnerSpawnManager = RoseStacker.getInstance().getManager(SpawnerSpawnManager.class);
-            if (!(spawnerSpawnManager.isSpawnedFromSpawner(entity1) && spawnerSpawnManager.isSpawnedFromSpawner(entity2)))
-                return EntityStackComparisonResult.SPAWNED_BY_SPAWNER;
+            if (!(spawnerSpawnManager.isSpawnedFromSpawner(entity1) || spawnerSpawnManager.isSpawnedFromSpawner(entity2)))
+                return EntityStackComparisonResult.NOT_SPAWNED_FROM_SPAWNER;
         }
 
         // Don't stack if being ridden or is riding something
