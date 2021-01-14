@@ -1,5 +1,8 @@
 package dev.rosewood.rosestacker.nms.object;
 
+import java.util.List;
+import org.bukkit.entity.EntityType;
+
 /**
  * Used to bypass the costly BlockState snapshot system that Bukkit uses
  */
@@ -32,5 +35,7 @@ public interface SpawnerTileWrapper {
     int getSpawnRange();
 
     void setSpawnRange(int spawnRange);
+
+    List<EntityType> getSpawnedTypes();
 
 }

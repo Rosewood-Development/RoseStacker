@@ -1,11 +1,19 @@
 package dev.rosewood.rosestacker.nms.v1_16_R1.object;
 
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import net.minecraft.server.v1_16_R1.MinecraftKey;
 import net.minecraft.server.v1_16_R1.MobSpawnerAbstract;
 import net.minecraft.server.v1_16_R1.TileEntityMobSpawner;
 import net.minecraft.server.v1_16_R1.WorldServer;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_16_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_16_R1.util.CraftNamespacedKey;
+import org.bukkit.entity.EntityType;
 
 public class SpawnerTileWrapperImpl implements SpawnerTileWrapper {
 
@@ -98,6 +106,26 @@ public class SpawnerTileWrapperImpl implements SpawnerTileWrapper {
     public void setSpawnRange(int spawnRange) {
         this.spawner.spawnRange = spawnRange;
         this.update();
+    }
+
+    @Override
+    public List<EntityType> getSpawnedTypes() {
+        return this.spawner.mobs.stream()
+                .map(x -> x.getEntity().getString("id"))
+                .map(MinecraftKey::a)
+                .filter(Objects::nonNull)
+                .map(CraftNamespacedKey::fromMinecraft)
+                .map(this::fromKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private EntityType fromKey(NamespacedKey namespacedKey) {
+        return Arrays.stream(EntityType.values())
+                .filter(x -> x != EntityType.UNKNOWN)
+                .filter(x -> x.getKey().equals(namespacedKey))
+                .findFirst()
+                .orElse(null);
     }
 
     private void update() {

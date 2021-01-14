@@ -51,10 +51,12 @@ import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftCreeper;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_16_R2.util.CraftNamespacedKey;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -221,11 +223,37 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public LivingEntity createEntityUnspawned(EntityType entityType, Location location) {
-        if (location.getWorld() == null)
+        World world = location.getWorld();
+        if (world == null)
             return null;
 
-        CraftWorld craftWorld = (CraftWorld) location.getWorld();
-        return (LivingEntity) craftWorld.createEntity(location, entityType.getEntityClass()).getBukkitEntity();
+        Class<? extends org.bukkit.entity.Entity> entityClass = entityType.getEntityClass();
+        if (entityClass == null || !LivingEntity.class.isAssignableFrom(entityClass))
+            throw new IllegalArgumentException("EntityType must be of a LivingEntity");
+
+        EntityTypes<? extends Entity> nmsEntityType = IRegistry.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(entityType.getKey()));
+        Entity nmsEntity = nmsEntityType.createCreature(
+                ((CraftWorld) world).getHandle(),
+                null,
+                null,
+                null,
+                new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                EnumMobSpawn.SPAWN_EGG,
+                false,
+                false
+        );
+
+        return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
+    }
+
+    @Override
+    public void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason) {
+        Location location = entity.getLocation();
+        World world = location.getWorld();
+        if (world == null)
+            throw new IllegalArgumentException("Entity is not in a loaded world");
+
+        ((CraftWorld) world).getHandle().addEntity(((CraftEntity) entity).getHandle(), spawnReason);
     }
 
     @Override
