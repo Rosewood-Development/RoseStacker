@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -341,7 +342,7 @@ public final class StackerUtils {
                 .filter(EntityType::isAlive)
                 .filter(EntityType::isSpawnable)
                 .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(EntityType.class)));
     }
 
     public static void takeOneItem(Player player, EquipmentSlot handType) {
@@ -586,7 +587,7 @@ public final class StackerUtils {
     }
 
     public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
-        List<byte[]> nbtList = stackedEntity.getStackedEntityNBT();
+        List<byte[]> nbtList = new LinkedList<>(stackedEntity.getStackedEntityNBT());
         List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
         EntityType entityType = stackedEntity.getEntity().getType();
         Location location = stackedEntity.getLocation();

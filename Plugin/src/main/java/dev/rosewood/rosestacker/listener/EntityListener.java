@@ -356,21 +356,26 @@ public class EntityListener implements Listener {
         sheepEntity.setSheared(true);
         List<ItemStack> drops = new ArrayList<>(Collections.singletonList(baseSheepWool));
 
+        stackManager.setEntityUnstackingTemporarilyDisabled(true);
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
-            List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
-                    .map(x -> (Sheep) x)
-                    .collect(Collectors.toList());
+            try {
+                List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
+                        .map(x -> (Sheep) x)
+                        .collect(Collectors.toList());
 
-            for (Sheep sheep : sheepList) {
-                if (!sheep.isSheared()) {
-                    ItemStack sheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
-                    sheep.setSheared(true);
-                    drops.add(sheepWool);
+                for (Sheep sheep : sheepList) {
+                    if (!sheep.isSheared()) {
+                        ItemStack sheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
+                        sheep.setSheared(true);
+                        drops.add(sheepWool);
+                    }
                 }
-            }
-            StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
+                StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
 
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+            } finally {
+                stackManager.setEntityUnstackingTemporarilyDisabled(false);
+            }
         });
 
         return true;
@@ -425,6 +430,7 @@ public class EntityListener implements Listener {
                         break;
                 }
             }
+
             StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
         });
     }

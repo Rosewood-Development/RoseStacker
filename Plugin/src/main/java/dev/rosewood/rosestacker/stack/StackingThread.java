@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -138,9 +139,10 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             }
 
             // Auto unstack entities
-            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
-                if (!stackedEntity.shouldStayStacked())
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.splitEntityStack(stackedEntity));
+            if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
+                for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
+                    if (!stackedEntity.shouldStayStacked())
+                        Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.splitEntityStack(stackedEntity));
         }
 
         // Cleans up entities/items that aren't stacked
@@ -554,11 +556,34 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         if (world == null)
             return;
 
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (int i = 0; i < amount; i++) {
-            LivingEntity entity = nmsHandler.spawnEntityWithReason(entityType, location, spawnReason);
-            entity.setVelocity(Vector.getRandom().multiply(0.01)); // Move the entities slightly so they don't all bunch together
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+            Set<StackedEntity> stackedEntities = new HashSet<>();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            for (int i = 0; i < amount; i++) {
+                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+                StackedEntity newStack = new StackedEntity(entity);
+                Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
+                        stackSettings.canStackWith(x, newStack, false) == EntityStackComparisonResult.CAN_STACK).findFirst();
+                if (matchingEntity.isPresent()) {
+                    matchingEntity.get().increaseStackSize(entity);
+                } else {
+                    stackedEntities.add(newStack);
+                }
+            }
+
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                this.stackManager.setEntityStackingTemporarilyDisabled(true);
+                for (StackedEntity stackedEntity : stackedEntities) {
+                    LivingEntity entity = stackedEntity.getEntity();
+                    entity.teleport(entity.getLocation().clone().add(0, 300, 0));
+                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), SpawnReason.SPAWNER_EGG);
+                    entity.setVelocity(Vector.getRandom().multiply(0.01));
+                    this.addEntityStack(stackedEntity);
+                }
+                this.stackManager.setEntityStackingTemporarilyDisabled(false);
+            });
+        });
     }
 
     @Override

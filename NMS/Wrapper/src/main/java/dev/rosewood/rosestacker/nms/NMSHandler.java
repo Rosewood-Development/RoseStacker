@@ -51,6 +51,14 @@ public interface NMSHandler {
     LivingEntity createEntityUnspawned(EntityType entityType, Location location);
 
     /**
+     * Adds an unspawned entity to the world
+     *
+     * @param entity The entity to add
+     * @param spawnReason The reason the entity is spawning
+     */
+    void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason);
+
+    /**
      * Spawns a LivingEntity at the given location with a custom SpawnReason
      *
      * @param entityType The type of entity to spawn

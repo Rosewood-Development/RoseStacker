@@ -44,6 +44,7 @@ public class StackManager extends Manager implements StackingLogic {
     private final ConversionManager conversionManager;
 
     private boolean isEntityStackingTemporarilyDisabled;
+    private boolean isEntityUnstackingTemporarilyDisabled;
 
     public StackManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -491,10 +492,27 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
+     * Toggles entity unstacking as temporarily disabled to allow for entity manipulation without stacks
+     * automatically unstacking.
+     *
+     * @param disabled true to disable, otherwise false to enable
+     */
+    public void setEntityUnstackingTemporarilyDisabled(boolean disabled) {
+        this.isEntityUnstackingTemporarilyDisabled = disabled;
+    }
+
+    /**
      * @return true if instant entity stacking is temporarily disabled, otherwise false
      */
     public boolean isEntityStackingTemporarilyDisabled() {
         return this.isEntityStackingTemporarilyDisabled;
+    }
+
+    /**
+     * @return true if entity unstacking is temporarily disabled, otherwise false
+     */
+    public boolean isEntityUnstackingTemporarilyDisabled() {
+        return this.isEntityUnstackingTemporarilyDisabled;
     }
 
 }
