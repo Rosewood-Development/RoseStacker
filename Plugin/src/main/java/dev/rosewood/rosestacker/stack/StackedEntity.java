@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
+import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
@@ -19,8 +20,10 @@ import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -193,7 +196,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     /**
      * Drops loot for entities that are part of the stack.
-     * Does not include loot for the current entity.
+     * Does not include loot for the current entity (except for nether stars for withers).
      *
      * @param internalEntities The entities which should be part of this stack
      * @param existingLoot The loot from this.entity, nullable
@@ -240,6 +243,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
                     StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, 30);
             };
+
+            // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
+            if (this.entity.getType() == EntityType.WITHER)
+                loot.addAll(GuiUtil.getMaterialAmountAsItemStacks(Material.NETHER_STAR, this.getStackSize()));
 
             if (async) {
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);

@@ -148,7 +148,7 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-spawner-min-spawn-delay", "&eMin Spawn Delay: &b%delay%");
             this.put("gui-stacked-spawner-max-spawn-delay", "&eMax Spawn Delay: &b%delay%");
             this.put("gui-stacked-spawner-disabled-mob-ai", "&eDisabled Mob AI: &b%disabled%");
-            this.put("gui-stacked-spawner-max-nearby-entities", "&eMax Nearby Entities: &b%max%");
+            this.put("gui-stacked-spawner-entity-search-range", "&eEntity Search Range: &b%range%");
             this.put("gui-stacked-spawner-player-activation-range", "&ePlayer Activation Range: &b%range%");
             this.put("gui-stacked-spawner-spawn-range", "&eSpawn Range: &b%range%");
             this.put("gui-stacked-spawner-min-spawn-amount", "&eMin Spawn Amount: &b%amount%");

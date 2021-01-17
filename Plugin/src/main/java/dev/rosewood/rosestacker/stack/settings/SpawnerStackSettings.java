@@ -22,6 +22,7 @@ public class SpawnerStackSettings extends StackSettings {
     private final int spawnCountStackSizeMultiplier;
     private final int minSpawnDelay;
     private final int maxSpawnDelay;
+    private final int entitySearchRange;
     private final int playerActivationRange;
     private final int spawnRange;
     private final List<ConditionTag> spawnRequirements;
@@ -39,6 +40,7 @@ public class SpawnerStackSettings extends StackSettings {
         this.spawnCountStackSizeMultiplier = this.settingsConfiguration.getInt("spawn-count-stack-size-multiplier");
         this.minSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-minimum");
         this.maxSpawnDelay = this.settingsConfiguration.getInt("spawn-delay-maximum");
+        this.entitySearchRange = this.settingsConfiguration.getInt("entity-search-range");
         this.playerActivationRange = this.settingsConfiguration.getInt("player-activation-range");
         this.spawnRange = this.settingsConfiguration.getInt("spawn-range");
 
@@ -71,6 +73,7 @@ public class SpawnerStackSettings extends StackSettings {
         this.setIfNotExists("spawn-count-stack-size-multiplier", -1);
         this.setIfNotExists("spawn-delay-minimum", -1);
         this.setIfNotExists("spawn-delay-maximum", -1);
+        this.setIfNotExists("entity-search-range", -1);
         this.setIfNotExists("player-activation-range", -1);
         this.setIfNotExists("spawn-range", -1);
 
@@ -130,6 +133,16 @@ public class SpawnerStackSettings extends StackSettings {
         if (this.maxSpawnDelay != -1)
             return Math.max(this.maxSpawnDelay, this.getMinSpawnDelay());
         return Math.max(Setting.SPAWNER_SPAWN_DELAY_MAXIMUM.getInt(), this.getMinSpawnDelay());
+    }
+
+    public int getEntitySearchRange() {
+        if (this.entitySearchRange != -1)
+            return Math.max(this.entitySearchRange, 1);
+
+        int globalRange = Setting.SPAWNER_SPAWN_ENTITY_SEARCH_RANGE.getInt();
+        if (globalRange == -1)
+            return this.getSpawnRange();
+        return Math.max(globalRange, 1);
     }
 
     public int getPlayerActivationRange() {

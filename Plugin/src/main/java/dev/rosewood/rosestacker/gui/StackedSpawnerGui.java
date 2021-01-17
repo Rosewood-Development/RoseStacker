@@ -105,6 +105,7 @@ public class StackedSpawnerGui {
                     lore.add(this.getString("min-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMinSpawnDelay())));
                     lore.add(this.getString("max-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMaxSpawnDelay())));
                     lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
+                    lore.add(this.getString("entity-search-range", StringPlaceholders.single("range", stackSettings.getEntitySearchRange())));
                     lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", stackSettings.getPlayerActivationRange())));
                     lore.add(this.getString("spawn-range", StringPlaceholders.single("range", stackSettings.getSpawnRange())));
 
@@ -128,11 +129,18 @@ public class StackedSpawnerGui {
                 }));
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
-                .setNameSupplier(() -> GuiFactory.createString(RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
-                        .addPlaceholder("name", stackSettings.getDisplayName()).build())))
-                .setLoreSupplier(() -> {
-                    return Collections.singletonList(this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)));
-                }
+                .setNameSupplier(() -> {
+                    String displayString;
+                    if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+                        displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                                .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
+                    } else {
+                        displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                                .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
+                    }
+                    return GuiFactory.createString(displayString);
+                })
+                .setLoreSupplier(() -> Collections.singletonList(this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)))
             ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
                 .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))

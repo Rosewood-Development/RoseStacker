@@ -99,6 +99,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SPAWN_DELAY_MINIMUM("global-spawner-settings.spawn-delay-minimum", 200, "The minimum number of ticks between spawn attempts"),
         SPAWNER_SPAWN_DELAY_MAXIMUM("global-spawner-settings.spawn-delay-maximum", 800, "The maximum number of ticks between spawn attempts"),
         SPAWNER_SPAWN_MAX_NEARBY_ENTITIES("global-spawner-settings.spawn-max-nearby-entities", 6, "If more than this number of entities are near the spawner, it will not spawn anything", "This only counts the individual mobs, and not the stack size", "Can be overridden for each spawner type using the max-nearby-entities:# spawn requirement"),
+        SPAWNER_SPAWN_ENTITY_SEARCH_RANGE("global-spawner-settings.spawn-entity-search-range", -1, "How far away from the spawner should we search for nearby entities when using max-nearby-entities?", "A value of -1 will make this setting use the same value as the spawn range"),
         SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?"),
         SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?"),
         SPAWNER_NERF_PATROL_LEADERS("global-spawner-settings.nerf-patrol-leaders", false, "Should patrol leaders be prevented when spawning potential raid member mobs?"),

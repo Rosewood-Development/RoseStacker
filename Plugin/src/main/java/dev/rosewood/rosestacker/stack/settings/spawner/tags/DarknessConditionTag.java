@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +16,10 @@ public class DarknessConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
+    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         if (!spawnBlock.isPassable()) // Solid blocks won't have any light
             return false;
-        if (creatureSpawner.getSpawnedType() == EntityType.BLAZE)
+        if (creatureSpawner.getSpawnedType() == EntityType.BLAZE || creatureSpawner.getSpawnedType() == EntityType.SILVERFISH)
             return spawnBlock.getLightLevel() <= 11;
         return spawnBlock.getLightLevel() <= 7;
     }

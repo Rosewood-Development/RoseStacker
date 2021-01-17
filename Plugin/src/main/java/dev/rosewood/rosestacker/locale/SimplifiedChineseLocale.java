@@ -147,7 +147,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("gui-stacked-spawner-min-spawn-delay", "&e最小生成延时: &b%delay%");
             this.put("gui-stacked-spawner-max-spawn-delay", "&e最大生成延时: &b%delay%");
             this.put("gui-stacked-spawner-disabled-mob-ai", "&e生物AI是否开启: &b%disabled%");
-            this.put("gui-stacked-spawner-max-nearby-entities", "&e附近最大实体容许量: &b%max%");
+            this.put("gui-stacked-spawner-entity-search-range", "&e实体搜索范围: &b%range%");
             this.put("gui-stacked-spawner-player-activation-range", "&e玩家活动激活范围: &b%range%");
             this.put("gui-stacked-spawner-spawn-range", "&e生成范围: &b%range%");
             this.put("gui-stacked-spawner-min-spawn-amount", "&e最小生成数: &b%amount%");

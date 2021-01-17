@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +16,7 @@ public class OnGroundConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
+    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         return !spawnBlock.getRelative(BlockFace.DOWN).isPassable();
     }
 

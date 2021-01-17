@@ -541,6 +541,13 @@ public final class StackerUtils {
     }
 
     public static void applyDisabledAi(LivingEntity entity) {
+        if (isAiDisabled(entity)) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            nmsHandler.removeEntityGoals(entity);
+        }
+    }
+
+    public static boolean isAiDisabled(LivingEntity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         boolean isDisabled;
         if (NMSUtil.getVersionNumber() > 13) {
@@ -549,10 +556,7 @@ public final class StackerUtils {
             isDisabled = entity.hasMetadata(NO_AI_METADATA_NAME);
         }
 
-        if (isDisabled) {
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            nmsHandler.removeEntityGoals(entity);
-        }
+        return isDisabled;
     }
 
     public static ItemStack getStackingTool() {

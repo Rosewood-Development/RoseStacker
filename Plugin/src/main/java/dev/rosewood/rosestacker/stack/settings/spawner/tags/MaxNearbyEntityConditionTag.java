@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.Collections;
 import java.util.List;
@@ -17,13 +18,13 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
-        int spawnRange = creatureSpawner.getSpawnRange();
+    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
+        int detectionRange = stackSettings.getEntitySearchRange();
         Block block = creatureSpawner.getBlock();
         EntityType entityType = creatureSpawner.getSpawnedType();
         return block.getWorld().getNearbyEntities(
                 block.getLocation().clone().add(0.5, 0.5, 0.5),
-                spawnRange, spawnRange, spawnRange,
+                detectionRange, detectionRange, detectionRange,
                 entity -> entity.getType() == entityType).size() < this.maxNearbyEntities;
     }
 

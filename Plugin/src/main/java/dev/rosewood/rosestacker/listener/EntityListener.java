@@ -28,6 +28,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -39,6 +40,7 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.PigZapEvent;
@@ -81,6 +83,13 @@ public class EntityListener implements Listener {
         stackManager.createEntityStack(event.getEntity(), true);
 
         StackerUtils.applyDisabledAi(event.getEntity());
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityTarget(EntityTargetEvent event) {
+        // Withers can still target enitites due to custom boss AI, so prevent them from targeting
+        if (event.getEntityType() == EntityType.WITHER && StackerUtils.isAiDisabled((Wither) event.getEntity()))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

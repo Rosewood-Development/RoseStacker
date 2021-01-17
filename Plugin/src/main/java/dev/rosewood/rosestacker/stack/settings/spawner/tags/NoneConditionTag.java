@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.List;
 import org.bukkit.block.Block;
@@ -13,7 +14,7 @@ public class NoneConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, Block spawnBlock) {
+    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         throw new IllegalStateException("None condition tag should not be used");
     }
 

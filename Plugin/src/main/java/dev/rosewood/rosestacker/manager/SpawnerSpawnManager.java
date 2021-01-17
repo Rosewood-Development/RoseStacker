@@ -83,11 +83,13 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         Map<Block, StackedSpawner> stackedSpawners = stackManager.getStackedSpawners();
         for (Entry<Block, StackedSpawner> entry : stackedSpawners.entrySet()) {
             Block block = entry.getKey();
-            if (block.getType() != Material.SPAWNER)
-                continue;
 
             // Make sure the chunk is loaded
             if (!block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4))
+                continue;
+
+            // Make sure it's still a spawner
+            if (block.getType() != Material.SPAWNER)
                 continue;
 
             StackedSpawner stackedSpawner = entry.getValue();
@@ -136,16 +138,13 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             stackedSpawner.setLastDelay(newDelay);
             spawnerTile.setDelay(newDelay);
 
-            // Spawn particles indicating the spawn occurred
-            block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-
             List<ConditionTag> spawnRequirements = new ArrayList<>(stackSettings.getSpawnRequirements());
 
             // Check general spawner conditions
             List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
             spawnRequirements.removeAll(perSpawnConditions);
 
-            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, block)).collect(Collectors.toSet());
+            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, stackSettings, block)).collect(Collectors.toSet());
             boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
 
             invalidSpawnConditions.addAll(perSpawnConditions); // Will be removed when they pass
@@ -173,7 +172,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
                     boolean invalid = false;
                     for (ConditionTag conditionTag : perSpawnConditions) {
-                        if (!conditionTag.check(spawner, target)) {
+                        if (!conditionTag.check(spawner, stackSettings, target)) {
                             invalid = true;
                         } else {
                             invalidSpawnConditions.remove(conditionTag);
@@ -222,6 +221,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         invalidSpawnConditionClasses.add(conditionTag.getClass());
                     stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
                 }
+
+                // Spawn particles indicating the spawn occurred
+                block.getWorld().spawnParticle(Particle.SMOKE_NORMAL, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+            } else {
+                // Spawn particles indicating the spawn did not occur
+                block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
             }
         }
     }
