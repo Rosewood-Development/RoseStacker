@@ -92,6 +92,18 @@ public final class StackerUtils {
     }
 
     /**
+     * Formats a Material name from THIS_FORMAT to This Format
+     *
+     * @param material The material to format the name of
+     * @return the reformatted string
+     */
+    public static String formatMaterialName(Material material) {
+        if (material == Material.TNT)
+            return "TNT"; // The one exception
+        return formatName(material.name());
+    }
+
+    /**
      * Gets a location as a string key
      *
      * @param location The location
@@ -432,7 +444,7 @@ public final class StackerUtils {
         return Arrays.stream(Material.values())
                 .filter(Material::isBlock)
                 .filter(Material::isSolid)
-                .filter(x -> !x.isInteractable())
+                .filter(x -> !x.isInteractable() || x == Material.TNT)
                 .filter(x -> !x.hasGravity())
                 .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
                 .filter(x -> !Tag.SLABS.isTagged(x))

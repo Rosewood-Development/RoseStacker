@@ -29,6 +29,7 @@ import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -43,6 +44,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -59,30 +61,40 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockClicked(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        if (block == null || !event.getPlayer().isSneaking() || event.getAction() != Action.RIGHT_CLICK_BLOCK)
+        if (block == null)
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
             return;
 
-        if (stackManager.isBlockStackingEnabled() && Setting.BLOCK_GUI_ENABLED.getBoolean()) {
-            StackedBlock stackedBlock = stackManager.getStackedBlock(block);
-            if (stackedBlock != null) {
-                stackedBlock.openGui(event.getPlayer());
-                event.setCancelled(true);
-                return;
-            }
+        // Check for igniting stacked TNT
+        ItemStack item = event.getItem();
+        if (item != null && stackManager.isBlockStackingEnabled() && block.getType() == Material.TNT &&
+                stackManager.isBlockStacked(block) && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
+            event.setUseInteractedBlock(Event.Result.DENY);
+            return;
         }
 
-        if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
-            if (stackedSpawner == null)
-                stackManager.createSpawnerStack(block, 1); // Doesn't exist, need it to in order to open the GUI
+        if (event.getPlayer().isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (stackManager.isBlockStackingEnabled() && Setting.BLOCK_GUI_ENABLED.getBoolean()) {
+                StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+                if (stackedBlock != null) {
+                    stackedBlock.openGui(event.getPlayer());
+                    event.setCancelled(true);
+                    return;
+                }
+            }
 
-            if (stackedSpawner != null) {
-                stackedSpawner.openGui(event.getPlayer());
-                event.setCancelled(true);
+            if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+                if (stackedSpawner == null)
+                    stackManager.createSpawnerStack(block, 1); // Doesn't exist, need it to in order to open the GUI
+
+                if (stackedSpawner != null) {
+                    stackedSpawner.openGui(event.getPlayer());
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -395,6 +407,19 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+            return;
+
+        if (!stackManager.isBlockStackingEnabled())
+            return;
+
+        if (stackManager.isBlockStacked(event.getBlock()))
+            event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
@@ -649,7 +674,7 @@ public class BlockListener implements Listener {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
             return;
-        
+
         if (!stackManager.isSpawnerStackingEnabled())
             return;
 

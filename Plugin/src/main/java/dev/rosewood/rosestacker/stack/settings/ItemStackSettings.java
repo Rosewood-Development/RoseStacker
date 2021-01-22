@@ -27,7 +27,7 @@ public class ItemStackSettings extends StackSettings {
         super.setDefaults();
 
         this.setIfNotExists("enabled", true);
-        this.setIfNotExists("display-name", StackerUtils.formatName(this.material.name()));
+        this.setIfNotExists("display-name", StackerUtils.formatMaterialName(this.material));
         this.setIfNotExists("max-stack-size", -1);
     }
 
