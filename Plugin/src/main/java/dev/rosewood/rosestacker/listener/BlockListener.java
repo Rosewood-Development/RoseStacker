@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
@@ -49,6 +50,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class BlockListener implements Listener {
 
@@ -472,14 +474,8 @@ public class BlockListener implements Listener {
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
             return;
 
-        // TODO: auto stack range
-
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        Block against = event.getBlockAgainst();
-
-        if (against.equals(block))
-            against = against.getRelative(BlockFace.DOWN);
 
         if (block.getType() == Material.SPAWNER) {
             if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(((CreatureSpawner) block.getState()).getSpawnedType()))
@@ -488,6 +484,10 @@ public class BlockListener implements Listener {
             if (!stackManager.isBlockStackingEnabled() || !stackManager.isBlockTypeStackable(block))
                 return;
         }
+
+        Block against = event.getBlockAgainst();
+        if (against.equals(block))
+            against = against.getRelative(BlockFace.DOWN);
 
         // Get the block in the player's hand that's being placed
         ItemStack placedItem = player.getInventory().getItemInMainHand();
@@ -498,14 +498,50 @@ public class BlockListener implements Listener {
         }
 
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
+        boolean isDistanceStack = false;
         boolean isAdditiveStack = against.getType() == block.getType();
-        EntityType entityType = null;
-        if (isAdditiveStack && against.getType() == Material.SPAWNER) {
-            entityType = StackerUtils.getStackedItemEntityType(placedItem);
-            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
+        EntityType entityType = placedItem.getType() == Material.SPAWNER ? StackerUtils.getStackedItemEntityType(placedItem) : null;
+        int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
+
+        // See if we can stack the spawner (if applicable) into one nearby
+        int autoStackRange = Setting.SPAWNER_AUTO_STACK_RANGE.getInt();
+        if (autoStackRange != -1 && block.getType() == Material.SPAWNER
+                && (against.getType() != Material.SPAWNER || ((CreatureSpawner) against.getState()).getSpawnedType() != entityType)) {
+            double closestDistance = autoStackRange * autoStackRange;
+            StackedSpawner nearest = null;
+            for (StackedSpawner spawner : new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values())) {
+                double distance = spawner.getLocation().distanceSquared(block.getLocation());
+                if (distance < closestDistance && spawner.getSpawner().getSpawnedType() == entityType
+                        && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                    closestDistance = distance;
+                    nearest = spawner;
+                }
+            }
+
+            if (nearest != null) {
+                against = nearest.getSpawner().getBlock();
+                isAdditiveStack = true;
+                isDistanceStack = true;
+            }
         }
 
-        int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
+        // Fling particles from the attempted place location to the actual place location
+        if (isDistanceStack && Setting.SPAWNER_AUTO_STACK_PARTICLES.getBoolean()) {
+            for (int i = 0; i < 50; i++) {
+                Vector offset = Vector.getRandom();
+                Location startLoc = block.getLocation().clone().add(offset);
+                Vector start = startLoc.toVector();
+                Vector end = against.getLocation().toVector().add(offset).add(new Vector(0.0, 0.1, 0.0));
+                Vector angle = end.clone().subtract(start);
+                double length = angle.length() * 0.09;
+                angle.normalize();
+                player.spawnParticle(Particle.END_ROD, startLoc, 0, angle.getX(), angle.getY(), angle.getZ(), length);
+            }
+        }
+
+        if (isAdditiveStack && against.getType() == Material.SPAWNER)
+            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
+
         if (isAdditiveStack && !player.isSneaking()) {
             if (block.getType() == Material.SPAWNER) {
                 if (!stackManager.isSpawnerTypeStackable(entityType))
