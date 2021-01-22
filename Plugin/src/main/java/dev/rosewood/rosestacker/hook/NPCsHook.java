@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.hook;
 
-import com.magmaguy.elitemobs.EntityTracker;
+import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import io.lumine.xikage.mythicmobs.MythicMobs;
