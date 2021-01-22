@@ -126,24 +126,18 @@ public class ItemListener implements Listener {
         }
 
         boolean willPickupAll = inventorySpace >= stackedItem.getStackSize();
-
-        int amount;
-        if (willPickupAll) {
-            amount = Math.min(stackedItem.getStackSize() - maxStackSize, inventorySpace);
-        } else {
-            amount = stackedItem.getStackSize();
-        }
+        int amount = willPickupAll ? stackedItem.getStackSize() : inventorySpace;
 
         this.addItemStackAmountToInventory(inventory, target, amount);
 
         if (willPickupAll) {
             stackManager.removeItemStack(stackedItem);
         } else {
-            stackedItem.setStackSize(stackedItem.getStackSize() - inventorySpace);
+            stackedItem.setStackSize(stackedItem.getStackSize() - amount);
 
             // Play a pickup sound since one won't naturally play
             if (eventEntity instanceof Player)
-                eventEntity.getWorld().playSound(eventEntity.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.2f, (float) (1 + Math.random()));
+                eventEntity.getWorld().playSound(eventEntity.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.2F, (float) (1 + Math.random()));
 
             return true;
         }
@@ -162,14 +156,14 @@ public class ItemListener implements Listener {
         int maxStackSize = target.getMaxStackSize();
 
         int inventorySpace = 0;
-        for (ItemStack itemStack : inventory.getContents()) {
+        for (ItemStack itemStack : inventory.getStorageContents()) {
             if (itemStack == null || itemStack.getType() == Material.AIR) {
                 inventorySpace += maxStackSize;
                 continue;
             }
 
             if (itemStack.isSimilar(target))
-                inventorySpace += maxStackSize - itemStack.getAmount();
+                inventorySpace += Math.max(maxStackSize - itemStack.getAmount(), 0);
         }
 
         if (inventory instanceof PlayerInventory) {
@@ -180,7 +174,7 @@ public class ItemListener implements Listener {
                     continue;
 
                 if (itemStack.isSimilar(target))
-                    inventorySpace += maxStackSize - itemStack.getAmount();
+                    inventorySpace += Math.max(maxStackSize - itemStack.getAmount(), 0);
             }
         }
 
@@ -205,7 +199,8 @@ public class ItemListener implements Listener {
             toAdd.add(newItemStack);
         }
 
-        inventory.addItem(toAdd.toArray(new ItemStack[0]));
+        if (!inventory.addItem(toAdd.toArray(new ItemStack[0])).isEmpty())
+            throw new IllegalStateException("Added more items to inventory than was possible!");
     }
 
 }
