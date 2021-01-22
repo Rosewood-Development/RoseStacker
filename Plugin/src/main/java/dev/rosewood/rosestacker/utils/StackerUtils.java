@@ -21,8 +21,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,6 +62,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 public final class StackerUtils {
@@ -80,6 +83,7 @@ public final class StackerUtils {
     private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
     private static Set<EntityType> cachedStackableEntityTypes;
+    private static Map<EntityType, BoundingBox> cachedBoundingBoxes;
 
     /**
      * Formats a string from THIS_FORMAT to This Format
@@ -602,6 +606,63 @@ public final class StackerUtils {
         return getStackingTool().isSimilar(item);
     }
 
+    /**
+     * Gets all blocks that an EntityType would intersect at a Location
+     *
+     * @param entityType The type of Entity
+     * @param location The Location the Entity would be at
+     * @return A List of Blocks the Entity intersects with
+     */
+    public static List<Block> getIntersectingBlocks(EntityType entityType, Location location) {
+        BoundingBox bounds = getBoundingBox(entityType, location);
+        List<Block> blocks = new ArrayList<>();
+        World world = location.getWorld();
+        if (world == null)
+            return blocks;
+
+        int minX = floorCoordinate(bounds.getMinX());
+        int maxX = floorCoordinate(bounds.getMaxX());
+        int minY = floorCoordinate(bounds.getMinY());
+        int maxY = floorCoordinate(bounds.getMaxY());
+        int minZ = floorCoordinate(bounds.getMinZ());
+        int maxZ = floorCoordinate(bounds.getMaxZ());
+
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                for (int z = minZ; z <= maxZ; z++)
+                    blocks.add(world.getBlockAt(x, y, z));
+
+        return blocks;
+    }
+
+    /**
+     * Gets the would-be bounding box of an entity at a location
+     *
+     * @param entityType The entity type the entity would be
+     * @param location The location the entity would be at
+     * @return A bounding box for the entity type at the location
+     */
+    public static BoundingBox getBoundingBox(EntityType entityType, Location location) {
+        if (cachedBoundingBoxes == null)
+            cachedBoundingBoxes = new HashMap<>();
+
+        BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
+        if (boundingBox == null) {
+            boundingBox = NMSAdapter.getHandler().createEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0)).getBoundingBox();
+            boundingBox.shift(-boundingBox.getWidthX() / 2, 0, -boundingBox.getWidthZ() / 2); // Center on the origin
+            cachedBoundingBoxes.put(entityType, boundingBox);
+        }
+
+        boundingBox = boundingBox.clone();
+        boundingBox.shift(location);
+        return boundingBox;
+    }
+
+    private static int floorCoordinate(double value) {
+        int floored = (int) value;
+        return value < (double) floored ? floored - 1 : floored;
+    }
+
     public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
         List<byte[]> nbtList = new LinkedList<>(stackedEntity.getStackedEntityNBT());
         List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
@@ -628,6 +689,7 @@ public final class StackerUtils {
     public static void clearCache() {
         cachedAlphabeticalEntityTypes = null;
         cachedStackableEntityTypes = null;
+        cachedBoundingBoxes = null;
         cachedStackingTool = null;
     }
 
