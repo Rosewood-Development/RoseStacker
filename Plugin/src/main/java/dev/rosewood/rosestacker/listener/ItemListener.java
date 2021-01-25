@@ -126,7 +126,7 @@ public class ItemListener implements Listener {
         }
 
         boolean willPickupAll = inventorySpace >= stackedItem.getStackSize();
-        int amount = willPickupAll ? stackedItem.getStackSize() : inventorySpace;
+        int amount = willPickupAll ? stackedItem.getStackSize() - target.getAmount() : inventorySpace;
 
         this.addItemStackAmountToInventory(inventory, target, amount);
 
@@ -199,8 +199,7 @@ public class ItemListener implements Listener {
             toAdd.add(newItemStack);
         }
 
-        if (!inventory.addItem(toAdd.toArray(new ItemStack[0])).isEmpty())
-            throw new IllegalStateException("Added more items to inventory than was possible!");
+        inventory.addItem(toAdd.toArray(new ItemStack[0])).isEmpty();
     }
 
 }
