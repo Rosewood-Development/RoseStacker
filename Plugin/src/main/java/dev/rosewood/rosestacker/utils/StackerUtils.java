@@ -42,6 +42,7 @@ import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -54,6 +55,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootContext;
@@ -186,12 +188,19 @@ public final class StackerUtils {
         }
 
         itemMeta.setDisplayName(displayString);
-        itemStack.setItemMeta(itemMeta);
 
         // Set stack size and spawned entity type
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
         itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
+
+        // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
+        BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+        CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
+        creatureSpawner.setSpawnedType(entityType);
+        blockStateMeta.setBlockState(creatureSpawner);
+
+        itemStack.setItemMeta(itemMeta);
 
         return itemStack;
     }
@@ -256,12 +265,17 @@ public final class StackerUtils {
             } catch (Exception ignored) { }
         }
 
-        // Fall back to the legacy lore checking
+        // Try checking the spawner data then?
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return EntityType.PIG;
 
-        // Use the lore to determine the type
+        BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+        CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
+        if (creatureSpawner.getSpawnedType() != EntityType.PIG)
+            return creatureSpawner.getSpawnedType();
+
+        // Fall back to the legacy lore checking
         if (itemMeta.getLore() != null && itemMeta.getLore().size() >= 2) {
             String name = ChatColor.stripColor(itemMeta.getLore().get(1)).replace(ItemLoreValue.SPAWNER_TYPE.getValueStripped(), "");
             try {
@@ -269,14 +283,14 @@ public final class StackerUtils {
             } catch (Exception ignored) { }
         }
 
-        // Use the name to deterine the type, name must be colored
+        // Use the name to determine the type, name must be colored
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
         if (!name.equals(itemMeta.getDisplayName())) {
             try {
                 // This tries to support other spawner plugins by checking the item name
                 name = name.toUpperCase();
                 int spawnerIndex = name.indexOf("SPAWNER");
-                String entityName = name.substring(0, spawnerIndex);
+                String entityName = name.substring(0, spawnerIndex).trim();
                 return EntityType.valueOf(entityName.replaceAll(" ", "_"));
             } catch (Exception ignored) { }
         }
