@@ -663,12 +663,11 @@ public final class StackerUtils {
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
             boundingBox = NMSAdapter.getHandler().createEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0)).getBoundingBox();
-            boundingBox.shift(-boundingBox.getWidthX() / 2, 0, -boundingBox.getWidthZ() / 2); // Center on the origin
             cachedBoundingBoxes.put(entityType, boundingBox);
         }
 
         boundingBox = boundingBox.clone();
-        boundingBox.shift(location);
+        boundingBox.shift(location.clone().subtract(0.5, 0, 0.5));
         return boundingBox;
     }
 
