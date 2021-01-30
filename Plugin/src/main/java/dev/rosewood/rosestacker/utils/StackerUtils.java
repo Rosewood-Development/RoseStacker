@@ -189,11 +189,6 @@ public final class StackerUtils {
 
         itemMeta.setDisplayName(displayString);
 
-        // Set stack size and spawned entity type
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
-        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
-
         // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
         BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
         CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
@@ -201,6 +196,11 @@ public final class StackerUtils {
         blockStateMeta.setBlockState(creatureSpawner);
 
         itemStack.setItemMeta(itemMeta);
+
+        // Set stack size and spawned entity type
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
 
         return itemStack;
     }
