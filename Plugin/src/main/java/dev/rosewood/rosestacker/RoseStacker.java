@@ -18,6 +18,7 @@ import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
+import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
@@ -81,8 +82,11 @@ public class RoseStacker extends RosePlugin {
             pluginManager.registerEvents(new BeeListener(this), this);
 
         // Dispensers can only shear sheep in 1.14+
-        if (NMSUtil.getVersionNumber() >= 14)
+        // Raids are only in 1.14+
+        if (NMSUtil.getVersionNumber() >= 14) {
             pluginManager.registerEvents(new BlockShearListener(this), this);
+            pluginManager.registerEvents(new RaidListener(), this);
+        }
 
         // Try to hook with PlaceholderAPI
         if (PlaceholderAPIHook.enabled())

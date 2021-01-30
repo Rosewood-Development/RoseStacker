@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.stack.settings;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
@@ -275,6 +276,9 @@ public abstract class EntityStackSettings extends StackSettings {
 
             if (this.dontStackIfPatrolLeader && (raider1.isPatrolLeader() || raider2.isPatrolLeader()))
                 return EntityStackComparisonResult.PATROL_LEADER;
+
+            if (Setting.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.getBoolean() && (RaidListener.isActiveRaider(raider1) || RaidListener.isActiveRaider(raider2)))
+                return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
         }
 
         if (this.isEntityMerchant()) {
