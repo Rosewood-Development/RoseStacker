@@ -156,6 +156,15 @@ public class ItemListener implements Listener {
         int maxStackSize = target.getMaxStackSize();
 
         int inventorySpace = 0;
+
+        // Check player offhand slot first
+        if (inventory instanceof PlayerInventory) {
+            PlayerInventory playerInventory = (PlayerInventory) inventory;
+            ItemStack offhandStack = playerInventory.getItemInOffHand();
+            if (offhandStack.isSimilar(target))
+                inventorySpace += Math.max(maxStackSize - offhandStack.getAmount(), 0);
+        }
+
         for (ItemStack itemStack : inventory.getStorageContents()) {
             if (itemStack == null || itemStack.getType() == Material.AIR) {
                 inventorySpace += maxStackSize;
@@ -164,18 +173,6 @@ public class ItemListener implements Listener {
 
             if (itemStack.isSimilar(target))
                 inventorySpace += Math.max(maxStackSize - itemStack.getAmount(), 0);
-        }
-
-        if (inventory instanceof PlayerInventory) {
-            PlayerInventory playerInventory = (PlayerInventory) inventory;
-            for (ItemStack itemStack : playerInventory.getExtraContents()) {
-                // Can't pick up items directly to the offhand slot unless it already has that item in it
-                if (itemStack == null || itemStack.getType() == Material.AIR)
-                    continue;
-
-                if (itemStack.isSimilar(target))
-                    inventorySpace += Math.max(maxStackSize - itemStack.getAmount(), 0);
-            }
         }
 
         return inventorySpace;
@@ -191,6 +188,21 @@ public class ItemListener implements Listener {
     private void addItemStackAmountToInventory(Inventory inventory, ItemStack target, int amount) {
         List<ItemStack> toAdd = new ArrayList<>();
 
+        // Prioritize the offhand slot
+        if (inventory instanceof PlayerInventory) {
+            PlayerInventory playerInventory = (PlayerInventory) inventory;
+            ItemStack itemStack = playerInventory.getItemInOffHand();
+            if (itemStack.isSimilar(target)) {
+                int available = Math.max(target.getMaxStackSize() - itemStack.getAmount(), 0);
+                int toTake = Math.min(available, amount);
+                if (toTake > 0) {
+                    itemStack.setAmount(itemStack.getAmount() + toTake);
+                    amount -= toTake;
+                }
+            }
+        }
+
+        // Handle the rest
         while (amount > 0) {
             ItemStack newItemStack = target.clone();
             int toTake = Math.min(amount, target.getMaxStackSize());
