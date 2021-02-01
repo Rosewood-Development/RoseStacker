@@ -488,7 +488,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
         this.stackedEntities.put(livingEntity.getUniqueId(), newStackedEntity);
 
-        if (tryStack)
+        if (tryStack && Setting.ENTITY_INSTANT_STACK.getBoolean())
             this.tryStackEntity(newStackedEntity);
 
         return newStackedEntity;
@@ -538,7 +538,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             return;
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
-        this.tryStackEntity(stackedEntity);
+
+        if (Setting.ENTITY_INSTANT_STACK.getBoolean())
+            this.tryStackEntity(stackedEntity);
     }
 
     @Override
