@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.ClassUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.File;
 import java.util.ArrayList;
@@ -212,7 +213,7 @@ public class StackSettingManager extends Manager {
      * @return The EntityStackSettings for the spawn egg material, or null if the material is not a spawn egg
      */
     public EntityStackSettings getEntityStackSettings(Material material) {
-        if (!StackerUtils.isSpawnEgg(material))
+        if (!ItemUtils.isSpawnEgg(material))
             return null;
 
         for (EntityStackSettings settings : this.entitySettings.values())

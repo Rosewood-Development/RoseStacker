@@ -26,7 +26,7 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -173,7 +173,7 @@ public class RoseCommand extends BaseCommand {
             }
 
             Player player = target.getPlayer();
-            ItemStack item = StackerUtils.getBlockAsStackedItemStack(material, stackSize);
+            ItemStack item = ItemUtils.getBlockAsStackedItemStack(material, stackSize);
             this.giveDuplicates(player, item, amount);
 
             String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", stackSize)
@@ -207,7 +207,7 @@ public class RoseCommand extends BaseCommand {
             }
 
             Player player = target.getPlayer();
-            ItemStack item = StackerUtils.getSpawnerAsStackedItemStack(entityType, stackSize);
+            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(entityType, stackSize);
             this.giveDuplicates(player, item, amount);
 
             String displayString;
@@ -247,7 +247,7 @@ public class RoseCommand extends BaseCommand {
             }
 
             Player player = target.getPlayer();
-            ItemStack item = StackerUtils.getEntityAsStackedItemStack(entityType, stackSize);
+            ItemStack item = ItemUtils.getEntityAsStackedItemStack(entityType, stackSize);
             if (item == null) {
                 RoseCommand.this.rosePlugin.getManager(LocaleManager.class).sendMessage(sender, "command-give-usage");
                 return;
@@ -281,7 +281,7 @@ public class RoseCommand extends BaseCommand {
         private void giveDuplicates(Player player, ItemStack item, int amount) {
             ItemStack[] items = new ItemStack[amount];
             Arrays.fill(items, item);
-            StackerUtils.dropItemsToPlayer(player, Arrays.asList(items));
+            ItemUtils.dropItemsToPlayer(player, Arrays.asList(items));
         }
 
     }
@@ -400,7 +400,7 @@ public class RoseCommand extends BaseCommand {
     @CommandCompletion("*")
     public void onStackToolOther(CommandSender sender, OnlinePlayer target) {
         Player player = target.getPlayer();
-        player.getInventory().addItem(StackerUtils.getStackingTool());
+        player.getInventory().addItem(ItemUtils.getStackingTool());
         LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
         if (sender == player) {
             localeManager.sendMessage(player, "command-stacktool-given");
@@ -412,7 +412,7 @@ public class RoseCommand extends BaseCommand {
     @Subcommand("stacktool")
     @CommandPermission("rosestacker.stacktool.give")
     public void onStackTool(Player player) {
-        player.getInventory().addItem(StackerUtils.getStackingTool());
+        player.getInventory().addItem(ItemUtils.getStackingTool());
         RoseStacker.getInstance().getManager(LocaleManager.class).sendMessage(player, "command-stacktool-given");
     }
 

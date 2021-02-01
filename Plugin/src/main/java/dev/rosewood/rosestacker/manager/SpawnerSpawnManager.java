@@ -10,7 +10,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -260,7 +260,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      */
     public void disableAI(LivingEntity entity) {
         // Remove all applicable AI goals
-        StackerUtils.removeEntityAi(entity);
+        EntityDataUtils.removeEntityAi(entity);
 
         // Make the entity unable to take knockback
         AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);

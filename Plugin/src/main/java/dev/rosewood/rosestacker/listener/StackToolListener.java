@@ -10,6 +10,9 @@ import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
+import dev.rosewood.rosestacker.utils.EntityUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +65,7 @@ public class StackToolListener implements Listener {
         ItemStack tool = player.getInventory().getItemInMainHand();
         if (!(event.getRightClicked() instanceof LivingEntity)
                 || event.getHand() != EquipmentSlot.HAND
-                || !StackerUtils.isStackingTool(tool))
+                || !ItemUtils.isStackingTool(tool))
             return;
 
         event.setCancelled(true);
@@ -78,15 +81,15 @@ public class StackToolListener implements Listener {
         }
 
         if (!player.isSneaking()) {
-            boolean stackable = !StackerUtils.isUnstackable(entity);
-            StackerUtils.setUnstackable(entity, stackable);
+            boolean stackable = !EntityDataUtils.isUnstackable(entity);
+            EntityDataUtils.setUnstackable(entity, stackable);
             String stackableStr = !stackable ? "stackable" : "unstackable";
             this.localeManager.sendMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.single("type", stackedEntity.getStackSettings().getDisplayName()));
         } else {
-            StackerUtils.setUnstackable(entity, true);
+            EntityDataUtils.setUnstackable(entity, true);
             List<LivingEntity> stackEntities = StackerUtils.deconstructStackedEntities(stackedEntity);
             for (LivingEntity stackEntity : stackEntities)
-                StackerUtils.setUnstackable(stackEntity, true);
+                EntityDataUtils.setUnstackable(stackEntity, true);
             StackerUtils.reconstructStackedEntities(stackedEntity, stackEntities);
             this.localeManager.sendMessage(player, "command-stacktool-marked-all-unstackable", StringPlaceholders.single("type", stackedEntity.getStackSettings().getDisplayName()));
         }
@@ -104,7 +107,7 @@ public class StackToolListener implements Listener {
 
         Player player = (Player) event.getDamager();
         ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!StackerUtils.isStackingTool(tool))
+        if (!ItemUtils.isStackingTool(tool))
             return;
 
         event.setCancelled(true);
@@ -165,9 +168,9 @@ public class StackToolListener implements Listener {
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", stackedEntity.getStackSize()));
             if (entity.getCustomName() != null)
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.single("name", entity.getCustomName()));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", StackerUtils.isUnstackable(entity) ? falseStr : trueStr));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", EntityDataUtils.isUnstackable(entity) ? falseStr : trueStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.single("value", this.spawnerSpawnManager.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !StackerUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !EntityDataUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", entity.getLocation().getBlockX())
                     .addPlaceholder("y", entity.getLocation().getBlockY()).addPlaceholder("z", entity.getLocation().getBlockZ()).addPlaceholder("world", entity.getWorld().getName()).build());
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", entity.getLocation().getChunk().getX())
@@ -184,7 +187,7 @@ public class StackToolListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!StackerUtils.isStackingTool(tool))
+        if (!ItemUtils.isStackingTool(tool))
             return;
 
         event.setCancelled(true);
@@ -203,7 +206,7 @@ public class StackToolListener implements Listener {
                     continue;
 
                 Item item = (Item) entity;
-                if (!StackerUtils.isLookingAtItem(player, item))
+                if (!EntityUtils.isLookingAtItem(player, item))
                     continue;
 
                 StackedItem stackedItem = this.stackManager.getStackedItem(item);

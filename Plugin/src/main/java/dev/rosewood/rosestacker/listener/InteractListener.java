@@ -8,7 +8,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -55,8 +55,8 @@ public class InteractListener implements Listener {
         if (stackManager.isSpawnerStackingEnabled()) {
             // Handle spawner conversion before we try to spawn entities
             if (clickedBlock.getType() == Material.SPAWNER
-                    && StackerUtils.isSpawnEgg(item.getType())
-                    && StackerUtils.getStackedItemStackAmount(item) == 1) {
+                    && ItemUtils.isSpawnEgg(item.getType())
+                    && ItemUtils.getStackedItemStackAmount(item) == 1) {
 
                 CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
                 EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
@@ -100,7 +100,7 @@ public class InteractListener implements Listener {
         spawnLocation.add(0.5, 0, 0.5); // Center on block
 
         if (this.spawnEntities(null, spawnLocation, item)) {
-            StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
+            ItemUtils.takeOneItem(event.getPlayer(), event.getHand());
             event.setCancelled(true);
         }
     }
@@ -143,7 +143,7 @@ public class InteractListener implements Listener {
         }
 
         if (this.spawnEntities(entity, entity.getLocation(), itemStack)) {
-            StackerUtils.takeOneItem(event.getPlayer(), event.getHand());
+            ItemUtils.takeOneItem(event.getPlayer(), event.getHand());
             event.setCancelled(true);
         }
     }
@@ -177,10 +177,10 @@ public class InteractListener implements Listener {
     }
 
     private boolean spawnEntities(Entity original, Location spawnLocation, ItemStack itemStack) {
-        if (!StackerUtils.isSpawnEgg(itemStack.getType()))
+        if (!ItemUtils.isSpawnEgg(itemStack.getType()))
             return false;
 
-        int spawnAmount = StackerUtils.getStackedItemStackAmount(itemStack);
+        int spawnAmount = ItemUtils.getStackedItemStackAmount(itemStack);
         if (spawnAmount == 1)
             return false;
 

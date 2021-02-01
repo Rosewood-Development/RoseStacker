@@ -12,6 +12,8 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,16 +84,16 @@ public class EntityListener implements Listener {
         if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        StackerUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
+        EntityDataUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
         stackManager.createEntityStack(event.getEntity(), true);
 
-        StackerUtils.applyDisabledAi(event.getEntity());
+        EntityDataUtils.applyDisabledAi(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         // Withers can still target enitites due to custom boss AI, so prevent them from targeting
-        if (event.getEntityType() == EntityType.WITHER && StackerUtils.isAiDisabled((Wither) event.getEntity()))
+        if (event.getEntityType() == EntityType.WITHER && EntityDataUtils.isAiDisabled((Wither) event.getEntity()))
             event.setCancelled(true);
     }
 
@@ -173,7 +175,7 @@ public class EntityListener implements Listener {
             return;
 
         // Don't allow mobs to naturally burn in the daylight if their AI is disabled
-        if (StackerUtils.isAiDisabled((LivingEntity) entity))
+        if (EntityDataUtils.isAiDisabled((LivingEntity) entity))
             event.setCancelled(true);
     }
 
@@ -373,9 +375,9 @@ public class EntityListener implements Listener {
         if (!sheepStackSettings.shouldShearAllSheepInStack())
             return false;
 
-        StackerUtils.damageTool(shears);
+        ItemUtils.damageTool(shears);
 
-        ItemStack baseSheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheepEntity.getColor()), getWoolDropAmount());
+        ItemStack baseSheepWool = new ItemStack(ItemUtils.getWoolMaterial(sheepEntity.getColor()), getWoolDropAmount());
         sheepEntity.setSheared(true);
         List<ItemStack> drops = new ArrayList<>(Collections.singletonList(baseSheepWool));
 
@@ -388,7 +390,7 @@ public class EntityListener implements Listener {
 
                 for (Sheep sheep : sheepList) {
                     if (!sheep.isSheared()) {
-                        ItemStack sheepWool = new ItemStack(StackerUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
+                        ItemStack sheepWool = new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
                         sheep.setSheared(true);
                         drops.add(sheepWool);
                     }

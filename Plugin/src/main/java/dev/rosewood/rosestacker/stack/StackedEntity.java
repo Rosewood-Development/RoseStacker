@@ -12,6 +12,8 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -148,7 +150,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
         this.updateDisplay();
-        StackerUtils.applyDisabledAi(this.entity);
+        EntityDataUtils.applyDisabledAi(this.entity);
 
         return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
@@ -219,7 +221,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             int totalExp = droppedExp;
             for (LivingEntity entity : internalEntities) {
                 entity.setFireTicks(fireTicks);
-                Collection<ItemStack> entityLoot = StackerUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                Collection<ItemStack> entityLoot = EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents) {
                     EntityDeathEvent deathEvent;
                     if (async) {

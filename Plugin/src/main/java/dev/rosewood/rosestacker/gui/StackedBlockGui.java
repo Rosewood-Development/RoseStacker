@@ -20,7 +20,7 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -177,7 +177,7 @@ public class StackedBlockGui {
             BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference);
             Bukkit.getPluginManager().callEvent(blockStackEvent);
             if (blockStackEvent.isCancelled()) {
-                StackerUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), difference));
+                ItemUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), difference));
                 return;
             }
 
@@ -203,7 +203,7 @@ public class StackedBlockGui {
             this.stackedBlock.getBlock().setType(Material.AIR);
         } else if (newStackSize > maxStackSize) {
             List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), newStackSize - maxStackSize);
-            StackerUtils.dropItemsToPlayer(player, overflowItems);
+            ItemUtils.dropItemsToPlayer(player, overflowItems);
             this.stackedBlock.setStackSize(maxStackSize);
         }
     }
@@ -236,7 +236,7 @@ public class StackedBlockGui {
             if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                 itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
             } else {
-                itemsToDrop = Collections.singletonList(StackerUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize()));
+                itemsToDrop = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize()));
             }
 
             Location dropLocation = this.stackedBlock.getLocation().clone();

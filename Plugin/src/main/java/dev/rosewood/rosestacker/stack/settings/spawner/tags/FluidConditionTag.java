@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
@@ -21,7 +21,7 @@ public class FluidConditionTag extends ConditionTag {
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         boolean isFluid = true;
-        for (Block block : StackerUtils.getIntersectingBlocks(creatureSpawner.getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
+        for (Block block : EntityUtils.getIntersectingBlocks(creatureSpawner.getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
             isFluid &= block.getType() == this.fluidType;
         return isFluid;
     }

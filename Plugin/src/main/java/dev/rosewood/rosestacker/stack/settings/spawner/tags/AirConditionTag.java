@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
@@ -18,7 +18,7 @@ public class AirConditionTag extends ConditionTag {
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         boolean isAir = true;
-        for (Block block : StackerUtils.getIntersectingBlocks(creatureSpawner.getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
+        for (Block block : EntityUtils.getIntersectingBlocks(creatureSpawner.getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
             isAir &= block.getType().isAir() || !block.getType().isOccluding();
         return isAir;
     }

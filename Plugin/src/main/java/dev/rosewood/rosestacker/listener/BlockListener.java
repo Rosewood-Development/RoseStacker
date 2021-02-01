@@ -15,6 +15,7 @@ import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,11 +186,11 @@ public class BlockListener implements Listener {
                 if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                     items = GuiUtil.getMaterialAmountAsItemStacks(block.getType(), breakAmount);
                 } else {
-                    items = Collections.singletonList(StackerUtils.getBlockAsStackedItemStack(block.getType(), breakAmount));
+                    items = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(block.getType(), breakAmount));
                 }
 
                 if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
-                    StackerUtils.dropItemsToPlayer(player, items);
+                    ItemUtils.dropItemsToPlayer(player, items);
                 } else {
                     stackManager.preStackItems(items, dropLocation);
                 }
@@ -216,7 +217,7 @@ public class BlockListener implements Listener {
         if (!itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
-        StackerUtils.damageTool(itemStack);
+        ItemUtils.damageTool(itemStack);
     }
 
     /**
@@ -276,13 +277,13 @@ public class BlockListener implements Listener {
         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
             items = new ArrayList<>();
             for (int i = 0; i < amount; i++)
-                items.add(StackerUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
+                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
         } else {
-            items = Collections.singletonList(StackerUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
+            items = Collections.singletonList(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
         }
 
         if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-            StackerUtils.dropItemsToPlayer(player, items);
+            ItemUtils.dropItemsToPlayer(player, items);
         } else {
             this.rosePlugin.getManager(StackManager.class).preStackItems(items, dropLocation);
         }
@@ -408,7 +409,7 @@ public class BlockListener implements Listener {
                     EntityType spawnedType = ((CreatureSpawner) block.getState()).getSpawnedType();
                     block.setType(Material.AIR);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                            block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5, 0.5, 0.5), StackerUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
+                            block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5, 0.5, 0.5), ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
                 }
             }
         }
@@ -506,8 +507,8 @@ public class BlockListener implements Listener {
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
         boolean isDistanceStack = false;
         boolean isAdditiveStack = against.getType() == block.getType();
-        EntityType entityType = placedItem.getType() == Material.SPAWNER ? StackerUtils.getStackedItemEntityType(placedItem) : null;
-        int stackAmount = StackerUtils.getStackedItemStackAmount(placedItem);
+        EntityType entityType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemEntityType(placedItem) : null;
+        int stackAmount = ItemUtils.getStackedItemStackAmount(placedItem);
 
         // See if we can stack the spawner (if applicable) into one nearby
         int autoStackRange = Setting.SPAWNER_AUTO_STACK_RANGE.getInt();
@@ -625,7 +626,7 @@ public class BlockListener implements Listener {
             StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
             if (placedItem.getType() == Material.SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
-                EntityType spawnedType = StackerUtils.getStackedItemEntityType(placedItem);
+                EntityType spawnedType = ItemUtils.getStackedItemEntityType(placedItem);
                 if (spawnedType == null)
                     return;
 
@@ -682,7 +683,7 @@ public class BlockListener implements Listener {
         }
 
         // Take an item from the player's hand
-        StackerUtils.takeOneItem(player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
+        ItemUtils.takeOneItem(player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

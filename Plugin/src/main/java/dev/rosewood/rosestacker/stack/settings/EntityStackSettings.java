@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.List;
 import org.bukkit.Material;
@@ -177,7 +178,7 @@ public abstract class EntityStackSettings extends StackSettings {
         if (stack1.getStackSize() + stack2.getStackSize() + offset > this.getMaxStackSize())
             return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
 
-        if (StackerUtils.isUnstackable(entity1) || StackerUtils.isUnstackable(entity2))
+        if (EntityDataUtils.isUnstackable(entity1) || EntityDataUtils.isUnstackable(entity2))
             return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))

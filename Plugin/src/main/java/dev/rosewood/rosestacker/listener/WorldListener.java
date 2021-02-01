@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.EntityDataUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -45,7 +45,7 @@ public class WorldListener implements Listener {
             // Make sure AI is disabled if it's marked
             for (Entity entity : event.getChunk().getEntities())
                 if (entity instanceof LivingEntity)
-                    StackerUtils.applyDisabledAi((LivingEntity) entity);
+                    EntityDataUtils.applyDisabledAi((LivingEntity) entity);
 
             this.stackManager.loadChunk(event.getChunk());
         }
