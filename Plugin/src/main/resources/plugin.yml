@@ -16,6 +16,7 @@ softdepend:
   - PlaceholderAPI
   - ShopGUIPlus
   - CoreProtect
+  - LogBlock
   - ClearLag
   - mcMMO
   - Citizens

@@ -6,7 +6,7 @@ import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.event.SpawnerStackEvent;
 import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
-import dev.rosewood.rosestacker.hook.CoreProtectHook;
+import dev.rosewood.rosestacker.hook.BlockLoggingHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -124,7 +124,7 @@ public class BlockListener implements Listener {
             if (!isStacked) {
                 if (this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1)) {
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
-                    CoreProtectHook.recordBlockBreak(player, block);
+                    BlockLoggingHook.recordBlockBreak(player, block);
                     this.damageTool(player);
                 }
                 event.setCancelled(true);
@@ -195,7 +195,7 @@ public class BlockListener implements Listener {
                 }
             }
 
-            CoreProtectHook.recordBlockBreak(player, block);
+            BlockLoggingHook.recordBlockBreak(player, block);
             if (breakAmount == stackedBlock.getStackSize()) {
                 stackedBlock.setStackSize(0);
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
@@ -613,7 +613,7 @@ public class BlockListener implements Listener {
             }
 
             event.setCancelled(true);
-            CoreProtectHook.recordBlockPlace(player, against);
+            BlockLoggingHook.recordBlockPlace(player, against);
         } else { // Handle singular items that have a stack multiplier
             // Set the spawner type
             StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
