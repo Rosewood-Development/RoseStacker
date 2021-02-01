@@ -88,6 +88,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE("global-spawner-settings.explosion-amount-percentage", 50.0, "The percentage of spawners in the stack that will be destroyed from an explosion", "If a stack of 10 spawners is exploded with a chance of 50.0, 5 blocks will be saved"),
         SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED("global-spawner-settings.explosion-amount-fixed", -1, "The fixed amount of spawners in the stack to destroy", "If this is set to 0 or greater, overrides explosion-amount-percentage", "If a stack of 10 spawners is exploded with a fixed amount of 3, 7 blocks will be saved"),
         SPAWNER_DROP_TO_INVENTORY("global-spawner-settings.drop-to-inventory", false, "Should spawners be dropped directly into the player's inventory when broken?"),
+        SPAWNER_DROP_IN_CREATIVE("global-spawner-settings.drop-in-creative", false, "Should spawners always drop when broken in creative mode?"),
         SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-spawner-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
         SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-spawner-settings.break-entire-stack-into-separate", false, "Should the entire stack be broken into individual spawners?"),
         SPAWNER_SILK_TOUCH_REQUIRED("global-spawner-settings.silk-touch-required", false, "Should silk touch be required to pick up spawners?"),

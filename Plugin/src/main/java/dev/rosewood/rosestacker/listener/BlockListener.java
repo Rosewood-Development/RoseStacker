@@ -230,12 +230,18 @@ public class BlockListener implements Listener {
      */
     private boolean tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (player.getGameMode() == GameMode.CREATIVE
-                || dropLocation.getWorld() == null
-                || !itemInHand.getType().name().endsWith("PICKAXE"))
+        if (dropLocation.getWorld() == null)
             return true;
 
-        if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean()) {
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            if (!Setting.SPAWNER_DROP_IN_CREATIVE.getBoolean())
+                return true;
+        } else {
+            if (!itemInHand.getType().name().endsWith("PICKAXE"))
+                return true;
+        }
+
+        if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean() && player.getGameMode() != GameMode.CREATIVE) {
             int destroyAmount = 0;
 
             boolean destroyFromMissingPermission = Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch");
