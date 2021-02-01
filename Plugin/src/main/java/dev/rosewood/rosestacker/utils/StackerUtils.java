@@ -566,14 +566,14 @@ public final class StackerUtils {
                 entity.setMetadata(NO_AI_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
         }
 
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        nmsHandler.removeEntityGoals(entity);
+        applyDisabledAi(entity);
     }
 
     public static void applyDisabledAi(LivingEntity entity) {
         if (isAiDisabled(entity)) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             nmsHandler.removeEntityGoals(entity);
+            entity.setSilent(true);
         }
     }
 
