@@ -18,7 +18,6 @@ softdepend:
   - CoreProtect
   - LogBlock
   - ClearLag
-  - mcMMO
   - Citizens
   - Shopkeepers
   - ViaVersion
