@@ -33,6 +33,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityCombustByBlockEvent;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -161,6 +164,17 @@ public class EntityListener implements Listener {
         internalEntities.removeIf(killedEntities::contains);
         stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), 0);
         StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityCombust(EntityCombustEvent event) {
+        Entity entity = event.getEntity();
+        if (event instanceof EntityCombustByBlockEvent || event instanceof EntityCombustByEntityEvent || !(entity instanceof LivingEntity))
+            return;
+
+        // Don't allow mobs to naturally burn in the daylight if their AI is disabled
+        if (StackerUtils.isAiDisabled((LivingEntity) entity))
+            event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
