@@ -58,7 +58,7 @@ public class StackToolListener implements Listener {
      *
      * @param event The PlayerInteractAtEntityEvent
      */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onRightClick(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
@@ -99,7 +99,7 @@ public class StackToolListener implements Listener {
      *
      * @param event The EntityDamageByEntityEvent
      */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onLeftClickEntity(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player))
             return;
@@ -156,9 +156,6 @@ public class StackToolListener implements Listener {
                 }
             }
         } else {
-            AttributeInstance movementAttribute = entity.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-            boolean hasAi = movementAttribute == null || movementAttribute.getBaseValue() > 0;
-
             String trueStr = this.localeManager.getLocaleMessage("command-stacktool-info-true");
             String falseStr = this.localeManager.getLocaleMessage("command-stacktool-info-false");
 
@@ -172,7 +169,7 @@ public class StackToolListener implements Listener {
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.single("name", entity.getCustomName()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", StackerUtils.isUnstackable(entity) ? falseStr : trueStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.single("value", this.spawnerSpawnManager.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", hasAi ? trueStr : falseStr));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !StackerUtils.isAiDisabled(entity) ? trueStr : falseStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", entity.getLocation().getBlockX())
                     .addPlaceholder("y", entity.getLocation().getBlockY()).addPlaceholder("z", entity.getLocation().getBlockZ()).addPlaceholder("world", entity.getWorld().getName()).build());
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", entity.getLocation().getChunk().getX())
@@ -185,7 +182,7 @@ public class StackToolListener implements Listener {
      *
      * @param event The PlayerInteractEvent
      */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
