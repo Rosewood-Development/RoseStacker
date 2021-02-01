@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -169,7 +167,7 @@ public class StackToolListener implements Listener {
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.single("name", entity.getCustomName()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", StackerUtils.isUnstackable(entity) ? falseStr : trueStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.single("value", this.spawnerSpawnManager.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !StackerUtils.isAiDisabled(entity) ? trueStr : falseStr));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !StackerUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", entity.getLocation().getBlockX())
                     .addPlaceholder("y", entity.getLocation().getBlockY()).addPlaceholder("z", entity.getLocation().getBlockZ()).addPlaceholder("world", entity.getWorld().getName()).build());
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", entity.getLocation().getChunk().getX())

@@ -646,7 +646,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
      */
     private StackedEntity tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
-        if (stackSettings == null)
+        if (stackSettings == null || this.stackManager.isMarkedAsDeleted(stackedEntity))
             return null;
 
         if (stackedEntity.checkNPC()) {
@@ -654,24 +654,29 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             return null;
         }
 
+        LivingEntity entity = stackedEntity.getEntity();
+        if (entity == null)
+            return null;
+
         double maxEntityMergeDistanceSqrd = stackSettings.getMergeRadius() * stackSettings.getMergeRadius();
 
         for (StackedEntity other : this.stackedEntities.values()) {
+            LivingEntity otherEntity = other.getEntity();
+            if (otherEntity == null || !other.getEntity().isValid())
+                continue;
+
             if (stackedEntity == other
-                    || other.getEntity() == null
-                    || !other.getEntity().isValid()
-                    || this.stackManager.isMarkedAsDeleted(stackedEntity)
                     || this.stackManager.isMarkedAsDeleted(other)
-                    || stackedEntity.getLocation().getWorld() != other.getLocation().getWorld()
-                    || stackedEntity.getEntity() == other.getEntity()
-                    || stackedEntity.getEntity().getType() != other.getEntity().getType())
+                    || entity.getLocation().getWorld() != otherEntity.getLocation().getWorld()
+                    || entity == otherEntity
+                    || entity.getType() != otherEntity.getType())
                 continue;
 
             if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
-                if (stackedEntity.getLocation().distanceSquared(other.getLocation()) > maxEntityMergeDistanceSqrd)
+                if (entity.getLocation().distanceSquared(otherEntity.getLocation()) > maxEntityMergeDistanceSqrd)
                     continue;
             } else {
-                if (stackedEntity.getLocation().getChunk() != other.getLocation().getChunk())
+                if (entity.getLocation().getChunk() != otherEntity.getLocation().getChunk())
                     continue;
             }
 
@@ -690,15 +695,23 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             if (minStackSize > 2) {
                 if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
                     for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
-                        if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
-                                && stackedEntity.getLocation().distanceSquared(nearbyStackedEntity.getLocation()) <= maxEntityMergeDistanceSqrd
+                        LivingEntity nearbyEntity = nearbyStackedEntity.getEntity();
+                        if (nearbyEntity == null)
+                            continue;
+
+                        if (nearbyEntity.getType() == entity.getType()
+                                && entity.getLocation().distanceSquared(nearbyEntity.getLocation()) <= maxEntityMergeDistanceSqrd
                                 && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
                             targetEntities.add(nearbyStackedEntity);
                     }
                 } else {
                     for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
-                        if (nearbyStackedEntity.getEntity().getType() == stackedEntity.getEntity().getType()
-                                && nearbyStackedEntity.getLocation().getChunk() == stackedEntity.getLocation().getChunk()
+                        LivingEntity nearbyEntity = nearbyStackedEntity.getEntity();
+                        if (nearbyEntity == null)
+                            continue;
+
+                        if (nearbyEntity.getType() == nearbyEntity.getType()
+                                && nearbyEntity.getLocation().getChunk() == entity.getLocation().getChunk()
                                 && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
                             targetEntities.add(nearbyStackedEntity);
                     }
