@@ -156,6 +156,7 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-spawner-spawn-amount", "&eSpawn Amount: &b%amount%");
             this.put("gui-stacked-spawner-spawn-conditions", "&6Spawn Conditions");
             this.put("gui-stacked-spawner-time-until-next-spawn", "&eTime until next spawn: &b%time% ticks");
+            this.put("gui-stacked-spawner-total-spawns", "&eTotal mobs spawned: &b%amount%");
             this.put("gui-stacked-spawner-valid-spawn-conditions", "&6Valid Spawn Conditions");
             this.put("gui-stacked-spawner-invalid-spawn-conditions", "&6Invalid Spawn Conditions");
             this.put("gui-stacked-spawner-entities-can-spawn", "&aEntities are able to spawn");

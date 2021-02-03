@@ -158,7 +158,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             }
 
             int spawnRange = spawnerTile.getSpawnRange();
-            boolean successfulSpawn = false;
+            int successfulSpawns = 0;
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
                 while (attempts < maxFailedSpawnAttempts) {
@@ -206,13 +206,13 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     if (entity.isValid()) // Don't spawn particles for auto-stacked entities
                         block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
 
-                    successfulSpawn = true;
+                    successfulSpawns++;
                     break;
                 }
             }
 
             stackedSpawner.getLastInvalidConditions().clear();
-            if (!successfulSpawn) {
+            if (successfulSpawns <= 0) {
                 if (invalidSpawnConditions.isEmpty()) {
                     stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
                 } else {
@@ -227,6 +227,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             } else {
                 // Spawn particles indicating the spawn did not occur
                 block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                PersistentDataUtils.increaseSpawnCount(spawner, successfulSpawns);
             }
         }
     }

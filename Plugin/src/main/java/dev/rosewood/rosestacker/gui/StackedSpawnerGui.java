@@ -12,10 +12,12 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
+import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +65,7 @@ public class StackedSpawnerGui {
                 .addButtonAt(15, GuiFactory.createButton());
 
         List<Integer> fillerSlots = IntStream.range(0, GuiSize.ROWS_THREE.getNumSlots()).boxed().collect(Collectors.toList());
-        fillerSlots.removeAll(Arrays.asList(7, 8, 9, 11, 13, 15, 17, 18, 19));
+        fillerSlots.removeAll(Arrays.asList(4, 7, 8, 9, 11, 13, 15, 17, 18, 19));
 
         Material filler = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_MATERIAL.getString());
         Material corner = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_CORNER_MATERIAL.getString());
@@ -96,6 +98,23 @@ public class StackedSpawnerGui {
         for (int slot : Arrays.asList(7, 9, 17, 19))
             mainScreen.addItemStackAt(slot, accentItem);
 
+        ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(stackSettings.getEntityType())
+                .getEntityTypeData().getSkullItem();
+        ItemMeta skullMeta = skull.getItemMeta();
+        if (skullMeta != null) {
+            String displayString;
+            if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                        .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
+            } else {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                        .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
+            }
+            skullMeta.setDisplayName(displayString);
+            skull.setItemMeta(skullMeta);
+        }
+
+        mainScreen.addButtonAt(4, GuiFactory.createButton(skull));
         mainScreen.addButtonAt(11, GuiFactory.createButton()
                 .setIcon(info)
                 .setName(this.getString("stats"))
@@ -129,19 +148,9 @@ public class StackedSpawnerGui {
                 }));
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
-                .setNameSupplier(() -> {
-                    String displayString;
-                    if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
-                        displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
-                                .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
-                    } else {
-                        displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
-                                .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
-                    }
-                    return GuiFactory.createString(displayString);
-                })
-                .setLoreSupplier(() -> Collections.singletonList(this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)))
-            ));
+                .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)))
+                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawner()))))
+        ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
                 .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))
                 .setNameSupplier(() -> {

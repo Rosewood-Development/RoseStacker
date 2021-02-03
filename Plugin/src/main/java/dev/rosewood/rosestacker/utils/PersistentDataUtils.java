@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import java.util.List;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -19,6 +20,7 @@ public final class PersistentDataUtils {
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
     private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
     private static final String NO_AI_METADATA_NAME = "no_ai";
+    private static final String TOTAL_SPAWNS_METADATA_NAME = "total_spawns";
 
     public static void setUnstackable(LivingEntity entity, boolean unstackable) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
@@ -93,6 +95,7 @@ public final class PersistentDataUtils {
             for (MetadataValue meta : metaValues) {
                 try {
                     spawnReason = SpawnReason.valueOf(meta.asString());
+                    break;
                 } catch (Exception ignored) { }
             }
             return spawnReason != null ? spawnReason : SpawnReason.CUSTOM;
@@ -132,6 +135,45 @@ public final class PersistentDataUtils {
         }
 
         return isDisabled;
+    }
+
+    public static void increaseSpawnCount(CreatureSpawner spawner, long amount) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer dataContainer = spawner.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.LONG)) {
+                dataContainer.set(key, PersistentDataType.LONG, amount);
+            } else {
+                dataContainer.set(key, PersistentDataType.LONG, getTotalSpawnCount(spawner) + amount);
+            }
+        } else {
+            if (!spawner.hasMetadata(TOTAL_SPAWNS_METADATA_NAME)) {
+                spawner.setMetadata(TOTAL_SPAWNS_METADATA_NAME, new FixedMetadataValue(rosePlugin, amount));
+            } else {
+                spawner.setMetadata(TOTAL_SPAWNS_METADATA_NAME, new FixedMetadataValue(rosePlugin, getTotalSpawnCount(spawner) + amount));
+            }
+        }
+    }
+
+    public static long getTotalSpawnCount(CreatureSpawner spawner) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            PersistentDataContainer persistentDataContainer = spawner.getPersistentDataContainer();
+            NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
+            Long amount = persistentDataContainer.get(key, PersistentDataType.LONG);
+            return amount != null ? amount : 0;
+        } else {
+            List<MetadataValue> metaValues = spawner.getMetadata(TOTAL_SPAWNS_METADATA_NAME);
+            long amount = 0;
+            for (MetadataValue meta : metaValues) {
+                try {
+                    amount = meta.asLong();
+                    break;
+                } catch (Exception ignored) { }
+            }
+            return amount;
+        }
     }
 
 }

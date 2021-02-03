@@ -14,7 +14,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 public final class ItemUtils {
 
     private final static Map<String, ItemStack> skullCache = new HashMap<>();
-    private static Method method_SkullMeta_setProfile;
+    private static Field field_SkullMeta_profile;
 
     private static ItemStack cachedStackingTool;
 
@@ -117,12 +117,12 @@ public final class ItemUtils {
         profile.getProperties().put("textures", new Property("textures", texture));
 
         try {
-            if (method_SkullMeta_setProfile == null) {
-                method_SkullMeta_setProfile = skullMeta.getClass().getDeclaredMethod("setProfile");
-                method_SkullMeta_setProfile.setAccessible(true);
+            if (field_SkullMeta_profile == null) {
+                field_SkullMeta_profile = skullMeta.getClass().getDeclaredField("profile");
+                field_SkullMeta_profile.setAccessible(true);
             }
 
-            method_SkullMeta_setProfile.invoke(skullMeta, profile);
+            field_SkullMeta_profile.set(skullMeta, profile);
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
         }

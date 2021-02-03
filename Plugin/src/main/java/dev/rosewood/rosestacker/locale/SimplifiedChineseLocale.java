@@ -155,6 +155,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("gui-stacked-spawner-spawn-amount", "&e当前生成数: &b%amount%");
             this.put("gui-stacked-spawner-spawn-conditions", "&6生成限制条件");
             this.put("gui-stacked-spawner-time-until-next-spawn", "&e距下次生成还有: &b%time% ticks");
+            this.put("gui-stacked-spawner-total-spawns", "&e产生的暴民总数: &b%amount%");
             this.put("gui-stacked-spawner-valid-spawn-conditions", "&6有效的生成条件");
             this.put("gui-stacked-spawner-invalid-spawn-conditions", "&6未满足的生成条件");
             this.put("gui-stacked-spawner-entities-can-spawn", "&a实体目前能被生成");

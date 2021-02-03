@@ -46,7 +46,7 @@ dependencies {
 
     // Dependencies that will be shaded into the jar
     implementation 'dev.rosewood:rosegarden:1.0.5-SNAPSHOT'
-    implementation 'dev.rosewood:guiframework:1.1.1'
+    implementation 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
     implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }
 
