@@ -211,11 +211,11 @@ public class RoseCommand extends BaseCommand {
             this.giveDuplicates(player, item, amount);
 
             String displayString;
-            if (amount == 1) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
+            if (stackSize == 1) {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", stackSize)
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", stackSize)
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             }
 
