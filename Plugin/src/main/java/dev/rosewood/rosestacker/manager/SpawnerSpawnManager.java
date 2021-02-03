@@ -227,7 +227,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             } else {
                 // Spawn particles indicating the spawn did not occur
                 block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                PersistentDataUtils.increaseSpawnCount(spawner, successfulSpawns);
+                stackedSpawner.updateSpawnerState();
+                PersistentDataUtils.increaseSpawnCount(stackedSpawner.getSpawner(), successfulSpawns);
+                stackedSpawner.updateSpawnerState();
             }
         }
     }

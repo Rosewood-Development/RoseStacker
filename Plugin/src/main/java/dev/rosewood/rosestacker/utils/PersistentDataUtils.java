@@ -154,6 +154,7 @@ public final class PersistentDataUtils {
                 spawner.setMetadata(TOTAL_SPAWNS_METADATA_NAME, new FixedMetadataValue(rosePlugin, getTotalSpawnCount(spawner) + amount));
             }
         }
+        spawner.update();
     }
 
     public static long getTotalSpawnCount(CreatureSpawner spawner) {

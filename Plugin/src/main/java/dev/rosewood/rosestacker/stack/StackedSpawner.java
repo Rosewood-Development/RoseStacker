@@ -158,7 +158,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         // Handle the entity type changing
         EntityType oldEntityType = this.spawner.getSpawnedType();
-        this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
+        this.updateSpawnerState();
         this.spawnerTile = NMSAdapter.getHandler().getSpawnerTile(this.spawner);
         if (oldEntityType != this.spawner.getSpawnedType())
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
@@ -170,6 +170,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
         this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
         this.spawnerTile.setDelay(delay);
+    }
+
+    public void updateSpawnerState() {
+        this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
     }
 
     public void setPowered(boolean powered) {
