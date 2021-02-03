@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Panda;
 
@@ -15,8 +13,8 @@ public class PandaStackSettings extends EntityStackSettings {
     private final boolean dontStackIfDifferentMainGene;
     private final boolean dontStackIfDifferentRecessiveGene;
 
-    public PandaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public PandaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentMainGene = this.settingsConfiguration.getBoolean("dont-stack-if-different-main-gene");
         this.dontStackIfDifferentRecessiveGene = this.settingsConfiguration.getBoolean("dont-stack-if-different-recessive-gene");
@@ -45,16 +43,6 @@ public class PandaStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.PANDA;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.PANDA_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.IronGolem;
 
@@ -14,8 +12,8 @@ public class IronGolemStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfPlayerCreated;
 
-    public IronGolemStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public IronGolemStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfPlayerCreated = this.settingsConfiguration.getBoolean("dont-stack-if-player-created");
     }
@@ -39,16 +37,6 @@ public class IronGolemStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.IRON_GOLEM;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return null;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.singletonList("on-ground");
     }
 
 }

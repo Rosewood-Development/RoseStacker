@@ -77,7 +77,7 @@ public class SpawnerStackSettings extends StackSettings {
         this.setIfNotExists("player-activation-range", -1);
         this.setIfNotExists("spawn-range", -1);
 
-        List<String> defaultSpawnRequirements = new ArrayList<>(RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entityType).getDefaultSpawnRequirements());
+        List<String> defaultSpawnRequirements = new ArrayList<>(RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entityType).getEntityTypeData().getDefaultSpawnRequirements());
         this.setIfNotExists("spawn-requirements", defaultSpawnRequirements);
     }
 

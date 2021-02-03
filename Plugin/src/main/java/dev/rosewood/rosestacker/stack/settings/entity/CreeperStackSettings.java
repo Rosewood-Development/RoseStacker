@@ -1,13 +1,11 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -16,8 +14,8 @@ public class CreeperStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfCharged;
 
-    public CreeperStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public CreeperStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfCharged = this.settingsConfiguration.getBoolean("dont-stack-if-charged");
     }
@@ -46,16 +44,6 @@ public class CreeperStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.CREEPER;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.CREEPER_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.MONSTER_TAGS;
     }
 
 }

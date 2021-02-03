@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 
@@ -14,8 +12,8 @@ public class EndermanStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfHoldingBlock;
 
-    public EndermanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public EndermanStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfHoldingBlock = this.settingsConfiguration.getBoolean("dont-stack-if-holding-block");
     }
@@ -39,16 +37,6 @@ public class EndermanStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.ENDERMAN;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.ENDERMAN_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.singletonList("darkness");
     }
 
 }

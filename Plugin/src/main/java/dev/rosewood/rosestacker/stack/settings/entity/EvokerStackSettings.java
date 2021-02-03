@@ -1,18 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class EvokerStackSettings extends EntityStackSettings {
 
-    public EvokerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public EvokerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
@@ -28,16 +26,6 @@ public class EvokerStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.EVOKER;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.EVOKER_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.MONSTER_TAGS;
     }
 
 }

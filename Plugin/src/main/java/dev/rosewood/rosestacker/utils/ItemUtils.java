@@ -103,7 +103,7 @@ public final class ItemUtils {
      */
     public static ItemStack getCustomSkull(String texture) {
         if (skullCache.containsKey(texture))
-            return skullCache.get(texture);
+            return skullCache.get(texture).clone();
 
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         if (texture == null || texture.isEmpty())
@@ -128,7 +128,9 @@ public final class ItemUtils {
         }
 
         skull.setItemMeta(skullMeta);
-        return skull;
+
+        skullCache.put(texture, skull);
+        return skull.clone();
     }
 
     public static ItemStack getBlockAsStackedItemStack(Material material, int amount) {
@@ -194,7 +196,7 @@ public final class ItemUtils {
 
     public static ItemStack getEntityAsStackedItemStack(EntityType entityType, int amount) {
         EntityStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
-        Material spawnEggMaterial = stackSettings.getSpawnEggMaterial();
+        Material spawnEggMaterial = stackSettings.getEntityTypeData().getSpawnEggMaterial();
         if (spawnEggMaterial == null)
             return null;
 

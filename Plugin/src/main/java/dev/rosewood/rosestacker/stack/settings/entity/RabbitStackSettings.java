@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Arrays;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Rabbit;
 
@@ -14,8 +12,8 @@ public class RabbitStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfDifferentType;
 
-    public RabbitStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public RabbitStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
     }
@@ -39,19 +37,6 @@ public class RabbitStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.RABBIT;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.RABBIT_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Arrays.asList(
-                "block:grass_block,snow,sand",
-                "lightness"
-        );
     }
 
 }

@@ -1,18 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class GuardianStackSettings extends EntityStackSettings {
 
-    public GuardianStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public GuardianStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
@@ -26,23 +24,8 @@ public class GuardianStackSettings extends EntityStackSettings {
     }
 
     @Override
-    public boolean isSwimmingMob() {
-        return true;
-    }
-
-    @Override
     public EntityType getEntityType() {
         return EntityType.GUARDIAN;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.GUARDIAN_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.singletonList("fluid:water");
     }
 
 }

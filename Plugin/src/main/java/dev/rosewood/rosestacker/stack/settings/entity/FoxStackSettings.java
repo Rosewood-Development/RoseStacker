@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fox;
 
@@ -14,8 +12,8 @@ public class FoxStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfDifferentType;
 
-    public FoxStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public FoxStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
     }
@@ -39,16 +37,6 @@ public class FoxStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.FOX;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.FOX_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

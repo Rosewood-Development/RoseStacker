@@ -16,9 +16,9 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
-import dev.rosewood.rosestacker.utils.EntityDataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +105,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
             this.pendingLoadChunks.put(chunk, System.nanoTime());
 
         // Disable AI for all existing stacks in the target world
-        this.targetWorld.getLivingEntities().forEach(EntityDataUtils::applyDisabledAi);
+        this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
     }
 
     @Override
@@ -243,7 +243,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                     if (visible && displayStackingToolParticles) {
                         Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
                         DustOptions dustOptions;
-                        if (EntityDataUtils.isUnstackable(livingEntity)) {
+                        if (PersistentDataUtils.isUnstackable(livingEntity)) {
                             dustOptions = StackerUtils.UNSTACKABLE_DUST_OPTIONS;
                         } else {
                             dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;

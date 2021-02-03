@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.manager;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
@@ -12,9 +14,13 @@ import dev.rosewood.rosestacker.utils.ClassUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +48,7 @@ public class StackSettingManager extends Manager {
         super(rosePlugin);
 
         this.blockSettings = new HashMap<>();
-        this.entitySettings = new HashMap<>();
+        this.entitySettings = new LinkedHashMap<>();
         this.itemSettings = new HashMap<>();
         this.spawnerSettings = new HashMap<>();
     }
@@ -70,14 +76,18 @@ public class StackSettingManager extends Manager {
                 saveBlockSettingsFile.set(true);
         });
 
-        // Load entity settings
+        // Load entity settings and data from entity_data.json
         CommentedFileConfiguration entitySettingsConfiguration = CommentedFileConfiguration.loadConfiguration(entitySettingsFile);
-        try {
+        try (InputStream entityDataStream = this.getClass().getResourceAsStream("/entity_data.json");
+             Reader entityDataReader = new InputStreamReader(entityDataStream)) {
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = jsonParser.parse(entityDataReader).getAsJsonObject();
+
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.rosePlugin, PACKAGE_PATH, EntityStackSettings.class);
             List<String> ignoredLoading = new ArrayList<>();
             for (Class<EntityStackSettings> clazz : classes) {
                 try {
-                    EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class).newInstance(entitySettingsConfiguration);
+                    EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class, JsonObject.class).newInstance(entitySettingsConfiguration, jsonObject);
                     this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
                     if (entityStackSetting.hasChanges())
                         saveEntitySettingsFile.set(true);
@@ -86,6 +96,7 @@ public class StackSettingManager extends Manager {
                     // This should only be caused by version incompatibilities
                     String className = clazz.getSimpleName();
                     ignoredLoading.add(className.substring(0, className.length() - 13));
+                    e.printStackTrace();
                 }
             }
 
@@ -217,7 +228,7 @@ public class StackSettingManager extends Manager {
             return null;
 
         for (EntityStackSettings settings : this.entitySettings.values())
-            if (settings.getSpawnEggMaterial() == material)
+            if (settings.getEntityTypeData().getSpawnEggMaterial() == material)
                 return settings;
 
         return null;

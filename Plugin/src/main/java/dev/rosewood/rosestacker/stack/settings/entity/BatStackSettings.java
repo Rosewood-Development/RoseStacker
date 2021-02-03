@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Arrays;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.EntityType;
 
@@ -14,8 +12,8 @@ public class BatStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfSleeping;
 
-    public BatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public BatStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfSleeping = this.settingsConfiguration.getBoolean("dont-stack-if-sleeping");
     }
@@ -37,26 +35,8 @@ public class BatStackSettings extends EntityStackSettings {
     }
 
     @Override
-    public boolean isFlyingMob() {
-        return true;
-    }
-
-    @Override
     public EntityType getEntityType() {
         return EntityType.BAT;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.BAT_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Arrays.asList(
-                "below-sea-level",
-                "darkness"
-        );
     }
 
 }

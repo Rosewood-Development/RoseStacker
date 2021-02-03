@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Sheep;
 
@@ -16,8 +14,8 @@ public class SheepStackSettings extends EntityStackSettings {
     private final boolean shearAllSheepInStack;
     private final int percentageOfWoolToRegrowPerGrassEaten;
 
-    public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public SheepStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfSheared = this.settingsConfiguration.getBoolean("dont-stack-if-sheared");
         this.shearAllSheepInStack =  this.settingsConfiguration.getBoolean("shear-all-sheep-in-stack");
@@ -45,16 +43,6 @@ public class SheepStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.SHEEP;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.SHEEP_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
     public boolean shouldShearAllSheepInStack() {

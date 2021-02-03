@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.Endermite;
 import org.bukkit.entity.EntityType;
 
@@ -14,8 +12,8 @@ public class EndermiteStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfPlayerSpawned;
 
-    public EndermiteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public EndermiteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfPlayerSpawned = this.settingsConfiguration.getBoolean("dont-stack-if-player-spawned");
     }
@@ -39,16 +37,6 @@ public class EndermiteStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.ENDERMITE;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.ENDERMITE_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.MONSTER_TAGS;
     }
 
 }

@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Llama;
 
@@ -15,8 +13,8 @@ public class LlamaStackSettings extends EntityStackSettings {
     private final boolean dontStackIfDifferentDecor;
     private final boolean dontStackIfDifferentColor;
 
-    public LlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public LlamaStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentDecor = this.settingsConfiguration.getBoolean("dont-stack-if-different-decor");
         this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
@@ -45,16 +43,6 @@ public class LlamaStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.LLAMA;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.LLAMA_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

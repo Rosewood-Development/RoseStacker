@@ -1,18 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class WanderingTraderStackSettings extends EntityStackSettings {
 
-    public WanderingTraderStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public WanderingTraderStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
@@ -28,16 +26,6 @@ public class WanderingTraderStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.WANDERING_TRADER;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.WANDERING_TRADER_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.singletonList("on-ground");
     }
 
 }

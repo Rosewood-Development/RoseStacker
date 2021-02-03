@@ -1,18 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class MuleStackSettings extends EntityStackSettings {
 
-    public MuleStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public MuleStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
@@ -28,16 +26,6 @@ public class MuleStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.MULE;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.MULE_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

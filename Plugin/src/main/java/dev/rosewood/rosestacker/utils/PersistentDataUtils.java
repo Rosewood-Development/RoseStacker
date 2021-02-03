@@ -8,13 +8,13 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import java.util.List;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public final class EntityDataUtils {
+public final class PersistentDataUtils {
 
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
     private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
@@ -53,7 +53,7 @@ public final class EntityDataUtils {
      * @param entity The entity to set the spawn reason of
      * @param spawnReason The spawn reason to set
      */
-    public static void setEntitySpawnReason(LivingEntity entity, CreatureSpawnEvent.SpawnReason spawnReason) {
+    public static void setEntitySpawnReason(LivingEntity entity, SpawnReason spawnReason) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         if (NMSUtil.getVersionNumber() > 13) {
             PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
@@ -72,30 +72,30 @@ public final class EntityDataUtils {
      * @param entity The entity to get the spawn reason of
      * @return The SpawnReason, or SpawnReason.CUSTOM if none is saved
      */
-    public static CreatureSpawnEvent.SpawnReason getEntitySpawnReason(LivingEntity entity) {
+    public static SpawnReason getEntitySpawnReason(LivingEntity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         if (NMSUtil.getVersionNumber() > 13) {
             String reason = entity.getPersistentDataContainer().get(new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME), PersistentDataType.STRING);
-            CreatureSpawnEvent.SpawnReason spawnReason;
+            SpawnReason spawnReason;
             if (reason != null) {
                 try {
-                    spawnReason = CreatureSpawnEvent.SpawnReason.valueOf(reason);
+                    spawnReason = SpawnReason.valueOf(reason);
                 } catch (Exception ex) {
-                    spawnReason = CreatureSpawnEvent.SpawnReason.CUSTOM;
+                    spawnReason = SpawnReason.CUSTOM;
                 }
             } else {
-                spawnReason = CreatureSpawnEvent.SpawnReason.CUSTOM;
+                spawnReason = SpawnReason.CUSTOM;
             }
             return spawnReason;
         } else {
             List<MetadataValue> metaValues = entity.getMetadata(SPAWN_REASON_METADATA_NAME);
-            CreatureSpawnEvent.SpawnReason spawnReason = null;
+            SpawnReason spawnReason = null;
             for (MetadataValue meta : metaValues) {
                 try {
-                    spawnReason = CreatureSpawnEvent.SpawnReason.valueOf(meta.asString());
+                    spawnReason = SpawnReason.valueOf(meta.asString());
                 } catch (Exception ignored) { }
             }
-            return spawnReason != null ? spawnReason : CreatureSpawnEvent.SpawnReason.CUSTOM;
+            return spawnReason != null ? spawnReason : SpawnReason.CUSTOM;
         }
     }
 

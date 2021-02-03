@@ -1,5 +1,9 @@
 package dev.rosewood.rosestacker.stack.settings;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
@@ -8,7 +12,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.utils.EntityDataUtils;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.List;
 import org.bukkit.Material;
@@ -27,6 +31,9 @@ import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
 public abstract class EntityStackSettings extends StackSettings {
+
+    // Data that is part of this EntityType
+    private final EntityTypeData entityTypeData;
 
     // Settings that apply to every entity
     private final boolean enabled;
@@ -60,9 +67,19 @@ public abstract class EntityStackSettings extends StackSettings {
     private Boolean isRaider;
     private Boolean isMerchant;
 
-    public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration) {
+    public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration, JsonObject jsonObject) {
         super(settingsFileConfiguration);
         this.setDefaults();
+
+        // Read EntityTypeData
+        JsonObject entityTypeDataObject = jsonObject.getAsJsonObject(this.getEntityType().name());
+        boolean isSwimmingMob = entityTypeDataObject.get("is_swimming_mob").getAsBoolean();
+        boolean isFlyingMob = entityTypeDataObject.get("is_flying_mob").getAsBoolean();
+        JsonElement spawnEggMaterialElement = entityTypeDataObject.get("spawn_egg_material");
+        Material spawnEggMaterial = spawnEggMaterialElement != null ? Material.valueOf(spawnEggMaterialElement.getAsString()) : null;
+        List<String> defaultSpawnRequirements = new Gson().fromJson(entityTypeDataObject.get("default_spawn_requirements").getAsJsonArray(), new TypeToken<List<String>>(){}.getType());
+        String skullTexture = entityTypeDataObject.get("skull_texture").getAsString();
+        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
@@ -178,13 +195,13 @@ public abstract class EntityStackSettings extends StackSettings {
         if (stack1.getStackSize() + stack2.getStackSize() + offset > this.getMaxStackSize())
             return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
 
-        if (EntityDataUtils.isUnstackable(entity1) || EntityDataUtils.isUnstackable(entity2))
+        if (PersistentDataUtils.isUnstackable(entity1) || PersistentDataUtils.isUnstackable(entity2))
             return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
             return EntityStackComparisonResult.CUSTOM_NAMED;
 
-        if (!comparingForUnstack && !this.isSwimmingMob() && !this.isFlyingMob()) {
+        if (!comparingForUnstack && !this.getEntityTypeData().isSwimmingMob() && !this.getEntityTypeData().isFlyingMob()) {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
                 return EntityStackComparisonResult.NOT_ON_GROUND;
 
@@ -495,23 +512,12 @@ public abstract class EntityStackSettings extends StackSettings {
     }
 
     /**
-     * @return true if the entity lives in the water, otherwise false
+     * @return the data associated with this stack setting's EntityType
      */
-    public boolean isSwimmingMob() {
-        return false;
-    }
-
-    /**
-     * @return true if the entity can fly, otherwise false
-     */
-    public boolean isFlyingMob() {
-        return false;
+    public EntityTypeData getEntityTypeData() {
+        return this.entityTypeData;
     }
 
     public abstract EntityType getEntityType();
-
-    public abstract Material getSpawnEggMaterial();
-
-    public abstract List<String> getDefaultSpawnRequirements();
 
 }

@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 
@@ -16,8 +14,8 @@ public class HorseStackSettings extends EntityStackSettings {
     private final boolean dontStackIfDifferentStyle;
     private final boolean dontStackIfDifferentColor;
 
-    public HorseStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public HorseStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfArmored = this.settingsConfiguration.getBoolean("dont-stack-if-armored");
         this.dontStackIfDifferentStyle = this.settingsConfiguration.getBoolean("dont-stack-if-different-style");
@@ -51,16 +49,6 @@ public class HorseStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.HORSE;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.HORSE_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

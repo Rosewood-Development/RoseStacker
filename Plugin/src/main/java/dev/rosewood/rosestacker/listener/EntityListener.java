@@ -12,8 +12,8 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
-import dev.rosewood.rosestacker.utils.EntityDataUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,16 +84,16 @@ public class EntityListener implements Listener {
         if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        EntityDataUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
+        PersistentDataUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
         stackManager.createEntityStack(event.getEntity(), true);
 
-        EntityDataUtils.applyDisabledAi(event.getEntity());
+        PersistentDataUtils.applyDisabledAi(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         // Withers can still target enitites due to custom boss AI, so prevent them from targeting
-        if (event.getEntityType() == EntityType.WITHER && EntityDataUtils.isAiDisabled((Wither) event.getEntity()))
+        if (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
             event.setCancelled(true);
     }
 
@@ -175,7 +175,7 @@ public class EntityListener implements Listener {
             return;
 
         // Don't allow mobs to naturally burn in the daylight if their AI is disabled
-        if (EntityDataUtils.isAiDisabled((LivingEntity) entity))
+        if (PersistentDataUtils.isAiDisabled((LivingEntity) entity))
             event.setCancelled(true);
     }
 

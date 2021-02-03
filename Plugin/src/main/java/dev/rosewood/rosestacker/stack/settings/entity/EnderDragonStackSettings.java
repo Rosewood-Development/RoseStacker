@@ -1,18 +1,16 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class EnderDragonStackSettings extends EntityStackSettings {
 
-    public EnderDragonStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public EnderDragonStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
@@ -26,23 +24,8 @@ public class EnderDragonStackSettings extends EntityStackSettings {
     }
 
     @Override
-    public boolean isFlyingMob() {
-        return true;
-    }
-
-    @Override
     public EntityType getEntityType() {
         return EntityType.ENDER_DRAGON;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return null;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.emptyList();
     }
 
 }

@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ZombieVillager;
 
@@ -16,8 +14,8 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     protected boolean dontStackIfConverting;
     protected boolean dontStackIfDifferentAge;
 
-    public ZombieVillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public ZombieVillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
@@ -51,16 +49,6 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.ZOMBIE_VILLAGER;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.ZOMBIE_VILLAGER_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.MONSTER_TAGS;
     }
 
 }

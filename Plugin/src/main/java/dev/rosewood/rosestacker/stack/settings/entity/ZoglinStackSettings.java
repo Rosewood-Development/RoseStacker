@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Arrays;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zoglin;
 
@@ -14,8 +12,8 @@ public class ZoglinStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfDifferentAge;
 
-    public ZoglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public ZoglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
@@ -39,19 +37,6 @@ public class ZoglinStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.ZOGLIN;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.ZOGLIN_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Arrays.asList(
-                "darkness",
-                "block-exception:nether_wart_block"
-        );
     }
 
 }

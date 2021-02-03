@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 
@@ -14,8 +12,8 @@ public class PigStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfSaddled;
 
-    public PigStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public PigStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfSaddled = this.settingsConfiguration.getBoolean("dont-stack-if-saddled");
     }
@@ -39,16 +37,6 @@ public class PigStackSettings extends EntityStackSettings {
     @Override
     public EntityType getEntityType() {
         return EntityType.PIG;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.PIG_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return ConditionTags.ANIMAL_TAGS;
     }
 
 }

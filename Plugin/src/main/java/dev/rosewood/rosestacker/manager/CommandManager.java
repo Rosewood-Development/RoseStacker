@@ -57,7 +57,7 @@ public class CommandManager extends Manager {
         completions.registerStaticCompletion("spawnableSpawnerEntityType", () -> stackSettingManager.getStackableSpawnerTypes().stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerStaticCompletion("spawnableEggEntityType", () -> stackSettingManager.getStackableEntityTypes().stream().filter(x -> {
             EntityStackSettings stackSettings = stackSettingManager.getEntityStackSettings(x);
-            return stackSettings.getSpawnEggMaterial() != null;
+            return stackSettings.getEntityTypeData().getSpawnEggMaterial() != null;
         }).map(Enum::name).map(String::toLowerCase).collect(Collectors.toSet()));
         completions.registerAsyncCompletion("blockStackAmounts", ctx -> {
             Material blockType = ctx.getContextValue(Material.class);

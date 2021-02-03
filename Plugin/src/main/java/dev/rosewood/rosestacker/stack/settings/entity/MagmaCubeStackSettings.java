@@ -1,30 +1,18 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class MagmaCubeStackSettings extends SlimeStackSettings {
 
-    public MagmaCubeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public MagmaCubeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
     }
 
     @Override
     public EntityType getEntityType() {
         return EntityType.MAGMA_CUBE;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.MAGMA_CUBE_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.emptyList();
     }
 
 }

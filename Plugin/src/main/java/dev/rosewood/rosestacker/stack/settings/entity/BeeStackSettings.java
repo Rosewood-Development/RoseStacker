@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.stack.settings.entity;
 
+import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Collections;
-import java.util.List;
-import org.bukkit.Material;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -20,8 +18,8 @@ public class BeeStackSettings extends EntityStackSettings {
     private final boolean dontStackIfHasFlower;
     private final boolean dontStackIfHasNectar;
 
-    public BeeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration) {
-        super(entitySettingsFileConfiguration);
+    public BeeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
+        super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
         this.dontStackIfHasHive = this.settingsConfiguration.getBoolean("dont-stack-if-has-hive");
@@ -78,23 +76,8 @@ public class BeeStackSettings extends EntityStackSettings {
     }
 
     @Override
-    public boolean isFlyingMob() {
-        return true;
-    }
-
-    @Override
     public EntityType getEntityType() {
         return EntityType.BEE;
-    }
-
-    @Override
-    public Material getSpawnEggMaterial() {
-        return Material.BEE_SPAWN_EGG;
-    }
-
-    @Override
-    public List<String> getDefaultSpawnRequirements() {
-        return Collections.emptyList();
     }
 
 }
