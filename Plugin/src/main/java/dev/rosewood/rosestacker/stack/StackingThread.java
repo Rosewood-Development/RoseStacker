@@ -54,7 +54,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
+public class StackingThread implements StackingLogic, AutoCloseable {
 
     private final static int CLEANUP_TIMER_TARGET = 10;
 
@@ -63,7 +63,8 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final ConversionManager conversionManager;
     private final World targetWorld;
 
-    private final BukkitTask stackTask;
+    private final BukkitTask entityStackTask;
+    private final BukkitTask itemStackTask;
     private final BukkitTask nametagTask;
     private final BukkitTask pendingChunkTask;
 
@@ -75,6 +76,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     private final Map<Block, StackedBlock> stackedBlocks;
     private final Map<Block, StackedSpawner> stackedSpawners;
 
+    private boolean entityStackSwitch;
     private int cleanupTimer;
     private volatile boolean processingChunks;
     private long processingChunksTime;
@@ -85,7 +87,9 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
         this.targetWorld = targetWorld;
 
-        this.stackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this, 5L, Setting.STACK_FREQUENCY.getLong());
+        long entityStackDelay = (long) Math.max(1, Setting.STACK_FREQUENCY.getLong() / 2.0);
+        this.entityStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackEntities, 5L, entityStackDelay);
+        this.itemStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackItems, 5L, Setting.ITEM_STACK_FREQUENCY.getLong());
         this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
         this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
         this.pendingLoadChunks = new HashMap<>();
@@ -108,29 +112,14 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
         this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
     }
 
-    @Override
-    public void run() {
-        boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
+    private void stackEntities() {
         boolean itemStackingEnabled = this.stackManager.isItemStackingEnabled();
-
-        if (!entityStackingEnabled && !itemStackingEnabled)
+        boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
+        if (!entityStackingEnabled)
             return;
 
-        // Auto stack items
-        if (itemStackingEnabled) {
-            for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
-                Item item = stackedItem.getItem();
-                if (item == null || !item.isValid()) {
-                    this.removeItemStack(stackedItem);
-                    continue;
-                }
-
-                this.tryStackItem(stackedItem);
-            }
-        }
-
         // Auto stack entities
-        if (entityStackingEnabled) {
+        if (this.entityStackSwitch) {
             for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
                 LivingEntity livingEntity = stackedEntity.getEntity();
                 if (livingEntity == null || !livingEntity.isValid()) {
@@ -140,13 +129,16 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
 
                 this.tryStackEntity(stackedEntity);
             }
-
-            // Auto unstack entities
-            if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
-                for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
-                    if (!stackedEntity.shouldStayStacked())
-                        Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.splitEntityStack(stackedEntity));
         }
+
+        // Run entity stacking half as often as the unstacking
+        this.entityStackSwitch = !this.entityStackSwitch;
+
+        // Auto unstack entities
+        if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
+            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
+                if (!stackedEntity.shouldStayStacked())
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.splitEntityStack(stackedEntity));
 
         // Cleans up entities/items that aren't stacked
         this.cleanupTimer++;
@@ -156,7 +148,7 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 if (this.pendingLoadChunks.containsKey(entity.getLocation().getChunk()))
                     continue;
 
-                if (entityStackingEnabled && entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
+                if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
                     LivingEntity livingEntity = (LivingEntity) entity;
                     if (!this.isEntityStacked(livingEntity))
                         this.createEntityStack(livingEntity, true);
@@ -167,6 +159,23 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
                 }
             }
             this.cleanupTimer = 0;
+        }
+    }
+
+    private void stackItems() {
+        boolean itemStackingEnabled = this.stackManager.isItemStackingEnabled();
+        if (!itemStackingEnabled)
+            return;
+
+        // Auto stack items
+        for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
+            Item item = stackedItem.getItem();
+            if (item == null || !item.isValid()) {
+                this.removeItemStack(stackedItem);
+                continue;
+            }
+
+            this.tryStackItem(stackedItem);
         }
     }
 
@@ -260,8 +269,11 @@ public class StackingThread implements StackingLogic, Runnable, AutoCloseable {
     @Override
     public void close() {
         // Cancel tasks
-        if (this.stackTask != null)
-            this.stackTask.cancel();
+        if (this.entityStackTask != null)
+            this.entityStackTask.cancel();
+
+        if (this.itemStackTask != null)
+            this.itemStackTask.cancel();
 
         if (this.nametagTask != null)
             this.nametagTask.cancel();
