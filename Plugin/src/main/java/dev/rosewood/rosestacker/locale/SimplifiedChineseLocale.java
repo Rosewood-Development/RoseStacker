@@ -106,6 +106,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-given", "&e您已被给予堆叠工具。");
             this.put("command-stacktool-given-other", "&b%player% &a已被给予堆叠工具。");
             this.put("command-stacktool-no-permission", "&c您没有足够的权限去使用堆叠工具。");
+            this.put("command-stacktool-invalid-entity", "&c那个实体不是堆栈的一部分，是自定义的暴徒吗？");
             this.put("command-stacktool-marked-unstackable", "&e类型 &b%type% &e已被标记为 &c不可堆叠&e。");
             this.put("command-stacktool-marked-stackable", "&e类型 &b%type% &e已被标记 &a可堆叠&e。");
             this.put("command-stacktool-marked-all-unstackable", "&e类型 &b%type% &e的整体堆叠已被标记为 &c不可堆叠&e。");

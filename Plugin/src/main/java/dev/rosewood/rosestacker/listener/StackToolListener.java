@@ -70,13 +70,15 @@ public class StackToolListener implements Listener {
 
         event.setCancelled(true);
 
-        LivingEntity entity = (LivingEntity) event.getRightClicked();
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
-        if (stackedEntity == null)
-            return;
-
         if (!player.hasPermission("rosestacker.stacktool")) {
             this.localeManager.sendMessage(player, "command-stacktool-no-permission");
+            return;
+        }
+
+        LivingEntity entity = (LivingEntity) event.getRightClicked();
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        if (stackedEntity == null) {
+            this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
             return;
         }
 
@@ -115,13 +117,15 @@ public class StackToolListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity))
             return;
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
-        if (stackedEntity == null)
-            return;
-
         if (!player.hasPermission("rosestacker.stacktool")) {
             this.localeManager.sendMessage(player, "command-stacktool-no-permission");
+            return;
+        }
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        if (stackedEntity == null) {
+            this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
             return;
         }
 

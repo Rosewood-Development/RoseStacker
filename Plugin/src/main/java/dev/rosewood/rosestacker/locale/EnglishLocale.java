@@ -107,6 +107,7 @@ public class EnglishLocale implements Locale {
             this.put("command-stacktool-given", "&eYou have been given the stacking tool.");
             this.put("command-stacktool-given-other", "&b%player% &ahas been given the stacking tool.");
             this.put("command-stacktool-no-permission", "&cYou do not have permission to use the stacking tool.");
+            this.put("command-stacktool-invalid-entity", "&cThat entity is not part of a stack, is it a custom mob?");
             this.put("command-stacktool-marked-unstackable", "&eThe &b%type% &ehas been marked as &cunstackable&e.");
             this.put("command-stacktool-marked-stackable", "&eThe &b%type% &ehas been marked as &astackable&e.");
             this.put("command-stacktool-marked-all-unstackable", "&eThe entire &b%type% &estack has been marked as &cunstackable&e.");
