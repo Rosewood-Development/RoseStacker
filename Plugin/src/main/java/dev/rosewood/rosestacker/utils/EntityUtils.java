@@ -81,7 +81,7 @@ public final class EntityUtils {
             Location location = location1.clone().add(direction.clone().multiply(i));
             Block block = location.getBlock();
             Material type = block.getType();
-            if (type.isSolid() && (!requireOccluding || type.isOccluding()))
+            if (type.isSolid() && (!requireOccluding || StackerUtils.isOccluding(type)))
                 return false;
         }
 

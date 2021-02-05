@@ -172,6 +172,23 @@ public final class StackerUtils {
         stackedEntity.setStackedEntityNBT(nbtList);
     }
 
+    /**
+     * Checks if a Material can not be passed through
+     *
+     * @param material The Material to check
+     * @return true if the Material can be passed through, false otherwise
+     */
+    public static boolean isOccluding(Material material) {
+        switch (material) {
+            case CHEST:
+            case ENDER_CHEST:
+            case TRAPPED_CHEST:
+                return true;
+            default:
+                return material.isOccluding();
+        }
+    }
+
     public static void clearCache() {
         cachedAlphabeticalEntityTypes = null;
         cachedStackableEntityTypes = null;
