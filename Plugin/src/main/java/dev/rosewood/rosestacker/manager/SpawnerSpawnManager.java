@@ -4,7 +4,10 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -12,27 +15,35 @@ import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class SpawnerSpawnManager extends Manager implements Runnable {
 
@@ -46,12 +57,14 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
      */
     public static final int DELAY_THRESHOLD = 3;
 
+    private final StackManager stackManager;
     private final Random random;
     private BukkitTask task;
 
     public SpawnerSpawnManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
+        this.stackManager = this.rosePlugin.getManager(StackManager.class);
         this.random = new Random();
     }
 
@@ -74,7 +87,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
     @Override
     public void run() {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
+        EntityCacheManager entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
 
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
@@ -157,8 +170,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 spawnAmount = spawnerTile.getSpawnCount();
             }
 
+            Set<Location> spawnLocations = new HashSet<>();
             int spawnRange = spawnerTile.getSpawnRange();
-            int successfulSpawns = 0;
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
                 while (attempts < maxFailedSpawnAttempts) {
@@ -187,29 +200,21 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     if (!passedSpawnerChecks)
                         break;
 
-                    LivingEntity entity = (LivingEntity) block.getWorld().spawn(spawnLocation, entityType.getEntityClass(), spawnedEntity -> {
-                        LivingEntity spawnedLivingEntity = (LivingEntity) spawnedEntity;
-                        if (stackSettings.isMobAIDisabled())
-                            this.disableAI(spawnedLivingEntity);
-                        this.tagSpawnedFromSpawner(spawnedLivingEntity);
-
-                        EntityStackSettings entitySettings = stackSettingManager.getEntityStackSettings(spawnedLivingEntity);
-                        if (entitySettings != null)
-                            entitySettings.applySpawnerSpawnedProperties(spawnedLivingEntity);
-                    });
-
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
-                    Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
-                    if (spawnerSpawnEvent.isCancelled())
-                        entity.remove();
-
-                    if (entity.isValid()) // Don't spawn particles for auto-stacked entities
-                        block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawnLocation.clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
-
-                    successfulSpawns++;
+                    spawnLocations.add(spawnLocation);
                     break;
                 }
             }
+
+            Predicate<Entity> predicate = entity -> entity.getType() == entityType;
+            Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(spawner.getLocation(), stackSettings.getSpawnRange(), predicate);
+            List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
+            for (Entity entity : nearbyEntities) {
+                StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) entity);
+                if (stackedEntity != null)
+                    nearbyStackedEntities.add(stackedEntity);
+            }
+
+            int successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, entityType, spawnAmount, spawnLocations, nearbyStackedEntities);
 
             stackedSpawner.getLastInvalidConditions().clear();
             if (successfulSpawns <= 0) {
@@ -232,6 +237,67 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 stackedSpawner.updateSpawnerState();
             }
         }
+    }
+
+    private int spawnEntitiesIntoNearbyStacks(StackedSpawner spawner, EntityType entityType, int spawnAmount, Set<Location> locations, List<StackedEntity> nearbyEntities) {
+        EntityStackSettings entityStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+        List<StackedEntity> stackedEntities = new ArrayList<>(nearbyEntities);
+        List<Location> possibleLocations = new ArrayList<>(locations);
+        List<StackedEntity> newStacks = new ArrayList<>();
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+
+        int successfulSpawns = 0;
+        for (int i = 0; i < spawnAmount; i++) {
+            if (possibleLocations.isEmpty())
+                break;
+
+            Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
+
+            LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+
+            SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
+            Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+            if (spawnerSpawnEvent.isCancelled())
+                continue;
+
+            if (spawner.getStackSettings().isMobAIDisabled())
+                this.disableAI(entity);
+            this.tagSpawnedFromSpawner(entity);
+
+            entityStackSettings.applySpawnerSpawnedProperties(entity);
+
+            StackedEntity newStack = new StackedEntity(entity);
+            Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
+                    entityStackSettings.testCanStackWith(x, newStack, false)).findFirst();
+            if (matchingEntity.isPresent()) {
+                matchingEntity.get().increaseStackSize(entity);
+            } else {
+                stackedEntities.add(newStack);
+                newStacks.add(newStack);
+                possibleLocations.remove(location);
+            }
+
+            successfulSpawns++;
+        }
+
+        this.stackManager.setEntityStackingTemporarilyDisabled(true);
+        for (StackedEntity stackedEntity : newStacks) {
+            LivingEntity entity = stackedEntity.getEntity();
+            entity.teleport(entity.getLocation().clone().add(0, 300, 0));
+            nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+            entity.setVelocity(Vector.getRandom().multiply(0.01));
+            this.stackManager.addEntityStack(stackedEntity);
+        }
+        this.stackManager.setEntityStackingTemporarilyDisabled(false);
+
+        // Spawn particles for new entities
+        for (StackedEntity entity : newStacks) {
+            World world = entity.getLocation().getWorld();
+            if (world != null)
+                world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+        }
+
+        return successfulSpawns;
     }
 
     private void tagSpawnedFromSpawner(LivingEntity entity) {
