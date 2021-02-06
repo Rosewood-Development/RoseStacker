@@ -1,9 +1,14 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +47,8 @@ public final class StackerUtils {
     private static final Random RANDOM = new Random();
     private static List<EntityType> cachedAlphabeticalEntityTypes;
     private static Set<EntityType> cachedStackableEntityTypes;
+
+    private static NumberFormat formatter = NumberFormat.getInstance();
 
     /**
      * Formats a string from THIS_FORMAT to This Format
@@ -189,11 +196,20 @@ public final class StackerUtils {
         }
     }
 
+    public static String formatNumber(long points) {
+        return formatter.format(points);
+    }
+
     public static void clearCache() {
         cachedAlphabeticalEntityTypes = null;
         cachedStackableEntityTypes = null;
         EntityUtils.clearCache();
         ItemUtils.clearCache();
+
+        String separator = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("number-separator");
+        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+        symbols.setGroupingSeparator(!separator.isEmpty() ? separator.charAt(0) : ',');
+        formatter = new DecimalFormat("#,##0", symbols);
     }
 
 }

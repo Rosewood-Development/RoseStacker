@@ -239,6 +239,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("#21", "杂项信息");
             this.put("spawner-silk-touch-protect", "&c警告! &e您需要用 线 去触碰稿子 和/或 有权限拿起一个刷怪笼。否则您将不能这样做。");
             this.put("spawner-convert-not-enough", "&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的生成蛋数量并不足以进行转换的操作。");
+            this.put("number-separator", ",");
         }};
     }
 }

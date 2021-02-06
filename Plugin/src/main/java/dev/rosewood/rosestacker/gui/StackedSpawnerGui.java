@@ -18,6 +18,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -149,7 +150,7 @@ public class StackedSpawnerGui {
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
                 .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)))
-                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawner()))))
+                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawner())))))
         ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
                 .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))
