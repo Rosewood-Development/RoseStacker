@@ -25,6 +25,7 @@ import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
@@ -121,6 +122,7 @@ public class RoseStacker extends RosePlugin {
                 CommandManager.class,
                 ConversionManager.class,
                 HologramManager.class,
+                EntityCacheManager.class,
                 StackManager.class,
                 SpawnerSpawnManager.class
         );

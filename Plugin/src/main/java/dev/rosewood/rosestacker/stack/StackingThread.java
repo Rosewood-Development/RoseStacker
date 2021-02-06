@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -61,6 +63,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final ConversionManager conversionManager;
+    private final EntityCacheManager entityCacheManager;
     private final World targetWorld;
 
     private final BukkitTask entityStackTask;
@@ -85,6 +88,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
+        this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
         this.targetWorld = targetWorld;
 
         long entityStackDelay = (long) Math.max(1, Setting.STACK_FREQUENCY.getLong() / 2.0);
@@ -145,17 +149,17 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : this.targetWorld.getEntities()) {
                 // Don't create stacks from chunks we are about to load
-                if (this.pendingLoadChunks.containsKey(entity.getLocation().getChunk()))
+                if (!entity.isValid() || this.pendingLoadChunks.containsKey(entity.getLocation().getChunk()))
                     continue;
 
                 if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
                     LivingEntity livingEntity = (LivingEntity) entity;
                     if (!this.isEntityStacked(livingEntity))
-                        this.createEntityStack(livingEntity, true);
+                        this.createEntityStack(livingEntity, false);
                 } else if (itemStackingEnabled && entity.getType() == EntityType.DROPPED_ITEM) {
                     Item item = (Item) entity;
                     if (!this.isItemStacked(item))
-                        this.createItemStack(item, true);
+                        this.createItemStack(item, false);
                 }
             }
             this.cleanupTimer = 0;
@@ -355,20 +359,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         LivingEntity entity = stackedEntity.getEntity();
         if (entity != null) {
             UUID key = stackedEntity.getEntity().getUniqueId();
-            if (this.stackedEntities.containsKey(key)) {
-                this.stackedEntities.remove(key);
-                this.stackManager.markStackDeleted(stackedEntity);
-            }
+            this.stackedEntities.remove(key);
         } else {
             // Entity is null so we have to remove by value instead
             for (Entry<UUID, StackedEntity> entry : this.stackedEntities.entrySet()) {
                 if (entry.getValue() == stackedEntity) {
                     this.stackedEntities.remove(entry.getKey());
-                    this.stackManager.markStackDeleted(stackedEntity);
-                    return;
+                    break;
                 }
             }
         }
+
+        this.stackManager.markStackDeleted(stackedEntity);
     }
 
     @Override
@@ -376,21 +378,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         Item item = stackedItem.getItem();
         if (item != null) {
             UUID key = stackedItem.getItem().getUniqueId();
-            if (this.stackedItems.containsKey(key)) {
-                this.stackedItems.remove(key);
-                this.stackManager.markStackDeleted(stackedItem);
-            }
+            this.stackedItems.remove(key);
         } else {
             // Item is null so we have to remove by value instead
             for (Entry<UUID, StackedItem> entry : this.stackedItems.entrySet()) {
                 if (entry.getValue() == stackedItem) {
                     this.stackedItems.remove(entry.getKey());
-                    this.stackManager.markStackDeleted(stackedItem);
-                    return;
+                    break;
                 }
             }
         }
 
+        this.stackManager.markStackDeleted(stackedItem);
     }
 
     @Override
@@ -659,151 +658,125 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      * Tries to stack a StackedEntity with all other StackedEntities
      *
      * @param stackedEntity the StackedEntity to try to stack
-     * @return a StackedEntity that was stacked into, or null if none
      */
-    private StackedEntity tryStackEntity(StackedEntity stackedEntity) {
+    private void tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null || this.stackManager.isMarkedAsDeleted(stackedEntity))
-            return null;
+            return;
 
         if (stackedEntity.checkNPC()) {
             this.removeEntityStack(stackedEntity);
-            return null;
+            return;
         }
 
         LivingEntity entity = stackedEntity.getEntity();
         if (entity == null)
-            return null;
+            return;
 
-        double maxEntityMergeDistanceSqrd = stackSettings.getMergeRadius() * stackSettings.getMergeRadius();
-
-        for (StackedEntity other : this.stackedEntities.values()) {
-            LivingEntity otherEntity = other.getEntity();
-            if (otherEntity == null || !other.getEntity().isValid())
-                continue;
-
-            if (stackedEntity == other
-                    || this.stackManager.isMarkedAsDeleted(other)
-                    || entity.getLocation().getWorld() != otherEntity.getLocation().getWorld()
-                    || entity == otherEntity
-                    || entity.getType() != otherEntity.getType())
-                continue;
-
-            if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
-                if (entity.getLocation().distanceSquared(otherEntity.getLocation()) > maxEntityMergeDistanceSqrd)
-                    continue;
-            } else {
-                if (entity.getLocation().getChunk() != otherEntity.getLocation().getChunk())
-                    continue;
-            }
-
-            // Check if we should merge the stacks
-            if (!stackSettings.testCanStackWith(stackedEntity, other, false))
-                continue;
-
-            if (Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() && !EntityUtils.hasLineOfSight(stackedEntity.getEntity(), other.getEntity(), 0.75, false))
-                continue;
-
-            Set<StackedEntity> targetEntities = new HashSet<>();
-            targetEntities.add(stackedEntity);
-            targetEntities.add(other);
-
-            int minStackSize = stackSettings.getMinStackSize();
-            if (minStackSize > 2) {
-                if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
-                    for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
-                        LivingEntity nearbyEntity = nearbyStackedEntity.getEntity();
-                        if (nearbyEntity == null)
-                            continue;
-
-                        if (nearbyEntity.getType() == entity.getType()
-                                && entity.getLocation().distanceSquared(nearbyEntity.getLocation()) <= maxEntityMergeDistanceSqrd
-                                && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
-                            targetEntities.add(nearbyStackedEntity);
-                    }
-                } else {
-                    for (StackedEntity nearbyStackedEntity : this.stackedEntities.values()) {
-                        LivingEntity nearbyEntity = nearbyStackedEntity.getEntity();
-                        if (nearbyEntity == null)
-                            continue;
-
-                        if (nearbyEntity.getType() == nearbyEntity.getType()
-                                && nearbyEntity.getLocation().getChunk() == entity.getLocation().getChunk()
-                                && stackSettings.testCanStackWith(stackedEntity, nearbyStackedEntity, false))
-                            targetEntities.add(nearbyStackedEntity);
-                    }
-                }
-
-                if (targetEntities.stream().mapToInt(StackedEntity::getStackSize).sum() < minStackSize)
-                    continue;
-            }
-
-            StackedEntity increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
-            targetEntities.remove(increased);
-
-            List<StackedEntity> removed = targetEntities.stream()
-                    .filter(x -> stackSettings.testCanStackWith(increased, x, false))
-                    .collect(Collectors.toList());
-
-            EntityStackEvent entityStackEvent = new EntityStackEvent(removed, increased);
-            Bukkit.getPluginManager().callEvent(entityStackEvent);
-            if (entityStackEvent.isCancelled())
-                continue;
-
-            for (StackedEntity toStack : removed) {
-                stackSettings.applyStackProperties(toStack.getEntity(), increased.getEntity());
-
-                increased.increaseStackSize(toStack.getEntity());
-                increased.increaseStackSize(toStack.getStackedEntityNBT());
-            }
-
-            if (Bukkit.isPrimaryThread()) {
-                removed.stream().map(StackedEntity::getEntity).forEach(Entity::remove);
-            } else {
-                Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                        removed.stream().map(StackedEntity::getEntity).forEach(Entity::remove));
-            }
-
-            removed.forEach(this::removeEntityStack);
-
-            return increased;
+        Set<Entity> nearbyEntities;
+        Predicate<Entity> predicate = x -> x.getType() == entity.getType();
+        if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
+            nearbyEntities = this.entityCacheManager.getNearbyEntities(entity.getLocation(), stackSettings.getMergeRadius(), predicate);
+        } else {
+            nearbyEntities = this.entityCacheManager.getEntitiesInChunk(entity.getLocation(), predicate);
         }
 
-        return null;
+        Set<StackedEntity> targetEntities = new HashSet<>();
+        targetEntities.add(stackedEntity);
+
+        for (Entity otherEntity : nearbyEntities) {
+            if (entity == otherEntity || !otherEntity.isValid())
+                continue;
+
+            StackedEntity other = this.stackedEntities.get(otherEntity.getUniqueId());
+            if (other == null || this.stackManager.isMarkedAsDeleted(other))
+                continue;
+
+            if (stackSettings.testCanStackWith(stackedEntity, other, false)
+                    && (!Setting.ENTITY_REQUIRE_LINE_OF_SIGHT.getBoolean() || EntityUtils.hasLineOfSight(entity, otherEntity, 0.75, false)))
+                targetEntities.add(other);
+        }
+
+        StackedEntity increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
+        targetEntities.remove(increased);
+
+        int totalSize = increased.getStackSize();
+        List<StackedEntity> removable = new ArrayList<>(targetEntities.size());
+        for (StackedEntity target : targetEntities) {
+            if (totalSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
+                totalSize += target.getStackSize();
+                removable.add(target);
+            }
+        }
+
+        if (removable.isEmpty() || totalSize < stackSettings.getMinStackSize())
+            return;
+
+        EntityStackEvent entityStackEvent = new EntityStackEvent(removable, increased);
+        Bukkit.getPluginManager().callEvent(entityStackEvent);
+        if (entityStackEvent.isCancelled())
+            return;
+
+        for (StackedEntity toStack : removable) {
+            stackSettings.applyStackProperties(toStack.getEntity(), increased.getEntity());
+            increased.increaseStackSize(toStack.getEntity());
+            increased.increaseStackSize(toStack.getStackedEntityNBT());
+            this.removeEntityStack(toStack);
+        }
+
+        Runnable removeTask = () -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove);
+        if (Bukkit.isPrimaryThread()) {
+            removeTask.run();
+        } else {
+            Bukkit.getScheduler().runTask(this.rosePlugin, removeTask);
+        }
     }
 
     /**
      * Tries to stack a StackedItem with all other StackedItems
      *
      * @param stackedItem the StackedItem to try to stack
-     * @return a deleted StackedItem, or null if none
      */
-    private StackedItem tryStackItem(StackedItem stackedItem) {
+    private void tryStackItem(StackedItem stackedItem) {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
-        if (stackSettings == null)
-            return null;
+        if (stackSettings == null
+                || !stackSettings.isStackingEnabled()
+                || this.stackManager.isMarkedAsDeleted(stackedItem)
+                || stackedItem.getItem().getPickupDelay() > 40)
+            return;
 
-        if (this.stackManager.isMarkedAsDeleted(stackedItem) || stackedItem.getItem().getPickupDelay() > 40)
-            return null;
+        Item item = stackedItem.getItem();
+        Predicate<Entity> predicate = x -> x.getType() == EntityType.DROPPED_ITEM;
+        Set<Item> nearbyItems = this.entityCacheManager.getNearbyEntities(stackedItem.getLocation(), Setting.ITEM_MERGE_RADIUS.getDouble(), predicate)
+                .stream()
+                .map(x -> (Item) x)
+                .collect(Collectors.toSet());
 
-        double maxItemStackDistanceSqrd = Setting.ITEM_MERGE_RADIUS.getDouble() * Setting.ITEM_MERGE_RADIUS.getDouble();
-
-        for (StackedItem other : this.stackedItems.values()) {
-            if (stackedItem == other
-                    || this.stackManager.isMarkedAsDeleted(other)
-                    || stackedItem.getLocation().getWorld() != other.getLocation().getWorld()
-                    || !stackedItem.getItem().getItemStack().isSimilar(other.getItem().getItemStack())
-                    || other.getItem().getPickupDelay() > 40
-                    || stackedItem.getStackSize() + other.getStackSize() > stackSettings.getMaxStackSize()
-                    || stackedItem.getLocation().distanceSquared(other.getLocation()) > maxItemStackDistanceSqrd)
+        Set<StackedItem> targetItems = new HashSet<>();
+        for (Item otherItem : nearbyItems) {
+            if (item == otherItem || otherItem.getPickupDelay() > 40 || !item.getItemStack().isSimilar(otherItem.getItemStack()))
                 continue;
 
-            // Check if we should merge the stacks
-            if (!stackSettings.isStackingEnabled())
-                continue;
+            StackedItem other = this.stackedItems.get(otherItem.getUniqueId());
+            if (other != null && !this.stackManager.isMarkedAsDeleted(other))
+                targetItems.add(other);
+        }
 
-            StackedItem increased = stackedItem.compareTo(other) > 0 ? stackedItem : other;
-            StackedItem removed = increased == stackedItem ? other : stackedItem;
+        int totalSize = stackedItem.getStackSize();
+        Set<StackedItem> removable = new HashSet<>();
+        for (StackedItem target : targetItems) {
+            if (totalSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
+                totalSize += target.getStackSize();
+                removable.add(target);
+            }
+        }
+
+        StackedItem headStack = stackedItem;
+        for (StackedItem other : removable) {
+            StackedItem increased = headStack.compareTo(other) > 0 ? headStack : other;
+            StackedItem removed = increased == headStack ? other : headStack;
+
+            headStack = increased;
 
             ItemStackEvent itemStackEvent = new ItemStackEvent(removed, increased);
             Bukkit.getPluginManager().callEvent(itemStackEvent);
@@ -815,18 +788,15 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             removed.getItem().setPickupDelay(100); // Don't allow the item we just merged to get picked up or stacked
             increased.getItem().setPickupDelay(5);
 
+            Runnable removeTask = () -> removed.getItem().remove();
             if (Bukkit.isPrimaryThread()) {
-                removed.getItem().remove();
+                removeTask.run();
             } else {
-                Bukkit.getScheduler().runTask(this.rosePlugin, removed.getItem()::remove);
+                Bukkit.getScheduler().runTask(this.rosePlugin, removeTask);
             }
 
             this.removeItemStack(removed);
-
-            return removed;
         }
-
-        return null;
     }
 
     public void transferExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity, StackingThread toThread) {

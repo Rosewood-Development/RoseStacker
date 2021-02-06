@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -56,38 +57,47 @@ import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
+    private final StackManager stackManager;
+    private final EntityCacheManager entityCacheManager;
 
     public EntityListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
+
+        this.stackManager = this.rosePlugin.getManager(StackManager.class);
+        this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntitySpawn(EntitySpawnEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        Entity entity = event.getEntity();
+        if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
-        if (!stackManager.isItemStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
+        if (!this.stackManager.isItemStackingEnabled() || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        if (event.getEntity() instanceof Item)
-            stackManager.createItemStack((Item) event.getEntity(), true);
+        if (entity instanceof Item) {
+            this.stackManager.createItemStack((Item) entity, true);
+            this.entityCacheManager.preCacheEntity(entity);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        LivingEntity entity = event.getEntity();
+        if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled() || stackManager.isEntityStackingTemporarilyDisabled())
+        if (!this.stackManager.isEntityStackingEnabled() || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        PersistentDataUtils.setEntitySpawnReason(event.getEntity(), event.getSpawnReason());
-        stackManager.createEntityStack(event.getEntity(), true);
+        PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
+        this.stackManager.createEntityStack(entity, true);
 
-        PersistentDataUtils.applyDisabledAi(event.getEntity());
+        PersistentDataUtils.applyDisabledAi(entity);
+
+        this.entityCacheManager.preCacheEntity(entity);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -102,31 +112,30 @@ public class EntityListener implements Listener {
         if (event.getTo() == null || event.getFrom().getWorld() == event.getTo().getWorld())
             return;
 
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity) {
-            if (!stackManager.isEntityStackingEnabled())
+            if (!this.stackManager.isEntityStackingEnabled())
                 return;
 
             LivingEntity livingEntity = (LivingEntity) entity;
-            StackedEntity stackedEntity = stackManager.getStackedEntity(livingEntity);
+            StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null) {
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                    stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
+                    this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
                     stackedEntity.updateDisplay();
                 });
             }
         } else if (entity instanceof Item) {
-            if (!stackManager.isItemStackingEnabled())
+            if (!this.stackManager.isItemStackingEnabled())
                 return;
 
             Item item = (Item) entity;
-            StackedItem stackedItem = stackManager.getStackedItem(item);
+            StackedItem stackedItem = this.stackManager.getStackedItem(item);
             if (stackedItem != null)
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
         }
     }
 
@@ -136,14 +145,13 @@ public class EntityListener implements Listener {
             return;
 
         LivingEntity entity = (LivingEntity) event.getEntity();
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(entity.getWorld()))
+        if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
@@ -193,19 +201,18 @@ public class EntityListener implements Listener {
     }
 
     private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(entity.getWorld()))
+        if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null)
             return;
 
         if (stackedEntity.getStackSize() == 1) {
-            stackManager.removeEntityStack(stackedEntity);
+            this.stackManager.removeEntityStack(stackedEntity);
             return;
         }
 
@@ -227,7 +234,7 @@ public class EntityListener implements Listener {
                 deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
             }
 
-            stackManager.removeEntityStack(stackedEntity);
+            this.stackManager.removeEntityStack(stackedEntity);
             return;
         }
 
@@ -252,20 +259,19 @@ public class EntityListener implements Listener {
     }
 
     private void handleEntityTransformation(EntityTransformEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
         if (!(event.getEntity() instanceof LivingEntity)
                 || !(event.getTransformedEntity() instanceof LivingEntity)
                 || event.getEntity().getType() == event.getTransformedEntity().getType()
-                || !stackManager.isEntityStacked((LivingEntity) event.getEntity()))
+                || !this.stackManager.isEntityStacked((LivingEntity) event.getEntity()))
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getEntity());
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) event.getEntity());
         if (stackedEntity.getStackSize() == 1)
             return;
 
@@ -291,14 +297,14 @@ public class EntityListener implements Listener {
                     dropType = Material.RED_MUSHROOM;
                 }
 
-                stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
+                this.stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
             }
 
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
-                stackManager.setEntityStackingTemporarilyDisabled(true);
-                StackedEntity newStack = stackManager.createEntityStack(nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation()), false);
-                stackManager.setEntityStackingTemporarilyDisabled(false);
+                this.stackManager.setEntityStackingTemporarilyDisabled(true);
+                StackedEntity newStack = this.stackManager.createEntityStack(nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation()), false);
+                this.stackManager.setEntityStackingTemporarilyDisabled(false);
                 if (newStack == null)
                     return;
 
@@ -319,15 +325,14 @@ public class EntityListener implements Listener {
         if (event.getEntityType() != EntityType.CHICKEN || event.getItemDrop().getItemStack().getType() != Material.EGG)
             return;
 
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
         Chicken chickenEntity = (Chicken) event.getEntity();
-        StackedEntity stackedEntity = stackManager.getStackedEntity(chickenEntity);
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(chickenEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
@@ -337,7 +342,7 @@ public class EntityListener implements Listener {
 
         event.getItemDrop().remove();
         List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
-        stackManager.preStackItems(items, event.getEntity().getLocation());
+        this.stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -415,15 +420,14 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSheepRegrowWool(SheepRegrowWoolEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
-        if (!stackManager.isEntityStackingEnabled())
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
         Sheep sheepEntity = event.getEntity();
-        StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(sheepEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
