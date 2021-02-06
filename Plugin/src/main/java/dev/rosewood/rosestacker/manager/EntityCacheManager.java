@@ -3,11 +3,12 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.utils.cache.ConcurrentCache;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -20,20 +21,20 @@ import org.bukkit.util.BoundingBox;
 
 public class EntityCacheManager extends Manager {
 
-    private final ConcurrentCache<ChunkLocation, Set<Entity>> entityCache;
+    private final ConcurrentCache<ChunkLocation, Collection<Entity>> entityCache;
     private BukkitTask refreshTask;
 
     public EntityCacheManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
         this.entityCache = new ConcurrentCache<>(3, TimeUnit.SECONDS, chunk -> {
-            Set<Entity> entities = ConcurrentHashMap.newKeySet();
+            Collection<Entity> entities = new LinkedBlockingDeque<>();
             try {
                 if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
                     return entities;
                 entities.addAll(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
             } catch (Exception ignored) {
-                // Do not want this to fail
+                // Do not want this to error
             }
             return entities;
         });
@@ -62,8 +63,8 @@ public class EntityCacheManager extends Manager {
      * @param predicate Conditions to be met
      * @return A Set of nearby entities
      */
-    public Set<Entity> getNearbyEntities(Location center, double radius, Predicate<Entity> predicate) {
-        Set<Entity> nearbyEntities = new HashSet<>();
+    public Collection<Entity> getNearbyEntities(Location center, double radius, Predicate<Entity> predicate) {
+        List<Entity> nearbyEntities = new ArrayList<>();
         World world = center.getWorld();
         if (world == null)
             return nearbyEntities;
@@ -100,11 +101,10 @@ public class EntityCacheManager extends Manager {
      * @param predicate Conditions to be met
      * @return A Set of entities in the chunk
      */
-    public Set<Entity> getEntitiesInChunk(Location location, Predicate<Entity> predicate) {
-        Set<Entity> nearbyEntities = new HashSet<>();
+    public Collection<Entity> getEntitiesInChunk(Location location, Predicate<Entity> predicate) {
         World world = location.getWorld();
         if (world == null)
-            return nearbyEntities;
+            return new ArrayList<>();
 
         return this.entityCache.get(new ChunkLocation(world, location.getBlockX() >> 4, location.getBlockZ() >> 4))
                 .stream()
@@ -119,7 +119,7 @@ public class EntityCacheManager extends Manager {
      */
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
-        Set<Entity> entities = this.entityCache.getIfPresent(new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        Collection<Entity> entities = this.entityCache.getIfPresent(new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
         if (entities != null)
             entities.add(entity);
     }

@@ -673,7 +673,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entity == null)
             return;
 
-        Set<Entity> nearbyEntities;
+        Collection<Entity> nearbyEntities;
         Predicate<Entity> predicate = x -> x.getType() == entity.getType();
         if (!Setting.ENTITY_MERGE_ENTIRE_CHUNK.getBoolean()) {
             nearbyEntities = this.entityCacheManager.getNearbyEntities(entity.getLocation(), stackSettings.getMergeRadius(), predicate);
