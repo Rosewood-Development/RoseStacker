@@ -12,7 +12,6 @@ import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import io.netty.util.internal.ConcurrentSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +49,7 @@ public class StackManager extends Manager implements StackingLogic {
         super(rosePlugin);
 
         this.stackingThreads = new ConcurrentHashMap<>();
-        this.deletedStacks = new ConcurrentSet<>();
+        this.deletedStacks = ConcurrentHashMap.newKeySet();
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
 
         this.isEntityStackingTemporarilyDisabled = false;

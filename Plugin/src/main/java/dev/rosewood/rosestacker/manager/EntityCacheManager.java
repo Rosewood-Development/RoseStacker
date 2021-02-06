@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -26,9 +27,15 @@ public class EntityCacheManager extends Manager {
         super(rosePlugin);
 
         this.entityCache = new ConcurrentCache<>(3, TimeUnit.SECONDS, chunk -> {
-            if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
-                return new HashSet<>();
-            return new HashSet<>(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
+            Set<Entity> entities = ConcurrentHashMap.newKeySet();
+            try {
+                if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
+                    return entities;
+                entities.addAll(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
+            } catch (Exception ignored) {
+                // Do not want this to fail
+            }
+            return entities;
         });
     }
 

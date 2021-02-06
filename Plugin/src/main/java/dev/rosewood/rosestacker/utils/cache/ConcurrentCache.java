@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.bukkit.Bukkit;
 
 /**
  * Manages a concurrent cache which will load data on an as-needed basis.
@@ -76,8 +75,6 @@ public class ConcurrentCache<K, V> {
             if (System.nanoTime() > expirationTime)
                 entryIterator.remove();
         }
-        if (!this.storage.isEmpty())
-            Bukkit.broadcastMessage("Cached: " + this.storage.size());
     }
 
     /**
