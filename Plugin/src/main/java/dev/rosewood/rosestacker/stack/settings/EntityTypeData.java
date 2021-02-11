@@ -15,13 +15,15 @@ public class EntityTypeData {
     private final Material spawnEggMaterial;
     private final List<String> defaultSpawnRequirements;
     private final String skullTexture;
+    private final List<Material> breedingMaterials;
 
-    public EntityTypeData(boolean isSwimmingMob, boolean isFlyingMob, Material spawnEggMaterial, List<String> defaultSpawnRequirements, String skullTexture) {
+    public EntityTypeData(boolean isSwimmingMob, boolean isFlyingMob, Material spawnEggMaterial, List<String> defaultSpawnRequirements, String skullTexture, List<Material> breedingMaterials) {
         this.isSwimmingMob = isSwimmingMob;
         this.isFlyingMob = isFlyingMob;
         this.spawnEggMaterial = spawnEggMaterial;
         this.defaultSpawnRequirements = defaultSpawnRequirements;
         this.skullTexture = skullTexture;
+        this.breedingMaterials = breedingMaterials;
     }
 
     public boolean isSwimmingMob() {
@@ -42,6 +44,10 @@ public class EntityTypeData {
 
     public ItemStack getSkullItem() {
         return ItemUtils.getCustomSkull(this.skullTexture);
+    }
+
+    public boolean isValidBreedingMaterial(Material material) {
+        return this.breedingMaterials.contains(material);
     }
 
 }

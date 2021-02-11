@@ -14,7 +14,10 @@ import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.AnimalTamer;
@@ -72,14 +75,18 @@ public abstract class EntityStackSettings extends StackSettings {
         this.setDefaults();
 
         // Read EntityTypeData
+        Gson gson = new Gson();
         JsonObject entityTypeDataObject = jsonObject.getAsJsonObject(this.getEntityType().name());
         boolean isSwimmingMob = entityTypeDataObject.get("is_swimming_mob").getAsBoolean();
         boolean isFlyingMob = entityTypeDataObject.get("is_flying_mob").getAsBoolean();
         JsonElement spawnEggMaterialElement = entityTypeDataObject.get("spawn_egg_material");
-        Material spawnEggMaterial = spawnEggMaterialElement != null ? Material.valueOf(spawnEggMaterialElement.getAsString()) : null;
-        List<String> defaultSpawnRequirements = new Gson().fromJson(entityTypeDataObject.get("default_spawn_requirements").getAsJsonArray(), new TypeToken<List<String>>(){}.getType());
+        Material spawnEggMaterial = spawnEggMaterialElement != null ? Material.getMaterial(spawnEggMaterialElement.getAsString()) : null;
+        Type stringListType = new TypeToken<List<String>>(){}.getType();
+        List<String> defaultSpawnRequirements = gson.fromJson(entityTypeDataObject.get("default_spawn_requirements").getAsJsonArray(), stringListType);
         String skullTexture = entityTypeDataObject.get("skull_texture").getAsString();
-        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture);
+        List<String> breedingMaterialsStrings = gson.fromJson(entityTypeDataObject.get("breeding_materials").getAsJsonArray(), stringListType);
+        List<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toList());
+        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
@@ -141,7 +148,7 @@ public abstract class EntityStackSettings extends StackSettings {
         }
 
         if (this.isEntityAnimals()) {
-            this.setIfNotExists("dont-stack-if-different-age", false);
+            this.setIfNotExists("dont-stack-if-different-age", true);
             this.setIfNotExists("dont-stack-if-baby", false);
             this.setIfNotExists("dont-stack-if-breeding", false);
         }
@@ -493,6 +500,15 @@ public abstract class EntityStackSettings extends StackSettings {
             Mob unstackedMob = (Mob) unstacked;
 
             stackedMob.setTarget(unstackedMob.getTarget());
+        }
+
+        if (stacked instanceof Animals) {
+            Animals stackedAnimals = (Animals) stacked;
+            Animals unstackedAnimals = (Animals) unstacked;
+
+            // The age determines how long the animal has to wait before it can breed again
+            // Aging counts down until it reaches 0, at which it still stop and is capable of breeding
+            stackedAnimals.setAge(unstackedAnimals.getAge());
         }
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());

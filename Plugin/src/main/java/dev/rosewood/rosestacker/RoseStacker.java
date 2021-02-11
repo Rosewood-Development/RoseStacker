@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.hook.ViaVersionHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
 import dev.rosewood.rosestacker.listener.BlockShearListener;
+import dev.rosewood.rosestacker.listener.BreedingListener;
 import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
@@ -77,6 +78,7 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new InteractListener(this), this);
         pluginManager.registerEvents(new ItemListener(this), this);
         pluginManager.registerEvents(new StackToolListener(this), this);
+        pluginManager.registerEvents(new BreedingListener(this), this);
 
         // Bees are only in 1.15+
         if (NMSUtil.getVersionNumber() >= 15)
