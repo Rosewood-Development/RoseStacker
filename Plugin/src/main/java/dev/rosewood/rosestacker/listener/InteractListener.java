@@ -181,9 +181,6 @@ public class InteractListener implements Listener {
             return false;
 
         int spawnAmount = ItemUtils.getStackedItemStackAmount(itemStack);
-        if (spawnAmount == 1)
-            return false;
-
         EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         EntityType entityType = stackSettings.getEntityType();
         if (original != null && original.getType() != entityType)
