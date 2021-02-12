@@ -532,20 +532,6 @@ public class BlockListener implements Listener {
             }
         }
 
-        // Fling particles from the attempted place location to the actual place location
-        if (isDistanceStack && Setting.SPAWNER_AUTO_STACK_PARTICLES.getBoolean()) {
-            for (int i = 0; i < 50; i++) {
-                Vector offset = Vector.getRandom();
-                Location startLoc = block.getLocation().clone().add(offset);
-                Vector start = startLoc.toVector();
-                Vector end = against.getLocation().toVector().add(offset).add(new Vector(0.0, 0.1, 0.0));
-                Vector angle = end.clone().subtract(start);
-                double length = angle.length() * 0.09;
-                angle.normalize();
-                player.spawnParticle(Particle.END_ROD, startLoc, 0, angle.getX(), angle.getY(), angle.getZ(), length);
-            }
-        }
-
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
 
@@ -582,6 +568,20 @@ public class BlockListener implements Listener {
                 }
 
                 stackedSpawner.increaseStackSize(stackAmount);
+
+                // Fling particles from the attempted place location to the actual place location
+                if (isDistanceStack && Setting.SPAWNER_AUTO_STACK_PARTICLES.getBoolean()) {
+                    for (int i = 0; i < 50; i++) {
+                        Vector offset = Vector.getRandom();
+                        Location startLoc = block.getLocation().clone().add(offset);
+                        Vector start = startLoc.toVector();
+                        Vector end = against.getLocation().toVector().add(offset).add(new Vector(0.0, 0.1, 0.0));
+                        Vector angle = end.clone().subtract(start);
+                        double length = angle.length() * 0.09;
+                        angle.normalize();
+                        player.spawnParticle(Particle.END_ROD, startLoc, 0, angle.getX(), angle.getY(), angle.getZ(), length);
+                    }
+                }
             } else {
                 if (!stackManager.isBlockTypeStackable(against))
                     return;
