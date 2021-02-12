@@ -151,6 +151,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ), "The lore to display on the stacking tool"),
 
         MISC_SETTINGS("misc-settings", null, "Miscellaneous other settings for the plugin"),
+        MISC_WORLDGUARD_REGION("misc-settings.worldguard-region", false, "Should a custom WorldGuard region named 'rosestacker' be registered and used to test entity stacking?", "Entity stacking within regions will only work if the result is ALLOW", "This setting will only be updated after a restart"),
         MISC_COREPROTECT_LOGGING("misc-settings.coreprotect-logging-enabled", true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?"),
         MISC_LOGBLOCK_LOGGING("misc-settings.logblock-logging-enabled", true, "If LogBlock is installed, should we log stacked block/spawner break/placing?"),
         MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", false, "If Clearlag is installed, should we clear stacked entities?"),

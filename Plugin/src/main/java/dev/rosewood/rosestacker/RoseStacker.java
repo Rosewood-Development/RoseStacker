@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;
+import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
 import dev.rosewood.rosestacker.listener.BlockShearListener;
@@ -57,6 +58,11 @@ public class RoseStacker extends RosePlugin {
         super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class);
 
         instance = this;
+    }
+
+    @Override
+    public void onLoad() {
+        WorldGuardHook.registerFlag();
     }
 
     @Override

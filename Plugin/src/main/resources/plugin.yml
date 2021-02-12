@@ -24,6 +24,7 @@ softdepend:
   - MythicMobs
   - EpicBosses
   - EliteMobs
+  - WorldGuard
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions
