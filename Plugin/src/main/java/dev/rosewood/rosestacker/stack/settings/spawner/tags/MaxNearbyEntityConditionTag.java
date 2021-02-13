@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 
+import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
@@ -12,9 +14,12 @@ import org.bukkit.entity.EntityType;
 public class MaxNearbyEntityConditionTag extends ConditionTag {
 
     private int maxNearbyEntities;
+    private final EntityCacheManager entityCacheManager;
 
     public MaxNearbyEntityConditionTag(String tag) {
         super(tag, false);
+
+        this.entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
     }
 
     @Override
@@ -22,9 +27,9 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
         int detectionRange = stackSettings.getEntitySearchRange();
         Block block = creatureSpawner.getBlock();
         EntityType entityType = creatureSpawner.getSpawnedType();
-        return block.getWorld().getNearbyEntities(
+        return this.entityCacheManager.getNearbyEntities(
                 block.getLocation().clone().add(0.5, 0.5, 0.5),
-                detectionRange, detectionRange, detectionRange,
+                detectionRange,
                 entity -> entity.getType() == entityType).size() < this.maxNearbyEntities;
     }
 
