@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
@@ -68,7 +69,7 @@ public class NPCsHook {
         if (!npc && shopkeepersEnabled() && ShopkeepersAPI.isEnabled())
             npc = ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity);
 
-        if (!npc && mythicMobsEnabled())
+        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean())
             npc = MythicMobs.inst().getAPIHelper().isMythicMob(entity);
 
         if (!npc && epicBossesEnabled())

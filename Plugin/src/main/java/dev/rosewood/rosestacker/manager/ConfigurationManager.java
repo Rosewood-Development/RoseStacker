@@ -47,8 +47,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DONT_STACK_IF_ACTIVE_RAIDER("global-entity-settings.dont-stack-if-active-raider", true, "Should we stack entities that are part of an active raid?", "This may cause issues when loading entities if disabled"),
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
-        ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you use custom drops plugins, make sure to enable this", "Note to developers: The death events are asynchronous"),
-        ENTITY_DEATH_EVENT_RUN_ASYNC("global-entity-settings.death-event-trigger-async", true, "Should the entity loot be calculated asynchronously?", "If the above setting is true and you get errors that say something like '<SomeEvent> may only be triggered synchronously'", "and has RoseStacker in the stacktrace, you should set this to false.", "Keep this as true for optimal performance if you are not having issues."),
+        ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you use custom drops plugins, make sure to enable this", "Note to developers: The death events are asynchronous based on the below setting"),
+        ENTITY_DEATH_EVENT_RUN_ASYNC("global-entity-settings.death-event-trigger-async", false, "Should the entity loot be calculated asynchronously?", "If you try enabling this and you get errors that say something like '<SomeEvent> may only be triggered synchronously'", "and has RoseStacker in the stacktrace, you should keep this as false.", "Set this as true for optimal performance if you are not having issues."),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
@@ -156,7 +156,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         MISC_LOGBLOCK_LOGGING("misc-settings.logblock-logging-enabled", true, "If LogBlock is installed, should we log stacked block/spawner break/placing?"),
         MISC_CLEARLAG_CLEAR_ENTITIES("misc-settings.clearlag-clear-entities", false, "If Clearlag is installed, should we clear stacked entities?"),
         MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
-        MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above");
+        MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above"),
+        MISC_MYTHICMOBS_ALLOW_STACKING("misc-settings.mythicmobs-allow-stacking", false, "Should mobs owned by MythicMobs be prevented from stacking?", "This is recommended to keep set to false unless you specifically only change mob attributes", "If you are keeping mob attributes, remember to enable global-entity-settings.save-attributes");
 
         private final String key;
         private final Object defaultValue;
