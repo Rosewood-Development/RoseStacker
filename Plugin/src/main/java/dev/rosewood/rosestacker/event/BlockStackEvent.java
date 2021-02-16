@@ -14,17 +14,20 @@ public class BlockStackEvent extends StackEvent<StackedBlock> {
 
     private final Player player;
     private int increaseAmount;
+    private final boolean isNew;
 
     /**
      * @param player The player modifying the stack
      * @param target The block being stacked into
      * @param increaseAmount The amount the block stack is being increased by
+     * @param isNew If the stack is being created
      */
-    public BlockStackEvent(@NotNull Player player, @NotNull StackedBlock target, int increaseAmount) {
+    public BlockStackEvent(@NotNull Player player, @NotNull StackedBlock target, int increaseAmount, boolean isNew) {
         super(target);
 
         this.player = player;
         this.increaseAmount = increaseAmount;
+        this.isNew = isNew;
     }
 
     /**
@@ -51,6 +54,13 @@ public class BlockStackEvent extends StackEvent<StackedBlock> {
         if (increaseAmount < 1)
             throw new IllegalArgumentException("Increase amount must be at least 1");
         this.increaseAmount = increaseAmount;
+    }
+
+    /**
+     * @return true if this is a newly created stack, otherwise false
+     */
+    public boolean isNew() {
+        return this.isNew;
     }
 
     @Override

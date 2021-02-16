@@ -14,17 +14,20 @@ public class SpawnerStackEvent extends StackEvent<StackedSpawner> {
 
     private final Player player;
     private int increaseAmount;
+    private final boolean isNew;
 
     /**
      * @param player The player modifying the stack
      * @param target The spawner being stacked into
      * @param increaseAmount The amount the spawner stack is being increased by
+     * @param isNew If the stack is being created
      */
-    public SpawnerStackEvent(@NotNull Player player, @NotNull StackedSpawner target, int increaseAmount) {
+    public SpawnerStackEvent(@NotNull Player player, @NotNull StackedSpawner target, int increaseAmount, boolean isNew) {
         super(target);
 
         this.player = player;
         this.increaseAmount = increaseAmount;
+        this.isNew = isNew;
     }
 
     /**
@@ -51,6 +54,13 @@ public class SpawnerStackEvent extends StackEvent<StackedSpawner> {
         if (increaseAmount < 1)
             throw new IllegalArgumentException("Increase amount must be at least 1");
         this.increaseAmount = increaseAmount;
+    }
+
+    /**
+     * @return true if this is a newly created stack, otherwise false
+     */
+    public boolean isNew() {
+        return this.isNew;
     }
 
     @Override

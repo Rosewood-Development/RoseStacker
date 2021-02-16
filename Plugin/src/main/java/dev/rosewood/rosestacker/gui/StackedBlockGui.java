@@ -174,7 +174,7 @@ public class StackedBlockGui {
 
         int difference = newStackSize - this.stackedBlock.getStackSize();
         if (newStackSize > this.stackedBlock.getStackSize()) {
-            BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference);
+            BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference, false);
             Bukkit.getPluginManager().callEvent(blockStackEvent);
             if (blockStackEvent.isCancelled()) {
                 ItemUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), difference));

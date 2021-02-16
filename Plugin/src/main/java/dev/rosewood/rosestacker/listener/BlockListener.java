@@ -549,17 +549,22 @@ public class BlockListener implements Listener {
                 }
 
                 if (stackedSpawner != null) {
-                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount);
+                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, false);
                     Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                     if (spawnerStackEvent.isCancelled()) {
                         event.setCancelled(true);
                         return;
                     }
                     stackAmount = spawnerStackEvent.getIncreaseAmount();
-                }
-
-                if (stackedSpawner == null) {
+                } else {
                     stackedSpawner = stackManager.createSpawnerStack(against, 1);
+
+                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, true);
+                    Bukkit.getPluginManager().callEvent(spawnerStackEvent);
+                    if (spawnerStackEvent.isCancelled()) {
+                        event.setCancelled(true);
+                        return;
+                    }
 
                     if (stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
                         event.setCancelled(true);
@@ -600,7 +605,7 @@ public class BlockListener implements Listener {
                         return;
                     }
 
-                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount);
+                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount, false);
                     Bukkit.getPluginManager().callEvent(blockStackEvent);
                     if (blockStackEvent.isCancelled()) {
                         event.setCancelled(true);
@@ -609,6 +614,13 @@ public class BlockListener implements Listener {
                     stackAmount = blockStackEvent.getIncreaseAmount();
                 } else {
                     stackedBlock = stackManager.createBlockStack(against, 1);
+
+                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount, true);
+                    Bukkit.getPluginManager().callEvent(blockStackEvent);
+                    if (blockStackEvent.isCancelled()) {
+                        event.setCancelled(true);
+                        return;
+                    }
 
                     if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
                         event.setCancelled(true);
@@ -646,7 +658,7 @@ public class BlockListener implements Listener {
                 }
 
                 StackedSpawner tempStackedSpawner = new StackedSpawner(-1, 0, spawner);
-                SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount);
+                SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {
                     tempStackedSpawner.setStackSize(0);
@@ -670,7 +682,7 @@ public class BlockListener implements Listener {
                 }
 
                 StackedBlock tempStackedBlock = new StackedBlock(0, block);
-                BlockStackEvent blockStackEvent = new BlockStackEvent(player, tempStackedBlock, stackAmount);
+                BlockStackEvent blockStackEvent = new BlockStackEvent(player, tempStackedBlock, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(blockStackEvent);
                 if (blockStackEvent.isCancelled()) {
                     tempStackedBlock.setStackSize(0);
