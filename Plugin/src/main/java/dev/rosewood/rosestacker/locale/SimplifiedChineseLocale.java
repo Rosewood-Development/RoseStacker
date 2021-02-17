@@ -30,7 +30,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("#1", "堆叠整体显示名称");
             this.put("entity-stack-display", "&c%amount%x &7%name%");
             this.put("entity-stack-display-custom-name", "%name% &7[&c%amount%x&7]");
-            this.put("entity-stack-display-spawn-egg", "&c%amount%x &7%name% 生成蛋");
+            this.put("entity-stack-display-spawn-egg", "&c%amount%x &7%name% 刷怪蛋");
             this.put("item-stack-display", "&c%amount%x &7%name%");
             this.put("item-stack-display-single", "&7%name%");
             this.put("block-stack-display", "&c%amount%x &7%name%");
@@ -54,7 +54,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-give-given", "&e已给予玩家 &b%player% &e[%display%&e]。");
             this.put("command-give-given-multiple", "&e已给予玩家 &b%player% &e%amount%x [%display%&e]。");
             this.put("command-give-unstackable", "&c您指定的类型是无法堆叠的。");
-            this.put("command-give-too-large", "&c您指定的堆叠量超过了该类型最大堆叠量。");
+            this.put("command-give-too-large", "&c您指定的堆叠量超过了该类型所允许的最大堆叠量。");
 
             this.put("#6", "清理堆叠命令");
             this.put("command-clearall-description", "&8 - &d/rs clearall &7- 清除一种堆叠类型的所有堆叠个体。");
@@ -106,7 +106,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-given", "&e您已被给予堆叠工具。");
             this.put("command-stacktool-given-other", "&b%player% &a已被给予堆叠工具。");
             this.put("command-stacktool-no-permission", "&c您没有足够的权限去使用堆叠工具。");
-            this.put("command-stacktool-invalid-entity", "&c那个实体不是堆栈的一部分，是自定义的暴徒吗？");
+            this.put("command-stacktool-invalid-entity", "&c那个实体不是堆叠的一部分，是自定义的实体吗？");
             this.put("command-stacktool-marked-unstackable", "&e类型 &b%type% &e已被标记为 &c不可堆叠&e。");
             this.put("command-stacktool-marked-stackable", "&e类型 &b%type% &e已被标记 &a可堆叠&e。");
             this.put("command-stacktool-marked-all-unstackable", "&e类型 &b%type% &e的整体堆叠已被标记为 &c不可堆叠&e。");
@@ -114,7 +114,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-unselect-1", "&e类型 &b%type% &e不再被选中。");
             this.put("command-stacktool-select-2", "&e类型 &b%type% &e已被选中为实体 #2。");
             this.put("command-stacktool-can-stack", "&a实体 #1 能与实体 #2 进行堆叠。");
-            this.put("command-stacktool-can-not-stack", "&c实体 1 不能与实体 2 进行堆叠。原因如下: &b%reason%");
+            this.put("command-stacktool-can-not-stack", "&c实体 #1 不能与实体 #2 进行堆叠。原因如下: &b%reason%");
             this.put("command-stacktool-info", "&e堆叠信息:");
             this.put("command-stacktool-info-id", "&e堆叠ID: &b%id%");
             this.put("command-stacktool-info-uuid", "&eUUID: &b%uuid%");
@@ -131,7 +131,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-info-item-type", "&e物品类型: &b%type%");
             this.put("command-stacktool-info-block-type", "&e方块类型: &b%type%");
             this.put("command-stacktool-info-spawner-type", "&e刷怪笼类型: &b%type%");
-            this.put("command-stacktool-info-stack-size", "&e包含个体数: &b%amount%");
+            this.put("command-stacktool-info-stack-size", "&e所包含个体数: &b%amount%");
 
             this.put("#13", "堆叠方块 GUI");
             this.put("gui-stacked-block-title", "编辑堆叠 %name% 中");
@@ -144,7 +144,7 @@ public class SimplifiedChineseLocale implements Locale {
 
             this.put("#14", "堆叠刷怪笼 GUI");
             this.put("gui-stacked-spawner-title", "查看 %name% 中");
-            this.put("gui-stacked-spawner-stats", "&6刷怪笼统计");
+            this.put("gui-stacked-spawner-stats", "&6刷怪笼信息");
             this.put("gui-stacked-spawner-min-spawn-delay", "&e最小生成延时: &b%delay%");
             this.put("gui-stacked-spawner-max-spawn-delay", "&e最大生成延时: &b%delay%");
             this.put("gui-stacked-spawner-disabled-mob-ai", "&e生物AI是否开启: &b%disabled%");
@@ -156,7 +156,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("gui-stacked-spawner-spawn-amount", "&e当前生成数: &b%amount%");
             this.put("gui-stacked-spawner-spawn-conditions", "&6生成限制条件");
             this.put("gui-stacked-spawner-time-until-next-spawn", "&e距下次生成还有: &b%time% ticks");
-            this.put("gui-stacked-spawner-total-spawns", "&e产生的暴民总数: &b%amount%");
+            this.put("gui-stacked-spawner-total-spawns", "&e统计已生成的实体总数: &b%amount%");
             this.put("gui-stacked-spawner-valid-spawn-conditions", "&6有效的生成条件");
             this.put("gui-stacked-spawner-invalid-spawn-conditions", "&6未满足的生成条件");
             this.put("gui-stacked-spawner-entities-can-spawn", "&a实体目前能被生成");
@@ -197,7 +197,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-on-ground-info", "脚踏实地");
             this.put("spawner-condition-on-ground-invalid", "没有固体地面在附近");
             this.put("spawner-condition-skylight-access-info", "自然光照要求");
-            this.put("spawner-condition-skylight-access-invalid", "没有受自然光照照射的方块可供生物生成");
+            this.put("spawner-condition-skylight-access-invalid", "范围内没有受到自然光照照射的方块可供生物生成");
             this.put("spawner-condition-none-invalid", "超过最大的生成尝试次数");
 
             this.put("#16", "给予物品描述(lore)");
@@ -237,11 +237,11 @@ public class SimplifiedChineseLocale implements Locale {
                     "该文件还允许您确认您已阅读此警告，并允许您禁用此消息。");
 
             this.put("#21", "杂项信息");
-            this.put("spawner-silk-touch-protect", "&c警告! &e您需要用 线 去触碰稿子 和/或 有权限拿起一个刷怪笼。否则您将不能这样做。");
+            this.put("spawner-silk-touch-protect", "&c警告! &e您需要附魔有精准采集的稿子 并且/或 有权限拿起一个刷怪笼。否则您将不能这样做。");
+            this.put("spawner-convert-not-enough", "&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的刷怪蛋数量并不足以进行转换的操作。");
             this.put("spawner-advanced-place-no-permission", "&c警告! &e您没有恰当的权限来放置这种类型的刷怪笼。");
             this.put("spawner-advanced-break-no-permission", "&c警告! &e您没有恰当的权限来拾取这种类型的刷怪笼。");
             this.put("spawner-advanced-break-silktouch-no-permission", "&c警告! &e您需要用附魔有精准采集的稿子才能拿起那类刷怪笼。");
-            this.put("spawner-convert-not-enough", "&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的生成蛋数量并不足以进行转换的操作。");
             this.put("number-separator", ",");
         }};
     }
