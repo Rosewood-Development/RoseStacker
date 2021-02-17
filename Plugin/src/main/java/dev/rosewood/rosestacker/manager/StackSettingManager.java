@@ -100,7 +100,6 @@ public class StackSettingManager extends Manager {
                     // This should only be caused by version incompatibilities
                     String className = clazz.getSimpleName();
                     ignoredLoading.add(className.substring(0, className.length() - 13));
-                    e.printStackTrace();
                 }
             }
 
