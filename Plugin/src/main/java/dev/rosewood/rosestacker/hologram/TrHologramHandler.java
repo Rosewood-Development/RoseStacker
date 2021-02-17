@@ -1,13 +1,10 @@
 package dev.rosewood.rosestacker.hologram;
 
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import me.arasple.mc.trhologram.api.TrHologramAPI;
-import me.arasple.mc.trhologram.hologram.Hologram;
+import me.arasple.mc.trhologram.module.display.Hologram;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
@@ -23,10 +20,12 @@ public class TrHologramHandler implements HologramHandler {
     public void createOrUpdateHologram(Location location, String text) {
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = TrHologramAPI.createHologram(RoseStacker.getInstance(), StackerUtils.locationAsKey(location), location.clone().subtract(0, 0.5, 0), text);
+            hologram = TrHologramAPI.builder(location.clone().add(0, 1.0, 0))
+                    .append(text)
+                    .build();
             this.holograms.put(location, hologram);
         } else {
-            hologram.updateLines(Collections.singletonList(text));
+            hologram.getTextLine(0).setText(text);
         }
     }
 
@@ -34,7 +33,7 @@ public class TrHologramHandler implements HologramHandler {
     public void deleteHologram(Location location) {
         Hologram hologram = this.holograms.get(location);
         if (hologram != null) {
-            hologram.delete();
+            hologram.destroy();
             this.holograms.remove(location);
         }
     }

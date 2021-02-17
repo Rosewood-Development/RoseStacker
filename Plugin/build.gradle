@@ -27,7 +27,7 @@ dependencies {
     compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
     compileOnly 'com.sainttx:holograms:2.13'
     compileOnly 'com.zrips:cmi:8.6.9.4'
-    compileOnly 'me.arasple.mc:trhologram:1.11'
+    compileOnly 'me.arasple.mc:trhologram:2.2'
 
     // Stacker plugins
     compileOnly 'com.bgsoftware:wildstacker:3.1.1'
