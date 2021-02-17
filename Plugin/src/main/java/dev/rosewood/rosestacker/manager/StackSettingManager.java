@@ -27,12 +27,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.PluginManager;
 
 public class StackSettingManager extends Manager {
 
@@ -42,6 +45,8 @@ public class StackSettingManager extends Manager {
     private final Map<EntityType, EntityStackSettings> entitySettings;
     private final Map<Material, ItemStackSettings> itemSettings;
     private final Map<EntityType, SpawnerStackSettings> spawnerSettings;
+
+    private boolean registeredPermissions = false;
 
     public StackSettingManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -150,6 +155,36 @@ public class StackSettingManager extends Manager {
             itemSettingsConfiguration.save(true);
         if (saveSpawnerSettingsFile.get())
             spawnerSettingsConfiguration.save(true);
+
+        // Register dynamic permissions on first load
+        if (!this.registeredPermissions) {
+            PluginManager pluginManager = Bukkit.getPluginManager();
+
+            List<Permission> silktouch = new ArrayList<>();
+            List<Permission> nosilk = new ArrayList<>();
+            List<Permission> spawnerplace = new ArrayList<>();
+
+            for (EntityType entityType : this.entitySettings.keySet()) {
+                String type = entityType.name().toLowerCase();
+                silktouch.add(new Permission("rosestacker.silktouch." + type));
+                nosilk.add(new Permission("rosestacker.nosilk." + type));
+                spawnerplace.add(new Permission("rosestacker.spawnerplace." + type));
+            }
+
+            // Register silktouch permissions
+            silktouch.forEach(pluginManager::addPermission);
+            pluginManager.addPermission(new Permission("rosestacker.silktouch.*", silktouch.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
+
+            // Register nosilk permissions
+            nosilk.forEach(pluginManager::addPermission);
+            pluginManager.addPermission(new Permission("rosestacker.nosilk.*", nosilk.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
+
+            // Register spawnerplace permissions
+            spawnerplace.forEach(pluginManager::addPermission);
+            pluginManager.addPermission(new Permission("rosestacker.spawnerplace.*", spawnerplace.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
+
+            this.registeredPermissions = true;
+        }
     }
 
     @Override

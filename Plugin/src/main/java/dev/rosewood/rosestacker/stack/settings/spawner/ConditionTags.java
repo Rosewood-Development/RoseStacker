@@ -19,11 +19,9 @@ import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.SkylightAccessConditionTag;
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class ConditionTags {
@@ -31,9 +29,6 @@ public final class ConditionTags {
     private static final Map<String, Constructor<? extends ConditionTag>> tagPrefixMap = new HashMap<>();
     private static final Map<Class<? extends ConditionTag>, String> classToPrefixMap = new HashMap<>();
     private static final Map<String, String> tagDescriptionMap = new LinkedHashMap<>();
-
-    public static final List<String> ANIMAL_TAGS = Collections.unmodifiableList(Arrays.asList("block:grass_block", "lightness"));
-    public static final List<String> MONSTER_TAGS = Collections.unmodifiableList(Collections.singletonList("darkness"));
 
     static {
         registerTag("above-sea-level", AboveSeaLevelConditionTag.class, "Spawn area must be above sea level");

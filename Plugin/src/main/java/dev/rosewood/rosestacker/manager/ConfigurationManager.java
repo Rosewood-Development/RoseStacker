@@ -93,6 +93,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DROP_IN_CREATIVE("global-spawner-settings.drop-in-creative", false, "Should spawners always drop when broken in creative mode?"),
         SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-spawner-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
         SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-spawner-settings.break-entire-stack-into-separate", false, "Should the entire stack be broken into individual spawners?"),
+        SPAWNER_ADVANCED_PERMISSIONS("global-spawner-settings.silk-touch-advanced-permissions", false, "Should advanced silk touch permissions be used?", "Requires silk-touch-require-permission to be enabled for the silk touch permissions", "This will enable the following permissions:", "- rosestacker.silktouch.<entityType>", "- rosestacker.nosilk.<entityType>", "- rosestacker.spawnerplace.<entityType>"),
         SPAWNER_SILK_TOUCH_REQUIRED("global-spawner-settings.silk-touch-required", false, "Should silk touch be required to pick up spawners?"),
         SPAWNER_SILK_TOUCH_CHANCE("global-spawner-settings.silk-touch-chance", 100, "The chance that spawners will be picked up with a silk touch tool"),
         SPAWNER_SILK_TOUCH_GUARANTEE("global-spawner-settings.silk-touch-guarantee", true, "Should silk touch of level II or higher be guaranteed to pick up the spawner?"),

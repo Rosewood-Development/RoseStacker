@@ -121,9 +121,11 @@ public class BlockListener implements Listener {
             if (!stackManager.isSpawnerStackingEnabled())
                 return;
 
+            EntityType entityType = ((CreatureSpawner) block.getState()).getSpawnedType();
+
             // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
-                if (this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), 1)) {
+                if (this.tryDropSpawners(player, dropLocation, entityType, 1)) {
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
                     BlockLoggingHook.recordBlockBreak(player, block);
                     this.damageTool(player);
@@ -144,7 +146,7 @@ public class BlockListener implements Listener {
             }
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
-            if (this.tryDropSpawners(player, dropLocation, ((CreatureSpawner) block.getState()).getSpawnedType(), breakAmount)) {
+            if (this.tryDropSpawners(player, dropLocation, entityType, breakAmount)) {
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     stackedSpawner.setStackSize(0);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
@@ -242,15 +244,26 @@ public class BlockListener implements Listener {
                 return true;
         }
 
-        if (Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean() && player.getGameMode() != GameMode.CREATIVE) {
+        if ((Setting.SPAWNER_SILK_TOUCH_REQUIRED.getBoolean() || Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()) && player.getGameMode() != GameMode.CREATIVE) {
             int destroyAmount = 0;
 
-            boolean destroyFromMissingPermission = Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch");
+            int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
+            boolean destroyFromMissingPermission;
+            boolean hasAdvNoSilkPermission = player.hasPermission("rosestacker.nosilk." + spawnedType.name().toLowerCase());
+            boolean hasAdvSilkTouchPermission = player.hasPermission("rosestacker.silktouch." + spawnedType.name().toLowerCase());
+            if (Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()) {
+                boolean hasPermission = hasAdvNoSilkPermission;
+                if (silkTouchLevel > 0)
+                    hasPermission |= hasAdvSilkTouchPermission;
+                destroyFromMissingPermission = !hasPermission;
+            } else {
+                destroyFromMissingPermission = Setting.SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION.getBoolean() && !player.hasPermission("rosestacker.silktouch");
+            }
+
             if (destroyFromMissingPermission)
                 destroyAmount = amount;
 
-            int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
-            if (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2) {
+            if ((!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission) && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
                 for (int i = 0, n = amount - destroyAmount; i < n; i++) {
                     boolean passesChance = StackerUtils.passesChance(Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt() / 100D);
                     if (!passesChance || silkTouchLevel == 0)
@@ -258,11 +271,23 @@ public class BlockListener implements Listener {
                 }
             }
 
+            if (destroyAmount > amount)
+                destroyAmount = amount;
+
             amount -= destroyAmount;
 
             if (destroyAmount > 0) {
                 if (Setting.SPAWNER_SILK_TOUCH_PROTECT.getBoolean() && (silkTouchLevel <= 0 || destroyFromMissingPermission)) {
-                    this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-silk-touch-protect");
+                    LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
+                    if (Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()) {
+                        if (hasAdvSilkTouchPermission) {
+                            localeManager.sendMessage(player, "spawner-advanced-break-silktouch-no-permission");
+                        } else {
+                            localeManager.sendMessage(player, "spawner-advanced-break-no-permission");
+                        }
+                    } else {
+                        localeManager.sendMessage(player, "spawner-silk-touch-protect");
+                    }
                     return false;
                 }
 
@@ -530,6 +555,14 @@ public class BlockListener implements Listener {
                 isAdditiveStack = true;
                 isDistanceStack = true;
             }
+        }
+
+        // Don't allow placing if they don't have permission
+        if (entityType != null && Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()
+                && !player.hasPermission("rosestacker.spawnerplace." + entityType.name().toLowerCase())) {
+            this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-advanced-place-no-permission");
+            event.setCancelled(true);
+            return;
         }
 
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
