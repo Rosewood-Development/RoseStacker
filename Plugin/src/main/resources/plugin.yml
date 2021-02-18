@@ -4,6 +4,7 @@ authors: [Esophose]
 website: https://www.spigotmc.org/resources/rosestacker.82729/
 main: dev.rosewood.rosestacker.RoseStacker
 api-version: '1.13'
+loadbefore: [ShopGUIPlus]
 softdepend:
   - HolographicDisplays
   - Holograms
@@ -14,7 +15,6 @@ softdepend:
   - WildStacker
   - StackMob
   - PlaceholderAPI
-  - ShopGUIPlus
   - CoreProtect
   - LogBlock
   - ClearLag

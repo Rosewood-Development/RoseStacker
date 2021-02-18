@@ -102,8 +102,10 @@ public class RoseStacker extends RosePlugin {
             new RoseStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus
-        if (Bukkit.getPluginManager().isPluginEnabled("ShopGuiPlus"))
-            ShopGuiPlusHook.setupSpawners(this);
+        Bukkit.getScheduler().runTask(this, () -> {
+            if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
+                ShopGuiPlusHook.setupSpawners(this);
+        });
 
         // Try to hook with Clearlag
         if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
