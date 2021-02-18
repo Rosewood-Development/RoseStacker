@@ -6,6 +6,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
+import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -60,12 +61,14 @@ public class EntityListener implements Listener {
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final EntityCacheManager entityCacheManager;
+    private final SpawnerSpawnManager spawnerSpawnManager;
 
     public EntityListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
 
         this.stackManager = this.rosePlugin.getManager(StackManager.class);
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
+        this.spawnerSpawnManager = this.rosePlugin.getManager(SpawnerSpawnManager.class);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -103,7 +106,13 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         // Withers can still target enitites due to custom boss AI, so prevent them from targeting
-        if (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
+        Entity entity = event.getEntity();
+        if (!(entity instanceof LivingEntity))
+            return;
+
+        boolean disableAttacking = (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
+                || (Setting.SPAWNER_DISABLE_ATTACKING.getBoolean()) && this.spawnerSpawnManager.isSpawnedFromSpawner((LivingEntity) event.getEntity());
+        if (disableAttacking)
             event.setCancelled(true);
     }
 
