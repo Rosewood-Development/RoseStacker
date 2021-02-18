@@ -17,7 +17,7 @@ dependencies {
 
     // Referenced dependencies
     compileOnly 'org.spigotmc:spigot:1.16.4'
-    compileOnly 'net.coreprotect:coreprotect:2.15.0'
+    compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.4'
     compileOnly 'org.jetbrains:annotations:16.0.2'

@@ -243,58 +243,92 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         EntityStackSettings entityStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
         List<StackedEntity> stackedEntities = new ArrayList<>(nearbyEntities);
         List<Location> possibleLocations = new ArrayList<>(locations);
-        List<StackedEntity> newStacks = new ArrayList<>();
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
 
         int successfulSpawns = 0;
-        for (int i = 0; i < spawnAmount; i++) {
-            if (possibleLocations.isEmpty())
-                break;
+        if (entityStackSettings.isStackingEnabled()) {
+            List<StackedEntity> newStacks = new ArrayList<>();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
 
-            Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
+            for (int i = 0; i < spawnAmount; i++) {
+                if (possibleLocations.isEmpty())
+                    break;
 
-            LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+                Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
 
-            SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
-            Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
-            if (spawnerSpawnEvent.isCancelled())
-                continue;
+                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
 
-            if (spawner.getStackSettings().isMobAIDisabled())
-                this.disableAI(entity);
-            this.tagSpawnedFromSpawner(entity);
+                SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
+                Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                if (spawnerSpawnEvent.isCancelled())
+                    continue;
 
-            entityStackSettings.applySpawnerSpawnedProperties(entity);
+                if (spawner.getStackSettings().isMobAIDisabled())
+                    this.disableAI(entity);
+                this.tagSpawnedFromSpawner(entity);
 
-            StackedEntity newStack = new StackedEntity(entity);
-            Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                    entityStackSettings.testCanStackWith(x, newStack, false)).findFirst();
-            if (matchingEntity.isPresent()) {
-                matchingEntity.get().increaseStackSize(entity);
-            } else {
-                stackedEntities.add(newStack);
-                newStacks.add(newStack);
-                possibleLocations.remove(location);
+                entityStackSettings.applySpawnerSpawnedProperties(entity);
+
+                StackedEntity newStack = new StackedEntity(entity);
+                Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
+                        entityStackSettings.testCanStackWith(x, newStack, false)).findFirst();
+                if (matchingEntity.isPresent()) {
+                    matchingEntity.get().increaseStackSize(entity);
+                } else {
+                    stackedEntities.add(newStack);
+                    newStacks.add(newStack);
+                    possibleLocations.remove(location);
+                }
+
+                successfulSpawns++;
             }
 
-            successfulSpawns++;
-        }
+            this.stackManager.setEntityStackingTemporarilyDisabled(true);
+            for (StackedEntity stackedEntity : newStacks) {
+                LivingEntity entity = stackedEntity.getEntity();
+                entity.teleport(entity.getLocation().clone().add(0, 300, 0));
+                nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+                entity.setVelocity(Vector.getRandom().multiply(0.01));
+                this.stackManager.addEntityStack(stackedEntity);
+            }
+            this.stackManager.setEntityStackingTemporarilyDisabled(false);
 
-        this.stackManager.setEntityStackingTemporarilyDisabled(true);
-        for (StackedEntity stackedEntity : newStacks) {
-            LivingEntity entity = stackedEntity.getEntity();
-            entity.teleport(entity.getLocation().clone().add(0, 300, 0));
-            nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
-            entity.setVelocity(Vector.getRandom().multiply(0.01));
-            this.stackManager.addEntityStack(stackedEntity);
-        }
-        this.stackManager.setEntityStackingTemporarilyDisabled(false);
+            // Spawn particles for new entities
+            for (StackedEntity entity : newStacks) {
+                World world = entity.getLocation().getWorld();
+                if (world != null)
+                    world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+            }
+        } else {
+            for (int i = 0; i < spawnAmount; i++) {
+                if (possibleLocations.isEmpty())
+                    break;
 
-        // Spawn particles for new entities
-        for (StackedEntity entity : newStacks) {
-            World world = entity.getLocation().getWorld();
-            if (world != null)
-                world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
+                World world = location.getWorld();
+                if (world == null)
+                    continue;
+
+                LivingEntity entity = (LivingEntity) world.spawnEntity(location, entityType);
+
+                SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
+                Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                if (spawnerSpawnEvent.isCancelled()) {
+                    entity.remove();
+                    continue;
+                }
+
+                if (spawner.getStackSettings().isMobAIDisabled())
+                    this.disableAI(entity);
+                this.tagSpawnedFromSpawner(entity);
+
+                entityStackSettings.applySpawnerSpawnedProperties(entity);
+
+                // Spawn Particles
+                entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+
+                possibleLocations.remove(location);
+                successfulSpawns++;
+            }
         }
 
         return successfulSpawns;
