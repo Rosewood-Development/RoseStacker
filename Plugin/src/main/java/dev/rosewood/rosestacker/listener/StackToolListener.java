@@ -191,7 +191,7 @@ public class StackToolListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!ItemUtils.isStackingTool(tool))
+        if (event.getAction() == Action.PHYSICAL || !ItemUtils.isStackingTool(tool))
             return;
 
         event.setCancelled(true);
