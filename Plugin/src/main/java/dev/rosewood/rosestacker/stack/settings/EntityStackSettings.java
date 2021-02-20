@@ -502,7 +502,7 @@ public abstract class EntityStackSettings extends StackSettings {
             stackedMob.setTarget(unstackedMob.getTarget());
         }
 
-        if (stacked instanceof Animals) {
+        if (Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean() && stacked instanceof Animals) {
             Animals stackedAnimals = (Animals) stacked;
             Animals unstackedAnimals = (Animals) unstacked;
 
