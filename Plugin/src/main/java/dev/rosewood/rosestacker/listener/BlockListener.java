@@ -61,7 +61,7 @@ public class BlockListener implements Listener {
         this.rosePlugin = rosePlugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockClicked(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null)
@@ -102,7 +102,7 @@ public class BlockListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
@@ -329,12 +329,12 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
         this.handleExplosion(event.getBlock().getLocation(), event.blockList());
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         this.handleExplosion(event.getLocation(), event.blockList());
     }
@@ -453,7 +453,7 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
@@ -500,7 +500,7 @@ public class BlockListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
