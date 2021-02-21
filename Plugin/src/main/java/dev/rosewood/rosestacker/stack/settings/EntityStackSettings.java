@@ -60,6 +60,7 @@ public abstract class EntityStackSettings extends StackSettings {
     private boolean dontStackIfTrading;
 
     // Cached entity types
+    private Boolean isMob;
     private Boolean isBoss;
     private Boolean isColorable;
     private Boolean isSittable;
@@ -322,6 +323,19 @@ public abstract class EntityStackSettings extends StackSettings {
         return this.getEntityType().name();
     }
 
+    private boolean isEntityMob() {
+        if (this.isMob == null) {
+            Class<?> entityClass = this.getEntityType().getEntityClass();
+            if (entityClass == null) {
+                this.isMob = false;
+            } else {
+                this.isMob = Mob.class.isAssignableFrom(entityClass);
+            }
+        }
+
+        return this.isMob;
+    }
+
     private boolean isEntityBoss() {
         if (this.isBoss == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
@@ -495,14 +509,14 @@ public abstract class EntityStackSettings extends StackSettings {
      * @param unstacked The unstacked entity
      */
     public void applyUnstackProperties(LivingEntity stacked, LivingEntity unstacked) {
-        if (stacked instanceof Mob) {
+        if (this.isEntityMob()) {
             Mob stackedMob = (Mob) stacked;
             Mob unstackedMob = (Mob) unstacked;
 
             stackedMob.setTarget(unstackedMob.getTarget());
         }
 
-        if (Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean() && stacked instanceof Animals) {
+        if (this.isEntityAnimals() && Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean()) {
             Animals stackedAnimals = (Animals) stacked;
             Animals unstackedAnimals = (Animals) unstacked;
 
