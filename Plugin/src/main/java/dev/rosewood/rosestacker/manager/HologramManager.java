@@ -7,44 +7,56 @@ import dev.rosewood.rosestacker.hologram.HologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramsHologramHandler;
 import dev.rosewood.rosestacker.hologram.HolographicDisplaysHologramHandler;
 import dev.rosewood.rosestacker.hologram.TrHologramHandler;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 public class HologramManager extends Manager {
 
+    private final Map<String, Class<? extends HologramHandler>> hologramHandlers;
     private HologramHandler hologramHandler;
 
     public HologramManager(RosePlugin rosePlugin) {
         super(rosePlugin);
+
+        this.hologramHandlers = new LinkedHashMap<String, Class<? extends HologramHandler>>() {{
+            this.put("HolographicDisplays", HolographicDisplaysHologramHandler.class);
+            this.put("Holograms", HologramsHologramHandler.class);
+            this.put("CMI", CMIHologramHandler.class);
+            this.put("TrHologram", TrHologramHandler.class);
+        }};
     }
 
     @Override
     public void reload() {
-        if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
-            this.rosePlugin.getLogger().info("HolographicDisplays is being used as the Hologram Handler.");
-            this.hologramHandler = new HolographicDisplaysHologramHandler();
-        } else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
-            this.rosePlugin.getLogger().info("Holograms is being used as the Hologram Handler.");
-            this.hologramHandler = new HologramsHologramHandler();
-        } else if (Bukkit.getPluginManager().isPluginEnabled("CMI")) {
-            this.rosePlugin.getLogger().info("CMI is being used as the Hologram Handler.");
-            this.hologramHandler = new CMIHologramHandler();
-        } else if (Bukkit.getPluginManager().isPluginEnabled("TrHologram")) {
-            this.rosePlugin.getLogger().info("TrHologram is being used as the Hologram Handler.");
-            this.hologramHandler = new TrHologramHandler();
-        } else {
+        for (Map.Entry<String, Class<? extends HologramHandler>> handler : this.hologramHandlers.entrySet()) {
+            if (Bukkit.getPluginManager().isPluginEnabled(handler.getKey())) {
+                try {
+                    this.hologramHandler = handler.getValue().getConstructor().newInstance();
+                    this.rosePlugin.getLogger().info(String.format("%s is being used as the Hologram Handler.", handler.getKey()));
+                    break;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        if (this.hologramHandler == null) {
+            String validPlugins = String.join(", ", this.hologramHandlers.keySet());
             this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
                     "If you want stack tags to be displayed above stacked spawners or blocks, " +
-                    "please install one of the following plugins: [HolographicDisplays, Holograms, CMI, TrHologram]");
-            this.hologramHandler = null;
+                    "please install one of the following plugins: [" + validPlugins + "]");
         }
     }
 
     @Override
     public void disable() {
-        if (this.hologramHandler != null)
+        if (this.hologramHandler != null) {
             this.hologramHandler.deleteAllHolograms();
+            this.hologramHandler = null;
+        }
     }
 
     /**
