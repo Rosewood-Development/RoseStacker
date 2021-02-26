@@ -180,8 +180,12 @@ public class EntityListener implements Listener {
             }
         }
 
-        internalEntities.removeIf(killedEntities::contains);
-        stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), 0);
+        // Only try dropping loot if something actually died
+        if (!killedEntities.isEmpty()) {
+            internalEntities.removeIf(killedEntities::contains);
+            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), 0);
+        }
+
         StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
     }
 
@@ -233,7 +237,7 @@ public class EntityListener implements Listener {
             if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
                 if (event instanceof EntityDeathEvent) {
                     EntityDeathEvent deathEvent = (EntityDeathEvent) event;
-                    stackedEntity.dropStackLoot(deathEvent.getDrops(), deathEvent.getDroppedExp());
+                    stackedEntity.dropStackLoot(new ArrayList<>(deathEvent.getDrops()), deathEvent.getDroppedExp());
                     deathEvent.getDrops().clear();
                 } else {
                     stackedEntity.dropStackLoot(null, 0);

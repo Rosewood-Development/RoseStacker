@@ -248,7 +248,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
             // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
             if (this.entity.getType() == EntityType.WITHER)
-                loot.addAll(GuiUtil.getMaterialAmountAsItemStacks(Material.NETHER_STAR, this.getStackSize()));
+                loot.addAll(GuiUtil.getMaterialAmountAsItemStacks(Material.NETHER_STAR, internalEntities.size()));
 
             if (async) {
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
