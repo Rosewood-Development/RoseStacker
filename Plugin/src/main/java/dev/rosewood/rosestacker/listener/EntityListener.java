@@ -164,7 +164,7 @@ public class EntityListener implements Listener {
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
-        if (Setting.ENTITY_SHARE_DAMAGE_CONDITIONS.getStringList().stream().noneMatch(x -> x.equalsIgnoreCase(event.getCause().name())))
+        if (!Setting.ENTITY_SHARE_DAMAGE_CONDITIONS.getStringList().contains(event.getCause().name()))
             return;
 
         double damage = event.getFinalDamage();

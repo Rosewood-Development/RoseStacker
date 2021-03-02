@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.RoseStacker;
 import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 public class ConfigurationManager extends AbstractConfigurationManager {
 
@@ -32,7 +33,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", Collections.singletonList("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
         ENTITY_CUMULATIVE_BREEDING("global-entity-settings.cumulative-breeding", true, "Should all animals in a stack be bred together with as much food as they can?", "Please note that this setting is not perfect, it is here to make breeding more simple for players", "For best baby animal support, set dont-stack-if-baby to true for each breedable entity type in entity_settings.yml"),
-        ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", Collections.singletonList("FALL"), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
+        ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", Collections.singletonList(EntityDamageEvent.DamageCause.MAGIC.name()), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_SAVE_ATTRIBUTES("global-entity-settings.save-attributes", false, "Should entity attributes (custom max health, custom damage, etc.) be saved in the stack data?", "Disabled by default, as it increases the database size to have this enabled"),
