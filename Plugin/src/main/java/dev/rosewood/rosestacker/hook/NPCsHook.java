@@ -8,6 +8,7 @@ import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.mineacademy.boss.api.BossAPI;
 
 public class NPCsHook {
 
@@ -16,6 +17,7 @@ public class NPCsHook {
     private static Boolean mythicMobsEnabled;
     private static Boolean epicBossesEnabled;
     private static Boolean eliteMobsEnabled;
+    private static Boolean bossEnabled;
 
     public static boolean citizensEnabled() {
         if (citizensEnabled != null)
@@ -52,12 +54,20 @@ public class NPCsHook {
         return eliteMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("EliteMobs");
     }
 
+    public static boolean bossEnabled() {
+        if (bossEnabled != null)
+            return bossEnabled;
+
+        return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
+    }
+
     public static boolean anyEnabled() {
         return citizensEnabled()
                 || shopkeepersEnabled()
                 || mythicMobsEnabled()
                 || epicBossesEnabled()
-                || eliteMobsEnabled();
+                || eliteMobsEnabled()
+                || bossEnabled();
     }
 
     public static boolean isNPC(LivingEntity entity) {
@@ -77,6 +87,9 @@ public class NPCsHook {
 
         if (!npc && eliteMobsEnabled())
             npc = EntityTracker.isEliteMob(entity) && EntityTracker.isNPCEntity(entity);
+
+        if (!npc && bossEnabled())
+            npc = BossAPI.isBoss(entity);
 
         return npc;
     }
