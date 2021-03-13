@@ -15,13 +15,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class StackMobConversionHandler extends ConversionHandler {
+public class WildStackerEntityConversionHandler extends ConversionHandler {
 
-    @SuppressWarnings("deprecated") // Need to use this constructor since we don't have a Plugin reference
-    private static final NamespacedKey STACK_KEY = new NamespacedKey("stackmob", "stack-size");
+    private static final NamespacedKey STACK_KEY = new NamespacedKey("wildstacker", "stackamount");
     private static final NamespacedKey CONVERTED_KEY = new NamespacedKey(RoseStacker.getInstance(), "converted");
 
-    public StackMobConversionHandler(RosePlugin rosePlugin) {
+    public WildStackerEntityConversionHandler(RosePlugin rosePlugin) {
         super(rosePlugin, StackType.ENTITY, true);
     }
 

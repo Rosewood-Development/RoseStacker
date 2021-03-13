@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,7 +32,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
     private WildStackerPlugin wildStacker;
 
     public WildStackerPluginConverter(RosePlugin rosePlugin) {
-        super(rosePlugin, "WildStacker", StackPlugin.WildStacker, ConverterType.ENTITY, ConverterType.ITEM);
+        super(rosePlugin, "WildStacker", StackPlugin.WildStacker, ConverterType.WS_ENTITY, ConverterType.WS_ITEM);
 
         this.wildStacker = (WildStackerPlugin) this.plugin;
     }
@@ -52,40 +51,16 @@ public class WildStackerPluginConverter extends StackPluginConverter {
         connector.connect(connection -> {
             Map<StackType, Set<ConversionData>> conversionData = new HashMap<>();
 
-            // Load entities
-            try (Statement statement = connection.createStatement()) {
-                ResultSet result = statement.executeQuery("SELECT uuid, stackAmount FROM entities");
-                Set<ConversionData> entityConversionData = new HashSet<>();
-                while (result.next()) {
-                    UUID uuid = UUID.fromString(result.getString("uuid"));
-                    int amount = result.getInt("stackAmount");
-                    entityConversionData.add(new ConversionData(uuid, amount));
-                }
-                conversionData.put(StackType.ENTITY, entityConversionData);
-            }
-
-            // Load items
-            try (Statement statement = connection.createStatement()) {
-                ResultSet result = statement.executeQuery("SELECT uuid, stackAmount FROM items");
-                Set<ConversionData> itemConversionData = new HashSet<>();
-                while (result.next()) {
-                    UUID uuid = UUID.fromString(result.getString("uuid"));
-                    int amount = result.getInt("stackAmount");
-                    itemConversionData.add(new ConversionData(uuid, amount));
-                }
-                conversionData.put(StackType.ITEM, itemConversionData);
-            }
-
-            dataManager.setConversionData(conversionData);
-
             // Load barrels (blocks)
-            // Yes, this ends up loading chunks because I have no idea how WildStacker serializes the stack material
             try (Statement statement = connection.createStatement()) {
                 Set<StackedBlock> stackedBlocks = new HashSet<>();
 
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM barrels");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
+                    if (location == null)
+                        continue;
+
                     int amount = result.getInt("stackAmount");
                     Material type = systemHandler.getStackedSnapshot(location.getChunk()).getStackedBarrelItem(location).getValue().getType();
                     Block block = location.getBlock();
@@ -114,6 +89,9 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM spawners");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
+                    if (location == null)
+                        continue;
+
                     Block block = location.getBlock();
                     BlockState blockState = block.getState();
                     if (!(blockState instanceof CreatureSpawner))
