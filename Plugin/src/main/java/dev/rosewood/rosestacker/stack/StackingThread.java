@@ -624,7 +624,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Set<StackedItem> stackedItems = new HashSet<>();
         for (ItemStack itemStack : items) {
-            Optional<StackedItem> matchingItem = stackedItems.stream().filter(x -> x.getItem().getItemStack().isSimilar(itemStack)).findFirst();
+            Optional<StackedItem> matchingItem = stackedItems.stream().filter(x ->
+                    x.getItem().getItemStack().isSimilar(itemStack) && x.getStackSize() + itemStack.getAmount() <= x.getStackSettings().getMaxStackSize()).findFirst();
             if (matchingItem.isPresent()) {
                 matchingItem.get().increaseStackSize(itemStack.getAmount());
             } else {
