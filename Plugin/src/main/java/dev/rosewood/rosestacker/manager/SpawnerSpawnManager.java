@@ -205,37 +205,41 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
             }
 
-            Predicate<Entity> predicate = entity -> entity.getType() == entityType;
-            Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(spawner.getLocation(), stackSettings.getSpawnRange(), predicate);
-            List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
-            for (Entity entity : nearbyEntities) {
-                StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) entity);
-                if (stackedEntity != null)
-                    nearbyStackedEntities.add(stackedEntity);
-            }
-
-            int successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, entityType, spawnAmount, spawnLocations, nearbyStackedEntities);
-
-            stackedSpawner.getLastInvalidConditions().clear();
-            if (successfulSpawns <= 0) {
-                if (invalidSpawnConditions.isEmpty()) {
-                    stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
-                } else {
-                    List<Class<? extends ConditionTag>> invalidSpawnConditionClasses = new ArrayList<>();
-                    for (ConditionTag conditionTag : invalidSpawnConditions)
-                        invalidSpawnConditionClasses.add(conditionTag.getClass());
-                    stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
+            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+                Predicate<Entity> predicate = entity -> entity.getType() == entityType;
+                Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(spawner.getLocation(), stackSettings.getSpawnRange(), predicate);
+                List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
+                for (Entity entity : nearbyEntities) {
+                    StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) entity);
+                    if (stackedEntity != null)
+                        nearbyStackedEntities.add(stackedEntity);
                 }
 
-                // Spawn particles indicating the spawn occurred
-                block.getWorld().spawnParticle(Particle.SMOKE_NORMAL, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-            } else {
-                // Spawn particles indicating the spawn did not occur
-                block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                stackedSpawner.updateSpawnerState();
-                PersistentDataUtils.increaseSpawnCount(stackedSpawner.getSpawner(), successfulSpawns);
-                stackedSpawner.updateSpawnerState();
-            }
+                int successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, entityType, spawnAmount, spawnLocations, nearbyStackedEntities);
+
+                stackedSpawner.getLastInvalidConditions().clear();
+                if (successfulSpawns <= 0) {
+                    if (invalidSpawnConditions.isEmpty()) {
+                        stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
+                    } else {
+                        List<Class<? extends ConditionTag>> invalidSpawnConditionClasses = new ArrayList<>();
+                        for (ConditionTag conditionTag : invalidSpawnConditions)
+                            invalidSpawnConditionClasses.add(conditionTag.getClass());
+                        stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
+                    }
+
+                    // Spawn particles indicating the spawn did not occur
+                    block.getWorld().spawnParticle(Particle.SMOKE_NORMAL, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                } else {
+                    // Spawn particles indicating the spawn occurred
+                    block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                        stackedSpawner.updateSpawnerState();
+                        PersistentDataUtils.increaseSpawnCount(stackedSpawner.getSpawner(), successfulSpawns);
+                        stackedSpawner.updateSpawnerState();
+                    });
+                }
+            });
         }
     }
 
@@ -254,13 +258,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-
-                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
-
-                SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
-                Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
-                if (spawnerSpawnEvent.isCancelled())
-                    continue;
+                LivingEntity entity;
+                try {
+                    entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+                } catch (IllegalStateException e) {
+                    continue; // This is here due to jockeys trying to add entities to the world async, no bueno
+                }
 
                 if (spawner.getStackSettings().isMobAIDisabled())
                     this.disableAI(entity);
@@ -282,22 +285,30 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 successfulSpawns++;
             }
 
-            this.stackManager.setEntityStackingTemporarilyDisabled(true);
-            for (StackedEntity stackedEntity : newStacks) {
-                LivingEntity entity = stackedEntity.getEntity();
-                entity.teleport(entity.getLocation().clone().add(0, 300, 0));
-                nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
-                entity.setVelocity(Vector.getRandom().multiply(0.01));
-                this.stackManager.addEntityStack(stackedEntity);
-            }
-            this.stackManager.setEntityStackingTemporarilyDisabled(false);
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                this.stackManager.setEntityStackingTemporarilyDisabled(true);
+                for (StackedEntity stackedEntity : newStacks) {
+                    LivingEntity entity = stackedEntity.getEntity();
 
-            // Spawn particles for new entities
-            for (StackedEntity entity : newStacks) {
-                World world = entity.getLocation().getWorld();
-                if (world != null)
-                    world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
-            }
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
+                    Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                    if (spawnerSpawnEvent.isCancelled())
+                        continue;
+
+                    entity.teleport(entity.getLocation().clone().add(0, 300, 0));
+                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    entity.setVelocity(Vector.getRandom().multiply(0.01));
+                    this.stackManager.addEntityStack(stackedEntity);
+                }
+                this.stackManager.setEntityStackingTemporarilyDisabled(false);
+
+                // Spawn particles for new entities
+                for (StackedEntity entity : newStacks) {
+                    World world = entity.getLocation().getWorld();
+                    if (world != null)
+                        world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                }
+            });
         } else {
             for (int i = 0; i < spawnAmount; i++) {
                 if (possibleLocations.isEmpty())
