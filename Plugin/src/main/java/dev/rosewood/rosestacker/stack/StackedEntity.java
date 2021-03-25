@@ -214,6 +214,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
         boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
+        boolean multiplyCustomLoot = Setting.ENTITY_MULTIPLY_CUSTOM_LOOT.getBoolean();
 
         Runnable mainTask = () -> {
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
@@ -222,7 +223,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             for (LivingEntity entity : internalEntities) {
                 entity.setFireTicks(fireTicks);
                 Collection<ItemStack> entityLoot = EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
-                if (callEvents) {
+                if (callEvents && !multiplyCustomLoot) {
                     EntityDeathEvent deathEvent;
                     if (async) {
                         deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
@@ -237,6 +238,13 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     loot.addAll(entityLoot);
                     totalExp += droppedExp;
                 }
+            }
+
+            if (multiplyCustomLoot) {
+                EntityDeathEvent deathEvent = new EntityDeathEvent(thisEntity, new ArrayList<>(), 0);
+                for (int i = 0, k = this.getStackSize() - 1; i < k; i++)
+                    loot.addAll(deathEvent.getDrops());
+                totalExp += deathEvent.getDroppedExp() * (this.getStackSize() - 1);
             }
 
             int finalTotalExp = totalExp;
