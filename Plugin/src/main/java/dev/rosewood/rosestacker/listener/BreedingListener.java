@@ -68,7 +68,7 @@ public class BreedingListener implements Listener {
 
         // Take the items for breeding
         if (player.getGameMode() != GameMode.CREATIVE) {
-            int requiredFood = Math.min(totalChildren, breedingItem.getAmount());
+            int requiredFood = Math.min(stackSize, breedingItem.getAmount());
             breedingItem.setAmount(breedingItem.getAmount() - requiredFood);
             totalChildren = requiredFood;
         }
