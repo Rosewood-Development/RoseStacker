@@ -20,7 +20,7 @@ public class AirConditionTag extends ConditionTag {
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
         boolean isAir = true;
         for (Block block : EntityUtils.getIntersectingBlocks(creatureSpawner.getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
-            isAir &= block.getType().isAir() || !StackerUtils.isOccluding(block.getType());
+            isAir &= StackerUtils.isAir(block.getType()) || !StackerUtils.isOccluding(block.getType());
         return isAir;
     }
 

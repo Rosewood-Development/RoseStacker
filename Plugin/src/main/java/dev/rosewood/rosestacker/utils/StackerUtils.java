@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -198,6 +199,23 @@ public final class StackerUtils {
                 return true;
             default:
                 return material.isOccluding();
+        }
+    }
+
+    /**
+     * Checks if a Material is air
+     *
+     * @param material The Material to check
+     * @return true if the Material is a type of air
+     */
+    public static boolean isAir(Material material) {
+        switch (material) {
+            case AIR:
+            case CAVE_AIR:
+            case VOID_AIR:
+                return true;
+            default:
+                return false;
         }
     }
 
