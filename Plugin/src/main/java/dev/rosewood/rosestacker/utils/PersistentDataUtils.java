@@ -7,6 +7,8 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import java.util.List;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -122,6 +124,11 @@ public final class PersistentDataUtils {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             nmsHandler.removeEntityGoals(entity);
             entity.setSilent(true);
+
+            // Make the entity unable to take knockback
+            AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+            if (knockbackAttribute != null)
+                knockbackAttribute.setBaseValue(Double.MAX_VALUE);
         }
     }
 

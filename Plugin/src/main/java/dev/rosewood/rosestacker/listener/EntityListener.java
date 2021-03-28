@@ -313,18 +313,30 @@ public class EntityListener implements Listener {
                 this.stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
             }
 
+            boolean aiDisabled = PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity());
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
-                StackedEntity newStack = this.stackManager.createEntityStack(nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation()), false);
+                LivingEntity newEntity = nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation());
+                if (aiDisabled)
+                    PersistentDataUtils.removeEntityAi(newEntity);
+                StackedEntity newStack = this.stackManager.createEntityStack(newEntity, false);
                 this.stackManager.setEntityStackingTemporarilyDisabled(false);
                 if (newStack == null)
                     return;
 
-                for (byte[] serializedEntity : stackedEntity.getStackedEntityNBT())
-                    newStack.increaseStackSize(nmsHandler.getNBTAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity));
+                for (byte[] serializedEntity : stackedEntity.getStackedEntityNBT()) {
+                    LivingEntity entity = nmsHandler.getNBTAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity);
+                    if (aiDisabled)
+                        PersistentDataUtils.removeEntityAi(entity);
+                    newStack.increaseStackSize(entity);
+                }
             });
         } else {
+            // Make sure disabled AI gets transferred
+            if (PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity()))
+                PersistentDataUtils.removeEntityAi((LivingEntity) event.getTransformedEntity());
+
             if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
                 Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, stackedEntity::decreaseStackSize, 20);
             } else {

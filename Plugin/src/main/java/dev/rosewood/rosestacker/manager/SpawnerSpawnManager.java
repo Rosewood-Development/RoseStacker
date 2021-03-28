@@ -31,8 +31,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -266,7 +264,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
 
                 if (spawner.getStackSettings().isMobAIDisabled())
-                    this.disableAI(entity);
+                    PersistentDataUtils.removeEntityAi(entity);
                 this.tagSpawnedFromSpawner(entity);
 
                 entityStackSettings.applySpawnerSpawnedProperties(entity);
@@ -329,7 +327,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
 
                 if (spawner.getStackSettings().isMobAIDisabled())
-                    this.disableAI(entity);
+                    PersistentDataUtils.removeEntityAi(entity);
                 this.tagSpawnedFromSpawner(entity);
 
                 entityStackSettings.applySpawnerSpawnedProperties(entity);
@@ -365,21 +363,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         } else {
             return entity.hasMetadata(METADATA_NAME);
         }
-    }
-
-    /**
-     * Disables the AI/knockback of a mob without using {@link LivingEntity#setAI}.
-     *
-     * @param entity The entity to disable AI for
-     */
-    public void disableAI(LivingEntity entity) {
-        // Remove all applicable AI goals
-        PersistentDataUtils.removeEntityAi(entity);
-
-        // Make the entity unable to take knockback
-        AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-        if (knockbackAttribute != null)
-            knockbackAttribute.setBaseValue(Double.MAX_VALUE);
     }
 
 }
