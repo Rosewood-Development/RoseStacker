@@ -251,7 +251,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             Runnable finishTask = () -> {
                 RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, thisEntity.getLocation());
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
-                    StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, 30);
+                    StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, finalTotalExp / 2);
             };
 
             // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason

@@ -91,7 +91,7 @@ public class BreedingListener implements Listener {
                         PersistentDataUtils.removeEntityAi(baby);
                 });
 
-            StackerUtils.dropExperience(animal.getLocation(), stackSize, 7 * stackSize, 10);
+            StackerUtils.dropExperience(animal.getLocation(), stackSize, 7 * stackSize, stackSize);
         }, 30);
     }
 
