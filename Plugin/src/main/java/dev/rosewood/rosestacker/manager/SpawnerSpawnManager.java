@@ -163,7 +163,8 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn the mobs
             int spawnAmount;
             if (randomizeSpawnAmounts) {
-                spawnAmount = this.random.nextInt(spawnerTile.getSpawnCount() - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
+                int spawnerSpawnCount = Math.max(stackedSpawner.getStackSize() * stackSettings.getSpawnCountStackSizeMultiplier(), 0);
+                spawnAmount = this.random.nextInt(spawnerSpawnCount - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
             } else {
                 spawnAmount = spawnerTile.getSpawnCount();
             }
@@ -247,7 +248,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         List<Location> possibleLocations = new ArrayList<>(locations);
 
         int successfulSpawns = 0;
-        if (entityStackSettings.isStackingEnabled()) {
+        if (this.stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled()) {
             List<StackedEntity> newStacks = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
 
@@ -308,36 +309,37 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
             });
         } else {
-            for (int i = 0; i < spawnAmount; i++) {
-                if (possibleLocations.isEmpty())
-                    break;
+            successfulSpawns = Math.min(spawnAmount, possibleLocations.size());
 
-                Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                World world = location.getWorld();
-                if (world == null)
-                    continue;
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                for (int i = 0; i < spawnAmount; i++) {
+                    if (possibleLocations.isEmpty())
+                        break;
 
-                LivingEntity entity = (LivingEntity) world.spawnEntity(location, entityType);
+                    Location location = possibleLocations.remove(this.random.nextInt(possibleLocations.size()));
+                    World world = location.getWorld();
+                    if (world == null)
+                        continue;
 
-                SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
-                Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
-                if (spawnerSpawnEvent.isCancelled()) {
-                    entity.remove();
-                    continue;
+                    LivingEntity entity = (LivingEntity) world.spawnEntity(location, entityType);
+
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
+                    Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
+                    if (spawnerSpawnEvent.isCancelled()) {
+                        entity.remove();
+                        continue;
+                    }
+
+                    if (spawner.getStackSettings().isMobAIDisabled())
+                        PersistentDataUtils.removeEntityAi(entity);
+                    this.tagSpawnedFromSpawner(entity);
+
+                    entityStackSettings.applySpawnerSpawnedProperties(entity);
+
+                    // Spawn Particles
+                    entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
                 }
-
-                if (spawner.getStackSettings().isMobAIDisabled())
-                    PersistentDataUtils.removeEntityAi(entity);
-                this.tagSpawnedFromSpawner(entity);
-
-                entityStackSettings.applySpawnerSpawnedProperties(entity);
-
-                // Spawn Particles
-                entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
-
-                possibleLocations.remove(location);
-                successfulSpawns++;
-            }
+            });
         }
 
         return successfulSpawns;
