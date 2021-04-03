@@ -55,7 +55,7 @@ public class SpawnerStackSettings extends StackSettings {
             }
         }
 
-        if (requirementStrings.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("air")))
+        if (Setting.SPAWNER_DONT_SPAWN_INTO_BLOCKS.getBoolean() && (requirementStrings.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("air"))))
             this.spawnRequirements.add(ConditionTags.parse("air")); // All entities that don't require fluids will require air
 
         if (requirementStrings.stream().noneMatch(x -> x.startsWith("max-nearby-entities")))

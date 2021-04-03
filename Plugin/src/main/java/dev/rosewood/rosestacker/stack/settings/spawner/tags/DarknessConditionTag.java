@@ -17,8 +17,6 @@ public class DarknessConditionTag extends ConditionTag {
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        if (!spawnBlock.isPassable()) // Solid blocks won't have any light
-            return false;
         if (creatureSpawner.getSpawnedType() == EntityType.BLAZE || creatureSpawner.getSpawnedType() == EntityType.SILVERFISH)
             return spawnBlock.getLightLevel() <= 11;
         return spawnBlock.getLightLevel() <= 7;

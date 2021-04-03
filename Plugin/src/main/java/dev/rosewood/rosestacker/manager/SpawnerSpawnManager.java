@@ -90,6 +90,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         boolean randomizeSpawnAmounts = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean();
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
         boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
+        boolean spawnersUseVerticalRange = Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean();
 
         Map<Block, StackedSpawner> stackedSpawners = stackManager.getStackedSpawners();
         for (Entry<Block, StackedSpawner> entry : stackedSpawners.entrySet()) {
@@ -175,7 +176,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 int attempts = 0;
                 while (attempts < maxFailedSpawnAttempts) {
                     int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int yOffset = this.random.nextInt(3) - 1;
+                    int yOffset = !spawnersUseVerticalRange ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                     int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
                     Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);

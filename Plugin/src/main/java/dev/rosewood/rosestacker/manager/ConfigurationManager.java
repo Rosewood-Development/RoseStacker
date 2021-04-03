@@ -113,6 +113,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SPAWN_ENTITY_SEARCH_RANGE("global-spawner-settings.spawn-entity-search-range", -1, "How far away from the spawner should we search for nearby entities when using max-nearby-entities?", "A value of -1 will make this setting use the same value as the spawn range"),
         SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?"),
         SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?"),
+        SPAWNER_USE_VERTICAL_SPAWN_RANGE("global-spawner-settings.use-vertical-spawn-range", false, "Should the vertical spawn range use the horizontal spawn range?", "Entities normally only spawn one block above and below the spawner"),
+        SPAWNER_DONT_SPAWN_INTO_BLOCKS("global-spawner-settings.dont-spawn-into-blocks", true, "When enabled, this will force the 'air' condition tag onto the", "spawner if it doesn't have 'fluid' or 'air' already", "Disabling this will allow mobs to spawn into blocks unless", "you explicitly add the 'fluid' or 'air' tags."),
         SPAWNER_NERF_PATROL_LEADERS("global-spawner-settings.nerf-patrol-leaders", false, "Should patrol leaders be prevented when spawning potential raid member mobs?"),
         SPAWNER_GUI_ENABLED("global-spawner-settings.gui-enabled", true, "Should a GUI to view the spawner information open when the player shift-right-clicks the stack?"),
         SPAWNER_GUI_TICK_UPDATE_RATE("global-spawner-settings.gui-tick-update-rate", 2, "How often should the time before next spawn message be updated?", "Value is measured in ticks, do not go below 1"),
