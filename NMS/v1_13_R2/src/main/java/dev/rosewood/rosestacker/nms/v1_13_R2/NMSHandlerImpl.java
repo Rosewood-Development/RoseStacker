@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.Chunk;
 import net.minecraft.server.v1_13_R2.ControllerMove;
 import net.minecraft.server.v1_13_R2.DataWatcher;
 import net.minecraft.server.v1_13_R2.DataWatcher.Item;
@@ -163,10 +164,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
                 int x = MathHelper.floor(entity.locX / 16.0D);
                 int z = MathHelper.floor(entity.locZ / 16.0D);
-                if (!world.isChunkLoaded(x, z, false))
+
+                Chunk chunk = world.getChunkAt(x, z);
+                if (chunk == null)
                     throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
 
-                world.getChunkAt(x, z).a(entity);
+                chunk.a(entity);
                 world.entityList.add(entity);
                 method_WorldServer_b.invoke(world, entity);
 
