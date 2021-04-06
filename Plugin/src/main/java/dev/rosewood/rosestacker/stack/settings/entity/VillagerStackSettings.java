@@ -6,11 +6,16 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.EnumSet;
+import java.util.Set;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
 public class VillagerStackSettings extends EntityStackSettings {
 
+    private static final Set<Villager.Profession> UNPROFESSIONED_VALUES = EnumSet.of(Villager.Profession.NONE, Villager.Profession.NITWIT);
+
+    private final boolean dontStackIfProfessioned;
     private final boolean dontStackIfDifferentProfession;
     private final boolean dontStackIfDifferentType;
     private final boolean dontStackIfDifferentLevel;
@@ -18,6 +23,7 @@ public class VillagerStackSettings extends EntityStackSettings {
     public VillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
+        this.dontStackIfProfessioned = this.settingsConfiguration.getBoolean("dont-stack-if-professioned");
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
         this.dontStackIfDifferentLevel = NMSUtil.getVersionNumber() >= 14 && this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
@@ -27,6 +33,9 @@ public class VillagerStackSettings extends EntityStackSettings {
     protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
         Villager villager1 = (Villager) stack1.getEntity();
         Villager villager2 = (Villager) stack2.getEntity();
+
+        if (this.dontStackIfProfessioned && (!UNPROFESSIONED_VALUES.contains(villager1.getProfession()) || !UNPROFESSIONED_VALUES.contains(villager2.getProfession())))
+            return EntityStackComparisonResult.PROFESSIONED;
 
         if (this.dontStackIfDifferentProfession && villager1.getProfession() != villager2.getProfession())
             return EntityStackComparisonResult.DIFFERENT_PROFESSIONS;
