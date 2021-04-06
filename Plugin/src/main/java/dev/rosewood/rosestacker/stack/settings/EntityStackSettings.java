@@ -178,7 +178,20 @@ public abstract class EntityStackSettings extends StackSettings {
      * @return true if the two entities can stack into each other, false otherwise
      */
     public boolean testCanStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
-        return this.canStackWith(stack1, stack2, comparingForUnstack) == EntityStackComparisonResult.CAN_STACK;
+        return this.canStackWith(stack1, stack2, comparingForUnstack, false) == EntityStackComparisonResult.CAN_STACK;
+    }
+
+    /**
+     * Tests if one StackedEntity can stack with another
+     *
+     * @param stack1 The first stack
+     * @param stack2 The second stack
+     * @param comparingForUnstack true if the comparison is being made for unstacking, false otherwise
+     * @param ignorePositions true if position checks for the entities should be ignored, false otherwise
+     * @return true if the two entities can stack into each other, false otherwise
+     */
+    public boolean testCanStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack, boolean ignorePositions) {
+        return this.canStackWith(stack1, stack2, comparingForUnstack, ignorePositions) == EntityStackComparisonResult.CAN_STACK;
     }
 
     /**
@@ -187,9 +200,10 @@ public abstract class EntityStackSettings extends StackSettings {
      * @param stack1 The first stack
      * @param stack2 The second stack
      * @param comparingForUnstack true if the comparison is being made for unstacking, false otherwise
+     * @param ignorePositions true if position checks for the entities should be ignored, false otherwise
      * @return the comparison result
      */
-    public EntityStackComparisonResult canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack) {
+    public EntityStackComparisonResult canStackWith(StackedEntity stack1, StackedEntity stack2, boolean comparingForUnstack, boolean ignorePositions) {
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
 
@@ -209,7 +223,7 @@ public abstract class EntityStackSettings extends StackSettings {
         if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
             return EntityStackComparisonResult.CUSTOM_NAMED;
 
-        if (!comparingForUnstack && !this.getEntityTypeData().isSwimmingMob() && !this.getEntityTypeData().isFlyingMob()) {
+        if (!comparingForUnstack && !ignorePositions && !this.getEntityTypeData().isSwimmingMob() && !this.getEntityTypeData().isFlyingMob()) {
             if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
                 return EntityStackComparisonResult.NOT_ON_GROUND;
 

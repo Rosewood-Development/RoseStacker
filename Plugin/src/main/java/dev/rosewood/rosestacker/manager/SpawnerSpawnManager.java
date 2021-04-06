@@ -273,7 +273,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        entityStackSettings.testCanStackWith(x, newStack, false)).findFirst();
+                        entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity);
                 } else {

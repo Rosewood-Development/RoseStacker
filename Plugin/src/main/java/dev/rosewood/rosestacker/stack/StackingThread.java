@@ -581,7 +581,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        stackSettings.testCanStackWith(x, newStack, false)).findFirst();
+                        stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity);
                 } else {

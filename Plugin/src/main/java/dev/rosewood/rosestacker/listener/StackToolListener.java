@@ -153,7 +153,7 @@ public class StackToolListener implements Listener {
                 StackedEntity entity2 = selected.getEntity2();
                 selected.unselect();
 
-                EntityStackComparisonResult result = stackedEntity.getStackSettings().canStackWith(entity1, entity2, false);
+                EntityStackComparisonResult result = stackedEntity.getStackSettings().canStackWith(entity1, entity2, false, true);
                 if (result == EntityStackComparisonResult.CAN_STACK) {
                     this.localeManager.sendMessage(player, "command-stacktool-can-stack");
                 } else {
