@@ -261,7 +261,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 LivingEntity entity;
                 try {
                     entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
-                } catch (IllegalStateException e) {
+                } catch (Throwable e) {
                     continue; // This is here due to jockeys trying to add entities to the world async, no bueno
                 }
 
