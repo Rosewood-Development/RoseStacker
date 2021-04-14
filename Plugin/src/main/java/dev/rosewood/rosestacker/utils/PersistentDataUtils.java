@@ -22,6 +22,7 @@ public final class PersistentDataUtils {
     private static final String UNSTACKABLE_METADATA_NAME = "unstackable";
     private static final String SPAWN_REASON_METADATA_NAME = "spawn_reason";
     private static final String NO_AI_METADATA_NAME = "no_ai";
+    private static final String SPAWNED_FROM_SPAWNER_METADATA_NAME = "spawner_spawned";
     private static final String TOTAL_SPAWNS_METADATA_NAME = "total_spawns";
 
     public static void setUnstackable(LivingEntity entity, boolean unstackable) {
@@ -142,6 +143,30 @@ public final class PersistentDataUtils {
         }
 
         return isDisabled;
+    }
+
+    public static void tagSpawnedFromSpawner(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER, 1);
+        } else {
+            entity.setMetadata(SPAWNED_FROM_SPAWNER_METADATA_NAME, new FixedMetadataValue(rosePlugin, true));
+        }
+    }
+
+    /**
+     * Checks if an entity was spawned from one of our spawners
+     *
+     * @param entity The entity to check
+     * @return true if the entity was spawned from one of our spawners, otherwise false
+     */
+    public static boolean isSpawnedFromSpawner(LivingEntity entity) {
+        RosePlugin rosePlugin = RoseStacker.getInstance();
+        if (NMSUtil.getVersionNumber() > 13) {
+            return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER);
+        } else {
+            return entity.hasMetadata(SPAWNED_FROM_SPAWNER_METADATA_NAME);
+        }
     }
 
     public static void increaseSpawnCount(CreatureSpawner spawner, long amount) {

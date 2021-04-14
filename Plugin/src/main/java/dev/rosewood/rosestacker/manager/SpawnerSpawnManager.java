@@ -2,7 +2,6 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -28,27 +27,20 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 public class SpawnerSpawnManager extends Manager implements Runnable {
-
-    /**
-     * Metadata name used to keep track of if an entity is spawned from a spawner
-     */
-    private static final String METADATA_NAME = "spawner_spawned";
 
     /**
      * At what point should we override the normal spawner spawning?
@@ -248,6 +240,11 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         List<StackedEntity> stackedEntities = new ArrayList<>(nearbyEntities);
         List<Location> possibleLocations = new ArrayList<>(locations);
 
+        if (entityType.getEntityClass() == null)
+            return 0;
+
+        boolean ageable = Ageable.class.isAssignableFrom(entityType.getEntityClass());
+
         int successfulSpawns = 0;
         if (this.stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled()) {
             List<StackedEntity> newStacks = new ArrayList<>();
@@ -265,9 +262,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     continue; // This is here due to jockeys trying to add entities to the world async, no bueno
                 }
 
+                if (ageable)
+                    ((Ageable) entity).setAdult();
+
                 if (spawner.getStackSettings().isMobAIDisabled())
                     PersistentDataUtils.removeEntityAi(entity);
-                this.tagSpawnedFromSpawner(entity);
+                PersistentDataUtils.tagSpawnedFromSpawner(entity);
 
                 entityStackSettings.applySpawnerSpawnedProperties(entity);
 
@@ -331,10 +331,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         continue;
                     }
 
-                    if (spawner.getStackSettings().isMobAIDisabled())
-                        PersistentDataUtils.removeEntityAi(entity);
-                    this.tagSpawnedFromSpawner(entity);
-
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
 
                     // Spawn Particles
@@ -344,28 +340,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         }
 
         return successfulSpawns;
-    }
-
-    private void tagSpawnedFromSpawner(LivingEntity entity) {
-        if (NMSUtil.getVersionNumber() > 13) {
-            entity.getPersistentDataContainer().set(new NamespacedKey(this.rosePlugin, METADATA_NAME), PersistentDataType.INTEGER, 1);
-        } else {
-            entity.setMetadata(METADATA_NAME, new FixedMetadataValue(this.rosePlugin, true));
-        }
-    }
-
-    /**
-     * Checks if an entity was spawned from one of our spawners
-     *
-     * @param entity The entity to check
-     * @return true if the entity was spawned from one of our spawners, otherwise false
-     */
-    public boolean isSpawnedFromSpawner(LivingEntity entity) {
-        if (NMSUtil.getVersionNumber() > 13) {
-            return entity.getPersistentDataContainer().has(new NamespacedKey(this.rosePlugin, METADATA_NAME), PersistentDataType.INTEGER);
-        } else {
-            return entity.hasMetadata(METADATA_NAME);
-        }
     }
 
 }

@@ -99,7 +99,7 @@ public class InteractListener implements Listener {
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();
         spawnLocation.add(0.5, 0, 0.5); // Center on block
 
-        if (this.spawnEntities(null, spawnLocation, item)) {
+        if (this.spawnEntities(null, spawnLocation, item) && clickedBlock.getType() != Material.SPAWNER) {
             ItemUtils.takeOneItem(event.getPlayer(), event.getHand());
             event.setCancelled(true);
         }

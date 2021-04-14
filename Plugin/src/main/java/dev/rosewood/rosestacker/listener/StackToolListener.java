@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -41,14 +40,12 @@ public class StackToolListener implements Listener {
 
     private final StackManager stackManager;
     private final LocaleManager localeManager;
-    private final SpawnerSpawnManager spawnerSpawnManager;
 
     private final Map<UUID, SelectedEntities> selectedEntities;
 
     public StackToolListener(RosePlugin rosePlugin) {
         this.stackManager = rosePlugin.getManager(StackManager.class);
         this.localeManager = rosePlugin.getManager(LocaleManager.class);
-        this.spawnerSpawnManager = rosePlugin.getManager(SpawnerSpawnManager.class);
 
         this.selectedEntities = new HashMap<>();
     }
@@ -173,7 +170,7 @@ public class StackToolListener implements Listener {
             if (entity.getCustomName() != null)
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.single("name", entity.getCustomName()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", PersistentDataUtils.isUnstackable(entity) ? falseStr : trueStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.single("value", this.spawnerSpawnManager.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.single("value", PersistentDataUtils.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.single("value", !PersistentDataUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", entity.getLocation().getBlockX())
                     .addPlaceholder("y", entity.getLocation().getBlockY()).addPlaceholder("z", entity.getLocation().getBlockZ()).addPlaceholder("world", entity.getWorld().getName()).build());

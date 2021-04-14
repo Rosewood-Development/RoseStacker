@@ -6,8 +6,8 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
-import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -52,6 +52,7 @@ import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.PigZapEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
+import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -60,15 +61,15 @@ public class EntityListener implements Listener {
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
+    private final StackSettingManager stackSettingManager;
     private final EntityCacheManager entityCacheManager;
-    private final SpawnerSpawnManager spawnerSpawnManager;
 
     public EntityListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
 
         this.stackManager = this.rosePlugin.getManager(StackManager.class);
+        this.stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
-        this.spawnerSpawnManager = this.rosePlugin.getManager(SpawnerSpawnManager.class);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -104,6 +105,17 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSpawnerSpawn(SpawnerSpawnEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        PersistentDataUtils.tagSpawnedFromSpawner(entity);
+        if (this.stackSettingManager.getSpawnerStackSettings(event.getSpawner()).isMobAIDisabled())
+            PersistentDataUtils.removeEntityAi(entity);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         // Withers can still target enitites due to custom boss AI, so prevent them from targeting
         Entity entity = event.getEntity();
@@ -111,7 +123,7 @@ public class EntityListener implements Listener {
             return;
 
         boolean disableAttacking = (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
-                || (Setting.SPAWNER_DISABLE_ATTACKING.getBoolean()) && this.spawnerSpawnManager.isSpawnedFromSpawner((LivingEntity) event.getEntity());
+                || (Setting.SPAWNER_DISABLE_ATTACKING.getBoolean()) && PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity());
         if (disableAttacking)
             event.setCancelled(true);
     }

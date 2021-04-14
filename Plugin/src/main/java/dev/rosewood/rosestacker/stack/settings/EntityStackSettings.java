@@ -6,10 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.NMSUtil;
-import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -232,11 +230,9 @@ public abstract class EntityStackSettings extends StackSettings {
                 return EntityStackComparisonResult.IN_WATER;
         }
 
-        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean()) {
-            SpawnerSpawnManager spawnerSpawnManager = RoseStacker.getInstance().getManager(SpawnerSpawnManager.class);
-            if (!spawnerSpawnManager.isSpawnedFromSpawner(entity1) || !spawnerSpawnManager.isSpawnedFromSpawner(entity2))
-                return EntityStackComparisonResult.NOT_SPAWNED_FROM_SPAWNER;
-        }
+        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean() &&
+                (!PersistentDataUtils.isSpawnedFromSpawner(entity1) || !PersistentDataUtils.isSpawnedFromSpawner(entity2)))
+            return EntityStackComparisonResult.NOT_SPAWNED_FROM_SPAWNER;
 
         // Don't stack if being ridden or is riding something
         if ((!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle()) && !comparingForUnstack)
