@@ -33,10 +33,6 @@ public final class EntitySerializer {
                     dataOutput.writeByte(b);
             }
 
-            // Write the original mob name
-            // UNUSED: Kept for legacy purposes
-            dataOutput.writeUTF("");
-
             // Serialize that array
             dataOutput.close();
             return outputStream.toByteArray();
@@ -70,10 +66,6 @@ public final class EntitySerializer {
                     nbtData[n] = dataInput.readByte();
                 stackNbtData.add(nbtData);
             }
-
-            // Read original mob name, if any
-            // UNUSED: Kept for legacy purposes
-            String originalCustomName = dataInput.readUTF();
 
             return new StackedEntity(id, livingEntity, stackNbtData);
         } catch (Exception e) {
