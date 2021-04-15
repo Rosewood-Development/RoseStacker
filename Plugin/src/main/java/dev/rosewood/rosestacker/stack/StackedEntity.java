@@ -23,6 +23,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -149,6 +150,19 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
+
+        // Attempt to prevent adult entities from going into walls when a baby entity gets unstacked
+        if (oldEntity instanceof Ageable) {
+            Ageable ageable1 = (Ageable) oldEntity;
+            Ageable ageable2 = (Ageable) this.entity;
+            if (!ageable1.isAdult() && ageable2.isAdult()) {
+                Location centered = ageable1.getLocation();
+                centered.setX(centered.getBlockX() + 0.5);
+                centered.setZ(centered.getBlockZ() + 0.5);
+                ageable2.teleport(centered);
+            }
+        }
+
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
