@@ -311,6 +311,7 @@ public final class ItemUtils {
         meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
 
         item.setItemMeta(meta);
+        cachedStackingTool = item;
         return item;
     }
 
