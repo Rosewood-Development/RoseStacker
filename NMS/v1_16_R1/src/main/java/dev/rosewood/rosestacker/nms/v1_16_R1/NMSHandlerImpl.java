@@ -28,10 +28,13 @@ import net.minecraft.server.v1_16_R1.DataWatcherObject;
 import net.minecraft.server.v1_16_R1.DataWatcherRegistry;
 import net.minecraft.server.v1_16_R1.Entity;
 import net.minecraft.server.v1_16_R1.EntityCreeper;
+import net.minecraft.server.v1_16_R1.EntityHuman;
 import net.minecraft.server.v1_16_R1.EntityInsentient;
 import net.minecraft.server.v1_16_R1.EntityLiving;
 import net.minecraft.server.v1_16_R1.EntityTypes;
+import net.minecraft.server.v1_16_R1.EntityZombie;
 import net.minecraft.server.v1_16_R1.EnumMobSpawn;
+import net.minecraft.server.v1_16_R1.GroupDataEntity;
 import net.minecraft.server.v1_16_R1.IChatBaseComponent;
 import net.minecraft.server.v1_16_R1.IChunkAccess;
 import net.minecraft.server.v1_16_R1.IRegistry;
@@ -231,18 +234,57 @@ public class NMSHandlerImpl implements NMSHandler {
             throw new IllegalArgumentException("EntityType must be of a LivingEntity");
 
         EntityTypes<? extends Entity> nmsEntityType = IRegistry.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(entityType.getKey()));
-        Entity nmsEntity = nmsEntityType.createCreature(
+        Entity nmsEntity = this.createCreature(
+                nmsEntityType,
                 ((CraftWorld) world).getHandle(),
                 null,
                 null,
                 null,
                 new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
                 EnumMobSpawn.SPAWN_EGG,
-                false,
                 false
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
+    }
+
+    /**
+     * Duplicate of {@link EntityTypes#createCreature(net.minecraft.server.v1_16_R1.World, NBTTagCompound, IChatBaseComponent, EntityHuman, BlockPosition, EnumMobSpawn, boolean, boolean)}
+     * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
+     */
+    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_16_R1.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, EnumMobSpawn enummobspawn, boolean flag) {
+        T newEntity = entityTypes.a(worldserver);
+        if (newEntity == null) {
+            return null;
+        } else {
+            newEntity.setPositionRotation(blockposition.getX() + 0.5D, blockposition.getY(), blockposition.getZ() + 0.5D, MathHelper.g(worldserver.random.nextFloat() * 360.0F), 0.0F);
+            if (newEntity instanceof EntityInsentient) {
+                EntityInsentient entityinsentient = (EntityInsentient)newEntity;
+                entityinsentient.aJ = entityinsentient.yaw;
+                entityinsentient.aH = entityinsentient.yaw;
+
+                GroupDataEntity groupDataEntity = null;
+                if (entityTypes == EntityTypes.DROWNED
+                        || entityTypes == EntityTypes.HUSK
+                        || entityTypes == EntityTypes.ZOMBIE_VILLAGER
+                        || entityTypes == EntityTypes.ZOMBIFIED_PIGLIN
+                        || entityTypes == EntityTypes.ZOMBIE) {
+                    groupDataEntity = new EntityZombie.GroupDataZombie(EntityZombie.a(worldserver.getRandom()), false);
+                }
+
+                entityinsentient.prepare(worldserver, worldserver.getDamageScaler(entityinsentient.getChunkCoordinates()), enummobspawn, groupDataEntity, nbttagcompound);
+            }
+
+            if (ichatbasecomponent != null && newEntity instanceof EntityLiving) {
+                newEntity.setCustomName(ichatbasecomponent);
+            }
+
+            try {
+                EntityTypes.a(worldserver, entityhuman, newEntity, nbttagcompound);
+            } catch (Throwable ignored) { }
+
+            return newEntity;
+        }
     }
 
     @Override

@@ -255,12 +255,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                LivingEntity entity;
-                try {
-                    entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
-                } catch (Throwable e) {
-                    continue; // This is here due to jockeys trying to add entities to the world async, no bueno
-                }
+                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
 
                 if (ageable)
                     ((Ageable) entity).setAdult();

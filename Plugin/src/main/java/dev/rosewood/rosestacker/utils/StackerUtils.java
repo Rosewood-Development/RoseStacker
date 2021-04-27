@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.utils;
 
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;

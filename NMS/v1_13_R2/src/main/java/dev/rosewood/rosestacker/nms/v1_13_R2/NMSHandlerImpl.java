@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,9 +26,12 @@ import net.minecraft.server.v1_13_R2.DataWatcherObject;
 import net.minecraft.server.v1_13_R2.DataWatcherRegistry;
 import net.minecraft.server.v1_13_R2.Entity;
 import net.minecraft.server.v1_13_R2.EntityCreeper;
+import net.minecraft.server.v1_13_R2.EntityHuman;
 import net.minecraft.server.v1_13_R2.EntityInsentient;
 import net.minecraft.server.v1_13_R2.EntityLiving;
 import net.minecraft.server.v1_13_R2.EntityTypes;
+import net.minecraft.server.v1_13_R2.EntityZombie;
+import net.minecraft.server.v1_13_R2.GroupDataEntity;
 import net.minecraft.server.v1_13_R2.IChatBaseComponent;
 import net.minecraft.server.v1_13_R2.IRegistry;
 import net.minecraft.server.v1_13_R2.MathHelper;
@@ -71,6 +75,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_PathfinderGoalSelector_b; // Field to get a PathfinderGoalSelector of an insentient entity, normally private
     private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
 
+    private static Constructor<EntityZombie.GroupDataZombie> constructor_GroupDataZombie; // Constructor to create a GroupDataZombie instance, normally private
+
     static {
         try {
             field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
@@ -94,6 +100,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_EntityInsentient_moveController = EntityInsentient.class.getDeclaredField("moveController");
             field_EntityInsentient_moveController.setAccessible(true);
+
+            constructor_GroupDataZombie = EntityZombie.GroupDataZombie.class.getDeclaredConstructor(EntityZombie.class, boolean.class);
+            constructor_GroupDataZombie.setAccessible(true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -224,17 +233,60 @@ public class NMSHandlerImpl implements NMSHandler {
         if (nmsEntityType == null)
             return null;
 
-        Entity nmsEntity = nmsEntityType.b(
+        Entity nmsEntity = this.createCreature(
+                nmsEntityType,
                 ((CraftWorld) world).getHandle(),
                 null,
                 null,
                 null,
                 new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                false,
                 false
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
+    }
+
+    /**
+     * Duplicate of {@link EntityTypes#b(net.minecraft.server.v1_13_R2.World, NBTTagCompound, IChatBaseComponent, EntityHuman, BlockPosition, boolean, boolean)}
+     * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
+     */
+    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_13_R2.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, boolean flag) {
+        T newEntity = entityTypes.a(worldserver);
+        if (newEntity == null) {
+            return null;
+        } else {
+            newEntity.setPositionRotation(blockposition.getX() + 0.5D, blockposition.getY(), blockposition.getZ() + 0.5D, MathHelper.g(worldserver.random.nextFloat() * 360.0F), 0.0F);
+            if (newEntity instanceof EntityInsentient) {
+                EntityInsentient entityinsentient = (EntityInsentient)newEntity;
+                entityinsentient.aS = entityinsentient.yaw;
+                entityinsentient.aQ = entityinsentient.yaw;
+
+                GroupDataEntity groupDataEntity = null;
+                if (entityTypes == EntityTypes.DROWNED
+                        || entityTypes == EntityTypes.HUSK
+                        || entityTypes == EntityTypes.ZOMBIE_VILLAGER
+                        || entityTypes == EntityTypes.ZOMBIE_PIGMAN
+                        || entityTypes == EntityTypes.ZOMBIE) {
+                    try {
+                        groupDataEntity = constructor_GroupDataZombie.newInstance(newEntity, false);
+                    } catch (ReflectiveOperationException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                entityinsentient.prepare(worldserver.getDamageScaler(new BlockPosition(entityinsentient)), groupDataEntity, nbttagcompound);
+            }
+
+            if (ichatbasecomponent != null && newEntity instanceof EntityLiving) {
+                newEntity.setCustomName(ichatbasecomponent);
+            }
+
+            try {
+                EntityTypes.a(worldserver, entityhuman, newEntity, nbttagcompound);
+            } catch (Throwable ignored) { }
+
+            return newEntity;
+        }
     }
 
     @Override
