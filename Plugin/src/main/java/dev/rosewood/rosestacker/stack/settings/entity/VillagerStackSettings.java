@@ -6,14 +6,14 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
 public class VillagerStackSettings extends EntityStackSettings {
 
-    private static final Set<Villager.Profession> UNPROFESSIONED_VALUES = EnumSet.of(Villager.Profession.NONE, Villager.Profession.NITWIT);
+    private static final List<String> UNPROFESSIONED_VALUE_NAMES = Arrays.asList("NONE", "NITWIT");
 
     private final boolean dontStackIfProfessioned;
     private final boolean dontStackIfDifferentProfession;
@@ -34,7 +34,7 @@ public class VillagerStackSettings extends EntityStackSettings {
         Villager villager1 = (Villager) stack1.getEntity();
         Villager villager2 = (Villager) stack2.getEntity();
 
-        if (this.dontStackIfProfessioned && (!UNPROFESSIONED_VALUES.contains(villager1.getProfession()) || !UNPROFESSIONED_VALUES.contains(villager2.getProfession())))
+        if (this.dontStackIfProfessioned && (!UNPROFESSIONED_VALUE_NAMES.contains(villager1.getProfession().name()) || !UNPROFESSIONED_VALUE_NAMES.contains(villager2.getProfession().name())))
             return EntityStackComparisonResult.PROFESSIONED;
 
         if (this.dontStackIfDifferentProfession && villager1.getProfession() != villager2.getProfession())
