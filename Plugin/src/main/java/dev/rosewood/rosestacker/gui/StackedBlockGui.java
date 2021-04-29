@@ -135,7 +135,7 @@ public class StackedBlockGui {
                         .setName(confirmDestroyString.getName())
                         .setLore(confirmDestroyString.getLore())
                         .setClickAction(event -> {
-                            this.destroyStackedBlock();
+                            this.destroyStackedBlock((Player) event.getWhoClicked());
                             return ClickAction.NOTHING;
                         }))
                 .addButtonAt(14, GuiFactory.createButton()
@@ -227,7 +227,7 @@ public class StackedBlockGui {
         }
     }
 
-    private void destroyStackedBlock() {
+    private void destroyStackedBlock(Player player) {
         this.kickOutViewers();
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
@@ -239,12 +239,14 @@ public class StackedBlockGui {
                 itemsToDrop = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize()));
             }
 
-            Location dropLocation = this.stackedBlock.getLocation().clone();
-            dropLocation.add(0.5, 0.5, 0.5);
+            if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+                ItemUtils.dropItemsToPlayer(player, itemsToDrop);
+            } else {
+                Location dropLocation = this.stackedBlock.getLocation().clone().add(0.5, 0.5, 0.5);
+                stackManager.preStackItems(itemsToDrop, dropLocation);
+            }
 
             this.stackedBlock.setStackSize(0);
-            stackManager.preStackItems(itemsToDrop, dropLocation);
-
             stackManager.removeBlockStack(this.stackedBlock);
             this.stackedBlock.getBlock().setType(Material.AIR);
 
