@@ -384,8 +384,8 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerShearSheep(PlayerShearEntityEvent event) {
-        ItemStack tool = event.getItem();
-        if (!handleSheepShear(this.rosePlugin, tool, event.getEntity()))
+        ItemStack tool = event.getPlayer().getInventory().getItem(event.getHand()).clone();
+        if (tool.getType() != Material.SHEARS || !handleSheepShear(this.rosePlugin, tool, event.getEntity()))
             return;
 
         event.setCancelled(true);

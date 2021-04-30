@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'org.spigotmc:spigot:1.16.4'
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
-    compileOnly 'me.clip:placeholderapi:2.10.4'
+    compileOnly 'me.clip:placeholderapi:2.10.9'
     compileOnly 'org.jetbrains:annotations:16.0.2'
     compileOnly 'us.myles:viaversion:3.1.0'
 
