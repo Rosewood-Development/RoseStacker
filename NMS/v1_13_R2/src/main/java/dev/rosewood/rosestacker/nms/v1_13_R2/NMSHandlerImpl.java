@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_13_R2.BlockPosition;
@@ -29,6 +30,7 @@ import net.minecraft.server.v1_13_R2.EntityCreeper;
 import net.minecraft.server.v1_13_R2.EntityHuman;
 import net.minecraft.server.v1_13_R2.EntityInsentient;
 import net.minecraft.server.v1_13_R2.EntityLiving;
+import net.minecraft.server.v1_13_R2.EntitySpider;
 import net.minecraft.server.v1_13_R2.EntityTypes;
 import net.minecraft.server.v1_13_R2.EntityZombie;
 import net.minecraft.server.v1_13_R2.GroupDataEntity;
@@ -267,11 +269,19 @@ public class NMSHandlerImpl implements NMSHandler {
                         || entityTypes == EntityTypes.ZOMBIE_VILLAGER
                         || entityTypes == EntityTypes.ZOMBIE_PIGMAN
                         || entityTypes == EntityTypes.ZOMBIE) {
+                    // Don't allow chicken jockeys to spawn
                     try {
                         groupDataEntity = constructor_GroupDataZombie.newInstance(newEntity, false);
                     } catch (ReflectiveOperationException ex) {
                         ex.printStackTrace();
                     }
+                } else if (entityTypes == EntityTypes.SPIDER) {
+                    groupDataEntity = new EntitySpider.GroupDataSpider() {
+                        @Override
+                        public void a(Random random) {
+                            // Don't let spiders spawn with potion effects
+                        }
+                    };
                 }
 
                 entityinsentient.prepare(worldserver.getDamageScaler(new BlockPosition(entityinsentient)), groupDataEntity, nbttagcompound);

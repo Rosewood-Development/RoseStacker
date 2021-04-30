@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_16_R2.BlockPosition;
@@ -32,6 +33,7 @@ import net.minecraft.server.v1_16_R2.EntityCreeper;
 import net.minecraft.server.v1_16_R2.EntityHuman;
 import net.minecraft.server.v1_16_R2.EntityInsentient;
 import net.minecraft.server.v1_16_R2.EntityLiving;
+import net.minecraft.server.v1_16_R2.EntitySpider;
 import net.minecraft.server.v1_16_R2.EntityTypes;
 import net.minecraft.server.v1_16_R2.EntityZombie;
 import net.minecraft.server.v1_16_R2.EnumMobSpawn;
@@ -270,7 +272,15 @@ public class NMSHandlerImpl implements NMSHandler {
                         || entityTypes == EntityTypes.ZOMBIE_VILLAGER
                         || entityTypes == EntityTypes.ZOMBIFIED_PIGLIN
                         || entityTypes == EntityTypes.ZOMBIE) {
+                    // Don't allow chicken jockeys to spawn
                     groupDataEntity = new EntityZombie.GroupDataZombie(EntityZombie.a(worldserver.getRandom()), false);
+                } else if (entityTypes == EntityTypes.SPIDER) {
+                    groupDataEntity = new EntitySpider.GroupDataSpider() {
+                        @Override
+                        public void a(Random random) {
+                            // Don't let spiders spawn with potion effects
+                        }
+                    };
                 }
 
                 entityinsentient.prepare(worldserver, worldserver.getDamageScaler(entityinsentient.getChunkCoordinates()), enummobspawn, groupDataEntity, nbttagcompound);
