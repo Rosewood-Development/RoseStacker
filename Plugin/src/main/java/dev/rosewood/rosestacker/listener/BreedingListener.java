@@ -63,14 +63,15 @@ public class BreedingListener implements Listener {
 
         event.setCancelled(true);
 
-        // Total children should be half the stack size, rounded down
-        int totalChildren = stackSize / 2;
-
         // Take the items for breeding
+        int totalChildren;
         if (player.getGameMode() != GameMode.CREATIVE) {
             int requiredFood = Math.min(stackSize, breedingItem.getAmount());
             breedingItem.setAmount(breedingItem.getAmount() - requiredFood);
-            totalChildren = requiredFood;
+            totalChildren = requiredFood / 2;
+        } else {
+            // Creative mode should allow the entire stack to breed half as many babies as the total size
+            totalChildren = stackSize / 2;
         }
 
         // Reset breeding timer and play the breeding effect
