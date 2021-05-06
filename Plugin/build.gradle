@@ -21,7 +21,8 @@ dependencies {
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.9'
     compileOnly 'org.jetbrains:annotations:16.0.2'
-    compileOnly 'us.myles:viaversion:3.1.0'
+    compileOnly 'us.myles:viaversion:3.2.2-SNAPSHOT'
+    compileOnly 'com.viaversion:viaversion:4.0.0-21w18a'
 
     // Hologram plugins
     compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
