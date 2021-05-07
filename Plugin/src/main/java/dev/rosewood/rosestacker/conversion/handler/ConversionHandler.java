@@ -60,7 +60,7 @@ public abstract class ConversionHandler {
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         for (int i = 0; i < amount - 1; i++)
-            entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createEntityUnspawned(entityType, location), Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
+            entityNBT.add(nmsHandler.getEntityAsNBT(nmsHandler.createNewEntityUnspawned(entityType, location), Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
 
         return Collections.synchronizedList(entityNBT);
     }

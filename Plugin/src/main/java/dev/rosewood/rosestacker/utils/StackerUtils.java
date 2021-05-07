@@ -159,12 +159,11 @@ public final class StackerUtils {
     public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
         List<byte[]> nbtList = new LinkedList<>(stackedEntity.getStackedEntityNBT());
         List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
-        EntityType entityType = stackedEntity.getEntity().getType();
         Location location = stackedEntity.getLocation();
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         for (byte[] nbt : nbtList)
-            livingEntities.add(nmsHandler.getNBTAsEntity(entityType, location, nbt));
+            livingEntities.add(nmsHandler.createEntityFromNBT(nbt, location, false));
 
         return livingEntities;
     }

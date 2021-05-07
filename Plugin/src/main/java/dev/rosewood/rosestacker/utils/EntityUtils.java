@@ -149,7 +149,7 @@ public final class EntityUtils {
 
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
-            boundingBox = NMSAdapter.getHandler().createEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0)).getBoundingBox();
+            boundingBox = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0)).getBoundingBox();
             cachedBoundingBoxes.put(entityType, boundingBox);
         }
 

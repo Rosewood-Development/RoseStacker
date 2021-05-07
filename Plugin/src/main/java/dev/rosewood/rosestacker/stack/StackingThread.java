@@ -578,7 +578,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             Set<StackedEntity> stackedEntities = new HashSet<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (int i = 0; i < amount; i++) {
-                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+                LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location);
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
                         stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
@@ -594,7 +594,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 for (StackedEntity stackedEntity : stackedEntities) {
                     LivingEntity entity = stackedEntity.getEntity();
                     this.entityCacheManager.preCacheEntity(entity);
-                    entity.teleport(entity.getLocation().clone().add(0, 300, 0));
                     nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), SpawnReason.SPAWNER_EGG);
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     this.addEntityStack(stackedEntity);

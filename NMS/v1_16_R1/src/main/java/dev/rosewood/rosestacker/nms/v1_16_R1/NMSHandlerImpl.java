@@ -143,12 +143,14 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity spawnEntityFromNBT(byte[] serialized, Location location) {
+    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
             // Read entity type
             String entityType = dataInput.readUTF();
+            if (overwriteType != null)
+                entityType = overwriteType.getKey().getKey();
 
             // Read NBT
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
@@ -178,14 +180,20 @@ public class NMSHandlerImpl implements NMSHandler {
                 if (entity == null)
                     throw new NullPointerException("Unable to create entity from NBT");
 
-                IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, true);
-                if (!(ichunkaccess instanceof Chunk))
-                    throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
+                if (addToWorld) {
+                    IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, true);
+                    if (!(ichunkaccess instanceof Chunk))
+                        throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
 
-                ichunkaccess.a(entity);
-                method_WorldServer_registerEntity.invoke(world, entity);
+                    ichunkaccess.a(entity);
+                    method_WorldServer_registerEntity.invoke(world, entity);
+                }
 
+                // Load NBT
                 entity.load(nbt);
+
+                // Update loot table
+                method_EntityLiving_a.invoke(entity, DamageSource.GENERIC, false);
 
                 return (LivingEntity) entity.getBukkitEntity();
             }
@@ -197,36 +205,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity getNBTAsEntity(EntityType entityType, Location location, byte[] serialized) {
-        if (location.getWorld() == null)
-            return null;
-
-        CraftWorld craftWorld = (CraftWorld) location.getWorld();
-        EntityLiving entity = (EntityLiving) craftWorld.createEntity(location, entityType.getEntityClass());
-
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
-
-            // Read entity type, don't need the value
-            dataInput.readUTF();
-
-            // Read NBT
-            NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
-
-            // Set NBT
-            entity.load(nbt);
-
-            // Update loot table
-            method_EntityLiving_a.invoke(entity, DamageSource.GENERIC, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return (LivingEntity) entity.getBukkitEntity();
-    }
-
-    @Override
-    public LivingEntity createEntityUnspawned(EntityType entityType, Location location) {
+    public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location) {
         World world = location.getWorld();
         if (world == null)
             return null;

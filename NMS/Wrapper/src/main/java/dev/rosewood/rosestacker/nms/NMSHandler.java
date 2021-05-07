@@ -23,23 +23,27 @@ public interface NMSHandler {
     byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes);
 
     /**
-     * Deserializes and forcefully spawns the entity at the given location
+     * Deserializes and optionally forcefully spawns the entity at the given location
      *
      * @param serialized entity
      * @param location to spawn the entity at
+     * @param addToWorld whether or not to add the entity to the world
+     * @param overwriteType entity type to use over the serialized type, nullable
      * @return the entity spawned from the NBT
      */
-    LivingEntity spawnEntityFromNBT(byte[] serialized, Location location);
+    LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType);
 
     /**
-     * Gets a LivingEntity from an NBT string without spawning the entity into the world
+     * Deserializes and optionally forcefully spawns the entity at the given location
      *
-     * @param entityType The type of the entity to spawn
-     * @param location The location that the entity would normally be spawned in
-     * @param serialized The serialized entity NBT data
-     * @return A LivingEntity instance, not in the world
+     * @param serialized entity
+     * @param location to spawn the entity at
+     * @param addToWorld whether or not to add the entity to the world
+     * @return the entity spawned from the NBT
      */
-    LivingEntity getNBTAsEntity(EntityType entityType, Location location, byte[] serialized);
+    default LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld) {
+        return this.createEntityFromNBT(serialized, location, addToWorld, null);
+    }
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world
@@ -48,7 +52,7 @@ public interface NMSHandler {
      * @param location The location the entity would have spawned at
      * @return The newly created LivingEntity instance
      */
-    LivingEntity createEntityUnspawned(EntityType entityType, Location location);
+    LivingEntity createNewEntityUnspawned(EntityType entityType, Location location);
 
     /**
      * Adds an unspawned entity to the world

@@ -145,7 +145,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         LivingEntity oldEntity = this.entity;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().spawnEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation());
+        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation(), true);
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
@@ -200,7 +200,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             List<LivingEntity> internalEntities = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (byte[] entityNBT : new ArrayList<>(this.serializedStackedEntities)) {
-                LivingEntity entity = nmsHandler.getNBTAsEntity(thisEntity.getType(), thisEntity.getLocation(), entityNBT);
+                LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false);
                 if (entity == null)
                     continue;
                 internalEntities.add(entity);
@@ -242,7 +242,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     if (async) {
                         deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
                     } else {
-                        deathEvent = new EntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                        deathEvent = new EntityDeathEvent(thisEntity, new ArrayList<>(entityLoot), droppedExp);
                     }
 
                     Bukkit.getPluginManager().callEvent(deathEvent);
@@ -298,7 +298,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.entity instanceof EnderDragon)
             return true;
 
-        LivingEntity entity = NMSAdapter.getHandler().getNBTAsEntity(this.entity.getType(), this.entity.getLocation(), this.serializedStackedEntities.get(0));
+        LivingEntity entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.get(0), this.entity.getLocation(), false);
         StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }

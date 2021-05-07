@@ -255,7 +255,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                LivingEntity entity = nmsHandler.createEntityUnspawned(entityType, location.clone().subtract(0, 300, 0));
+                LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location);
 
                 if (ageable)
                     ((Ageable) entity).setAdult();
@@ -290,7 +290,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     if (spawnerSpawnEvent.isCancelled())
                         continue;
 
-                    entity.teleport(entity.getLocation().clone().add(0, 300, 0));
                     nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     this.stackManager.addEntityStack(stackedEntity);

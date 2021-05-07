@@ -329,7 +329,7 @@ public class EntityListener implements Listener {
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
-                LivingEntity newEntity = nmsHandler.spawnEntityFromNBT(serialized, transformedEntity.getLocation());
+                LivingEntity newEntity = nmsHandler.createEntityFromNBT(serialized, transformedEntity.getLocation(), true);
                 if (aiDisabled)
                     PersistentDataUtils.removeEntityAi(newEntity);
                 StackedEntity newStack = this.stackManager.createEntityStack(newEntity, false);
@@ -338,7 +338,7 @@ public class EntityListener implements Listener {
                     return;
 
                 for (byte[] serializedEntity : stackedEntity.getStackedEntityNBT()) {
-                    LivingEntity entity = nmsHandler.getNBTAsEntity(transformedEntity.getType(), transformedEntity.getLocation(), serializedEntity);
+                    LivingEntity entity = nmsHandler.createEntityFromNBT(serializedEntity, transformedEntity.getLocation(), false, transformedEntity.getType());
                     if (aiDisabled)
                         PersistentDataUtils.removeEntityAi(entity);
                     newStack.increaseStackSize(entity);
