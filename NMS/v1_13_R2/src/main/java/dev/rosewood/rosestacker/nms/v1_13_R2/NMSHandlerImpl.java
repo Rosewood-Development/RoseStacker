@@ -163,14 +163,14 @@ public class NMSHandlerImpl implements NMSHandler {
             if (entityTypes != null) {
                 WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
 
-                Entity entity = entityTypes.b(
+                Entity entity = this.createCreature(
+                        entityTypes,
                         world,
                         nbt,
                         null,
                         null,
                         new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        true,
-                        false
+                        true
                 );
 
                 if (entity == null)
