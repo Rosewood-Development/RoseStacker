@@ -1,9 +1,9 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.1.0' apply false
+    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
 }
 
 allprojects {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
     version = '1.2.5'
@@ -12,15 +12,14 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
 
         maven { url = 'https://bitbucket.org/kangarko/libraries/raw/master' }
         maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://repo.md-5.net/content/repositories/public/' }
         maven { url = 'https://repo.codemc.org/repository/maven-public' }
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
-        maven { url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
-        maven { url = 'http://maven.playpro.com' }
+        maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.viaversion.com/' }
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
