@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -48,6 +49,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.PigZapEvent;
@@ -117,7 +119,7 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
-        // Withers can still target enitites due to custom boss AI, so prevent them from targeting
+        // Withers can still target enitites due to custom boss AI, so prevent them from targeting when AI is disabled
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity))
             return;
@@ -125,6 +127,13 @@ public class EntityListener implements Listener {
         boolean disableAttacking = (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
                 || (Setting.SPAWNER_DISABLE_ATTACKING.getBoolean()) && PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity());
         if (disableAttacking)
+            event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityTeleport(EntityTeleportEvent event) {
+        // Endermen can still target enitites due to custom dodging AI, so prevent them from teleporting when AI is disabled
+        if (event.getEntityType() == EntityType.ENDERMAN && PersistentDataUtils.isAiDisabled((Enderman) event.getEntity()))
             event.setCancelled(true);
     }
 
