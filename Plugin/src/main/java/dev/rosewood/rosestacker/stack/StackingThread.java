@@ -706,12 +706,25 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackedEntity increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
         targetEntities.remove(increased);
 
-        int totalSize = increased.getStackSize();
+        int totalSize;
         List<StackedEntity> removable = new ArrayList<>(targetEntities.size());
-        for (StackedEntity target : targetEntities) {
-            if (totalSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
-                totalSize += target.getStackSize();
-                removable.add(target);
+        if (!Setting.ENTITY_MIN_STACK_COUNT_ONLY_INDIVIDUALS.getBoolean()) {
+            totalSize = increased.getStackSize();
+            for (StackedEntity target : targetEntities) {
+                if (totalSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
+                    totalSize += target.getStackSize();
+                    removable.add(target);
+                }
+            }
+        } else {
+            totalSize = 1;
+            int totalStackSize = increased.getStackSize();
+            for (StackedEntity target : targetEntities) {
+                if (totalStackSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
+                    totalSize++;
+                    totalStackSize += target.getStackSize();
+                    removable.add(target);
+                }
             }
         }
 
