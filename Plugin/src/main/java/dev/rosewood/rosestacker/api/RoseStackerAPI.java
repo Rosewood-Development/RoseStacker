@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -82,7 +83,9 @@ public final class RoseStackerAPI {
      * @return a StackingThread for the World, otherwise null if one doesn't exist
      */
     @Nullable
-    public StackingThread getStackingThread(World world) {
+    public StackingThread getStackingThread(@NotNull World world) {
+        Objects.requireNonNull(world);
+
         return this.stackManager.getStackingThread(world);
     }
 
@@ -133,7 +136,9 @@ public final class RoseStackerAPI {
      * @return a StackedEntity, or null if not found
      */
     @Nullable
-    public StackedEntity getStackedEntity(LivingEntity livingEntity) {
+    public StackedEntity getStackedEntity(@NotNull LivingEntity livingEntity) {
+        Objects.requireNonNull(livingEntity);
+
         return this.stackManager.getStackedEntity(livingEntity);
     }
 
@@ -144,7 +149,9 @@ public final class RoseStackerAPI {
      * @return a StackedItem, or null if not found
      */
     @Nullable
-    public StackedItem getStackedItem(Item item) {
+    public StackedItem getStackedItem(@NotNull Item item) {
+        Objects.requireNonNull(item);
+
         return this.stackManager.getStackedItem(item);
     }
 
@@ -155,7 +162,9 @@ public final class RoseStackerAPI {
      * @return a StackedBlock, or null if not found
      */
     @Nullable
-    public StackedBlock getStackedBlock(Block block) {
+    public StackedBlock getStackedBlock(@NotNull Block block) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.getStackedBlock(block);
     }
 
@@ -166,7 +175,9 @@ public final class RoseStackerAPI {
      * @return a StackedBlock, or null if not found
      */
     @Nullable
-    public StackedSpawner getStackedSpawner(Block block) {
+    public StackedSpawner getStackedSpawner(@NotNull Block block) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.getStackedSpawner(block);
     }
 
@@ -176,7 +187,9 @@ public final class RoseStackerAPI {
      * @param livingEntity the entity to check
      * @return true if the entity is part of a StackedEntity, otherwise false
      */
-    public boolean isEntityStacked(LivingEntity livingEntity) {
+    public boolean isEntityStacked(@NotNull LivingEntity livingEntity) {
+        Objects.requireNonNull(livingEntity);
+
         return this.stackManager.isEntityStacked(livingEntity);
     }
 
@@ -186,7 +199,9 @@ public final class RoseStackerAPI {
      * @param item the item to check
      * @return true if the item is part of a StackedItem, otherwise false
      */
-    public boolean isItemStacked(Item item) {
+    public boolean isItemStacked(@NotNull Item item) {
+        Objects.requireNonNull(item);
+
         return this.stackManager.isItemStacked(item);
     }
 
@@ -196,7 +211,9 @@ public final class RoseStackerAPI {
      * @param block the block to check
      * @return true if the block is part of a StackedBlock, otherwise false
      */
-    public boolean isBlockStacked(Block block) {
+    public boolean isBlockStacked(@NotNull Block block) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.isBlockStacked(block);
     }
 
@@ -206,7 +223,9 @@ public final class RoseStackerAPI {
      * @param block the block to check
      * @return true if the block is part of a StackedSpawner, otherwise false
      */
-    public boolean isSpawnerStacked(Block block) {
+    public boolean isSpawnerStacked(@NotNull Block block) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.isSpawnerStacked(block);
     }
 
@@ -215,7 +234,9 @@ public final class RoseStackerAPI {
      *
      * @param stackedEntity the StackedEntity to remove
      */
-    public void removeEntityStack(StackedEntity stackedEntity) {
+    public void removeEntityStack(@NotNull StackedEntity stackedEntity) {
+        Objects.requireNonNull(stackedEntity);
+
         this.stackManager.removeEntityStack(stackedEntity);
     }
 
@@ -224,7 +245,9 @@ public final class RoseStackerAPI {
      *
      * @param stackedItem the StackedItem to remove
      */
-    public void removeItemStack(StackedItem stackedItem) {
+    public void removeItemStack(@NotNull StackedItem stackedItem) {
+        Objects.requireNonNull(stackedItem);
+
         this.stackManager.removeItemStack(stackedItem);
     }
 
@@ -233,7 +256,9 @@ public final class RoseStackerAPI {
      *
      * @param stackedBlock the StackedBlock to remove
      */
-    public void removeBlockStack(StackedBlock stackedBlock) {
+    public void removeBlockStack(@NotNull StackedBlock stackedBlock) {
+        Objects.requireNonNull(stackedBlock);
+
         this.stackManager.removeBlockStack(stackedBlock);
     }
 
@@ -242,7 +267,9 @@ public final class RoseStackerAPI {
      *
      * @param stackedSpawner the StackedSpawner to remove
      */
-    public void removeSpawnerStack(StackedSpawner stackedSpawner) {
+    public void removeSpawnerStack(@NotNull StackedSpawner stackedSpawner) {
+        Objects.requireNonNull(stackedSpawner);
+
         this.stackManager.removeSpawnerStack(stackedSpawner);
     }
 
@@ -272,7 +299,9 @@ public final class RoseStackerAPI {
      * @return the newly created stack, or null if one wasn't created
      */
     @Nullable
-    public StackedEntity createEntityStack(LivingEntity livingEntity, boolean tryStack) {
+    public StackedEntity createEntityStack(@NotNull LivingEntity livingEntity, boolean tryStack) {
+        Objects.requireNonNull(livingEntity);
+
         return this.stackManager.createEntityStack(livingEntity, tryStack);
     }
 
@@ -284,7 +313,9 @@ public final class RoseStackerAPI {
      * @return the newly created stack, or null if one wasn't created
      */
     @Nullable
-    public StackedItem createItemStack(Item item, boolean tryStack) {
+    public StackedItem createItemStack(@NotNull Item item, boolean tryStack) {
+        Objects.requireNonNull(item);
+
         return this.stackManager.createItemStack(item, tryStack);
     }
 
@@ -296,7 +327,9 @@ public final class RoseStackerAPI {
      * @return the newly created stack, or null if one wasn't created
      */
     @Nullable
-    public StackedBlock createBlockStack(Block block, int amount) {
+    public StackedBlock createBlockStack(@NotNull Block block, int amount) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.createBlockStack(block, amount);
     }
 
@@ -308,7 +341,9 @@ public final class RoseStackerAPI {
      * @return the newly created stack, or null if one wasn't created
      */
     @Nullable
-    public StackedSpawner createSpawnerStack(Block block, int amount) {
+    public StackedSpawner createSpawnerStack(@NotNull Block block, int amount) {
+        Objects.requireNonNull(block);
+
         return this.stackManager.createSpawnerStack(block, amount);
     }
 
@@ -320,7 +355,11 @@ public final class RoseStackerAPI {
      * @param location the location to spawn at
      * @param spawnReason The reason the entities are being spawned
      */
-    public void preStackEntities(EntityType entityType, int amount, Location location, SpawnReason spawnReason) {
+    public void preStackEntities(@NotNull EntityType entityType, int amount, @NotNull Location location, @NotNull SpawnReason spawnReason) {
+        Objects.requireNonNull(entityType);
+        Objects.requireNonNull(location);
+        Objects.requireNonNull(spawnReason);
+
         this.stackManager.preStackEntities(entityType, amount, location, spawnReason);
     }
 
@@ -331,7 +370,10 @@ public final class RoseStackerAPI {
      * @param amount the amount of entities to spawn
      * @param location the location to spawn at
      */
-    public void preStackEntities(EntityType entityType, int amount, Location location) {
+    public void preStackEntities(@NotNull EntityType entityType, int amount, @NotNull Location location) {
+        Objects.requireNonNull(entityType);
+        Objects.requireNonNull(location);
+
         this.stackManager.preStackEntities(entityType, amount, location);
     }
 
@@ -341,7 +383,9 @@ public final class RoseStackerAPI {
      * @param items the items to stack and spawn
      * @param location the location to spawn at
      */
-    public void preStackItems(Collection<ItemStack> items, Location location) {
+    public void preStackItems(@NotNull Collection<ItemStack> items, Location location) {
+        Objects.requireNonNull(items);
+
         this.stackManager.preStackItems(items, location);
     }
 
@@ -356,7 +400,9 @@ public final class RoseStackerAPI {
      * @return The EntityStackSettings for the entity
      */
     @NotNull
-    public EntityStackSettings getEntityStackSettings(LivingEntity entity) {
+    public EntityStackSettings getEntityStackSettings(@NotNull LivingEntity entity) {
+        Objects.requireNonNull(entity);
+
         return this.getEntityStackSettings(entity.getType());
     }
 
@@ -367,7 +413,9 @@ public final class RoseStackerAPI {
      * @return The EntityStackSettings for the entity type
      */
     @NotNull
-    public EntityStackSettings getEntityStackSettings(EntityType entityType) {
+    public EntityStackSettings getEntityStackSettings(@NotNull EntityType entityType) {
+        Objects.requireNonNull(entityType);
+
         return this.stackSettingManager.getEntityStackSettings(entityType);
     }
 
@@ -378,7 +426,9 @@ public final class RoseStackerAPI {
      * @return The EntityStackSettings for the spawn egg material, or null if the material is not a spawn egg
      */
     @Nullable
-    public EntityStackSettings getEntityStackSettings(Material material) {
+    public EntityStackSettings getEntityStackSettings(@NotNull Material material) {
+        Objects.requireNonNull(material);
+
         return this.stackSettingManager.getEntityStackSettings(material);
     }
 
@@ -389,7 +439,9 @@ public final class RoseStackerAPI {
      * @return The ItemStackSettings for the item
      */
     @NotNull
-    public ItemStackSettings getItemStackSettings(Item item) {
+    public ItemStackSettings getItemStackSettings(@NotNull Item item) {
+        Objects.requireNonNull(item);
+
         return this.getItemStackSettings(item.getItemStack().getType());
     }
 
@@ -400,7 +452,9 @@ public final class RoseStackerAPI {
      * @return The ItemStackSettings for the item type
      */
     @NotNull
-    public ItemStackSettings getItemStackSettings(Material material) {
+    public ItemStackSettings getItemStackSettings(@NotNull Material material) {
+        Objects.requireNonNull(material);
+
         return this.stackSettingManager.getItemStackSettings(material);
     }
 
@@ -411,7 +465,9 @@ public final class RoseStackerAPI {
      * @return The BlockStackSettings for the block, or null if the block type is not stackable
      */
     @Nullable
-    public BlockStackSettings getBlockStackSettings(Block block) {
+    public BlockStackSettings getBlockStackSettings(@NotNull Block block) {
+        Objects.requireNonNull(block);
+
         return this.getBlockStackSettings(block.getType());
     }
 
@@ -422,7 +478,9 @@ public final class RoseStackerAPI {
      * @return The BlockStackSettings for the block type, or null if the block type is not stackable
      */
     @Nullable
-    public BlockStackSettings getBlockStackSettings(Material material) {
+    public BlockStackSettings getBlockStackSettings(@NotNull Material material) {
+        Objects.requireNonNull(material);
+
         return this.stackSettingManager.getBlockStackSettings(material);
     }
 
@@ -433,7 +491,9 @@ public final class RoseStackerAPI {
      * @return The SpawnerStackSettings for the spawner
      */
     @Nullable
-    public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
+    public SpawnerStackSettings getSpawnerStackSettings(@NotNull CreatureSpawner creatureSpawner) {
+        Objects.requireNonNull(creatureSpawner);
+
         return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
     }
 
@@ -444,7 +504,9 @@ public final class RoseStackerAPI {
      * @return The SpawnerStackSettings for the spawner entity type
      */
     @Nullable
-    public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
+    public SpawnerStackSettings getSpawnerStackSettings(@NotNull EntityType entityType) {
+        Objects.requireNonNull(entityType);
+
         return this.stackSettingManager.getSpawnerStackSettings(entityType);
     }
 
@@ -461,7 +523,9 @@ public final class RoseStackerAPI {
      * @return A Set of StackedEntities
      */
     @NotNull
-    public CompletableFuture<Set<StackedEntity>> getChunkEntityStacks(Collection<Chunk> chunks) {
+    public CompletableFuture<Set<StackedEntity>> getChunkEntityStacks(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
+
         Set<Chunk> loadedChunks = new HashSet<>();
         Set<Chunk> unloadedChunks = new HashSet<>();
 
@@ -499,7 +563,9 @@ public final class RoseStackerAPI {
      * @return A Set of StackedItems
      */
     @NotNull
-    public CompletableFuture<Set<StackedItem>> getChunkItemStacks(Collection<Chunk> chunks) {
+    public CompletableFuture<Set<StackedItem>> getChunkItemStacks(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
+
         Set<Chunk> loadedChunks = new HashSet<>();
         Set<Chunk> unloadedChunks = new HashSet<>();
 
@@ -537,7 +603,9 @@ public final class RoseStackerAPI {
      * @return A Set of StackedBlocks
      */
     @NotNull
-    public CompletableFuture<Set<StackedBlock>> getChunkBlockStacks(Collection<Chunk> chunks) {
+    public CompletableFuture<Set<StackedBlock>> getChunkBlockStacks(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
+
         Set<Chunk> loadedChunks = new HashSet<>();
         Set<Chunk> unloadedChunks = new HashSet<>();
 
@@ -575,7 +643,9 @@ public final class RoseStackerAPI {
      * @return A Set of StackedSpawners
      */
     @NotNull
-    public CompletableFuture<Set<StackedSpawner>> getChunkSpawnerStacks(Collection<Chunk> chunks) {
+    public CompletableFuture<Set<StackedSpawner>> getChunkSpawnerStacks(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
+
         Set<Chunk> loadedChunks = new HashSet<>();
         Set<Chunk> unloadedChunks = new HashSet<>();
 

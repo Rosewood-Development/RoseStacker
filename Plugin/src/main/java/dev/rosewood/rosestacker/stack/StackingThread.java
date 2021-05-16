@@ -703,12 +703,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 targetEntities.add(other);
         }
 
-        StackedEntity increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
-        targetEntities.remove(increased);
-
+        StackedEntity increased;
         int totalSize;
         List<StackedEntity> removable = new ArrayList<>(targetEntities.size());
         if (!Setting.ENTITY_MIN_STACK_COUNT_ONLY_INDIVIDUALS.getBoolean()) {
+            increased = targetEntities.stream().max(StackedEntity::compareTo).orElse(stackedEntity);
+            targetEntities.remove(increased);
             totalSize = increased.getStackSize();
             for (StackedEntity target : targetEntities) {
                 if (totalSize + target.getStackSize() <= stackSettings.getMaxStackSize()) {
@@ -717,6 +717,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 }
             }
         } else {
+            increased = stackedEntity;
+            targetEntities.remove(increased);
             totalSize = 1;
             int totalStackSize = increased.getStackSize();
             for (StackedEntity target : targetEntities) {
