@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.event;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -23,7 +24,7 @@ public class AsyncEntityDeathEvent extends EntityDeathEvent {
     public AsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
         super(what, drops, droppedExp);
         try {
-            asyncField.set(this, true);
+            asyncField.set(this, !Bukkit.isPrimaryThread());
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

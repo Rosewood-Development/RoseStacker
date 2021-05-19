@@ -23,7 +23,6 @@ import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Chunk;
 import net.minecraft.server.v1_15_R1.ChunkStatus;
 import net.minecraft.server.v1_15_R1.ControllerMove;
-import net.minecraft.server.v1_15_R1.DamageSource;
 import net.minecraft.server.v1_15_R1.DataWatcher;
 import net.minecraft.server.v1_15_R1.DataWatcher.Item;
 import net.minecraft.server.v1_15_R1.DataWatcherObject;
@@ -72,7 +71,6 @@ import org.bukkit.inventory.ItemStack;
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
 
-    private static Method method_EntityLiving_a; // Method to update the EntityLiving LootTable, normally protected
     private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
     private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
 
@@ -88,9 +86,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
     static {
         try {
-            method_EntityLiving_a = EntityLiving.class.getDeclaredMethod("a", DamageSource.class, boolean.class);
-            method_EntityLiving_a.setAccessible(true);
-
             field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
             field_PacketPlayOutEntityMetadata_a.setAccessible(true);
 
@@ -197,9 +192,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
                 // Load NBT
                 entity.f(nbt);
-
-                // Update loot table
-                method_EntityLiving_a.invoke(entity, DamageSource.GENERIC, false);
 
                 return (LivingEntity) entity.getBukkitEntity();
             }

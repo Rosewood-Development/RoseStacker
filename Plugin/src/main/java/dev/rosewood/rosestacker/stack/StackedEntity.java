@@ -232,19 +232,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         Runnable mainTask = () -> {
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
-            int fireTicks = thisEntity.getFireTicks(); // Propagate fire ticks so meats cook as you would expect
             int totalExp = droppedExp;
             for (LivingEntity entity : internalEntities) {
-                entity.setFireTicks(fireTicks);
+                // Propagate fire ticks and last damage cause
+                entity.setFireTicks(thisEntity.getFireTicks());
+                entity.setLastDamageCause(thisEntity.getLastDamageCause());
+
                 Collection<ItemStack> entityLoot = EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents && !multiplyCustomLoot) {
-                    EntityDeathEvent deathEvent;
-                    if (async) {
-                        deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
-                    } else {
-                        deathEvent = new EntityDeathEvent(thisEntity, new ArrayList<>(entityLoot), droppedExp);
-                    }
-
+                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     totalExp += deathEvent.getDroppedExp();
                     loot.addAll(deathEvent.getDrops());
