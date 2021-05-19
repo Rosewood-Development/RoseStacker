@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.nms.v1_13_R2;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.v1_13_R2.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_13_R2.object.SpawnerTileWrapperImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,7 +16,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.v1_13_R2.BlockPosition;
@@ -230,7 +230,13 @@ public class NMSHandlerImpl implements NMSHandler {
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
     private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_13_R2.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, boolean flag) {
-        T newEntity = entityTypes.a(worldserver);
+        T newEntity;
+        if (entityTypes == EntityTypes.SPIDER) {
+            newEntity = (T) new SoloEntitySpider((EntityTypes<? extends EntitySpider>) entityTypes, worldserver);
+        } else {
+            newEntity = entityTypes.a(worldserver);
+        }
+
         if (newEntity == null) {
             return null;
         } else {
@@ -252,13 +258,6 @@ public class NMSHandlerImpl implements NMSHandler {
                     } catch (ReflectiveOperationException ex) {
                         ex.printStackTrace();
                     }
-                } else if (entityTypes == EntityTypes.SPIDER) {
-                    groupDataEntity = new EntitySpider.GroupDataSpider() {
-                        @Override
-                        public void a(Random random) {
-                            // Don't let spiders spawn with potion effects
-                        }
-                    };
                 }
 
                 entityinsentient.prepare(worldserver.getDamageScaler(new BlockPosition(entityinsentient)), groupDataEntity, nbttagcompound);
