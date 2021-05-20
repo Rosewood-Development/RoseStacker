@@ -33,6 +33,8 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
@@ -42,6 +44,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityCombustByBlockEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -168,6 +171,27 @@ public class EntityListener implements Listener {
             if (stackedItem != null)
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity().getType() == EntityType.PLAYER)
+            return;
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        if (!Setting.ENTITY_INSTANT_KILL_DISABLED_AI.getBoolean() || this.stackManager.isWorldDisabled(entity.getWorld()) || !PersistentDataUtils.isAiDisabled(entity))
+            return;
+
+        Entity damager = event.getDamager();
+        if (damager instanceof Projectile) {
+            Projectile projectile = (Projectile) damager;
+            if (!(projectile.getShooter() instanceof Player))
+                return;
+        } else if (!(damager instanceof Player)) {
+            return;
+        }
+
+        event.setDamage(entity.getHealth());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
