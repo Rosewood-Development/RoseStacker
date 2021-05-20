@@ -46,7 +46,6 @@ public final class EntityUtils {
             LootContext lootContext = new LootContext.Builder(lootedLocation)
                     .lootedEntity(entity)
                     .killer(killer)
-                    .lootingModifier(killer.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS))
                     .build();
 
             return lootable.getLootTable().populateLoot(RANDOM, lootContext);
