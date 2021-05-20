@@ -50,7 +50,7 @@ public class SimplifiedChineseLocale implements Locale {
 
             this.put("#5", "给予命令");
             this.put("command-give-description", "&8 - &d/rs give &7- 给予预先堆叠的物品");
-            this.put("command-give-usage", "&c用法: &e/rs give <block|spawner|entity> <玩家> <类型> <堆叠量> [份数]");
+            this.put("command-give-usage", "&c用法: &e/rs give <block|spawner|entity> <玩家> <类型> [堆叠量] [份数]");
             this.put("command-give-given", "&e已给予玩家 &b%player% &e[%display%&e]。");
             this.put("command-give-given-multiple", "&e已给予玩家 &b%player% &e%amount%x [%display%&e]。");
             this.put("command-give-unstackable", "&c您指定的类型是无法堆叠的。");

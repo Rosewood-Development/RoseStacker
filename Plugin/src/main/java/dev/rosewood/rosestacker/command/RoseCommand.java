@@ -159,7 +159,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("block")
         @CommandCompletion("* @stackableBlockMaterial @blockStackAmounts @giveAmounts")
-        public void onBlock(CommandSender sender, OnlinePlayer target, Material material, @Conditions("limits:min=1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
+        public void onBlock(CommandSender sender, OnlinePlayer target, Material material, @Conditions("limits:min=1") @Default("1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
             LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
             BlockStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
@@ -193,7 +193,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("spawner")
         @CommandCompletion("* @spawnableSpawnerEntityType @spawnerStackAmounts @giveAmounts")
-        public void onSpawner(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
+        public void onSpawner(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") @Default("1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
             LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
             SpawnerStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
@@ -233,7 +233,7 @@ public class RoseCommand extends BaseCommand {
 
         @Subcommand("entity")
         @CommandCompletion("* @spawnableEggEntityType @entityStackAmounts @giveAmounts")
-        public void onEntity(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
+        public void onEntity(CommandSender sender, OnlinePlayer target, EntityType entityType, @Conditions("limits:min=1") @Default("1") int stackSize, @Conditions("limits:min=1") @Default("1") int amount) {
             LocaleManager localeManager = RoseCommand.this.rosePlugin.getManager(LocaleManager.class);
             EntityStackSettings stackSettings = RoseCommand.this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {

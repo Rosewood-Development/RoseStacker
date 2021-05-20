@@ -51,7 +51,7 @@ public class EnglishLocale implements Locale {
 
             this.put("#5", "Give Command");
             this.put("command-give-description", "&8 - &d/rs give &7- Give pre-stacked items");
-            this.put("command-give-usage", "&cUsage: &e/rs give <block|spawner|entity> <player> <type> <stackSize> [amount]");
+            this.put("command-give-usage", "&cUsage: &e/rs give <block|spawner|entity> <player> <type> [stackSize] [amount]");
             this.put("command-give-given", "&eGave &b%player% &e[%display%&e].");
             this.put("command-give-given-multiple", "&eGave &b%player% &e%amount%x [%display%&e].");
             this.put("command-give-unstackable", "&cThe type that you specified is not stackable.");
