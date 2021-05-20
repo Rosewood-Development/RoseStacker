@@ -187,7 +187,9 @@ public final class StackerUtils {
     public static boolean isOccluding(Material material) {
         if (material.name().endsWith("_STAINED_GLASS")
                 || material.name().endsWith("_STAINED_GLASS_PANE")
-                || material.name().contains("FENCE"))
+                || material.name().contains("FENCE")
+                || material.name().endsWith("SLAB")
+                || material.name().endsWith("WALL"))
             return true;
 
         switch (material) {
