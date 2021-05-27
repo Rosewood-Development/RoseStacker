@@ -1,8 +1,10 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Raid;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Raider;
@@ -14,7 +16,7 @@ import org.bukkit.event.raid.RaidTriggerEvent;
 
 public class RaidListener implements Listener {
 
-    private static Set<Raid> activeRaids = new HashSet<>();
+    private final static Set<Raid> activeRaids = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onRaidTrigger(RaidTriggerEvent event) {

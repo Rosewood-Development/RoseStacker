@@ -226,9 +226,11 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     // Spawn particles indicating the spawn occurred
                     block.getWorld().spawnParticle(Particle.FLAME, block.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                        stackedSpawner.updateSpawnerState();
-                        PersistentDataUtils.increaseSpawnCount(stackedSpawner.getSpawner(), successfulSpawns);
-                        stackedSpawner.updateSpawnerState();
+                        if (stackedSpawner.getSpawner().getBlock().getType() == Material.SPAWNER) {
+                            stackedSpawner.updateSpawnerState();
+                            PersistentDataUtils.increaseSpawnCount(stackedSpawner.getSpawner(), successfulSpawns);
+                            stackedSpawner.updateSpawnerState();
+                        }
                     });
                 }
             });

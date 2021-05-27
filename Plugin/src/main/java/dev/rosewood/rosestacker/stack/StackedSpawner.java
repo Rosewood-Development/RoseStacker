@@ -173,7 +173,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public void updateSpawnerState() {
-        this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
+        if (this.spawner.getBlock().getType() == Material.SPAWNER)
+            this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
     }
 
     public void setPowered(boolean powered) {
