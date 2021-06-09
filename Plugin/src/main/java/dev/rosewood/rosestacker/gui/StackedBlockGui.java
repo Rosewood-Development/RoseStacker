@@ -242,8 +242,7 @@ public class StackedBlockGui {
             if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
                 ItemUtils.dropItemsToPlayer(player, itemsToDrop);
             } else {
-                Location dropLocation = this.stackedBlock.getLocation().clone().add(0.5, 0.5, 0.5);
-                stackManager.preStackItems(itemsToDrop, dropLocation);
+                stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation());
             }
 
             this.stackedBlock.setStackSize(0);

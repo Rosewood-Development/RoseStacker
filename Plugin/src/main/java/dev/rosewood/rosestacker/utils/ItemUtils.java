@@ -80,10 +80,8 @@ public final class ItemUtils {
         for (ItemStack itemStack : itemStacks)
             extraItems.addAll(player.getInventory().addItem(itemStack).values());
 
-        if (!extraItems.isEmpty()) {
-            Location location = player.getLocation().clone().subtract(0.5, 0, 0.5);
-            RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, location);
-        }
+        if (!extraItems.isEmpty())
+            RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, player.getLocation());
     }
 
     public static void damageTool(ItemStack itemStack) {

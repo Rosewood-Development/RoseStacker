@@ -115,7 +115,7 @@ public class BlockListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        Location dropLocation = block.getLocation().clone().add(0.5, 0.5, 0.5);
+        Location dropLocation = block.getLocation().clone();
 
         if (isSpawner) {
             if (!stackManager.isSpawnerStackingEnabled())
@@ -434,7 +434,7 @@ public class BlockListener implements Listener {
                     EntityType spawnedType = ((CreatureSpawner) block.getState()).getSpawnedType();
                     block.setType(Material.AIR);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                            block.getWorld().dropItemNaturally(block.getLocation().clone().add(0.5, 0.5, 0.5), ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
+                            block.getWorld().dropItemNaturally(block.getLocation().clone(), ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
                 }
             }
         }
