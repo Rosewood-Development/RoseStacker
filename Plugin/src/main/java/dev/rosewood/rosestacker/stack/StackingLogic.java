@@ -202,9 +202,10 @@ public interface StackingLogic {
      *
      * @param block the Block to create a stack from
      * @param amount the size of the stack being created
+     * @param placedByPlayer true for if the spawner was placed by a player, false otherwise
      * @return the newly created stack, or null if one wasn't created
      */
-    StackedSpawner createSpawnerStack(Block block, int amount);
+    StackedSpawner createSpawnerStack(Block block, int amount, boolean placedByPlayer);
 
     /**
      * Adds a pre-existing StackedEntity

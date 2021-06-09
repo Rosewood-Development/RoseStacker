@@ -33,6 +33,8 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permissible;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public final class StackerUtils {
 
@@ -223,6 +225,29 @@ public final class StackerUtils {
 
     public static String formatNumber(long points) {
         return formatter.format(points);
+    }
+
+    /**
+     * Gets an integer value from a Permissible's permissions, picking the highest value out of the ones available.
+     * The lowerbound will be the lowest the value can possibly be. To use, pass in a permission such as
+     * "example.permission" and the integer value will be located at "example.permission.<#>"
+     *
+     * @param permissible The Permissible
+     * @param permission The permission prefix
+     * @param lowerBound The lowerbound of the value
+     * @return the highest value found within the Permissible's permissions
+     */
+    public static int getPermissionDefinableValue(Permissible permissible, String permission, int lowerBound) {
+        int amount = lowerBound;
+        for (PermissionAttachmentInfo info : permissible.getEffectivePermissions()) {
+            String target = info.getPermission().toLowerCase();
+            if (target.startsWith(permission) && info.getValue()) {
+                try {
+                    amount = Math.max(amount, Integer.parseInt(target.substring(target.lastIndexOf('.') + 1)));
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        return amount;
     }
 
     public static void clearCache() {

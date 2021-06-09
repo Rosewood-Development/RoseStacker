@@ -338,13 +338,26 @@ public final class RoseStackerAPI {
      *
      * @param block the Block to create a stack from
      * @param amount the size of the stack being created
+     * @param placedByPlayer true for if the spawner was placed by a player, false otherwise
+     * @return the newly created stack, or null if one wasn't created
+     */
+    @Nullable
+    public StackedSpawner createSpawnerStack(@NotNull Block block, int amount, boolean placedByPlayer) {
+        Objects.requireNonNull(block);
+
+        return this.stackManager.createSpawnerStack(block, amount, placedByPlayer);
+    }
+
+    /**
+     * Creates a StackedSpawner from a Block
+     *
+     * @param block the Block to create a stack from
+     * @param amount the size of the stack being created
      * @return the newly created stack, or null if one wasn't created
      */
     @Nullable
     public StackedSpawner createSpawnerStack(@NotNull Block block, int amount) {
-        Objects.requireNonNull(block);
-
-        return this.stackManager.createSpawnerStack(block, amount);
+        return this.createSpawnerStack(block, amount, false);
     }
 
     /**

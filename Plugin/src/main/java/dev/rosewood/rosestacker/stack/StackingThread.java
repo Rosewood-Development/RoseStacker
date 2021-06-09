@@ -534,7 +534,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
-    public StackedSpawner createSpawnerStack(Block block, int amount) {
+    public StackedSpawner createSpawnerStack(Block block, int amount, boolean placedByPlayer) {
         if (block.getType() != Material.SPAWNER)
             return null;
 
@@ -542,7 +542,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isSpawnerStackingEnabled() || !this.stackManager.isSpawnerTypeStackable(creatureSpawner.getSpawnedType()))
             return null;
 
-        StackedSpawner newStackedSpawner = new StackedSpawner(amount, creatureSpawner);
+        StackedSpawner newStackedSpawner = new StackedSpawner(amount, creatureSpawner, placedByPlayer);
         this.stackedSpawners.put(block, newStackedSpawner);
         return newStackedSpawner;
     }
@@ -938,13 +938,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.stackManager.isBlockStackingEnabled()) {
             Map<Block, StackedBlock> stackedBlocks = this.stackedBlocks.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks.values());
+            dataManager.createOrUpdateStackedBlocks(stackedBlocks.values());
             stackedBlocks.keySet().forEach(this.stackedBlocks::remove);
         }
 
         if (this.stackManager.isSpawnerStackingEnabled()) {
             Map<Block, StackedSpawner> stackedSpawners = this.stackedSpawners.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners.values());
+            dataManager.createOrUpdateStackedSpawners(stackedSpawners.values());
             stackedSpawners.keySet().forEach(this.stackedSpawners::remove);
         }
     }

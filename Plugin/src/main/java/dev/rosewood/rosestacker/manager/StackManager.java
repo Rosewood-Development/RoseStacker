@@ -265,12 +265,12 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedSpawner createSpawnerStack(Block block, int amount) {
+    public StackedSpawner createSpawnerStack(Block block, int amount, boolean placedByPlayer) {
         StackingThread stackingThread = this.getStackingThread(block.getWorld());
         if (stackingThread == null)
             return null;
 
-        return stackingThread.createSpawnerStack(block, amount);
+        return stackingThread.createSpawnerStack(block, amount, placedByPlayer);
     }
 
     @Override

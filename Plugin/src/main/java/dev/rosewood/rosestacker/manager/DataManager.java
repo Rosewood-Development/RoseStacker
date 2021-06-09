@@ -295,13 +295,13 @@ public class DataManager extends AbstractDataManager {
             }
         }
 
-        Set<StackedBlockData> stackedSpawnerData = new HashSet<>();
+        Set<StackedSpawnerData> stackedSpawnerData = new HashSet<>();
         this.databaseConnector.connect(connection -> {
             for (String query : queries) {
                 try (Statement statement = connection.createStatement()) {
                     ResultSet result = statement.executeQuery(query);
                     while (result.next()) {
-                        stackedSpawnerData.add(new StackedBlockData(
+                        stackedSpawnerData.add(new StackedSpawnerData(
                                 result.getInt("id"),
                                 result.getInt("stack_size"),
                                 result.getInt("chunk_x"),
@@ -309,7 +309,8 @@ public class DataManager extends AbstractDataManager {
                                 result.getInt("block_x"),
                                 result.getInt("block_y"),
                                 result.getInt("block_z"),
-                                result.getString("world")
+                                result.getString("world"),
+                                result.getBoolean("placed_by_player")
                         ));
                     }
                 }
@@ -320,7 +321,7 @@ public class DataManager extends AbstractDataManager {
             Set<StackedSpawner> stackedSpawners = new HashSet<>();
             Set<Stack<?>> cleanup = new HashSet<>();
 
-            for (StackedBlockData stackData : stackedSpawnerData) {
+            for (StackedSpawnerData stackData : stackedSpawnerData) {
                 World world = Bukkit.getWorld(stackData.world);
                 Block block = null;
 
@@ -332,7 +333,7 @@ public class DataManager extends AbstractDataManager {
                 }
 
                 if (!invalid) {
-                    stackedSpawners.add(new StackedSpawner(stackData.id, stackData.stackSize, (CreatureSpawner) block.getState()));
+                    stackedSpawners.add(new StackedSpawner(stackData.id, stackData.stackSize, (CreatureSpawner) block.getState(), stackData.placedByPlayer));
                 } else {
                     cleanup.add(new StackedBlock(stackData.id, 0, null));
                 }
@@ -465,19 +466,18 @@ public class DataManager extends AbstractDataManager {
         });
     }
 
-    public <T extends Stack<?>> void createOrUpdateStackedBlocksOrSpawners(Collection<T> stacks) {
-        if (stacks.isEmpty())
+    public void createOrUpdateStackedBlocks(Collection<StackedBlock> stackedBlocks) {
+        if (stackedBlocks.isEmpty())
             return;
 
-        String tableName = stacks.iterator().next() instanceof StackedBlock ? "stacked_block" : "stacked_spawner";
         this.databaseConnector.connect(connection -> {
-            Set<Stack<?>> update = stacks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<Stack<?>> insert = stacks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
+            Set<StackedBlock> update = stackedBlocks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
+            Set<StackedBlock> insert = stackedBlocks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
 
             if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + tableName + " SET stack_size = ? WHERE id = ?";
+                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_block SET stack_size = ? WHERE id = ?";
                 try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (Stack<?> stack : update) {
+                    for (StackedBlock stack : update) {
                         statement.setInt(1, stack.getStackSize());
                         statement.setInt(2, stack.getId());
                         statement.addBatch();
@@ -489,7 +489,7 @@ public class DataManager extends AbstractDataManager {
             }
 
             if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + tableName + " (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_block (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 if (this.databaseConnector instanceof SQLiteConnector) {
                     batchInsert += " ON CONFLICT(world, chunk_x, chunk_z, block_x, block_y, block_z) DO UPDATE SET stack_size = ?";
@@ -498,7 +498,7 @@ public class DataManager extends AbstractDataManager {
                 }
 
                 try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (Stack<?> stack : insert) {
+                    for (StackedBlock stack : insert) {
                         statement.setInt(1, stack.getStackSize());
                         statement.setString(2, stack.getLocation().getWorld().getName());
                         statement.setInt(3, stack.getLocation().getBlockX() >> 4);
@@ -506,6 +506,58 @@ public class DataManager extends AbstractDataManager {
                         statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
                         statement.setInt(6, stack.getLocation().getBlockY());
                         statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
+                        statement.setInt(8, stack.getStackSize());
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void createOrUpdateStackedSpawners(Collection<StackedSpawner> stackedSpawners) {
+        if (stackedSpawners.isEmpty())
+            return;
+
+        this.databaseConnector.connect(connection -> {
+            Set<StackedSpawner> update = stackedSpawners.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
+            Set<StackedSpawner> insert = stackedSpawners.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
+
+            if (!update.isEmpty()) {
+                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_spawner SET stack_size = ? WHERE id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
+                    for (StackedSpawner stack : update) {
+                        statement.setInt(1, stack.getStackSize());
+                        statement.setInt(2, stack.getId());
+                        statement.addBatch();
+                    }
+                    statement.executeBatch();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (!insert.isEmpty()) {
+                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_spawner (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z, placed_by_player) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                if (this.databaseConnector instanceof SQLiteConnector) {
+                    batchInsert += " ON CONFLICT(world, chunk_x, chunk_z, block_x, block_y, block_z) DO UPDATE SET stack_size = ?";
+                } else {
+                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?";
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
+                    for (StackedSpawner stack : insert) {
+                        statement.setInt(1, stack.getStackSize());
+                        statement.setString(2, stack.getLocation().getWorld().getName());
+                        statement.setInt(3, stack.getLocation().getBlockX() >> 4);
+                        statement.setInt(4, stack.getLocation().getBlockZ() >> 4);
+                        statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
+                        statement.setInt(6, stack.getLocation().getBlockY());
+                        statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
+                        statement.setBoolean(8, stack.isPlacedByPlayer());
                         statement.setInt(8, stack.getStackSize());
                         statement.addBatch();
                     }
@@ -792,11 +844,11 @@ public class DataManager extends AbstractDataManager {
     }
 
     private static class StackedBlockData {
-        private int id;
-        private int stackSize;
-        private int chunkX, chunkZ;
-        private int blockX, blockY, blockZ;
-        private String world;
+        public int id;
+        public int stackSize;
+        public int chunkX, chunkZ;
+        public int blockX, blockY, blockZ;
+        public String world;
 
         public StackedBlockData(int id, int stackSize, int chunkX, int chunkZ, int blockX, int blockY, int blockZ, String world) {
             this.id = id;
@@ -810,10 +862,19 @@ public class DataManager extends AbstractDataManager {
         }
     }
 
+    private static class StackedSpawnerData extends StackedBlockData {
+        public boolean placedByPlayer;
+
+        public StackedSpawnerData(int id, int stackSize, int chunkX, int chunkZ, int blockX, int blockY, int blockZ, String world, boolean placedByPlayer) {
+            super(id, stackSize, chunkX, chunkZ, blockX, blockY, blockZ, world);
+            this.placedByPlayer = placedByPlayer;
+        }
+    }
+
     private static class StackedEntityData {
-        private int id;
-        private UUID entityUUID;
-        private byte[] stackEntities;
+        public int id;
+        public UUID entityUUID;
+        public byte[] stackEntities;
 
         public StackedEntityData(int id, UUID entityUUID, byte[] stackEntities) {
             this.id = id;
@@ -823,9 +884,9 @@ public class DataManager extends AbstractDataManager {
     }
 
     private static class StackedItemData {
-        private int id;
-        private int stackSize;
-        private UUID entityUUID;
+        public int id;
+        public int stackSize;
+        public UUID entityUUID;
 
         public StackedItemData(int id, int stackSize, UUID entityUUID) {
             this.id = id;

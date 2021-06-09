@@ -48,9 +48,9 @@ dependencies {
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
 
     // Dependencies that will be shaded into the jar
-    implementation 'dev.rosewood:rosegarden:1.0.7-SNAPSHOT'
-    implementation 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
-    implementation 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
+    api 'dev.rosewood:rosegarden:1.0.7-SNAPSHOT'
+    api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
+    api 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }
 
 processResources {

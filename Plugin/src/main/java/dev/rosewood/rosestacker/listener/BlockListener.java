@@ -92,7 +92,7 @@ public class BlockListener implements Listener {
             if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
                 if (stackedSpawner == null)
-                    stackManager.createSpawnerStack(block, 1); // Doesn't exist, need it to in order to open the GUI
+                    stackManager.createSpawnerStack(block, 1, false); // Doesn't exist, need it to in order to open the GUI
 
                 if (stackedSpawner != null) {
                     stackedSpawner.openGui(event.getPlayer());
@@ -125,7 +125,7 @@ public class BlockListener implements Listener {
 
             // Always drop the correct spawner type even if it's not stacked
             if (!isStacked) {
-                if (this.tryDropSpawners(player, dropLocation, entityType, 1)) {
+                if (this.tryDropSpawners(player, dropLocation, entityType, 1, false)) {
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
                     BlockLoggingHook.recordBlockBreak(player, block);
                     this.damageTool(player);
@@ -146,7 +146,7 @@ public class BlockListener implements Listener {
             }
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
-            if (this.tryDropSpawners(player, dropLocation, entityType, breakAmount)) {
+            if (this.tryDropSpawners(player, dropLocation, entityType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     stackedSpawner.setStackSize(0);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
@@ -229,9 +229,10 @@ public class BlockListener implements Listener {
      * @param dropLocation The location to drop the items
      * @param spawnedType The type of entity the spawner spawns
      * @param amount The amount to try to drop
+     * @param placedByPlayer whether or not the spawner was placed by a player
      * @return true if spawners weren't protected, false otherwise
      */
-    private boolean tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount) {
+    private boolean tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount, boolean placedByPlayer) {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
         if (dropLocation.getWorld() == null)
             return true;
@@ -263,9 +264,11 @@ public class BlockListener implements Listener {
             if (destroyFromMissingPermission)
                 destroyAmount = amount;
 
-            if ((!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission) && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
+            boolean alwaysPickupWithSilktouch = Setting.SPAWNER_SILK_TOUCH_ONLY_NATURAL.getBoolean() && placedByPlayer;
+            if (!alwaysPickupWithSilktouch && (!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission) && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
+                double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt()) / 100D;
                 for (int i = 0, n = amount - destroyAmount; i < n; i++) {
-                    boolean passesChance = StackerUtils.passesChance(Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt() / 100D);
+                    boolean passesChance = StackerUtils.passesChance(chance);
                     if (!passesChance || silkTouchLevel == 0)
                         destroyAmount++;
                 }
@@ -590,7 +593,7 @@ public class BlockListener implements Listener {
                     }
                     stackAmount = spawnerStackEvent.getIncreaseAmount();
                 } else {
-                    stackedSpawner = stackManager.createSpawnerStack(against, 1);
+                    stackedSpawner = stackManager.createSpawnerStack(against, 1, true);
 
                     SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, true);
                     Bukkit.getPluginManager().callEvent(spawnerStackEvent);
@@ -690,7 +693,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedSpawner tempStackedSpawner = new StackedSpawner(-1, 0, spawner);
+                StackedSpawner tempStackedSpawner = new StackedSpawner(-1, 0, spawner, true);
                 SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {
@@ -700,7 +703,7 @@ public class BlockListener implements Listener {
                 }
                 stackAmount = spawnerStackEvent.getIncreaseAmount();
 
-                stackManager.createSpawnerStack(block, stackAmount);
+                stackManager.createSpawnerStack(block, stackAmount, true);
             } else {
                 if (stackAmount <= 1)
                     return;

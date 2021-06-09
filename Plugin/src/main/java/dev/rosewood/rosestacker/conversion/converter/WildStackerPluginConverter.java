@@ -79,7 +79,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                     stackedBlocks.add(new StackedBlock(amount, block));
                 }
 
-                dataManager.createOrUpdateStackedBlocksOrSpawners(stackedBlocks);
+                dataManager.createOrUpdateStackedBlocks(stackedBlocks);
             }
 
             // Load spawners
@@ -100,10 +100,10 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                     int amount = result.getInt("stackAmount");
 
                     stackedSpawners.add(new StackedSpawner(amount, location));
-                    stackManager.createSpawnerStack(block, amount);
+                    stackManager.createSpawnerStack(block, amount, false);
                 }
 
-                dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
+                dataManager.createOrUpdateStackedSpawners(stackedSpawners);
             }
         });
     }

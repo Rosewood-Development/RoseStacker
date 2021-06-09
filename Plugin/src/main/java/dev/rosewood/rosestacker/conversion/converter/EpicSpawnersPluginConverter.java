@@ -53,7 +53,7 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
                 }
             }
 
-            dataManager.createOrUpdateStackedBlocksOrSpawners(stackedSpawners);
+            dataManager.createOrUpdateStackedSpawners(stackedSpawners);
         });
     }
 

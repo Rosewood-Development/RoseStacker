@@ -8,6 +8,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
 import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
+import dev.rosewood.rosestacker.database.migrations._4_Alter_Spawner_Table_Player_Placed;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;
@@ -143,7 +144,8 @@ public class RoseStacker extends RosePlugin {
         return Arrays.asList(
                 _1_Create_Tables_Stacks.class,
                 _2_Create_Tables_Convert_Stacks.class,
-                _3_Create_Tables_Translation_Locales.class
+                _3_Create_Tables_Translation_Locales.class,
+                _4_Alter_Spawner_Table_Player_Placed.class
         );
     }
 

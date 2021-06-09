@@ -36,10 +36,6 @@ allprojects {
     }
 }
 
-configurations {
-    childJars
-}
-
 dependencies {
     implementation project(':Plugin')
     implementation project(':NMS-Wrapper')
@@ -49,10 +45,6 @@ dependencies {
     implementation project(':NMS-v1_16_R1')
     implementation project(':NMS-v1_16_R2')
     implementation project(':NMS-v1_16_R3')
-
-    subprojects.each {
-        childJars project(it.path)
-    }
 }
 
 shadowJar {
@@ -64,15 +56,6 @@ shadowJar {
     relocate('co.aikar.locales', 'dev.rosewood.rosestacker.lib.acf.locales')
 
     exclude 'acf-*.properties'
-}
-
-jar {
-    dependsOn configurations.childJars
-    from {
-        configurations.childJars.collect {
-            zipTree(it)
-        }
-    }
 }
 
 build.dependsOn shadowJar

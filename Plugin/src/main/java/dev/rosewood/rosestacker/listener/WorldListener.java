@@ -40,7 +40,7 @@ public class WorldListener implements Listener {
             if (this.stackManager.isSpawnerStackingEnabled())
                 for (BlockState tileEntity : event.getChunk().getTileEntities())
                     if (tileEntity instanceof CreatureSpawner)
-                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1);
+                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
         } else {
             // Make sure AI is disabled if it's marked
             for (Entity entity : event.getChunk().getEntities())

@@ -26,6 +26,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private CreatureSpawner spawner;
     private SpawnerTileWrapper spawnerTile;
     private Location location;
+    private boolean placedByPlayer;
     private StackedSpawnerGui stackedSpawnerGui;
     private List<Class<? extends ConditionTag>> lastInvalidConditions;
 
@@ -34,11 +35,12 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private SpawnerStackSettings stackSettings;
 
-    public StackedSpawner(int id, int size, CreatureSpawner spawner) {
+    public StackedSpawner(int id, int size, CreatureSpawner spawner, boolean placedByPlayer) {
         super(id);
 
         this.size = size;
         this.spawner = spawner;
+        this.placedByPlayer = placedByPlayer;
         this.location = this.spawner.getLocation();
         this.stackedSpawnerGui = null;
         this.lastInvalidConditions = new ArrayList<>();
@@ -57,8 +59,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
     }
 
-    public StackedSpawner(int size, CreatureSpawner spawner) {
-        this(-1, size, spawner);
+    public StackedSpawner(int size, CreatureSpawner spawner, boolean placedByPlayer) {
+        this(-1, size, spawner, placedByPlayer);
     }
 
     /**
@@ -150,6 +152,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     @Override
     public SpawnerStackSettings getStackSettings() {
         return this.stackSettings;
+    }
+
+    public boolean isPlacedByPlayer() {
+        return this.placedByPlayer;
     }
 
     public void updateSpawnerProperties() {
