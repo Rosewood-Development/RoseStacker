@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -53,7 +54,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
             if (Bukkit.isPrimaryThread()) {
-                this.updateSpawnerProperties();
+                this.updateSpawnerProperties(true);
                 this.updateDisplay();
             }
         }
@@ -92,13 +93,13 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     public void increaseStackSize(int amount) {
         this.size += amount;
-        this.updateSpawnerProperties();
+        this.updateSpawnerProperties(false);
         this.updateDisplay();
     }
 
     public void setStackSize(int size) {
         this.size = size;
-        this.updateSpawnerProperties();
+        this.updateSpawnerProperties(false);
         this.updateDisplay();
     }
 
@@ -158,7 +159,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         return this.placedByPlayer;
     }
 
-    public void updateSpawnerProperties() {
+    public void updateSpawnerProperties(boolean resetDelay) {
         if (this.spawner.getBlock().getType() != Material.SPAWNER)
             return;
 
@@ -169,12 +170,19 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         if (oldEntityType != this.spawner.getSpawnedType())
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
-        int delay = this.spawner.getDelay();
         this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
         this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
         this.spawnerTile.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
         this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
         this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
+
+        int delay;
+        if (resetDelay) {
+            delay = StackerUtils.randomInRange(this.stackSettings.getMinSpawnDelay(), this.stackSettings.getMaxSpawnDelay());
+        } else {
+            delay = this.spawner.getDelay();
+        }
+
         this.spawnerTile.setDelay(delay);
     }
 

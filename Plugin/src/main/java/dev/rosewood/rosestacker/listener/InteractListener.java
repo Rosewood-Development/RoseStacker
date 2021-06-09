@@ -85,7 +85,7 @@ public class InteractListener implements Listener {
 
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                     // Make sure spawners convert and update their display properly
-                    stackedSpawner.updateSpawnerProperties();
+                    stackedSpawner.updateSpawnerProperties(false);
                     stackedSpawner.updateDisplay();
 
                     if (stackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)

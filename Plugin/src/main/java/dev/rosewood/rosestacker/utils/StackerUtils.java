@@ -84,6 +84,25 @@ public final class StackerUtils {
         return String.format("%s-%.2f-%.2f-%.2f", location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
     }
 
+    /**
+     * Gets a random value between the given range, inclusively
+     *
+     * @param min The minimum value
+     * @param max The maximum value
+     * @return A value between the min and max, inclusively
+     */
+    public static int randomInRange(int min, int max) {
+        if (min == max)
+            return min;
+
+        if (min > max) {
+            int temp = min;
+            min = max;
+            max = temp;
+        }
+        return RANDOM.nextInt(max - min + 1) + min;
+    }
+
     public static List<EntityType> getAlphabeticalStackableEntityTypes() {
         if (cachedAlphabeticalEntityTypes != null)
             return cachedAlphabeticalEntityTypes;
