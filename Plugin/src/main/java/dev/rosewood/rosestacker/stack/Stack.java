@@ -28,6 +28,18 @@ public abstract class Stack<T extends StackSettings> {
 
     public abstract T getStackSettings();
 
+    /**
+     * @return this Stack's World
+     * @throws IllegalStateException if the World is null
+     */
+    public World getWorld() {
+        Location location = this.getLocation();
+        World world = location.getWorld();
+        if (world == null)
+            throw new IllegalStateException("Stack world is null");
+        return world;
+    }
+
     protected Set<Player> getPlayersInVisibleRange() {
         Set<Player> players = new HashSet<>();
 

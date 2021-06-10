@@ -10,7 +10,6 @@ import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.ConversionManager;
-import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -23,9 +22,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -70,10 +67,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final BukkitTask entityStackTask;
     private final BukkitTask itemStackTask;
     private final BukkitTask nametagTask;
-    private final BukkitTask pendingChunkTask;
-
-    private final Map<Chunk, Long> pendingLoadChunks;
-    private final Map<Chunk, Long> pendingUnloadChunks;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -82,8 +75,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     private boolean entityStackSwitch;
     private int cleanupTimer;
-    private volatile boolean processingChunks;
-    private long processingChunksTime;
 
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
@@ -96,9 +87,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.entityStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackEntities, 5L, entityStackDelay);
         this.itemStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackItems, 5L, Setting.ITEM_STACK_FREQUENCY.getLong());
         this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
-        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
-        this.pendingLoadChunks = new HashMap<>();
-        this.pendingUnloadChunks = new HashMap<>();
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
@@ -106,12 +94,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackedSpawners = new ConcurrentHashMap<>();
 
         this.cleanupTimer = 0;
-        this.processingChunks = false;
-        this.processingChunksTime = System.currentTimeMillis();
-
-        // Load all existing stacks in the target world
-        for (Chunk chunk : this.targetWorld.getLoadedChunks())
-            this.pendingLoadChunks.put(chunk, System.nanoTime());
 
         // Disable AI for all existing stacks in the target world
         this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
@@ -150,7 +132,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : this.targetWorld.getEntities()) {
                 // Don't create stacks from chunks we are about to load
-                if (!entity.isValid() || this.pendingLoadChunks.containsKey(entity.getLocation().getChunk()))
+                if (!entity.isValid() || this.stackManager.isChunkPendingLoad(entity.getLocation().getChunk()))
                     continue;
 
                 if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
@@ -282,17 +264,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.nametagTask != null)
             this.nametagTask.cancel();
-
-        if (this.pendingChunkTask != null)
-            this.pendingChunkTask.cancel();
-
-        // Save anything that's loaded
-        Set<Chunk> chunks = new HashSet<>(Arrays.asList(this.targetWorld.getLoadedChunks()));
-        chunks.addAll(this.pendingUnloadChunks.keySet());
-        this.unloadChunks(chunks);
-
-        this.pendingLoadChunks.clear();
-        this.pendingUnloadChunks.clear();
     }
 
     @Override
@@ -637,25 +608,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackManager.setEntityStackingTemporarilyDisabled(false);
     }
 
-    @Override
-    public void loadChunk(Chunk chunk) {
-        this.pendingLoadChunks.put(chunk, System.nanoTime());
-    }
-
-    @Override
-    public void unloadChunk(Chunk chunk) {
-        this.pendingUnloadChunks.put(chunk, System.nanoTime());
-    }
-
-    private boolean containsChunk(Set<Chunk> chunks, Stack<?> stack) {
-        int stackChunkX = stack.getLocation().getBlockX() >> 4;
-        int stackChunkZ = stack.getLocation().getBlockZ() >> 4;
-        for (Chunk chunk : chunks)
-            if (chunk.getX() == stackChunkX && chunk.getZ() == stackChunkZ)
-                return true;
-        return false;
-    }
-
     /**
      * Tries to stack a StackedEntity with all other StackedEntities
      *
@@ -840,113 +792,132 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackedItems.put(itemUUID, stackedItem);
     }
 
-    private void processPendingChunks() {
-        // This is here just for safety, it should hopefully never be used
-        if (this.processingChunks && System.currentTimeMillis() - this.processingChunksTime >= 10000)
-            this.processingChunks = false;
-
-        if (this.processingChunks)
-            return;
-
-        // Don't try to load data for unloaded chunks, or save data for loaded chunks
-        this.pendingUnloadChunks.keySet().removeIf(this.pendingLoadChunks::containsKey);
-        this.pendingLoadChunks.keySet().removeIf(this.pendingUnloadChunks::containsKey);
-
-        // Filter chunks so we don't load/unload the same chunk twice
-        Iterator<Entry<Chunk, Long>> loadIterator = this.pendingLoadChunks.entrySet().iterator();
-        while (loadIterator.hasNext()) {
-            Entry<Chunk, Long> entry = loadIterator.next();
-            for (Entry<Chunk, Long> otherEntry : this.pendingLoadChunks.entrySet()) {
-                if (entry == otherEntry)
-                    continue;
-
-                if (entry.getKey().getX() == otherEntry.getKey().getX() && entry.getKey().getZ() == otherEntry.getKey().getZ() && entry.getValue() < otherEntry.getValue()) {
-                    loadIterator.remove();
-                    break;
-                }
+    /**
+     * Gets a List of all StackedEntities within the Set of Chunks given and removes them from memory
+     *
+     * @param chunks to load entities from
+     * @return list of StackedEntities
+     */
+    public List<StackedEntity> getAndClearStackedEntities(Set<Chunk> chunks) {
+        List<StackedEntity> stacks = new ArrayList<>();
+        Iterator<StackedEntity> iterator = this.stackedEntities.values().iterator();
+        while (iterator.hasNext()) {
+            StackedEntity stack = iterator.next();
+            if (this.containsChunk(chunks, stack)) {
+                stacks.add(stack);
+                iterator.remove();
             }
         }
+        return stacks;
+    }
 
-        Iterator<Entry<Chunk, Long>> unloadIterator = this.pendingUnloadChunks.entrySet().iterator();
-        while (unloadIterator.hasNext()) {
-            Entry<Chunk, Long> entry = unloadIterator.next();
-            for (Entry<Chunk, Long> otherEntry : this.pendingUnloadChunks.entrySet()) {
-                if (entry == otherEntry)
-                    continue;
-
-                if (entry.getKey().getX() == otherEntry.getKey().getX() && entry.getKey().getZ() == otherEntry.getKey().getZ() && entry.getValue() < otherEntry.getValue()) {
-                    unloadIterator.remove();
-                    break;
-                }
+    /**
+     * Gets a List of all StackedItems within the Set of Chunks given and removes them from memory
+     *
+     * @param chunks to load items from
+     * @return list of StackedItems
+     */
+    public List<StackedItem> getAndClearStackedItems(Set<Chunk> chunks) {
+        List<StackedItem> stacks = new ArrayList<>();
+        Iterator<StackedItem> iterator = this.stackedItems.values().iterator();
+        while (iterator.hasNext()) {
+            StackedItem stack = iterator.next();
+            if (this.containsChunk(chunks, stack)) {
+                stacks.add(stack);
+                iterator.remove();
             }
         }
-
-        if (!this.pendingLoadChunks.isEmpty() || !this.pendingUnloadChunks.isEmpty()) {
-            this.processingChunks = true;
-            this.processingChunksTime = System.currentTimeMillis();
-
-            Set<Chunk> load = new HashSet<>(this.pendingLoadChunks.keySet());
-            Set<Chunk> unload = new HashSet<>(this.pendingUnloadChunks.keySet());
-
-            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-                if (!load.isEmpty()) {
-                    this.conversionManager.convertChunks(load);
-                    this.loadChunks(load);
-                }
-
-                if (!unload.isEmpty())
-                    this.unloadChunks(unload);
-
-                this.processingChunks = false;
-            });
-
-            this.pendingLoadChunks.clear();
-            this.pendingUnloadChunks.clear();
-        }
+        return stacks;
     }
 
-    private void loadChunks(Set<Chunk> chunks) {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
-        if (this.stackManager.isEntityStackingEnabled())
-            dataManager.getStackedEntities(chunks, (stack) -> stack.forEach(x -> this.stackedEntities.put(x.getEntity().getUniqueId(), x)));
-
-        if (this.stackManager.isItemStackingEnabled())
-            dataManager.getStackedItems(chunks, (stack) -> stack.forEach(x -> this.stackedItems.put(x.getItem().getUniqueId(), x)));
-
-        if (this.stackManager.isBlockStackingEnabled())
-            dataManager.getStackedBlocks(chunks, (stack) -> stack.forEach(x -> this.stackedBlocks.put(x.getBlock(), x)));
-
-        if (this.stackManager.isSpawnerStackingEnabled())
-            dataManager.getStackedSpawners(chunks, (stack) -> stack.forEach(x -> this.stackedSpawners.put(x.getSpawner().getBlock(), x)));
+    /**
+     * Gets a List of all StackedBlocks within the Set of Chunks given and removes them from memory
+     *
+     * @param chunks to load blocks from
+     * @return list of StackedBlocks
+     */
+    public List<StackedBlock> getAndClearStackedBlocks(Set<Chunk> chunks) {
+        List<StackedBlock> stacks = new ArrayList<>();
+        Iterator<StackedBlock> iterator = this.stackedBlocks.values().iterator();
+        while (iterator.hasNext()) {
+            StackedBlock stack = iterator.next();
+            if (this.containsChunk(chunks, stack)) {
+                stacks.add(stack);
+                iterator.remove();
+            }
+        }
+        return stacks;
     }
 
-    private void unloadChunks(Set<Chunk> chunks) {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
-        if (this.stackManager.isEntityStackingEnabled()) {
-            Map<UUID, StackedEntity> stackedEntities = this.stackedEntities.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedEntities(stackedEntities.values());
-            stackedEntities.keySet().forEach(this.stackedEntities::remove);
+    /**
+     * Gets a List of all StackedSpawners within the Set of Chunks given and removes them from memory
+     *
+     * @param chunks to load spawners from
+     * @return list of StackedSpawners
+     */
+    public List<StackedSpawner> getAndClearStackedSpawners(Set<Chunk> chunks) {
+        List<StackedSpawner> stacks = new ArrayList<>();
+        Iterator<StackedSpawner> iterator = this.stackedSpawners.values().iterator();
+        while (iterator.hasNext()) {
+            StackedSpawner stack = iterator.next();
+            if (this.containsChunk(chunks, stack)) {
+                stacks.add(stack);
+                iterator.remove();
+            }
         }
+        return stacks;
+    }
 
-        if (this.stackManager.isItemStackingEnabled()) {
-            Map<UUID, StackedItem> stackedItems = this.stackedItems.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedItems(stackedItems.values());
-            stackedItems.keySet().forEach(this.stackedItems::remove);
-        }
+    /**
+     * Checks if a Stack is contained within a potential Set of Chunks
+     *
+     * @param chunks the Chunks
+     * @param stack the Stack
+     * @return true if the Stack is in one of the given Chunks, false otherwise
+     */
+    private boolean containsChunk(Set<Chunk> chunks, Stack<?> stack) {
+        int stackChunkX = stack.getLocation().getBlockX() >> 4;
+        int stackChunkZ = stack.getLocation().getBlockZ() >> 4;
+        for (Chunk chunk : chunks)
+            if (chunk.getX() == stackChunkX && chunk.getZ() == stackChunkZ)
+                return true;
+        return false;
+    }
 
-        if (this.stackManager.isBlockStackingEnabled()) {
-            Map<Block, StackedBlock> stackedBlocks = this.stackedBlocks.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedBlocks(stackedBlocks.values());
-            stackedBlocks.keySet().forEach(this.stackedBlocks::remove);
-        }
+    /**
+     * Used to add a StackedEntity loaded from the database
+     *
+     * @param stackedEntity to load
+     */
+    public void putStackedEntity(StackedEntity stackedEntity) {
+        this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+    }
 
-        if (this.stackManager.isSpawnerStackingEnabled()) {
-            Map<Block, StackedSpawner> stackedSpawners = this.stackedSpawners.entrySet().stream().filter(x -> this.containsChunk(chunks, x.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            dataManager.createOrUpdateStackedSpawners(stackedSpawners.values());
-            stackedSpawners.keySet().forEach(this.stackedSpawners::remove);
-        }
+    /**
+     * Used to add a StackedItem loaded from the database
+     *
+     * @param stackedItem to load
+     */
+    public void putStackedItem(StackedItem stackedItem) {
+        this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+    }
+
+    /**
+     * Used to add a StackedBlock loaded from the database
+     *
+     * @param stackedBlock to load
+     */
+    public void putStackedBlock(StackedBlock stackedBlock) {
+        this.stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
+    }
+
+    /**
+     * Used to add a StackedSpawner loaded from the database
+     *
+     * @param stackedSpawner to load
+     */
+    public void putStackedSpawner(StackedSpawner stackedSpawner) {
+        this.stackedSpawners.put(stackedSpawner.getSpawner().getBlock(), stackedSpawner);
     }
 
     /**

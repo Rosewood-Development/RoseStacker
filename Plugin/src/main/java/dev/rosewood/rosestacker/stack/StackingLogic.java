@@ -4,7 +4,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
@@ -247,19 +246,5 @@ public interface StackingLogic {
      * @param location the location to spawn at
      */
     void preStackItems(Collection<ItemStack> items, Location location);
-
-    /**
-     * Loads all stacks from a chunk
-     *
-     * @param chunk the target chunk
-     */
-    void loadChunk(Chunk chunk);
-
-    /**
-     * Saves all stacks in a chunk and unloads them
-     *
-     * @param chunk the target chunk
-     */
-    void unloadChunk(Chunk chunk);
 
 }
