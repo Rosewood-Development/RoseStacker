@@ -57,7 +57,7 @@ public final class EntitySerializer {
 
             // Read list length
             int length = dataInput.readInt();
-            List<byte[]> stackNbtData = Collections.synchronizedList(new LinkedList<>());
+            List<byte[]> stackNbtData = new LinkedList<>();
 
             // Read the serialized nbt list
             for (int i = 0; i < length; i++) {
@@ -67,7 +67,7 @@ public final class EntitySerializer {
                 stackNbtData.add(nbtData);
             }
 
-            return new StackedEntity(id, livingEntity, stackNbtData);
+            return new StackedEntity(id, livingEntity, Collections.synchronizedList(stackNbtData));
         } catch (Exception e) {
             e.printStackTrace();
         }

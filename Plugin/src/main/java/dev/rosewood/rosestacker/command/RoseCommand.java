@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -390,8 +391,10 @@ public class RoseCommand extends BaseCommand {
             itemStackConfig.save();
             spawnerStackConfig.save();
 
-            this.rosePlugin.reload();
-            localeManager.sendMessage(sender, "command-translate-success");
+            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                this.rosePlugin.reload();
+                localeManager.sendMessage(sender, "command-translate-success");
+            });
         });
     }
 

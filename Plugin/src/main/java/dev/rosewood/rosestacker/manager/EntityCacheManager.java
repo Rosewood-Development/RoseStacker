@@ -2,9 +2,9 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.cache.ConcurrentCache;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class EntityCacheManager extends Manager {
             try {
                 if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
                     return entities;
-                entities.addAll(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
+                entities.addAll(NMSAdapter.getHandler().getEntities(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ())));
             } catch (Exception ignored) {
                 // Do not want this to error
             }

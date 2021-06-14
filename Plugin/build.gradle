@@ -13,10 +13,10 @@ compileJava {
 
 dependencies {
     // Other modules
-    implementation project(':NMS-Wrapper')
+    implementation project(':NMS:Wrapper')
 
     // Referenced dependencies
-    compileOnly 'org.spigotmc:spigot:1.16.5'
+    compileOnly 'org.spigotmc:spigot:1.17'
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.9'

@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.2.6'
+    version = '1.2.7'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -38,13 +38,14 @@ allprojects {
 
 dependencies {
     implementation project(':Plugin')
-    implementation project(':NMS-Wrapper')
-    implementation project(':NMS-v1_13_R2')
-    implementation project(':NMS-v1_14_R1')
-    implementation project(':NMS-v1_15_R1')
-    implementation project(':NMS-v1_16_R1')
-    implementation project(':NMS-v1_16_R2')
-    implementation project(':NMS-v1_16_R3')
+    implementation project(':NMS:Wrapper')
+    implementation project(':NMS:v1_13_R2')
+    implementation project(':NMS:v1_14_R1')
+    implementation project(':NMS:v1_15_R1')
+    implementation project(':NMS:v1_16_R1')
+    implementation project(':NMS:v1_16_R2')
+    implementation project(':NMS:v1_16_R3')
+    implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
 }
 
 shadowJar {

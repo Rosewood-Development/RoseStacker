@@ -9,7 +9,6 @@ import dev.rosewood.rosestacker.event.ItemStackEvent;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -60,7 +59,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
-    private final ConversionManager conversionManager;
     private final EntityCacheManager entityCacheManager;
     private final World targetWorld;
 
@@ -79,7 +77,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
-        this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
         this.targetWorld = targetWorld;
 
@@ -130,7 +127,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         // Cleans up entities/items that aren't stacked
         this.cleanupTimer++;
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
-            for (Entity entity : this.targetWorld.getEntities()) {
+            for (Entity entity : NMSAdapter.getHandler().getEntities(this.targetWorld)) {
                 // Don't create stacks from chunks we are about to load
                 if (!entity.isValid() || this.stackManager.isChunkPendingLoad(entity.getLocation().getChunk()))
                     continue;
@@ -196,7 +193,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             ItemStack itemStack = player.getInventory().getItemInMainHand();
             boolean displayStackingToolParticles = ItemUtils.isStackingTool(itemStack);
 
-            for (Entity entity : new ArrayList<>(this.targetWorld.getEntities())) {
+            for (Entity entity : new ArrayList<>(NMSAdapter.getHandler().getEntities(this.targetWorld))) {
                 if (entity.getType() == EntityType.PLAYER)
                     continue;
 

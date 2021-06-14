@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosegarden.manager.AbstractDataManager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -63,8 +64,7 @@ public class DataManager extends AbstractDataManager {
         while (chunkIterator.hasNext()) {
             Chunk chunk = chunkIterator.next();
             try {
-                Entity[] entities = chunk.getEntities();
-                for (Entity entity : entities)
+                for (Entity entity : NMSAdapter.getHandler().getEntities(chunk))
                     chunkEntities.put(entity.getUniqueId(), entity);
             } catch (Exception ignored) { }
 
@@ -135,8 +135,7 @@ public class DataManager extends AbstractDataManager {
         while (chunkIterator.hasNext()) {
             Chunk chunk = chunkIterator.next();
             try {
-                Entity[] entities = chunk.getEntities();
-                for (Entity entity : entities)
+                for (Entity entity : NMSAdapter.getHandler().getEntities(chunk))
                     chunkEntities.put(entity.getUniqueId(), entity);
             } catch (Exception ignored) { }
 

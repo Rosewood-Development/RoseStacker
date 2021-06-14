@@ -112,7 +112,8 @@ public class LocaleManager extends AbstractLocaleManager {
                     JsonArray json = parser.parse(reader).getAsJsonArray();
                     for (JsonElement element : json) {
                         String name = element.getAsJsonObject().get("name").getAsString().replaceAll(Pattern.quote(".json"), "");
-                        locales.add(name);
+                        if (!name.startsWith("_")) // ignore _all.json and _list.json
+                            locales.add(name);
                     }
                 }
             } catch (Exception ignored) { }

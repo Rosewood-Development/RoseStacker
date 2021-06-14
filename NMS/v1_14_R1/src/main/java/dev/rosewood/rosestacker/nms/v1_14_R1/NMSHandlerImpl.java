@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.nms.v1_14_R1;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_14_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_14_R1.object.SpawnerTileWrapperImpl;
 import java.io.ByteArrayInputStream;
@@ -86,30 +87,19 @@ public class NMSHandlerImpl implements NMSHandler {
 
     static {
         try {
-            field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
-            field_PacketPlayOutEntityMetadata_a.setAccessible(true);
+            field_PacketPlayOutEntityMetadata_a = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "a");
+            field_PacketPlayOutEntityMetadata_b = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "b");
 
-            field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
-            field_PacketPlayOutEntityMetadata_b.setAccessible(true);
+            method_WorldServer_registerEntity = ReflectionUtils.getMethodByName(WorldServer.class, "registerEntity", Entity.class);
 
-            method_WorldServer_registerEntity = WorldServer.class.getDeclaredMethod("registerEntity", Entity.class);
-            method_WorldServer_registerEntity.setAccessible(true);
-
-            Field field_EntityCreeper_d = EntityCreeper.class.getDeclaredField("d");
-            field_EntityCreeper_d.setAccessible(true);
+            Field field_EntityCreeper_d = ReflectionUtils.getFieldByName(EntityCreeper.class, "d");
             value_EntityCreeper_d = (DataWatcherObject<Boolean>) field_EntityCreeper_d.get(null);
+            field_EntityCreeper_fuseTicks = ReflectionUtils.getFieldByName(EntityCreeper.class, "fuseTicks");
 
-            field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
-            field_EntityCreeper_fuseTicks.setAccessible(true);
+            field_PathfinderGoalSelector_d = ReflectionUtils.getFieldByName(PathfinderGoalSelector.class, "d");
+            field_EntityInsentient_moveController = ReflectionUtils.getFieldByName(EntityInsentient.class, "moveController");
 
-            field_PathfinderGoalSelector_d = PathfinderGoalSelector.class.getDeclaredField("d");
-            field_PathfinderGoalSelector_d.setAccessible(true);
-
-            field_EntityInsentient_moveController = EntityInsentient.class.getDeclaredField("moveController");
-            field_EntityInsentient_moveController.setAccessible(true);
-
-            constructor_GroupDataZombie = EntityZombie.GroupDataZombie.class.getDeclaredConstructor(EntityZombie.class, boolean.class);
-            constructor_GroupDataZombie.setAccessible(true);
+            constructor_GroupDataZombie = ReflectionUtils.getConstructor(EntityZombie.GroupDataZombie.class, EntityZombie.class, boolean.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -174,8 +164,7 @@ public class NMSHandlerImpl implements NMSHandler {
                         null,
                         null,
                         new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        EnumMobSpawn.COMMAND,
-                        true
+                        EnumMobSpawn.COMMAND
                 );
 
                 if (entity == null)
@@ -220,8 +209,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 null,
                 null,
                 new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                EnumMobSpawn.SPAWN_EGG,
-                false
+                EnumMobSpawn.SPAWN_EGG
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
@@ -231,7 +219,7 @@ public class NMSHandlerImpl implements NMSHandler {
      * Duplicate of {@link EntityTypes#b(net.minecraft.server.v1_14_R1.World, NBTTagCompound, IChatBaseComponent, EntityHuman, BlockPosition, EnumMobSpawn, boolean, boolean)}
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
-    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_14_R1.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, EnumMobSpawn enummobspawn, boolean flag) {
+    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_14_R1.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, EnumMobSpawn enummobspawn) {
         T newEntity;
         if (entityTypes == EntityTypes.SPIDER) {
             newEntity = (T) new SoloEntitySpider((EntityTypes<? extends EntitySpider>) entityTypes, worldserver);

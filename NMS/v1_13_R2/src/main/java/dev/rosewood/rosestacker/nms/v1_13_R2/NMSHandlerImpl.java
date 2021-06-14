@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.nms.v1_13_R2;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_13_R2.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_13_R2.object.SpawnerTileWrapperImpl;
 import java.io.ByteArrayInputStream;
@@ -81,30 +82,19 @@ public class NMSHandlerImpl implements NMSHandler {
 
     static {
         try {
-            field_PacketPlayOutEntityMetadata_a = PacketPlayOutEntityMetadata.class.getDeclaredField("a");
-            field_PacketPlayOutEntityMetadata_a.setAccessible(true);
+            field_PacketPlayOutEntityMetadata_a = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "a");
+            field_PacketPlayOutEntityMetadata_b = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "b");
 
-            field_PacketPlayOutEntityMetadata_b = PacketPlayOutEntityMetadata.class.getDeclaredField("b");
-            field_PacketPlayOutEntityMetadata_b.setAccessible(true);
+            method_WorldServer_b = ReflectionUtils.getMethodByName(WorldServer.class, "b", Entity.class);
 
-            method_WorldServer_b = WorldServer.class.getDeclaredMethod("b", Entity.class);
-            method_WorldServer_b.setAccessible(true);
+            Field field_EntityCreeper_c = ReflectionUtils.getFieldByName(EntityCreeper.class, "c");
+            value_EntityCreeper_d = (DataWatcherObject<Boolean>) field_EntityCreeper_c.get(null);
+            field_EntityCreeper_fuseTicks = ReflectionUtils.getFieldByName(EntityCreeper.class, "fuseTicks");
 
-            Field field_EntityCreeper_d = EntityCreeper.class.getDeclaredField("c");
-            field_EntityCreeper_d.setAccessible(true);
-            value_EntityCreeper_d = (DataWatcherObject<Boolean>) field_EntityCreeper_d.get(null);
+            field_PathfinderGoalSelector_b = ReflectionUtils.getFieldByName(PathfinderGoalSelector.class, "b");
+            field_EntityInsentient_moveController = ReflectionUtils.getFieldByName(EntityInsentient.class, "moveController");
 
-            field_EntityCreeper_fuseTicks = EntityCreeper.class.getDeclaredField("fuseTicks");
-            field_EntityCreeper_fuseTicks.setAccessible(true);
-
-            field_PathfinderGoalSelector_b = PathfinderGoalSelector.class.getDeclaredField("b");
-            field_PathfinderGoalSelector_b.setAccessible(true);
-
-            field_EntityInsentient_moveController = EntityInsentient.class.getDeclaredField("moveController");
-            field_EntityInsentient_moveController.setAccessible(true);
-
-            constructor_GroupDataZombie = EntityZombie.GroupDataZombie.class.getDeclaredConstructor(EntityZombie.class, boolean.class);
-            constructor_GroupDataZombie.setAccessible(true);
+            constructor_GroupDataZombie = ReflectionUtils.getConstructor(EntityZombie.GroupDataZombie.class, EntityZombie.class, boolean.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -169,8 +159,7 @@ public class NMSHandlerImpl implements NMSHandler {
                         nbt,
                         null,
                         null,
-                        new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        true
+                        new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ())
                 );
 
                 if (entity == null)
@@ -218,8 +207,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 null,
                 null,
                 null,
-                new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                false
+                new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ())
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
@@ -229,7 +217,7 @@ public class NMSHandlerImpl implements NMSHandler {
      * Duplicate of {@link EntityTypes#b(net.minecraft.server.v1_13_R2.World, NBTTagCompound, IChatBaseComponent, EntityHuman, BlockPosition, boolean, boolean)}
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
-    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_13_R2.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, boolean flag) {
+    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, net.minecraft.server.v1_13_R2.World worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition) {
         T newEntity;
         if (entityTypes == EntityTypes.SPIDER) {
             newEntity = (T) new SoloEntitySpider((EntityTypes<? extends EntitySpider>) entityTypes, worldserver);

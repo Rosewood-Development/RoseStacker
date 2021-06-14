@@ -1,4 +1,4 @@
 dependencies {
-    implementation project(':NMS-Wrapper')
-    shadow 'org.spigotmc:spigot:1.15.2'
+    compileOnly project(':NMS:Wrapper')
+    compileOnly 'org.spigotmc:spigot:1.15.2'
 }
