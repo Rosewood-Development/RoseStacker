@@ -151,11 +151,13 @@ public class NMSHandlerImpl implements NMSHandler {
                 if (entity == null)
                     throw new NullPointerException("Unable to create entity from NBT");
 
-                if (addToWorld)
-                    world.addWithUUID(entity);
-
                 // Load NBT
                 entity.load(nbt);
+
+                if (addToWorld) {
+                    PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
+                    entityManager.addNewEntity(entity);
+                }
 
                 return (LivingEntity) entity.getBukkitEntity();
             }

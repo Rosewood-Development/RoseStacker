@@ -170,6 +170,9 @@ public class NMSHandlerImpl implements NMSHandler {
                 if (entity == null)
                     throw new NullPointerException("Unable to create entity from NBT");
 
+                // Load NBT
+                entity.f(nbt);
+
                 if (addToWorld) {
                     IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX / 16.0D), MathHelper.floor(entity.locZ / 16.0D), ChunkStatus.FULL, true);
                     if (!(ichunkaccess instanceof Chunk))
@@ -178,9 +181,6 @@ public class NMSHandlerImpl implements NMSHandler {
                     ichunkaccess.a(entity);
                     method_WorldServer_registerEntity.invoke(world, entity);
                 }
-
-                // Load NBT
-                entity.f(nbt);
 
                 return (LivingEntity) entity.getBukkitEntity();
             }
