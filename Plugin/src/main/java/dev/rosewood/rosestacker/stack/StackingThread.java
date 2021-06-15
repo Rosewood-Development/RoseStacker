@@ -129,7 +129,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : NMSAdapter.getHandler().getEntities(this.targetWorld)) {
                 // Don't create stacks from chunks we are about to load
-                if (!entity.isValid() || this.stackManager.isChunkPendingLoad(entity.getLocation().getChunk()))
+                if (!entity.isValid() || this.stackManager.isChunkPending(entity.getLocation().getChunk()))
                     continue;
 
                 if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
@@ -774,19 +774,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         toThread.loadExistingEntityStack(entityUUID, stackedEntity);
     }
 
-    public void transferExistingItemStack(UUID itemUUID, StackedItem stackedItem, StackingThread toThread) {
-        this.stackedItems.remove(itemUUID);
-        toThread.loadExistingItemStack(itemUUID, stackedItem);
-    }
-
     private void loadExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity) {
         stackedEntity.updateEntity();
         this.stackedEntities.put(entityUUID, stackedEntity);
-    }
-
-    private void loadExistingItemStack(UUID itemUUID, StackedItem stackedItem) {
-        stackedItem.updateItem();
-        this.stackedItems.put(itemUUID, stackedItem);
     }
 
     /**

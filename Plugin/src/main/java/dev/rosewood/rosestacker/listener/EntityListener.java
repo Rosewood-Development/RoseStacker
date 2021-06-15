@@ -169,7 +169,7 @@ public class EntityListener implements Listener {
             Item item = (Item) entity;
             StackedItem stackedItem = this.stackManager.getStackedItem(item);
             if (stackedItem != null)
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld()));
+                event.setCancelled(true);
         }
     }
 

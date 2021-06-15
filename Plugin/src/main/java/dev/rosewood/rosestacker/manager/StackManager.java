@@ -491,8 +491,8 @@ public class StackManager extends Manager implements StackingLogic {
         return this.deletedStacks.contains(stack);
     }
 
-    public boolean isChunkPendingLoad(Chunk chunk) {
-        return this.pendingLoadChunks.containsKey(chunk);
+    public boolean isChunkPending(Chunk chunk) {
+        return this.pendingLoadChunks.containsKey(chunk) || this.pendingUnloadChunks.containsKey(chunk);
     }
 
     public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {
@@ -503,16 +503,6 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         fromThread.transferExistingEntityStack(entityUUID, stackedEntity, toThread);
-    }
-
-    public void changeStackingThread(UUID itemUUID, StackedItem stackedItem, World from, World to) {
-        StackingThread fromThread = this.getStackingThread(from);
-        StackingThread toThread = this.getStackingThread(to);
-
-        if (fromThread == null || toThread == null)
-            return;
-
-        fromThread.transferExistingItemStack(itemUUID, stackedItem, toThread);
     }
 
     /**
