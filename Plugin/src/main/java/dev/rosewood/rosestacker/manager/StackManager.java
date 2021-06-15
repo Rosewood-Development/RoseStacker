@@ -534,10 +534,6 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.processingChunks)
             return;
 
-        // Don't try to load data for unloaded chunks, or save data for loaded chunks
-        this.pendingUnloadChunks.keySet().removeIf(this.pendingLoadChunks::containsKey);
-        this.pendingLoadChunks.keySet().removeIf(this.pendingUnloadChunks::containsKey);
-
         if (!this.pendingLoadChunks.isEmpty() || !this.pendingUnloadChunks.isEmpty()) {
             this.processingChunks = true;
             this.processingChunksTime = System.currentTimeMillis();
@@ -546,13 +542,13 @@ public class StackManager extends Manager implements StackingLogic {
             Set<Chunk> unload = new HashSet<>(this.pendingUnloadChunks.keySet());
 
             Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+                if (!unload.isEmpty())
+                    this.unloadChunks(unload);
+
                 if (!load.isEmpty()) {
                     this.conversionManager.convertChunks(load);
                     this.loadChunks(load);
                 }
-
-                if (!unload.isEmpty())
-                    this.unloadChunks(unload);
 
                 this.processingChunks = false;
             });

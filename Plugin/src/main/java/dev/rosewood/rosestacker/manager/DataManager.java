@@ -63,10 +63,22 @@ public class DataManager extends AbstractDataManager {
         Iterator<Chunk> chunkIterator = chunks.iterator();
         while (chunkIterator.hasNext()) {
             Chunk chunk = chunkIterator.next();
+            List<Entity> fetched = null;
             try {
-                for (Entity entity : NMSAdapter.getHandler().getEntities(chunk))
+                fetched = NMSAdapter.getHandler().getEntities(chunk);
+            } catch (Exception e) {
+                // Try one more time if it failed the first time
+                try {
+                    fetched = NMSAdapter.getHandler().getEntities(chunk);
+                } catch (Exception e2) {
+                    this.rosePlugin.getLogger().severe("Possible entity stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
+                    e2.printStackTrace();
+                }
+            }
+
+            if (fetched != null)
+                for (Entity entity : fetched)
                     chunkEntities.put(entity.getUniqueId(), entity);
-            } catch (Exception ignored) { }
 
             if (compoundSelect.length() > 0)
                 compoundSelect.append(" UNION ALL ");
@@ -134,10 +146,22 @@ public class DataManager extends AbstractDataManager {
         Iterator<Chunk> chunkIterator = chunks.iterator();
         while (chunkIterator.hasNext()) {
             Chunk chunk = chunkIterator.next();
+            List<Entity> fetched = null;
             try {
-                for (Entity entity : NMSAdapter.getHandler().getEntities(chunk))
+                fetched = NMSAdapter.getHandler().getEntities(chunk);
+            } catch (Exception e) {
+                // Try one more time if it failed the first time
+                try {
+                    fetched = NMSAdapter.getHandler().getEntities(chunk);
+                } catch (Exception e2) {
+                    this.rosePlugin.getLogger().severe("Possible item stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
+                    e2.printStackTrace();
+                }
+            }
+
+            if (fetched != null)
+                for (Entity entity : fetched)
                     chunkEntities.put(entity.getUniqueId(), entity);
-            } catch (Exception ignored) { }
 
             if (compoundSelect.length() > 0)
                 compoundSelect.append(" UNION ALL ");
