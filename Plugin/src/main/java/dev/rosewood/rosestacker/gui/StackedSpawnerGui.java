@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
@@ -122,19 +123,25 @@ public class StackedSpawnerGui {
                 .setLoreSupplier(() -> {
                     List<GuiString> lore = new ArrayList<>();
 
-                    lore.add(this.getString("min-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMinSpawnDelay())));
-                    lore.add(this.getString("max-spawn-delay", StringPlaceholders.single("delay", stackSettings.getMaxSpawnDelay())));
+                    SpawnerTileWrapper spawnerTile = this.stackedSpawner.getSpawnerTile();
+                    lore.add(this.getString("min-spawn-delay", StringPlaceholders.single("delay", spawnerTile.getMinSpawnDelay())));
+                    lore.add(this.getString("max-spawn-delay", StringPlaceholders.single("delay", spawnerTile.getMaxSpawnDelay())));
                     lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
-                    lore.add(this.getString("entity-search-range", StringPlaceholders.single("range", stackSettings.getEntitySearchRange())));
-                    lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", stackSettings.getPlayerActivationRange())));
-                    lore.add(this.getString("spawn-range", StringPlaceholders.single("range", stackSettings.getSpawnRange())));
+                    int range = stackSettings.getEntitySearchRange() == -1 ? spawnerTile.getSpawnRange() : stackSettings.getEntitySearchRange();
+                    lore.add(this.getString("entity-search-range", StringPlaceholders.single("range", range)));
+                    lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", spawnerTile.getRequiredPlayerRange())));
+                    lore.add(this.getString("spawn-range", StringPlaceholders.single("range", spawnerTile.getSpawnRange())));
 
-                    int spawnCount = this.stackedSpawner.getStackSize() * stackSettings.getSpawnCountStackSizeMultiplier();
-                    if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
-                        lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", this.stackedSpawner.getStackSize())));
-                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnCount)));
+                    if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
+                        if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
+                            lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", this.stackedSpawner.getStackSize())));
+                            lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
+                        } else {
+                            lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
+                        }
                     } else {
-                        lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", spawnCount)));
+                        lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", 1)));
+                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
                     }
 
                     lore.add(GuiFactory.createString());

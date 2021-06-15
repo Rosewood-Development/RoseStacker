@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -156,8 +157,12 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             // Spawn the mobs
             int spawnAmount;
             if (randomizeSpawnAmounts) {
-                int spawnerSpawnCount = Math.max(stackedSpawner.getStackSize() * stackSettings.getSpawnCountStackSizeMultiplier(), 0);
-                spawnAmount = this.random.nextInt(spawnerSpawnCount - stackedSpawner.getStackSize() + 1) + stackedSpawner.getStackSize();
+                if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
+                    int spawnerSpawnCount = Math.max(spawnerTile.getSpawnCount(), 0);
+                    spawnAmount = StackerUtils.randomInRange(stackedSpawner.getStackSize(), spawnerSpawnCount);
+                } else {
+                    spawnAmount = this.random.nextInt(spawnerTile.getSpawnCount()) + 1;
+                }
             } else {
                 spawnAmount = spawnerTile.getSpawnCount();
             }

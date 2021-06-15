@@ -24,7 +24,7 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        int detectionRange = stackSettings.getEntitySearchRange();
+        int detectionRange = stackSettings.getEntitySearchRange() == -1 ? creatureSpawner.getSpawnRange() : stackSettings.getEntitySearchRange();
         Block block = creatureSpawner.getBlock();
         EntityType entityType = creatureSpawner.getSpawnedType();
         return this.entityCacheManager.getNearbyEntities(

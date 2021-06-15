@@ -170,15 +170,15 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         if (oldEntityType != this.spawner.getSpawnedType())
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
 
-        this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
-        this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
-        this.spawnerTile.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
-        this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
-        this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
+        if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
+        if (this.stackSettings.getMaxSpawnDelay() != -1) this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
+        if (this.stackSettings.getMinSpawnDelay() != -1) this.spawnerTile.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
+        if (this.stackSettings.getPlayerActivationRange() != -1) this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
+        if (this.stackSettings.getSpawnRange() != -1) this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
 
         int delay;
         if (resetDelay) {
-            delay = StackerUtils.randomInRange(this.stackSettings.getMinSpawnDelay(), this.stackSettings.getMaxSpawnDelay());
+            delay = StackerUtils.randomInRange(this.spawnerTile.getMinSpawnDelay(), this.spawnerTile.getMaxSpawnDelay());
         } else {
             delay = this.spawner.getDelay();
         }

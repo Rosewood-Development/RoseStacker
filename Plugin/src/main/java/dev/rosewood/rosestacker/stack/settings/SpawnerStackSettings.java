@@ -120,41 +120,50 @@ public class SpawnerStackSettings extends StackSettings {
     public int getSpawnCountStackSizeMultiplier() {
         if (this.spawnCountStackSizeMultiplier != -1)
             return Math.max(this.spawnCountStackSizeMultiplier, 1);
-        return Math.max(Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.getInt(), 1);
+        int configValue = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.getInt();
+        if (configValue != -1)
+            configValue = Math.max(configValue, 1);
+        return configValue;
     }
 
     public int getMinSpawnDelay() {
         if (this.minSpawnDelay != -1)
             return Math.max(this.minSpawnDelay, 5);
-        return Math.max(Setting.SPAWNER_SPAWN_DELAY_MINIMUM.getInt(), 5);
+        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_DELAY_MINIMUM.getInt(), 5);
     }
 
     public int getMaxSpawnDelay() {
         if (this.maxSpawnDelay != -1)
             return Math.max(this.maxSpawnDelay, this.getMinSpawnDelay());
-        return Math.max(Setting.SPAWNER_SPAWN_DELAY_MAXIMUM.getInt(), this.getMinSpawnDelay());
+        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_DELAY_MAXIMUM.getInt(), this.getMinSpawnDelay());
     }
 
     public int getEntitySearchRange() {
         if (this.entitySearchRange != -1)
-            return Math.max(this.entitySearchRange, 1);
+            return this.maxIfNotNegativeOne(this.entitySearchRange, 1);
 
         int globalRange = Setting.SPAWNER_SPAWN_ENTITY_SEARCH_RANGE.getInt();
         if (globalRange == -1)
             return this.getSpawnRange();
-        return Math.max(globalRange, 1);
+        return this.maxIfNotNegativeOne(globalRange, 1);
     }
 
     public int getPlayerActivationRange() {
         if (this.playerActivationRange != -1)
             return Math.max(this.playerActivationRange, 1);
-        return Math.max(Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt(), 1);
+        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt(), 1);
     }
 
     public int getSpawnRange() {
         if (this.spawnRange != -1)
             return Math.max(this.spawnRange, 1);
-        return Math.max(Setting.SPAWNER_SPAWN_RANGE.getInt(), 1);
+        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_RANGE.getInt(), 1);
+    }
+
+    private int maxIfNotNegativeOne(int value, int max) {
+        if (value == -1)
+            return value;
+        return Math.max(value, max);
     }
 
 }
