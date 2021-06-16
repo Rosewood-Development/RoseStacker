@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.QueryUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -551,8 +552,10 @@ public class StackManager extends Manager implements StackingLogic {
     private void loadChunks(Set<Chunk> chunks) {
         DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
+        String chunkQuery = QueryUtils.buildChunksWhere(chunks);
+
         if (this.isEntityStackingEnabled()) {
-            dataManager.getStackedEntities(chunks, stacks -> {
+            dataManager.getStackedEntities(chunks, chunkQuery, stacks -> {
                 for (StackedEntity stack : stacks) {
                     StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                     if (stackingThread != null)
@@ -562,7 +565,7 @@ public class StackManager extends Manager implements StackingLogic {
         }
 
         if (this.isItemStackingEnabled()) {
-            dataManager.getStackedItems(chunks, stacks -> {
+            dataManager.getStackedItems(chunks, chunkQuery, stacks -> {
                 for (StackedItem stack : stacks) {
                     StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                     if (stackingThread != null)
@@ -572,7 +575,7 @@ public class StackManager extends Manager implements StackingLogic {
         }
 
         if (this.isBlockStackingEnabled()) {
-            dataManager.getStackedBlocks(chunks, stacks -> {
+            dataManager.getStackedBlocks(chunks, chunkQuery, stacks -> {
                 for (StackedBlock stack : stacks) {
                     StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                     if (stackingThread != null)
@@ -582,7 +585,7 @@ public class StackManager extends Manager implements StackingLogic {
         }
 
         if (this.isSpawnerStackingEnabled()) {
-            dataManager.getStackedSpawners(chunks, stacks -> {
+            dataManager.getStackedSpawners(chunks, chunkQuery, stacks -> {
                 for (StackedSpawner stack : stacks) {
                     StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                     if (stackingThread != null)

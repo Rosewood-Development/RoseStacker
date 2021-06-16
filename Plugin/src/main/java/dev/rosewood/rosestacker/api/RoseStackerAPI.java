@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.QueryUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -557,7 +558,7 @@ public final class RoseStackerAPI {
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedEntity>> future = new CompletableFuture<>();
             Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedEntities(unloadedChunks, results -> {
+                    this.dataManager.getStackedEntities(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
                         stacks.addAll(results);
                         future.complete(stacks);
                     }));
@@ -597,7 +598,7 @@ public final class RoseStackerAPI {
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedItem>> future = new CompletableFuture<>();
             Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedItems(unloadedChunks, results -> {
+                    this.dataManager.getStackedItems(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
                         stacks.addAll(results);
                         future.complete(stacks);
                     }));
@@ -637,7 +638,7 @@ public final class RoseStackerAPI {
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedBlock>> future = new CompletableFuture<>();
             Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedBlocks(unloadedChunks, results -> {
+                    this.dataManager.getStackedBlocks(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
                         stacks.addAll(results);
                         future.complete(stacks);
                     }));
@@ -677,7 +678,7 @@ public final class RoseStackerAPI {
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedSpawner>> future = new CompletableFuture<>();
             Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedSpawners(unloadedChunks, results -> {
+                    this.dataManager.getStackedSpawners(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
                         stacks.addAll(results);
                         future.complete(stacks);
                     }));
