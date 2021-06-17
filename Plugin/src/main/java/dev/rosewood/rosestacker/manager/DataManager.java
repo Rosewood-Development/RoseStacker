@@ -507,7 +507,7 @@ public class DataManager extends AbstractDataManager {
                         statement.setInt(6, stack.getLocation().getBlockY());
                         statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
                         statement.setBoolean(8, stack.isPlacedByPlayer());
-                        statement.setInt(8, stack.getStackSize());
+                        statement.setInt(9, stack.getStackSize());
                         statement.addBatch();
                     }
                     statement.executeBatch();

@@ -254,7 +254,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         boolean ageable = Ageable.class.isAssignableFrom(entityType.getEntityClass());
 
         int successfulSpawns = 0;
-        if (this.stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled()) {
+        if (this.stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled() && Setting.SPAWNER_SPAWN_INTO_NEARBY_STACKS.getBoolean()) {
             List<StackedEntity> newStacks = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
 
@@ -326,6 +326,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         continue;
 
                     LivingEntity entity = (LivingEntity) world.spawnEntity(location, entityType);
+                    entityStackSettings.applySpawnerSpawnedProperties(entity);
                     McMMOHook.flagSpawnerSpawned(entity);
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
@@ -335,10 +336,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                         continue;
                     }
 
-                    entityStackSettings.applySpawnerSpawnedProperties(entity);
-
                     // Spawn Particles
-                    entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                    if (entity.isValid())
+                        entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
                 }
             });
         }
