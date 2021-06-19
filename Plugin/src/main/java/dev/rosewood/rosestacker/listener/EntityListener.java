@@ -306,6 +306,9 @@ public class EntityListener implements Listener {
             stackedEntity.getEntity().setVelocity(entity.getVelocity());
             entity.setVelocity(new Vector());
         }
+
+        if (!Setting.ENTITY_DISPLAY_CORPSE.getBoolean())
+            event.getEntity().remove();
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
