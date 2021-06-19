@@ -71,7 +71,8 @@ public class DataManager extends AbstractDataManager {
 
             if (fetched != null)
                 for (Entity entity : fetched)
-                    chunkEntities.put(entity.getUniqueId(), entity);
+                    if (entity != null)
+                        chunkEntities.put(entity.getUniqueId(), entity);
         }
 
         String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE " + where;
@@ -138,7 +139,8 @@ public class DataManager extends AbstractDataManager {
 
             if (fetched != null)
                 for (Entity entity : fetched)
-                    chunkEntities.put(entity.getUniqueId(), entity);
+                    if (entity != null)
+                        chunkEntities.put(entity.getUniqueId(), entity);
         }
 
         String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE " + where;

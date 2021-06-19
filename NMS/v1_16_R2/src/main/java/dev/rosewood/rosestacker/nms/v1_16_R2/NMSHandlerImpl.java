@@ -47,6 +47,7 @@ import net.minecraft.server.v1_16_R2.MathHelper;
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagDouble;
+import net.minecraft.server.v1_16_R2.NBTTagFloat;
 import net.minecraft.server.v1_16_R2.NBTTagList;
 import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_16_R2.PathfinderGoalFloat;
@@ -145,10 +146,18 @@ public class NMSHandlerImpl implements NMSHandler {
             NBTTagCompound nbt = NBTCompressedStreamTools.a((InputStream) dataInput);
 
             NBTTagList positionTagList = nbt.getList("Pos", 6);
+            if (positionTagList == null)
+                positionTagList = new NBTTagList();
             positionTagList.set(0, NBTTagDouble.a(location.getX()));
             positionTagList.set(1, NBTTagDouble.a(location.getY()));
             positionTagList.set(2, NBTTagDouble.a(location.getZ()));
             nbt.set("Pos", positionTagList);
+            NBTTagList rotationTagList = nbt.getList("Rotation", 5);
+            if (rotationTagList == null)
+                rotationTagList = new NBTTagList();
+            rotationTagList.set(0, NBTTagFloat.a(location.getYaw()));
+            rotationTagList.set(1, NBTTagFloat.a(location.getPitch()));
+            nbt.set("Rotation", rotationTagList);
             nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
             Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
@@ -178,6 +187,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
                     ichunkaccess.a(entity);
                     method_WorldServer_registerEntity.invoke(world, entity);
+                    entity.noDamageTicks = 0;
                 }
 
                 return (LivingEntity) entity.getBukkitEntity();

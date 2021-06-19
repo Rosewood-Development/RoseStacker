@@ -24,8 +24,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -127,11 +129,19 @@ public class NMSHandlerImpl implements NMSHandler {
             // Read NBT
             CompoundTag nbt = NbtIo.readCompressed(dataInput);
 
-            ListTag positionTagList = nbt.getList("Pos", 6);
+            ListTag positionTagList = nbt.getList("Pos", Tag.TAG_DOUBLE);
+            if (positionTagList == null)
+                positionTagList = new ListTag();
             positionTagList.set(0, DoubleTag.valueOf(location.getX()));
             positionTagList.set(1, DoubleTag.valueOf(location.getY()));
             positionTagList.set(2, DoubleTag.valueOf(location.getZ()));
             nbt.put("Pos", positionTagList);
+            ListTag rotationTagList = nbt.getList("Rotation", Tag.TAG_FLOAT);
+            if (rotationTagList == null)
+                rotationTagList = new ListTag();
+            rotationTagList.set(0, FloatTag.valueOf(location.getYaw()));
+            rotationTagList.set(1, FloatTag.valueOf(location.getPitch()));
+            nbt.put("Rotation", rotationTagList);
             nbt.putUUID("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
             Optional<net.minecraft.world.entity.EntityType<?>> optionalEntity = net.minecraft.world.entity.EntityType.byString(entityType);
@@ -157,6 +167,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 if (addToWorld) {
                     PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
                     entityManager.addNewEntity(entity);
+                    entity.invulnerableTime = 0;
                 }
 
                 return (LivingEntity) entity.getBukkitEntity();

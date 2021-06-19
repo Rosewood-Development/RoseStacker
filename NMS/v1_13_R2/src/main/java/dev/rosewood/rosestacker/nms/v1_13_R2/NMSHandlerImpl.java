@@ -41,6 +41,7 @@ import net.minecraft.server.v1_13_R2.MathHelper;
 import net.minecraft.server.v1_13_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import net.minecraft.server.v1_13_R2.NBTTagDouble;
+import net.minecraft.server.v1_13_R2.NBTTagFloat;
 import net.minecraft.server.v1_13_R2.NBTTagList;
 import net.minecraft.server.v1_13_R2.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_13_R2.PathfinderGoalSelector;
@@ -141,12 +142,19 @@ public class NMSHandlerImpl implements NMSHandler {
 
             // Read NBT
             NBTTagCompound nbt = NBTCompressedStreamTools.a(dataInput);
-
             NBTTagList positionTagList = nbt.getList("Pos", 6);
+            if (positionTagList == null)
+                positionTagList = new NBTTagList();
             positionTagList.set(0, new NBTTagDouble(location.getX()));
             positionTagList.set(1, new NBTTagDouble(location.getY()));
             positionTagList.set(2, new NBTTagDouble(location.getZ()));
             nbt.set("Pos", positionTagList);
+            NBTTagList rotationTagList = nbt.getList("Rotation", 5);
+            if (rotationTagList == null)
+                rotationTagList = new NBTTagList();
+            rotationTagList.set(0, new NBTTagFloat(location.getYaw()));
+            rotationTagList.set(1, new NBTTagFloat(location.getPitch()));
+            nbt.set("Rotation", rotationTagList);
             nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
             EntityTypes<?> entityTypes = EntityTypes.a(entityType);
@@ -176,6 +184,7 @@ public class NMSHandlerImpl implements NMSHandler {
                     chunk.a(entity);
                     world.entityList.add(entity);
                     method_WorldServer_b.invoke(world, entity);
+                    entity.noDamageTicks = 0;
                 }
 
                 return (LivingEntity) entity.getBukkitEntity();
