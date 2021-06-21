@@ -18,7 +18,7 @@ public class DarknessConditionTag extends ConditionTag {
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        if (!StackerUtils.isAir(spawnBlock.getType()))
+        if (StackerUtils.isOccluding(spawnBlock.getType()))
             return false;
 
         if (creatureSpawner.getSpawnedType() == EntityType.BLAZE || creatureSpawner.getSpawnedType() == EntityType.SILVERFISH)

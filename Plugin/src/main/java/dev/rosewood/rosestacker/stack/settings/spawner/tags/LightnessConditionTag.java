@@ -17,7 +17,7 @@ public class LightnessConditionTag extends ConditionTag {
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        return StackerUtils.isAir(spawnBlock.getType()) && spawnBlock.getLightLevel() > 8;
+        return !StackerUtils.isOccluding(spawnBlock.getType()) && spawnBlock.getLightLevel() > 8;
     }
 
     @Override

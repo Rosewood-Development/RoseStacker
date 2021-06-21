@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,9 +120,7 @@ public class DataManager extends AbstractDataManager {
             callback.accept(Collections.emptySet());
 
         Map<UUID, Entity> chunkEntities = new HashMap<>();
-        Iterator<Chunk> chunkIterator = chunks.iterator();
-        while (chunkIterator.hasNext()) {
-            Chunk chunk = chunkIterator.next();
+        for (Chunk chunk : chunks) {
             List<Entity> fetched = null;
             try {
                 fetched = NMSAdapter.getHandler().getEntities(chunk);
