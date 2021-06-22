@@ -135,8 +135,11 @@ public class ConversionManager extends Manager implements Listener {
             requiredStackTypes.add(conversionHandler.getRequiredDataStackType());
 
         Set<Entity> entities = new HashSet<>();
-        for (Chunk chunk : chunks)
-            entities.addAll(Arrays.asList(chunk.getEntities()));
+        for (Chunk chunk : chunks) {
+            try {
+                entities.addAll(Arrays.asList(chunk.getEntities()));
+            } catch (Exception ignored) { }
+        }
 
         Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(entities, requiredStackTypes);
 

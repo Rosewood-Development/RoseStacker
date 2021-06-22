@@ -233,10 +233,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Runnable mainTask = () -> {
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int totalExp = droppedExp;
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
                 entity.setFireTicks(thisEntity.getFireTicks());
                 entity.setLastDamageCause(thisEntity.getLastDamageCause());
+                nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
 
                 Collection<ItemStack> entityLoot = EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents && !multiplyCustomLoot) {

@@ -166,8 +166,22 @@ public interface NMSHandler {
         return world.getEntities();
     }
 
+    /**
+     * Get a list of all entities in this Chunk
+     *
+     * @param chunk The chunk to get the entities from
+     * @return A List of all Entities currently residing in the given chunk
+     */
     default List<Entity> getEntities(Chunk chunk) {
         return Arrays.asList(chunk.getEntities());
     }
+
+    /**
+     * Sets the LivingEntity's lastHurtByPlayer value to the given Player
+     *
+     * @param livingEntity The LivingEntity
+     * @param player The Player
+     */
+    void setLastHurtBy(LivingEntity livingEntity, Player player);
 
 }

@@ -134,7 +134,10 @@ public class StackSettingManager extends Manager {
             spawnerSettingsConfiguration.addComments(
                     "",
                     "Valid Blocks: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
-                    "Valid Biomes: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html"
+                    "Valid Biomes: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html",
+                    "",
+                    "Want to remove all requirements? Set the value to the following:",
+                    "spawn-requirements: []"
             );
         }
 

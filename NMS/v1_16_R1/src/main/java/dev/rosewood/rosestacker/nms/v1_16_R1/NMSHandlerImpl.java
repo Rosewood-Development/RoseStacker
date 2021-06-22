@@ -410,4 +410,10 @@ public class NMSHandlerImpl implements NMSHandler {
         return new SpawnerTileWrapperImpl(spawner);
     }
 
+    @Override
+    public void setLastHurtBy(LivingEntity livingEntity, Player player) {
+        if (player != null)
+            ((CraftLivingEntity) livingEntity).getHandle().killer = ((CraftPlayer) player).getHandle();
+    }
+
 }

@@ -413,4 +413,10 @@ public class NMSHandlerImpl implements NMSHandler {
         }
     }
 
+    @Override
+    public void setLastHurtBy(LivingEntity livingEntity, Player player) {
+        if (player != null)
+            ((CraftLivingEntity) livingEntity).getHandle().lastHurtByPlayer = ((CraftPlayer) player).getHandle();
+    }
+
 }
