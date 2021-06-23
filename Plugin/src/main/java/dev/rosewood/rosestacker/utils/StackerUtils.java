@@ -145,9 +145,10 @@ public final class StackerUtils {
 
         int experience = RANDOM.nextInt(upperBound - lowerBound + 1) + lowerBound;
 
-        while (experience > step) {
-            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(step));
-            experience -= step;
+        int chunkAmount = Math.max(2, step); // Prevent infinite loops and always use at minimum a step of 2
+        while (experience > chunkAmount) {
+            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(chunkAmount));
+            experience -= chunkAmount;
         }
 
         if (experience > 0) {
