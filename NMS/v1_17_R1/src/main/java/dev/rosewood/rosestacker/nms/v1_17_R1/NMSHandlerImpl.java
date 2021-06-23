@@ -116,6 +116,14 @@ public class NMSHandlerImpl implements NMSHandler {
         return null;
     }
 
+    private void setTag(ListTag tag, int index, Tag value) {
+        if (index >= tag.size()) {
+            tag.addTag(index, value);
+        } else {
+            tag.setTag(index, value);
+        }
+    }
+
     @Override
     public LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
@@ -132,15 +140,15 @@ public class NMSHandlerImpl implements NMSHandler {
             ListTag positionTagList = nbt.getList("Pos", Tag.TAG_DOUBLE);
             if (positionTagList == null)
                 positionTagList = new ListTag();
-            positionTagList.set(0, DoubleTag.valueOf(location.getX()));
-            positionTagList.set(1, DoubleTag.valueOf(location.getY()));
-            positionTagList.set(2, DoubleTag.valueOf(location.getZ()));
+            this.setTag(positionTagList, 0, DoubleTag.valueOf(location.getX()));
+            this.setTag(positionTagList, 1, DoubleTag.valueOf(location.getY()));
+            this.setTag(positionTagList, 2, DoubleTag.valueOf(location.getZ()));
             nbt.put("Pos", positionTagList);
             ListTag rotationTagList = nbt.getList("Rotation", Tag.TAG_FLOAT);
             if (rotationTagList == null)
                 rotationTagList = new ListTag();
-            rotationTagList.set(0, FloatTag.valueOf(location.getYaw()));
-            rotationTagList.set(1, FloatTag.valueOf(location.getPitch()));
+            this.setTag(rotationTagList, 0, FloatTag.valueOf(location.getYaw()));
+            this.setTag(rotationTagList, 1, FloatTag.valueOf(location.getPitch()));
             nbt.put("Rotation", rotationTagList);
             nbt.putUUID("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
             nbt.remove("AngryAt"); // Causes issues if this value is parsed async

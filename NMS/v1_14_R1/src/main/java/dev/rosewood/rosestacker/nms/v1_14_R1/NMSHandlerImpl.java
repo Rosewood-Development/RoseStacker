@@ -42,6 +42,7 @@ import net.minecraft.server.v1_14_R1.IChatBaseComponent;
 import net.minecraft.server.v1_14_R1.IChunkAccess;
 import net.minecraft.server.v1_14_R1.IRegistry;
 import net.minecraft.server.v1_14_R1.MathHelper;
+import net.minecraft.server.v1_14_R1.NBTBase;
 import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import net.minecraft.server.v1_14_R1.NBTTagDouble;
@@ -134,6 +135,14 @@ public class NMSHandlerImpl implements NMSHandler {
         return null;
     }
 
+    private void setTag(NBTTagList tag, int index, NBTBase value) {
+        if (index >= tag.size()) {
+            tag.b(index, value);
+        } else {
+            tag.a(index, value);
+        }
+    }
+
     @Override
     public LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
@@ -150,15 +159,15 @@ public class NMSHandlerImpl implements NMSHandler {
             NBTTagList positionTagList = nbt.getList("Pos", 6);
             if (positionTagList == null)
                 positionTagList = new NBTTagList();
-            positionTagList.set(0, new NBTTagDouble(location.getX()));
-            positionTagList.set(1, new NBTTagDouble(location.getY()));
-            positionTagList.set(2, new NBTTagDouble(location.getZ()));
+            this.setTag(positionTagList, 0, new NBTTagDouble(location.getX()));
+            this.setTag(positionTagList, 1, new NBTTagDouble(location.getY()));
+            this.setTag(positionTagList, 2, new NBTTagDouble(location.getZ()));
             nbt.set("Pos", positionTagList);
             NBTTagList rotationTagList = nbt.getList("Rotation", 5);
             if (rotationTagList == null)
                 rotationTagList = new NBTTagList();
-            rotationTagList.set(0, new NBTTagFloat(location.getYaw()));
-            rotationTagList.set(1, new NBTTagFloat(location.getPitch()));
+            this.setTag(rotationTagList, 0, new NBTTagFloat(location.getYaw()));
+            this.setTag(rotationTagList, 1, new NBTTagFloat(location.getPitch()));
             nbt.set("Rotation", rotationTagList);
             nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
