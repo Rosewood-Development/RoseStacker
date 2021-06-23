@@ -4,6 +4,7 @@ import com.gmail.filoghost.holographicdisplays.HolographicDisplays;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.gmail.filoghost.holographicdisplays.api.line.HologramLine;
+import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 import com.gmail.filoghost.holographicdisplays.nms.interfaces.entity.NMSEntityBase;
 import dev.rosewood.rosestacker.RoseStacker;
 import java.util.HashMap;
@@ -28,8 +29,7 @@ public class HolographicDisplaysHologramHandler implements HologramHandler {
             hologram.appendTextLine(text);
             this.holograms.put(location, hologram);
         } else {
-            hologram.clearLines();
-            hologram.appendTextLine(text);
+            ((TextLine) hologram.getLine(0)).setText(text);
         }
     }
 
