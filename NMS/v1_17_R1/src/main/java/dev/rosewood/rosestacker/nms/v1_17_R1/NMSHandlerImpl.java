@@ -143,6 +143,7 @@ public class NMSHandlerImpl implements NMSHandler {
             rotationTagList.set(1, FloatTag.valueOf(location.getPitch()));
             nbt.put("Rotation", rotationTagList);
             nbt.putUUID("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
+            nbt.remove("AngryAt"); // Causes issues if this value is parsed async
 
             Optional<net.minecraft.world.entity.EntityType<?>> optionalEntity = net.minecraft.world.entity.EntityType.byString(entityType);
             if (optionalEntity.isPresent()) {
