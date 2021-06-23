@@ -456,19 +456,6 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockPhysics(BlockPhysicsEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
-            return;
-
-        if (!stackManager.isBlockStackingEnabled())
-            return;
-
-        if (this.isBlockOrSpawnerStack(stackManager, event.getBlock()))
-            event.setCancelled(true);
-    }
-
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPistonExtend(BlockPistonExtendEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
