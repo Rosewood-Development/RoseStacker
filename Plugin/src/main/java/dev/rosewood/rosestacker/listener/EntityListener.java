@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -191,7 +193,12 @@ public class EntityListener implements Listener {
             return;
         }
 
-        event.setDamage(entity.getHealth());
+        AttributeInstance attributeInstance = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (attributeInstance != null) {
+            event.setDamage(attributeInstance.getValue());
+        } else {
+            event.setDamage(entity.getHealth());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
