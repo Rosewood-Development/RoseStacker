@@ -263,8 +263,9 @@ public class BlockListener implements Listener {
             if (destroyFromMissingPermission)
                 destroyAmount = amount;
 
-            boolean alwaysPickupWithSilktouch = Setting.SPAWNER_SILK_TOUCH_ONLY_NATURAL.getBoolean() && placedByPlayer;
-            if (!alwaysPickupWithSilktouch && (!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission) && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
+            if (!(Setting.SPAWNER_SILK_TOUCH_ONLY_NATURAL.getBoolean() && placedByPlayer)
+                    && (!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission)
+                    && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
                 double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt()) / 100D;
                 for (int i = 0, n = amount - destroyAmount; i < n; i++) {
                     boolean passesChance = StackerUtils.passesChance(chance);
@@ -349,13 +350,18 @@ public class BlockListener implements Listener {
         boolean stackedBlockProtection = Setting.BLOCK_EXPLOSION_PROTECTION.getBoolean() && stackManager.isBlockStackingEnabled();
         boolean stackedSpawnerProtection = Setting.SPAWNER_EXPLOSION_PROTECTION.getBoolean() && stackManager.isSpawnerStackingEnabled();
 
-        if (stackedBlockProtection && stackedSpawnerProtection) {
-            blockList.removeIf(x -> this.isBlockOrSpawnerStack(stackManager, x));
+        if (stackedSpawnerProtection) {
+            blockList.removeIf(stackManager::isSpawnerStacked);
+            return;
+        }
+
+        if (stackedBlockProtection) {
+            blockList.removeIf(stackManager::isBlockStacked);
             return;
         }
 
         for (Block block : new ArrayList<>(blockList)) {
-            if (!stackedBlockProtection && stackManager.isBlockStacked(block)) {
+            if (stackManager.isBlockStacked(block)) {
                 blockList.remove(block);
 
                 if (!StackerUtils.passesChance(Setting.BLOCK_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
@@ -398,7 +404,7 @@ public class BlockListener implements Listener {
                     Bukkit.getScheduler().runTask(this.rosePlugin, () ->
                             stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(type, newStackSize), block.getLocation().clone().add(0.5, 0.5, 0.5)));
                 }
-            } else if (!stackedSpawnerProtection && stackManager.isSpawnerStacked(block)) {
+            } else if (stackManager.isSpawnerStacked(block)) {
                 blockList.remove(block);
 
                 if (!StackerUtils.passesChance(Setting.SPAWNER_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
