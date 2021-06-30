@@ -306,7 +306,7 @@ public abstract class EntityStackSettings extends StackSettings {
                 return EntityStackComparisonResult.HAS_CHEST;
         }
 
-        if (NMSUtil.getVersionNumber() >= 14 && this.isEntityRaider()) {
+        if (this.isEntityRaider()) {
             Raider raider1 = (Raider) entity1;
             Raider raider2 = (Raider) entity2;
 
@@ -440,7 +440,7 @@ public abstract class EntityStackSettings extends StackSettings {
     private boolean isEntityRaider() {
         if (this.isRaider == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (NMSUtil.getVersionNumber() <= 13 || entityClass == null) {
+            if (entityClass == null) {
                 this.isRaider = false;
             } else {
                 this.isRaider = Raider.class.isAssignableFrom(entityClass);

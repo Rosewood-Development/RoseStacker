@@ -38,6 +38,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public final class StackerUtils {
 
+    public static final String MIN_SUPPORTED_VERSION = "1.14.4";
     public static final String MAX_SUPPORTED_VERSION = "1.17";
     public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.17";
 
