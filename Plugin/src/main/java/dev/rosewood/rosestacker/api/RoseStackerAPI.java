@@ -557,11 +557,12 @@ public final class RoseStackerAPI {
 
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedEntity>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedEntities(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
+            // TODO
+//            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
+//                    this.dataManager.getStackedEntities(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
+//                        stacks.addAll(results);
+//                        future.complete(stacks);
+//                    }));
             return future;
         }
 
@@ -597,11 +598,12 @@ public final class RoseStackerAPI {
 
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedItem>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedItems(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
+            // TODO
+//            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
+//                    this.dataManager.getStackedItems(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
+//                        stacks.addAll(results);
+//                        future.complete(stacks);
+//                    }));
             return future;
         }
 
@@ -637,11 +639,12 @@ public final class RoseStackerAPI {
 
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedBlock>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedBlocks(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
+            // TODO
+//            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
+//                    this.dataManager.getStackedBlocks(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
+//                        stacks.addAll(results);
+//                        future.complete(stacks);
+//                    }));
             return future;
         }
 
@@ -677,11 +680,12 @@ public final class RoseStackerAPI {
 
         if (!unloadedChunks.isEmpty()) {
             CompletableFuture<Set<StackedSpawner>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedSpawners(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
+            // TODO
+//            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
+//                    this.dataManager.getStackedSpawners(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
+//                        stacks.addAll(results);
+//                        future.complete(stacks);
+//                    }));
             return future;
         }
 

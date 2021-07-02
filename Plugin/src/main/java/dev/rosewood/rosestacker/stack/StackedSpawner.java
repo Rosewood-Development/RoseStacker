@@ -36,9 +36,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private SpawnerStackSettings stackSettings;
 
-    public StackedSpawner(int id, int size, CreatureSpawner spawner, boolean placedByPlayer) {
-        super(id);
-
+    public StackedSpawner(int size, CreatureSpawner spawner, boolean placedByPlayer) {
         this.size = size;
         this.spawner = spawner;
         this.placedByPlayer = placedByPlayer;
@@ -60,10 +58,6 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
     }
 
-    public StackedSpawner(int size, CreatureSpawner spawner, boolean placedByPlayer) {
-        this(-1, size, spawner, placedByPlayer);
-    }
-
     /**
      * This constructor should only be used by the converters and SHOULD NEVER be put into a StackingThread
      *
@@ -71,8 +65,6 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
      * @param location The Location of the stack
      */
     public StackedSpawner(int size, Location location) {
-        super(-1);
-
         this.size = size;
         this.spawner = null;
         this.location = location;
@@ -86,7 +78,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         return this.spawnerTile;
     }
 
-    public void kickOutViewers() {
+    public void kickOutGuiViewers() {
         if (this.stackedSpawnerGui != null)
             this.stackedSpawnerGui.kickOutViewers();
     }

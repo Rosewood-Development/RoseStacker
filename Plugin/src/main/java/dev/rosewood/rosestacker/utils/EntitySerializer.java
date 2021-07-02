@@ -46,12 +46,11 @@ public final class EntitySerializer {
     /**
      * Deserializes a stacked entity from a byte array
      *
-     * @param id the id of the stacked entity
      * @param livingEntity the living entity to attach the stack to
      * @param data byte array to convert to a stacked entity
      * @return the stacked entity
      */
-    public static StackedEntity fromBlob(int id, LivingEntity livingEntity, byte[] data) {
+    public static StackedEntity fromBlob(LivingEntity livingEntity, byte[] data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -67,7 +66,7 @@ public final class EntitySerializer {
                 stackNbtData.add(nbtData);
             }
 
-            return new StackedEntity(id, livingEntity, Collections.synchronizedList(stackNbtData));
+            return new StackedEntity(livingEntity, Collections.synchronizedList(stackNbtData));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -83,7 +83,8 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
                     stackedBlocks.add(new StackedBlock(amount, block));
                 }
 
-                dataManager.createOrUpdateStackedBlocks(stackedBlocks);
+                // TODO
+                //dataManager.createOrUpdateStackedBlocks(stackedBlocks);
             }
 
             // Load spawners
@@ -105,7 +106,8 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
                     stackedSpawners.add(new StackedSpawner(amount, location));
                 }
 
-                dataManager.createOrUpdateStackedSpawners(stackedSpawners);
+                // TODO
+                //dataManager.createOrUpdateStackedSpawners(stackedSpawners);
             }
         });
     }

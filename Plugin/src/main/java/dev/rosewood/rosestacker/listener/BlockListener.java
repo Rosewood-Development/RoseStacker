@@ -679,7 +679,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedSpawner tempStackedSpawner = new StackedSpawner(-1, 0, spawner, true);
+                StackedSpawner tempStackedSpawner = new StackedSpawner(0, spawner, true);
                 SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {

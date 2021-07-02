@@ -16,8 +16,6 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.ConversionManager;
-import dev.rosewood.rosestacker.manager.DataManager;
-import dev.rosewood.rosestacker.manager.DataManager.StackCounts;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -33,7 +31,6 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -285,42 +282,6 @@ public class RoseCommand extends BaseCommand {
             ItemUtils.dropItemsToPlayer(player, Arrays.asList(items));
         }
 
-    }
-
-    @Subcommand("purgedata")
-    @CommandPermission("rosestacker.purgedata")
-    @CommandCompletion("@worlds")
-    public void onPurgeData(CommandSender sender, String world) {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-        int totalDeleted = dataManager.purgeData(world);
-        if (totalDeleted == 0) {
-            localeManager.sendMessage(sender, "command-purgedata-none");
-        } else {
-            localeManager.sendMessage(sender, "command-purgedata-purged", StringPlaceholders.single("amount", totalDeleted));
-        }
-    }
-
-    @Subcommand("querydata")
-    @CommandPermission("rosestacker.querydata")
-    @CommandCompletion("@worlds")
-    public void onQueryData(CommandSender sender, World world) {
-        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-        StackCounts stackCounts = dataManager.queryData(world.getName());
-        int entity = stackCounts.getEntityCount();
-        int item = stackCounts.getItemCount();
-        int block = stackCounts.getBlockCount();
-        int spawner = stackCounts.getSpawnerCount();
-        if (entity == 0 && item == 0 && block == 0 && spawner == 0) {
-            localeManager.sendMessage(sender, "command-querydata-none");
-        } else {
-            localeManager.sendMessage(sender, "command-querydata-header");
-            localeManager.sendSimpleMessage(sender, "command-querydata-entity", StringPlaceholders.single("amount", entity));
-            localeManager.sendSimpleMessage(sender, "command-querydata-item", StringPlaceholders.single("amount", item));
-            localeManager.sendSimpleMessage(sender, "command-querydata-block", StringPlaceholders.single("amount", block));
-            localeManager.sendSimpleMessage(sender, "command-querydata-spawner", StringPlaceholders.single("amount", spawner));
-        }
     }
 
     @Subcommand("translate")

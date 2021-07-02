@@ -45,9 +45,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(int id, LivingEntity entity, List<byte[]> serializedStackedEntities) {
-        super(id);
-
+    public StackedEntity(LivingEntity entity, List<byte[]> serializedStackedEntities) {
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
@@ -61,10 +59,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
         }
-    }
-
-    public StackedEntity(LivingEntity entity, List<byte[]> serializedStackedEntities) {
-        this(-1, entity, serializedStackedEntities);
     }
 
     public StackedEntity(LivingEntity entity) {
@@ -166,7 +160,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
-        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
+        return new StackedEntity(oldEntity, Collections.synchronizedList(new LinkedList<>()));
     }
 
     public List<byte[]> getStackedEntityNBT() {

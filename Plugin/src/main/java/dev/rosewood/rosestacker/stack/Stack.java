@@ -10,16 +10,6 @@ import org.bukkit.entity.Player;
 
 public abstract class Stack<T extends StackSettings> {
 
-    private final int id;
-
-    public Stack(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return this.id;
-    }
-
     public abstract int getStackSize();
 
     public abstract Location getLocation();
