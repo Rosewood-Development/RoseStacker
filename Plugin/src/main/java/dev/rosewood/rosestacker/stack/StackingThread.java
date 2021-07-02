@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -810,11 +811,31 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void loadChunk(Chunk chunk) {
+        Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
+        if (this.stackManager.isSpawnerStackingEnabled())
+            for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
+                stackedSpawners.put(stackedSpawner.getSpawner().getBlock(), stackedSpawner);
 
+        Map<Block, StackedBlock> stackedBlocks = new ConcurrentHashMap<>();
+        if (this.stackManager.isBlockStackingEnabled())
+            for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
+                stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
+
+        this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
     }
 
     public void unloadChunk(Chunk chunk) {
+        StackChunkData stackChunkData = this.stackChunkData.get(chunk);
+        if (stackChunkData == null)
+            return;
 
+        if (this.stackManager.isSpawnerStackingEnabled())
+            DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
+
+        if (this.stackManager.isBlockStackingEnabled())
+            DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
+
+        this.stackChunkData.remove(chunk);
     }
 
     /**

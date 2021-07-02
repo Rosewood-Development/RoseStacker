@@ -69,7 +69,7 @@ public class StackManager extends Manager implements StackingLogic {
         // Save anything that's loaded
         for (StackingThread stackingThread : this.stackingThreads.values())
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
-                stackingThread.loadChunk(chunk);
+                stackingThread.unloadChunk(chunk);
 
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);

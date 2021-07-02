@@ -123,11 +123,11 @@ public class RoseStacker extends RosePlugin {
     @Override
     protected List<Class<? extends Manager>> getManagerLoadPriority() {
         return Arrays.asList(
+                HologramManager.class,
                 DataManager.class,
                 StackSettingManager.class,
                 CommandManager.class,
                 ConversionManager.class,
-                HologramManager.class,
                 EntityCacheManager.class,
                 StackManager.class,
                 SpawnerSpawnManager.class
