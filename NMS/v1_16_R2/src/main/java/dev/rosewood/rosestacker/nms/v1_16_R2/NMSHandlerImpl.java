@@ -2,17 +2,15 @@ package dev.rosewood.rosestacker.nms.v1_16_R2;
 
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_16_R2.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R2.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_16_R2.object.CompactNBTImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R2.object.SpawnerTileWrapperImpl;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import dev.rosewood.rosestacker.nms.v1_16_R2.object.WrappedNBTImpl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -45,7 +43,6 @@ import net.minecraft.server.v1_16_R2.IChunkAccess;
 import net.minecraft.server.v1_16_R2.IRegistry;
 import net.minecraft.server.v1_16_R2.MathHelper;
 import net.minecraft.server.v1_16_R2.NBTBase;
-import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagDouble;
 import net.minecraft.server.v1_16_R2.NBTTagFloat;
@@ -106,31 +103,11 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
-
-            NBTTagCompound nbt = new NBTTagCompound();
-            EntityLiving craftEntity = ((CraftLivingEntity) livingEntity).getHandle();
-            craftEntity.save(nbt);
-
-            // Don't store attributes, it's pretty large and doesn't usually matter
-            if (!includeAttributes)
-                nbt.remove("Attributes");
-
-            // Write entity type
-            String entityType = IRegistry.ENTITY_TYPE.getKey(craftEntity.getEntityType()).toString();
-            dataOutput.writeUTF(entityType);
-
-            // Write NBT
-            NBTCompressedStreamTools.a(nbt, (OutputStream) dataOutput);
-
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
+    public WrappedNBT<?> getEntityAsNBT(LivingEntity livingEntity) {
+        NBTTagCompound nbt = new NBTTagCompound();
+        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+        nmsEntity.save(nbt);
+        return new WrappedNBTImpl(nbt);
     }
 
     private void setTag(NBTTagList tag, int index, NBTBase value) {
@@ -142,17 +119,9 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType) {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
-
-            // Read entity type
-            String entityType = dataInput.readUTF();
-            if (overwriteType != null)
-                entityType = overwriteType.getKey().getKey();
-
-            // Read NBT
-            NBTTagCompound nbt = NBTCompressedStreamTools.a((InputStream) dataInput);
+    public LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType entityType) {
+        try {
+            NBTTagCompound nbt = (NBTTagCompound) serialized.get();
 
             NBTTagList positionTagList = nbt.getList("Pos", 6);
             if (positionTagList == null)
@@ -169,7 +138,7 @@ public class NMSHandlerImpl implements NMSHandler {
             nbt.set("Rotation", rotationTagList);
             nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
 
-            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType);
+            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType.getKey().getKey());
             if (optionalEntity.isPresent()) {
                 WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
 
@@ -424,6 +393,16 @@ public class NMSHandlerImpl implements NMSHandler {
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().killer = ((CraftPlayer) player).getHandle();
+    }
+
+    @Override
+    public CompactNBT createCompactNBT(LivingEntity livingEntity) {
+        return new CompactNBTImpl(livingEntity);
+    }
+
+    @Override
+    public CompactNBT loadCompactNBT(byte[] data) {
+        return new CompactNBTImpl(data);
     }
 
 }

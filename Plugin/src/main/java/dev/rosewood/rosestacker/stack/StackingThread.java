@@ -54,6 +54,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
@@ -108,7 +109,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.entityStackSwitch) {
             for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
                 LivingEntity livingEntity = stackedEntity.getEntity();
-                if (livingEntity == null || !livingEntity.isValid()) {
+                if (this.isRemoved(livingEntity)) {
                     this.removeEntityStack(stackedEntity);
                     continue;
                 }
@@ -133,7 +134,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.cleanupTimer++;
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
             for (Entity entity : NMSAdapter.getHandler().getEntities(this.targetWorld)) {
-                if (!entity.isValid())
+                if (this.isRemoved(entity))
                     continue;
 
                 if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
@@ -158,7 +159,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         // Auto stack items
         for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
             Item item = stackedItem.getItem();
-            if (item == null || !item.isValid()) {
+            if (item == null || this.isRemoved(item)) {
                 this.removeItemStack(stackedItem);
                 continue;
             }
@@ -345,6 +346,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entity != null) {
             UUID key = stackedEntity.getEntity().getUniqueId();
             this.stackedEntities.remove(key);
+            this.setRemoved(entity);
         } else {
             // Entity is null so we have to remove by value instead
             for (Entry<UUID, StackedEntity> entry : this.stackedEntities.entrySet()) {
@@ -354,9 +356,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 }
             }
         }
-
-        // TODO
-        //this.stackManager.markStackDeleted(stackedEntity);
     }
 
     @Override
@@ -365,6 +364,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (item != null) {
             UUID key = stackedItem.getItem().getUniqueId();
             this.stackedItems.remove(key);
+            this.setRemoved(item);
         } else {
             // Item is null so we have to remove by value instead
             for (Entry<UUID, StackedItem> entry : this.stackedItems.entrySet()) {
@@ -374,9 +374,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 }
             }
         }
-
-        // TODO
-        //this.stackManager.markStackDeleted(stackedItem);
     }
 
     @Override
@@ -411,8 +408,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entityStackClearEvent.isCancelled())
             return 0;
 
-        // TODO
-        //toRemove.forEach(this.stackManager::markStackDeleted);
+        toRemove.stream().map(StackedEntity::getEntity).forEach(this::setRemoved);
         toRemove.stream().map(StackedEntity::getEntity).forEach(LivingEntity::remove);
         this.stackedEntities.values().removeIf(toRemove::contains);
 
@@ -428,8 +424,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (itemStackClearEvent.isCancelled())
             return 0;
 
-        // TODO
-        //toRemove.forEach(this.stackManager::markStackDeleted);
+        toRemove.stream().map(StackedItem::getItem).forEach(this::setRemoved);
         toRemove.stream().map(StackedItem::getItem).forEach(Item::remove);
         this.stackedItems.values().removeIf(toRemove::contains);
 
@@ -646,7 +641,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      */
     private void tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
-        if (stackSettings == null/* || this.stackManager.isMarkedAsDeleted(stackedEntity)*/) // TODO
+        if (stackSettings == null)
             return;
 
         if (stackedEntity.checkNPC()) {
@@ -655,7 +650,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         LivingEntity entity = stackedEntity.getEntity();
-        if (entity == null)
+        if (this.isRemoved(entity))
             return;
 
         if (!WorldGuardHook.testLocation(entity.getLocation()))
@@ -673,11 +668,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         targetEntities.add(stackedEntity);
 
         for (Entity otherEntity : nearbyEntities) {
-            if (entity == otherEntity || !otherEntity.isValid())
+            if (entity == otherEntity || this.isRemoved(otherEntity))
                 continue;
 
             StackedEntity other = this.stackedEntities.get(otherEntity.getUniqueId());
-            if (other == null/* || this.stackManager.isMarkedAsDeleted(other)*/) // TODO
+            if (other == null)
                 continue;
 
             if (stackSettings.testCanStackWith(stackedEntity, other, false)
@@ -745,11 +740,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
         if (stackSettings == null
                 || !stackSettings.isStackingEnabled()
-                //|| this.stackManager.isMarkedAsDeleted(stackedItem) // TODO
                 || stackedItem.getItem().getPickupDelay() > 40)
             return;
 
         Item item = stackedItem.getItem();
+        if (this.isRemoved(item))
+            return;
+
         Predicate<Entity> predicate = x -> x.getType() == EntityType.DROPPED_ITEM;
         Set<Item> nearbyItems = this.entityCacheManager.getNearbyEntities(stackedItem.getLocation(), Setting.ITEM_MERGE_RADIUS.getDouble(), predicate)
                 .stream()
@@ -758,11 +755,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Set<StackedItem> targetItems = new HashSet<>();
         for (Item otherItem : nearbyItems) {
-            if (item == otherItem || otherItem.getPickupDelay() > 40 || !item.getItemStack().isSimilar(otherItem.getItemStack()))
+            if (item == otherItem || otherItem.getPickupDelay() > 40 || !item.getItemStack().isSimilar(otherItem.getItemStack()) || this.isRemoved(otherItem))
                 continue;
 
             StackedItem other = this.stackedItems.get(otherItem.getUniqueId());
-            if (other != null/* && !this.stackManager.isMarkedAsDeleted(other)*/) // TODO
+            if (other != null)
                 targetItems.add(other);
         }
 
@@ -813,11 +810,23 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackedEntities.put(entityUUID, stackedEntity);
     }
 
+    private boolean isRemoved(Entity entity) {
+        return entity == null || !entity.isValid() || entity.hasMetadata("RS_removed");
+    }
+
+    private void setRemoved(Entity entity) {
+        entity.setMetadata("RS_removed", new FixedMetadataValue(this.rosePlugin, true));
+    }
+
     public void loadChunk(Chunk chunk) {
         Entity[] entities = chunk.getEntities();
-        if (this.stackManager.isEntityStackingEnabled()) {
-
-        }
+        if (this.stackManager.isEntityStackingEnabled())
+            this.stackedEntities.putAll(Arrays.stream(entities)
+                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
+                    .map(x -> (LivingEntity) x)
+                    .map(DataUtils::readStackedEntity)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
 
         if (this.stackManager.isItemStackingEnabled())
             this.stackedItems.putAll(Arrays.stream(entities)
@@ -847,7 +856,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Entity[] entities = chunk.getEntities();
         if (this.stackManager.isEntityStackingEnabled()) {
+            List<StackedEntity> stackedEntities = Arrays.stream(entities)
+                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
+                    .map(x -> this.stackedEntities.get(x.getUniqueId()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
+            stackedEntities.forEach(DataUtils::writeStackedEntity);
+            stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
         }
 
         if (this.stackManager.isItemStackingEnabled()) {

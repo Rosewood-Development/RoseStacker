@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
@@ -348,7 +349,7 @@ public class EntityListener implements Listener {
         LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            byte[] serialized = nmsHandler.getEntityAsNBT(transformedEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
+            WrappedNBT<?> serialized = nmsHandler.getEntityAsNBT(transformedEntity);
             event.setCancelled(true);
 
             // Handle mooshroom shearing
@@ -374,7 +375,7 @@ public class EntityListener implements Listener {
             event.getEntity().remove();
             Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
-                LivingEntity newEntity = nmsHandler.createEntityFromNBT(serialized, transformedEntity.getLocation(), true);
+                LivingEntity newEntity = nmsHandler.createEntityFromNBT(serialized, transformedEntity.getLocation(), true, transformedEntity.getType());
                 if (aiDisabled)
                     PersistentDataUtils.removeEntityAi(newEntity);
                 StackedEntity newStack = this.stackManager.createEntityStack(newEntity, false);
@@ -382,7 +383,7 @@ public class EntityListener implements Listener {
                 if (newStack == null)
                     return;
 
-                for (byte[] serializedEntity : stackedEntity.getStackedEntityNBT()) {
+                for (WrappedNBT<?> serializedEntity : stackedEntity.getStackedEntityNBT().getAll()) {
                     LivingEntity entity = nmsHandler.createEntityFromNBT(serializedEntity, transformedEntity.getLocation(), false, transformedEntity.getType());
                     if (aiDisabled)
                         PersistentDataUtils.removeEntityAi(entity);

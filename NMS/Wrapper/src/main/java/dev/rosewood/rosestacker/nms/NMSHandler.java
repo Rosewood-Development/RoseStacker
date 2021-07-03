@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.nms;
 
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Chunk;
@@ -21,10 +23,9 @@ public interface NMSHandler {
      * Serializes a LivingEntity to a base64 string
      *
      * @param livingEntity to serialize
-     * @param includeAttributes true to include the entitiy attribute tags, otherwise false
      * @return base64 string of the entity
      */
-    byte[] getEntityAsNBT(LivingEntity livingEntity, boolean includeAttributes);
+    WrappedNBT<?> getEntityAsNBT(LivingEntity livingEntity);
 
     /**
      * Deserializes and optionally forcefully spawns the entity at the given location
@@ -35,19 +36,7 @@ public interface NMSHandler {
      * @param overwriteType entity type to use over the serialized type, nullable
      * @return the entity spawned from the NBT
      */
-    LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld, EntityType overwriteType);
-
-    /**
-     * Deserializes and optionally forcefully spawns the entity at the given location
-     *
-     * @param serialized entity
-     * @param location to spawn the entity at
-     * @param addToWorld whether or not to add the entity to the world
-     * @return the entity spawned from the NBT
-     */
-    default LivingEntity createEntityFromNBT(byte[] serialized, Location location, boolean addToWorld) {
-        return this.createEntityFromNBT(serialized, location, addToWorld, null);
-    }
+    LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType overwriteType);
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world
@@ -183,5 +172,21 @@ public interface NMSHandler {
      * @param player The Player
      */
     void setLastHurtBy(LivingEntity livingEntity, Player player);
+
+    /**
+     * Creates a new CompactNBT instance for storing large amounts of entities of the same type in a small data footprint
+     *
+     * @param livingEntity The base entity
+     * @return a new CompactNBT instance
+     */
+    CompactNBT createCompactNBT(LivingEntity livingEntity);
+
+    /**
+     * Creates a new CompactNBT instance from existing serialized data
+     *
+     * @param data The CompactNBT data, should be acquired from {@link CompactNBT#serialize()}
+     * @return a new CompactNBT instance
+     */
+    CompactNBT loadCompactNBT(byte[] data);
 
 }

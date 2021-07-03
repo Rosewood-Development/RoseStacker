@@ -1,7 +1,10 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.io.ByteArrayInputStream;
@@ -11,12 +14,15 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -33,6 +39,53 @@ public final class DataUtils {
 
     private static final NamespacedKey CHUNK_BLOCKS_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_block_data");
     private static final int BLOCK_DATA_VERSION = 1;
+
+    public static StackedEntity readStackedEntity(LivingEntity entity) {
+        PersistentDataContainer pdc = entity.getPersistentDataContainer();
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        byte[] data = pdc.get(ENTITY_KEY, PersistentDataType.BYTE_ARRAY);
+        if (data == null)
+            return new StackedEntity(entity, nmsHandler.createCompactNBT(entity));
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+             ObjectInputStream dataInput = new ObjectInputStream(new GZIPInputStream(inputStream))) {
+
+            int dataVersion = dataInput.readInt();
+            if (dataVersion == 1) {
+                int length = dataInput.readInt();
+                byte[] nbt = new byte[length];
+                for (int i = 0; i < length; i++)
+                    nbt[i] = dataInput.readByte();
+                return new StackedEntity(entity, nmsHandler.loadCompactNBT(nbt));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            pdc.remove(ENTITY_KEY);
+        }
+        return null;
+    }
+
+    public static void writeStackedEntity(StackedEntity stackedEntity) {
+        PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
+        byte[] data = null;
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream dataOutput = new ObjectOutputStream(new GZIPOutputStream(outputStream))) {
+
+            dataOutput.writeInt(ENTITY_DATA_VERSION);
+            byte[] nbt = stackedEntity.getStackedEntityNBT().serialize();
+            dataOutput.writeInt(nbt.length);
+            dataOutput.write(nbt);
+
+            dataOutput.close();
+            data = outputStream.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (data != null)
+            pdc.set(ENTITY_KEY, PersistentDataType.BYTE_ARRAY, data);
+    }
 
     public static StackedItem readStackedItem(Item item) {
         PersistentDataContainer pdc = item.getPersistentDataContainer();
@@ -57,8 +110,7 @@ public final class DataUtils {
     }
 
     public static void writeStackedItem(StackedItem stackedItem) {
-        Item item = stackedItem.getItem();
-        PersistentDataContainer pdc = item.getPersistentDataContainer();
+        PersistentDataContainer pdc = stackedItem.getItem().getPersistentDataContainer();
         byte[] data = null;
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -39,7 +40,6 @@ public class WildStackerPluginConverter extends StackPluginConverter {
 
     @Override
     public void convert() {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
         // Force save loaded data
@@ -49,12 +49,9 @@ public class WildStackerPluginConverter extends StackPluginConverter {
         // Go through the database to be able to load all information
         DatabaseConnector connector = new SQLiteConnector(this.wildStacker, "database");
         connector.connect(connection -> {
-            Map<StackType, Set<ConversionData>> conversionData = new HashMap<>();
-
             // Load barrels (blocks)
+            Set<StackedBlock> stackedBlocks = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
-                Set<StackedBlock> stackedBlocks = new HashSet<>();
-
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM barrels");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
@@ -78,14 +75,11 @@ public class WildStackerPluginConverter extends StackPluginConverter {
 
                     stackedBlocks.add(new StackedBlock(amount, block));
                 }
-                // TODO
-                //dataManager.createOrUpdateStackedBlocks(stackedBlocks);
             }
 
             // Load spawners
+            Set<StackedSpawner> stackedSpawners = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
-                Set<StackedSpawner> stackedSpawners = new HashSet<>();
-
                 ResultSet result = statement.executeQuery("SELECT location, stackAmount FROM spawners");
                 while (result.next()) {
                     Location location = this.parseLocation(result.getString("location"), ',');
@@ -100,11 +94,17 @@ public class WildStackerPluginConverter extends StackPluginConverter {
                     int amount = result.getInt("stackAmount");
 
                     stackedSpawners.add(new StackedSpawner(amount, location));
-                    stackManager.createSpawnerStack(block, amount, false);
                 }
+            }
 
-                // TODO
-                //dataManager.createOrUpdateStackedSpawners(stackedSpawners);
+            if (!stackedBlocks.isEmpty() || !stackedSpawners.isEmpty()) {
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    for (StackedBlock stackedBlock : stackedBlocks)
+                        stackManager.createBlockStack(stackedBlock.getLocation().getBlock(), stackedBlock.getStackSize());
+
+                    for (StackedSpawner stackedSpawner : stackedSpawners)
+                        stackManager.createSpawnerStack(stackedSpawner.getLocation().getBlock(), stackedSpawner.getStackSize(), false);
+                });
             }
         });
     }
