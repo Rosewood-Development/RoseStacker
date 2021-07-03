@@ -22,16 +22,19 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -811,6 +814,19 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void loadChunk(Chunk chunk) {
+        Entity[] entities = chunk.getEntities();
+        if (this.stackManager.isEntityStackingEnabled()) {
+
+        }
+
+        if (this.stackManager.isItemStackingEnabled())
+            this.stackedItems.putAll(Arrays.stream(entities)
+                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                    .map(x -> (Item) x)
+                    .map(DataUtils::readStackedItem)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
+
         Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
         if (this.stackManager.isSpawnerStackingEnabled())
             for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
@@ -828,6 +844,22 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackChunkData stackChunkData = this.stackChunkData.get(chunk);
         if (stackChunkData == null)
             return;
+
+        Entity[] entities = chunk.getEntities();
+        if (this.stackManager.isEntityStackingEnabled()) {
+
+        }
+
+        if (this.stackManager.isItemStackingEnabled()) {
+            List<StackedItem> stackedItems = Arrays.stream(entities)
+                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                    .map(x -> this.stackedItems.get(x.getUniqueId()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            stackedItems.forEach(DataUtils::writeStackedItem);
+            stackedItems.stream().map(StackedItem::getItem).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+        }
 
         if (this.stackManager.isSpawnerStackingEnabled())
             DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);

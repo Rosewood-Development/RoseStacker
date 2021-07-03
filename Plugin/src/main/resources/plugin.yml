@@ -26,6 +26,7 @@ softdepend:
   - EliteMobs
   - Boss
   - WorldGuard
+  - mcMMO
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions

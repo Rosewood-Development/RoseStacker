@@ -124,8 +124,8 @@ public class RoseStacker extends RosePlugin {
     protected List<Class<? extends Manager>> getManagerLoadPriority() {
         return Arrays.asList(
                 HologramManager.class,
-                DataManager.class,
                 StackSettingManager.class,
+                DataManager.class,
                 CommandManager.class,
                 ConversionManager.class,
                 EntityCacheManager.class,

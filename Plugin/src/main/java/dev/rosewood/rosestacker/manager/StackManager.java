@@ -28,7 +28,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Manages StackingThreads, loads stack data, and handles cleanup of deleted stacks
+ * Manages StackingThreads
  */
 public class StackManager extends Manager implements StackingLogic {
 

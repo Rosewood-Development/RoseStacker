@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,22 +16,66 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Item;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public final class DataUtils {
 
-    private static final NamespacedKey CHUNK_ENTITIES_KEY = new NamespacedKey(RoseStacker.getInstance(), "chunk_entities");
+    private static final NamespacedKey ENTITY_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_entity_data");
     private static final int ENTITY_DATA_VERSION = 1;
 
-    private static final NamespacedKey CHUNK_ITEMS_KEY = new NamespacedKey(RoseStacker.getInstance(), "chunk_items");
+    private static final NamespacedKey ITEM_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_item_data");
     private static final int ITEM_DATA_VERSION = 1;
 
-    private static final NamespacedKey CHUNK_SPAWNERS_KEY = new NamespacedKey(RoseStacker.getInstance(), "chunk_spawners");
+    private static final NamespacedKey CHUNK_SPAWNERS_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_spawner_data");
     private static final int SPAWNER_DATA_VERSION = 1;
 
-    private static final NamespacedKey CHUNK_BLOCKS_KEY = new NamespacedKey(RoseStacker.getInstance(), "chunk_blocks");
+    private static final NamespacedKey CHUNK_BLOCKS_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_block_data");
     private static final int BLOCK_DATA_VERSION = 1;
+
+    public static StackedItem readStackedItem(Item item) {
+        PersistentDataContainer pdc = item.getPersistentDataContainer();
+
+        byte[] data = pdc.get(ITEM_KEY, PersistentDataType.BYTE_ARRAY);
+        if (data == null)
+            return new StackedItem(item.getItemStack().getAmount(), item);
+
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
+
+            int dataVersion = dataInput.readInt();
+            if (dataVersion == 1) {
+                int stackSize = dataInput.readInt();
+                return new StackedItem(stackSize, item);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            pdc.remove(ITEM_KEY);
+        }
+        return null;
+    }
+
+    public static void writeStackedItem(StackedItem stackedItem) {
+        Item item = stackedItem.getItem();
+        PersistentDataContainer pdc = item.getPersistentDataContainer();
+        byte[] data = null;
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
+
+            dataOutput.writeInt(ITEM_DATA_VERSION);
+            dataOutput.writeInt(stackedItem.getStackSize());
+
+            dataOutput.close();
+            data = outputStream.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (data != null)
+            pdc.set(ITEM_KEY, PersistentDataType.BYTE_ARRAY, data);
+    }
 
     public static List<StackedSpawner> readStackedSpawners(Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
