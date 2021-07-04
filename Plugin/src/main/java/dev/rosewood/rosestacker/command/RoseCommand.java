@@ -65,8 +65,6 @@ public class RoseCommand extends BaseCommand {
         localeManager.sendSimpleMessage(sender, "command-clearall-description");
         localeManager.sendSimpleMessage(sender, "command-give-description");
         localeManager.sendSimpleMessage(sender, "command-help-description");
-        localeManager.sendSimpleMessage(sender, "command-purgedata-description");
-        localeManager.sendSimpleMessage(sender, "command-querydata-description");
         localeManager.sendSimpleMessage(sender, "command-reload-description");
         localeManager.sendSimpleMessage(sender, "command-stacktool-description");
         localeManager.sendSimpleMessage(sender, "command-stats-description");

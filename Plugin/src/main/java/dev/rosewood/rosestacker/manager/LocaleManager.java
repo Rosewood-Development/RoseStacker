@@ -10,7 +10,9 @@ import dev.rosewood.rosegarden.manager.AbstractLocaleManager;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
+import dev.rosewood.rosestacker.locale.DutchLocale;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
+import dev.rosewood.rosestacker.locale.GermanLocale;
 import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -45,7 +47,9 @@ public class LocaleManager extends AbstractLocaleManager {
     @Override
     public List<Locale> getLocales() {
         return Arrays.asList(
+                new DutchLocale(),
                 new EnglishLocale(),
+                new GermanLocale(),
                 new SimplifiedChineseLocale()
         );
     }

@@ -48,4 +48,5 @@ public class ConversionData {
     public UUID getUniqueId() {
         return this.uuid;
     }
+
 }
