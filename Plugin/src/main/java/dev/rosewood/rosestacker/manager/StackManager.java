@@ -574,6 +574,13 @@ public class StackManager extends Manager implements StackingLogic {
         }
     }
 
+    public void processNametags() {
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            for (StackingThread stackingThread : this.stackingThreads.values())
+                stackingThread.processNametags();
+        });
+    }
+
     /**
      * Toggles instant entity stacking as temporarily disabled to allow for entity manipulation without
      * stacks automatically being created.

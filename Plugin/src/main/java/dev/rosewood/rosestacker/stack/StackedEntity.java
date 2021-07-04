@@ -55,9 +55,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         if (this.entity != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
-
-            if (Bukkit.isPrimaryThread())
-                this.updateDisplay();
+            this.updateDisplay();
         }
     }
 

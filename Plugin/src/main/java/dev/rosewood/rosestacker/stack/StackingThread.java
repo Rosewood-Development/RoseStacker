@@ -169,7 +169,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
     }
 
-    private void processNametags() {
+    public void processNametags() {
         // Handle dynamic stack tags
         boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
         boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
@@ -595,6 +595,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), SpawnReason.SPAWNER_EGG);
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     this.addEntityStack(stackedEntity);
+                    stackedEntity.updateDisplay();
                 }
                 this.stackManager.setEntityStackingTemporarilyDisabled(false);
             });
