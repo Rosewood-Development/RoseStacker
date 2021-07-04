@@ -12,6 +12,8 @@ import dev.rosewood.rosestacker.nms.v1_17_R1.object.CompactNBTImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.SpawnerTileWrapperImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.SynchedEntityDataWrapper;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.WrappedNBTImpl;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -152,6 +155,23 @@ public class NMSHandlerImpl implements NMSHandler {
 
                 return (LivingEntity) entity.getBukkitEntity();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType overwriteType) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
+             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
+
+            // Read entity type
+            dataInput.readUTF();
+
+            // Read NBT
+            return this.createEntityFromNBT(new WrappedNBTImpl(NbtIo.readCompressed(dataInput)), location, false, overwriteType);
         } catch (Exception e) {
             e.printStackTrace();
         }

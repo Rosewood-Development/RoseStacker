@@ -890,6 +890,56 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     /**
+     * Used to add a StackedEntity loaded from the database
+     *
+     * @param stackedEntity to load
+     */
+    public void putStackedEntity(StackedEntity stackedEntity) {
+        this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+    }
+
+    /**
+     * Used to add a StackedItem loaded from the database
+     *
+     * @param stackedItem to load
+     */
+    public void putStackedItem(StackedItem stackedItem) {
+        this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+    }
+
+    /**
+     * Used to add a StackedBlock loaded from the database
+     *
+     * @param stackedBlock to load
+     */
+    public void putStackedBlock(StackedBlock stackedBlock) {
+        Block block = stackedBlock.getBlock();
+        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
+        if (stackChunkData == null) {
+            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+            this.stackChunkData.put(block.getChunk(), stackChunkData);
+        }
+
+        stackChunkData.addBlock(stackedBlock);
+    }
+
+    /**
+     * Used to add a StackedSpawner loaded from the database
+     *
+     * @param stackedSpawner to load
+     */
+    public void putStackedSpawner(StackedSpawner stackedSpawner) {
+        Block block = stackedSpawner.getSpawner().getBlock();
+        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
+        if (stackChunkData == null) {
+            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+            this.stackChunkData.put(block.getChunk(), stackChunkData);
+        }
+
+        stackChunkData.addSpawner(stackedSpawner);
+    }
+
+    /**
      * @return the world that this StackingThread is acting on
      */
     public World getTargetWorld() {

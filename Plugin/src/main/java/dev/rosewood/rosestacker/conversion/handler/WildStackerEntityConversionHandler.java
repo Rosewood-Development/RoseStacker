@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;

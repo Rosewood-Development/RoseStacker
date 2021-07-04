@@ -20,18 +20,20 @@ import org.bukkit.entity.LivingEntity;
 public class MaxNearbyEntityConditionTag extends ConditionTag {
 
     private int maxNearbyEntities;
-    private final StackManager stackManager;
-    private final EntityCacheManager entityCacheManager;
+    private StackManager stackManager;
+    private EntityCacheManager entityCacheManager;
 
     public MaxNearbyEntityConditionTag(String tag) {
         super(tag, false);
-
-        this.stackManager = RoseStacker.getInstance().getManager(StackManager.class);
-        this.entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
     }
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
+        if (this.stackManager == null || this.entityCacheManager == null) {
+            this.stackManager = RoseStacker.getInstance().getManager(StackManager.class);
+            this.entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
+        }
+
         int detectionRange = stackSettings.getEntitySearchRange() == -1 ? creatureSpawner.getSpawnRange() : stackSettings.getEntitySearchRange();
         Block block = creatureSpawner.getBlock();
         EntityType entityType = creatureSpawner.getSpawnedType();

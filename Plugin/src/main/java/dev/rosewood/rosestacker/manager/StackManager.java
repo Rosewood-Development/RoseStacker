@@ -11,11 +11,15 @@ import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.QueryUtils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -26,6 +30,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  * Manages StackingThreads
@@ -35,6 +40,11 @@ public class StackManager extends Manager implements StackingLogic {
     private final Map<UUID, StackingThread> stackingThreads;
     private final ConversionManager conversionManager;
 
+    private BukkitTask pendingChunkTask;
+    private final Map<Chunk, Long> pendingLoadChunks;
+    private volatile boolean processingChunks;
+    private long processingChunksTime;
+
     private boolean isEntityStackingTemporarilyDisabled;
     private boolean isEntityUnstackingTemporarilyDisabled;
 
@@ -43,6 +53,7 @@ public class StackManager extends Manager implements StackingLogic {
 
         this.stackingThreads = new ConcurrentHashMap<>();
         this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
+        this.pendingLoadChunks = new ConcurrentHashMap<>();
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -52,19 +63,33 @@ public class StackManager extends Manager implements StackingLogic {
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
+        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
+        this.processingChunks = false;
+        this.processingChunksTime = System.currentTimeMillis();
+
         // Load all existing stacks
-        for (StackingThread stackingThread : this.stackingThreads.values())
-            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
+        for (StackingThread stackingThread : this.stackingThreads.values()) {
+            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
                 stackingThread.loadChunk(chunk);
+                this.pendingLoadChunks.put(chunk, System.nanoTime());
+            }
+        }
     }
 
     @Override
     public void disable() {
+        if (this.pendingChunkTask != null) {
+            this.pendingChunkTask.cancel();
+            this.pendingChunkTask = null;
+        }
+
         DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
         if (!dataManager.isConnected()) {
             this.stackingThreads.clear();
             return;
         }
+
+        this.pendingLoadChunks.clear();
 
         // Save anything that's loaded
         for (StackingThread stackingThread : this.stackingThreads.values())
@@ -380,8 +405,10 @@ public class StackManager extends Manager implements StackingLogic {
      */
     public void loadChunk(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null)
+        if (stackingThread != null) {
             stackingThread.loadChunk(chunk);
+            this.pendingLoadChunks.put(chunk, System.nanoTime());
+        }
     }
 
     /**
@@ -437,6 +464,93 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         fromThread.transferExistingEntityStack(entityUUID, stackedEntity, toThread);
+    }
+
+    /**
+     * Processes chunks that are either pending load or unload
+     */
+    private void processPendingChunks() {
+        // This is here just for safety, it should hopefully never be used
+        if (this.processingChunks && System.currentTimeMillis() - this.processingChunksTime >= 10000)
+            this.processingChunks = false;
+
+        if (this.processingChunks)
+            return;
+
+        if (!this.pendingLoadChunks.isEmpty()) {
+            Set<Chunk> chunks = this.pendingLoadChunks.keySet().stream()
+                    .filter(x -> !PersistentDataUtils.isChunkMigrated(x))
+                    .peek(PersistentDataUtils::setChunkMigrated)
+                    .collect(Collectors.toSet());
+
+            Set<Chunk> convertChunks = null;
+            if (this.conversionManager.hasConversions()) {
+                convertChunks = this.pendingLoadChunks.keySet().stream()
+                        .filter(x -> !PersistentDataUtils.isChunkConverted(x))
+                        .peek(PersistentDataUtils::setChunkConverted)
+                        .collect(Collectors.toSet());
+            }
+
+            if (chunks.isEmpty() && (convertChunks == null || convertChunks.isEmpty()))
+                return;
+
+            this.processingChunks = true;
+            this.processingChunksTime = System.currentTimeMillis();
+
+            Set<Chunk> fConvertChunks = convertChunks;
+            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+                if (fConvertChunks != null && !fConvertChunks.isEmpty())
+                    this.conversionManager.convertChunks(fConvertChunks);
+
+                if (!chunks.isEmpty()) {
+                    DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
+                    String chunkQuery = QueryUtils.buildChunksWhere(chunks);
+                    if (this.isEntityStackingEnabled()) {
+                        dataManager.getStackedEntities(chunks, chunkQuery, stacks -> {
+                            for (StackedEntity stack : stacks) {
+                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
+                                if (stackingThread != null)
+                                    stackingThread.putStackedEntity(stack);
+                            }
+                        });
+                    }
+
+                    if (this.isItemStackingEnabled()) {
+                        dataManager.getStackedItems(chunks, chunkQuery, stacks -> {
+                            for (StackedItem stack : stacks) {
+                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
+                                if (stackingThread != null)
+                                    stackingThread.putStackedItem(stack);
+                            }
+                        });
+                    }
+
+                    if (this.isBlockStackingEnabled()) {
+                        dataManager.getStackedBlocks(chunks, chunkQuery, stacks -> {
+                            for (StackedBlock stack : stacks) {
+                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
+                                if (stackingThread != null)
+                                    stackingThread.putStackedBlock(stack);
+                            }
+                        });
+                    }
+
+                    if (this.isSpawnerStackingEnabled()) {
+                        dataManager.getStackedSpawners(chunks, chunkQuery, stacks -> {
+                            for (StackedSpawner stack : stacks) {
+                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
+                                if (stackingThread != null)
+                                    stackingThread.putStackedSpawner(stack);
+                            }
+                        });
+                    }
+                }
+
+                this.processingChunks = false;
+            });
+
+            this.pendingLoadChunks.clear();
+        }
     }
 
     /**

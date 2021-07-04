@@ -126,6 +126,10 @@ public class ConversionManager extends Manager implements Listener {
         return true;
     }
 
+    public boolean hasConversions() {
+        return !this.conversionHandlers.isEmpty();
+    }
+
     public void convertChunks(Set<Chunk> chunks) {
         if (this.conversionHandlers.isEmpty())
             return;

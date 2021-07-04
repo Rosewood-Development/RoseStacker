@@ -480,9 +480,13 @@ public abstract class EntityStackSettings extends StackSettings {
 
     @Override
     public int getMaxStackSize() {
-        if (this.maxStackSize != -1)
-            return this.maxStackSize;
-        return Setting.ENTITY_MAX_STACK_SIZE.getInt();
+        int size;
+        if (this.maxStackSize != -1) {
+            size = this.maxStackSize;
+        } else {
+            size = Setting.ENTITY_MAX_STACK_SIZE.getInt();
+        }
+        return Math.min(size, 1_000_000); // Force a max entity stack size of one million, there can be data problems otherwise
     }
 
     public boolean shouldKillEntireStackOnDeath() {

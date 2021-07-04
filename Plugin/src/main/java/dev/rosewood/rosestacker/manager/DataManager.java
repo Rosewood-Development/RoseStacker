@@ -5,13 +5,20 @@ import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosegarden.manager.AbstractDataManager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.StackType;
+import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.stack.StackedItem;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.EntitySerializer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,13 +26,241 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 
 public class DataManager extends AbstractDataManager {
 
     public DataManager(RosePlugin rosePlugin) {
         super(rosePlugin);
+    }
+
+    public void getStackedEntities(Set<Chunk> chunks, String where, Consumer<Set<StackedEntity>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
+        Map<UUID, Entity> chunkEntities = new HashMap<>();
+        for (Chunk chunk : chunks) {
+            List<Entity> fetched = null;
+            try {
+                fetched = NMSAdapter.getHandler().getEntities(chunk);
+            } catch (Exception e) {
+                // Try one more time if it failed the first time
+                try {
+                    fetched = NMSAdapter.getHandler().getEntities(chunk);
+                } catch (Exception e2) {
+                    this.rosePlugin.getLogger().severe("Possible entity stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
+                    e2.printStackTrace();
+                }
+            }
+
+            if (fetched != null)
+                for (Entity entity : fetched)
+                    if (entity != null)
+                        chunkEntities.put(entity.getUniqueId(), entity);
+        }
+
+        String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE " + where;
+        Set<StackedEntityData> stackedEntityData = new HashSet<>();
+        this.databaseConnector.connect(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet result = statement.executeQuery(query);
+                while (result.next()) {
+                    stackedEntityData.add(new StackedEntityData(
+                            result.getInt("id"),
+                            UUID.fromString(result.getString("entity_uuid")),
+                            result.getBytes("stack_entities")
+                    ));
+                }
+            }
+        });
+
+        Runnable task = () -> {
+            Set<StackedEntity> stackedEntities = new HashSet<>();
+            for (StackedEntityData stackData : stackedEntityData) {
+                Entity entity = chunkEntities.get(stackData.entityUUID);
+                if (entity != null)
+                    stackedEntities.add(EntitySerializer.fromBlob((LivingEntity) entity, stackData.stackEntities));
+            }
+
+            callback.accept(stackedEntities);
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            task.run();
+        } else {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        }
+    }
+
+    public void getStackedItems(Set<Chunk> chunks, String where, Consumer<Set<StackedItem>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
+        Map<UUID, Entity> chunkEntities = new HashMap<>();
+        for (Chunk chunk : chunks) {
+            List<Entity> fetched = null;
+            try {
+                fetched = NMSAdapter.getHandler().getEntities(chunk);
+            } catch (Exception e) {
+                // Try one more time if it failed the first time
+                try {
+                    fetched = NMSAdapter.getHandler().getEntities(chunk);
+                } catch (Exception e2) {
+                    this.rosePlugin.getLogger().severe("Possible item stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
+                    e2.printStackTrace();
+                }
+            }
+
+            if (fetched != null)
+                for (Entity entity : fetched)
+                    if (entity != null)
+                        chunkEntities.put(entity.getUniqueId(), entity);
+        }
+
+        String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE " + where;
+        Set<StackedItemData> stackedItemData = new HashSet<>();
+        this.databaseConnector.connect(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet result = statement.executeQuery(query);
+                while (result.next()) {
+                    stackedItemData.add(new StackedItemData(
+                            result.getInt("id"),
+                            result.getInt("stack_size"),
+                            UUID.fromString(result.getString("entity_uuid"))
+                    ));
+                }
+            }
+        });
+
+        Runnable task = () -> {
+            Set<StackedItem> stackedItems = new HashSet<>();
+            for (StackedItemData stackData : stackedItemData) {
+                Entity entity = chunkEntities.get(stackData.entityUUID);
+                if (entity != null)
+                    stackedItems.add(new StackedItem(stackData.stackSize, (Item) entity));
+            }
+
+            callback.accept(stackedItems);
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            task.run();
+        } else {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        }
+    }
+
+    public void getStackedBlocks(Set<Chunk> chunks, String where, Consumer<Set<StackedBlock>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
+        String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_block WHERE " + where;
+        Set<StackedBlockData> stackedBlockData = new HashSet<>();
+        this.databaseConnector.connect(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet result = statement.executeQuery(query);
+                while (result.next()) {
+                    stackedBlockData.add(new StackedBlockData(
+                            result.getInt("id"),
+                            result.getInt("stack_size"),
+                            result.getInt("chunk_x"),
+                            result.getInt("chunk_z"),
+                            result.getInt("block_x"),
+                            result.getInt("block_y"),
+                            result.getInt("block_z"),
+                            result.getString("world")
+                    ));
+                }
+            }
+        });
+
+        Runnable task = () -> {
+            Set<StackedBlock> stackedBlocks = new HashSet<>();
+            for (StackedBlockData stackData : stackedBlockData) {
+                World world = Bukkit.getWorld(stackData.world);
+                Block block = null;
+
+                boolean invalid = world == null;
+                if (!invalid) {
+                    block = world.getBlockAt((stackData.chunkX << 4) + stackData.blockX, stackData.blockY, (stackData.chunkZ << 4) + stackData.blockZ);
+                    if (block.getType() == Material.AIR)
+                        invalid = true;
+                }
+
+                if (!invalid)
+                    stackedBlocks.add(new StackedBlock(stackData.stackSize, block));
+            }
+
+            callback.accept(stackedBlocks);
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            task.run();
+        } else {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        }
+    }
+
+    public void getStackedSpawners(Set<Chunk> chunks, String where, Consumer<Set<StackedSpawner>> callback) {
+        if (chunks.isEmpty())
+            callback.accept(Collections.emptySet());
+
+        String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_spawner WHERE " + where;
+        Set<StackedSpawnerData> stackedSpawnerData = new HashSet<>();
+        this.databaseConnector.connect(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet result = statement.executeQuery(query);
+                while (result.next()) {
+                    stackedSpawnerData.add(new StackedSpawnerData(
+                            result.getInt("id"),
+                            result.getInt("stack_size"),
+                            result.getInt("chunk_x"),
+                            result.getInt("chunk_z"),
+                            result.getInt("block_x"),
+                            result.getInt("block_y"),
+                            result.getInt("block_z"),
+                            result.getString("world"),
+                            result.getBoolean("placed_by_player")
+                    ));
+                }
+            }
+        });
+
+        Runnable task = () -> {
+            Set<StackedSpawner> stackedSpawners = new HashSet<>();
+            for (StackedSpawnerData stackData : stackedSpawnerData) {
+                World world = Bukkit.getWorld(stackData.world);
+                Block block = null;
+
+                boolean invalid = world == null;
+                if (!invalid) {
+                    block = world.getBlockAt((stackData.chunkX << 4) + stackData.blockX, stackData.blockY, (stackData.chunkZ << 4) + stackData.blockZ);
+                    if (block.getType() != Material.SPAWNER)
+                        invalid = true;
+                }
+
+                if (!invalid)
+                    stackedSpawners.add(new StackedSpawner(stackData.stackSize, (CreatureSpawner) block.getState(), stackData.placedByPlayer));
+            }
+
+            callback.accept(stackedSpawners);
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            task.run();
+        } else {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        }
     }
 
     public void setConversionHandlers(Set<ConverterType> converterTypes) {
@@ -181,6 +416,58 @@ public class DataManager extends AbstractDataManager {
                 statement.executeBatch();
             }
         });
+    }
+
+    private static class StackedBlockData {
+        public int id;
+        public int stackSize;
+        public int chunkX, chunkZ;
+        public int blockX, blockY, blockZ;
+        public String world;
+
+        public StackedBlockData(int id, int stackSize, int chunkX, int chunkZ, int blockX, int blockY, int blockZ, String world) {
+            this.id = id;
+            this.stackSize = stackSize;
+            this.chunkX = chunkX;
+            this.chunkZ = chunkZ;
+            this.blockX = blockX;
+            this.blockY = blockY;
+            this.blockZ = blockZ;
+            this.world = world;
+        }
+    }
+
+    private static class StackedSpawnerData extends StackedBlockData {
+        public boolean placedByPlayer;
+
+        public StackedSpawnerData(int id, int stackSize, int chunkX, int chunkZ, int blockX, int blockY, int blockZ, String world, boolean placedByPlayer) {
+            super(id, stackSize, chunkX, chunkZ, blockX, blockY, blockZ, world);
+            this.placedByPlayer = placedByPlayer;
+        }
+    }
+
+    private static class StackedEntityData {
+        public int id;
+        public UUID entityUUID;
+        public byte[] stackEntities;
+
+        public StackedEntityData(int id, UUID entityUUID, byte[] stackEntities) {
+            this.id = id;
+            this.entityUUID = entityUUID;
+            this.stackEntities = stackEntities;
+        }
+    }
+
+    private static class StackedItemData {
+        public int id;
+        public int stackSize;
+        public UUID entityUUID;
+
+        public StackedItemData(int id, int stackSize, UUID entityUUID) {
+            this.id = id;
+            this.stackSize = stackSize;
+            this.entityUUID = entityUUID;
+        }
     }
 
 }
