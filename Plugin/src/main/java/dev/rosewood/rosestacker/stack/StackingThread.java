@@ -61,6 +61,7 @@ import org.bukkit.util.Vector;
 public class StackingThread implements StackingLogic, AutoCloseable {
 
     private final static int CLEANUP_TIMER_TARGET = 10;
+    private final static String REMOVED_METADATA = "RS_removed";
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
@@ -811,11 +812,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private boolean isRemoved(Entity entity) {
-        return entity == null || !entity.isValid() || entity.hasMetadata("RS_removed");
+        return entity == null || !entity.isValid() || entity.hasMetadata(REMOVED_METADATA);
     }
 
     private void setRemoved(Entity entity) {
-        entity.setMetadata("RS_removed", new FixedMetadataValue(this.rosePlugin, true));
+        entity.setMetadata(REMOVED_METADATA, new FixedMetadataValue(this.rosePlugin, true));
     }
 
     public void loadChunk(Chunk chunk) {
@@ -824,6 +825,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             this.stackedEntities.putAll(Arrays.stream(entities)
                     .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
                     .map(x -> (LivingEntity) x)
+                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
                     .map(DataUtils::readStackedEntity)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
@@ -832,6 +834,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             this.stackedItems.putAll(Arrays.stream(entities)
                     .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
                     .map(x -> (Item) x)
+                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
                     .map(DataUtils::readStackedItem)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
