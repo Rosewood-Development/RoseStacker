@@ -53,7 +53,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        this.stackManager.unloadChunk(event.getChunk());
+        this.stackManager.saveChunk(event.getChunk());
     }
 
     @EventHandler

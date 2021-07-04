@@ -852,11 +852,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
     }
 
-    public void unloadChunk(Chunk chunk) {
-        StackChunkData stackChunkData = this.stackChunkData.get(chunk);
-        if (stackChunkData == null)
-            return;
-
+    public void saveChunk(Chunk chunk, boolean clearStored) {
         Entity[] entities = chunk.getEntities();
         if (this.stackManager.isEntityStackingEnabled()) {
             List<StackedEntity> stackedEntities = Arrays.stream(entities)
@@ -866,7 +862,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     .collect(Collectors.toList());
 
             stackedEntities.forEach(DataUtils::writeStackedEntity);
-            stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+
+            if (clearStored)
+                stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
         }
 
         if (this.stackManager.isItemStackingEnabled()) {
@@ -877,8 +875,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     .collect(Collectors.toList());
 
             stackedItems.forEach(DataUtils::writeStackedItem);
-            stackedItems.stream().map(StackedItem::getItem).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+
+            if (clearStored)
+                stackedItems.stream().map(StackedItem::getItem).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
         }
+
+        StackChunkData stackChunkData = this.stackChunkData.get(chunk);
+        if (stackChunkData == null)
+            return;
 
         if (this.stackManager.isSpawnerStackingEnabled())
             DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
@@ -886,7 +890,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.stackManager.isBlockStackingEnabled())
             DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
 
-        this.stackChunkData.remove(chunk);
+        if (clearStored)
+            this.stackChunkData.remove(chunk);
     }
 
     /**

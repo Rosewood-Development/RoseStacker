@@ -40,7 +40,7 @@ public class StackManager extends Manager implements StackingLogic {
     private final Map<UUID, StackingThread> stackingThreads;
     private final ConversionManager conversionManager;
 
-    private BukkitTask pendingChunkTask;
+    private BukkitTask pendingChunkTask, autosaveTask;
     private final Map<Chunk, Long> pendingLoadChunks;
     private volatile boolean processingChunks;
     private long processingChunksTime;
@@ -74,6 +74,13 @@ public class StackManager extends Manager implements StackingLogic {
                 this.pendingLoadChunks.put(chunk, System.nanoTime());
             }
         }
+
+        // Kick off autosave task if enabled
+        long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
+        if (autosaveFrequency > 0) {
+            long interval = autosaveFrequency * 20 * 60;
+            this.autosaveTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::saveAllData, interval, interval);
+        }
     }
 
     @Override
@@ -81,6 +88,11 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.pendingChunkTask != null) {
             this.pendingChunkTask.cancel();
             this.pendingChunkTask = null;
+        }
+
+        if (this.autosaveTask != null) {
+            this.autosaveTask.cancel();
+            this.autosaveTask = null;
         }
 
         DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
@@ -94,7 +106,7 @@ public class StackManager extends Manager implements StackingLogic {
         // Save anything that's loaded
         for (StackingThread stackingThread : this.stackingThreads.values())
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
-                stackingThread.unloadChunk(chunk);
+                stackingThread.saveChunk(chunk, true);
 
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
@@ -416,10 +428,19 @@ public class StackManager extends Manager implements StackingLogic {
      *
      * @param chunk the target chunk
      */
-    public void unloadChunk(Chunk chunk) {
+    public void saveChunk(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
-            stackingThread.unloadChunk(chunk);
+            stackingThread.saveChunk(chunk, true);
+    }
+
+    /**
+     * Saves all data in loaded chunks
+     */
+    public void saveAllData() {
+        for (StackingThread stackingThread : this.stackingThreads.values())
+            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
+                stackingThread.saveChunk(chunk, false);
     }
 
     /**
