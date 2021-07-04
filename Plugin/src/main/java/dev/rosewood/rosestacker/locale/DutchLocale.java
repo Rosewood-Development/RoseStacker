@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
+import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -215,7 +217,10 @@ public class DutchLocale implements Locale {
             this.put("acf-minecraft-is-not-a-valid-name", "&cFout: &b{name} &cis geen geldige speler naam.");
 
             this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cEr zijn plugin op je server die gekend zijn om te rotzooien met RoseStacker. Om conflicten en data verlies te voorkomen, heeft RoseStacker 1 of meerder stack soorten uitgeschakeld. Een bestand is aangemaakt in plugins/RoseStacker/convert-lock.yml waar je de uitgeschakelde stack soorten kan configureren. Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.");
+            this.put("convert-lock-conflictions", "&cEr zijn plugin op je server die gekend zijn om te rotzooien met RoseStacker. " +
+                    "Om conflicten en data verlies te voorkomen, heeft RoseStacker 1 of meerder stack soorten uitgeschakeld. " +
+                    "Een bestand is aangemaakt in plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " waar je de uitgeschakelde stack soorten kan configureren. " +
+                    "Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarning! &eJe moet een silk touch pickaxe gebruiken of je hebt geen permissie om spawner op te rapen. Anders kan je dit niet doen.");
