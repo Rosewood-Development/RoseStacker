@@ -27,6 +27,7 @@ dependencies {
     // Hologram plugins
     compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
     compileOnly 'com.sainttx:holograms:2.13'
+    compileOnly 'me.gholo:gholo:3.1.0.0'
     compileOnly 'com.zrips:cmi:8.6.9.4'
     compileOnly 'me.arasple.mc:trhologram:2.2'
 

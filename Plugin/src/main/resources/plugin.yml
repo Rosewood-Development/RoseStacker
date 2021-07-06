@@ -8,6 +8,7 @@ loadbefore: [ShopGUIPlus]
 softdepend:
   - HolographicDisplays
   - Holograms
+  - GHolo
   - CMI
   - TrHologram
   - UltimateStacker

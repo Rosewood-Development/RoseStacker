@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.hologram.CMIHologramHandler;
+import dev.rosewood.rosestacker.hologram.GHoloHologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramHandler;
 import dev.rosewood.rosestacker.hologram.HologramsHologramHandler;
 import dev.rosewood.rosestacker.hologram.HolographicDisplaysHologramHandler;
@@ -24,6 +25,7 @@ public class HologramManager extends Manager {
         this.hologramHandlers = new LinkedHashMap<String, Class<? extends HologramHandler>>() {{
             this.put("HolographicDisplays", HolographicDisplaysHologramHandler.class);
             this.put("Holograms", HologramsHologramHandler.class);
+            this.put("GHolo", GHoloHologramHandler.class);
             this.put("CMI", CMIHologramHandler.class);
             this.put("TrHologram", TrHologramHandler.class);
         }};
