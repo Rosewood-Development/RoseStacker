@@ -22,9 +22,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
     private ItemStackSettings stackSettings;
 
-    public StackedItem(int id, int size, Item item) {
-        super(id);
-
+    public StackedItem(int size, Item item) {
         this.size = size;
         this.item = item;
 
@@ -34,10 +32,6 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
         }
-    }
-
-    public StackedItem(int size, Item item) {
-        this(-1, size, item);
     }
 
     public Item getItem() {

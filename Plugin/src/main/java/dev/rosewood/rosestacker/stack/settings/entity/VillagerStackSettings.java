@@ -2,7 +2,6 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -26,7 +25,7 @@ public class VillagerStackSettings extends EntityStackSettings {
         this.dontStackIfProfessioned = this.settingsConfiguration.getBoolean("dont-stack-if-professioned");
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
-        this.dontStackIfDifferentLevel = NMSUtil.getVersionNumber() >= 14 && this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
+        this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
     }
 
     @Override
@@ -53,8 +52,7 @@ public class VillagerStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-profession", false);
         this.setIfNotExists("dont-stack-if-different-type", false);
-        if (NMSUtil.getVersionNumber() >= 14)
-            this.setIfNotExists("dont-stack-if-different-level", false);
+        this.setIfNotExists("dont-stack-if-different-level", false);
     }
 
     @Override

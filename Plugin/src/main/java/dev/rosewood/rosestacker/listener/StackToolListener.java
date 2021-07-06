@@ -162,7 +162,6 @@ public class StackToolListener implements Listener {
             String falseStr = this.localeManager.getLocaleMessage("command-stacktool-info-false");
 
             this.localeManager.sendMessage(player, "command-stacktool-info");
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-id", StringPlaceholders.single("id", stackedEntity.getId()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-uuid", StringPlaceholders.single("uuid", entity.getUniqueId().toString()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.single("id", entity.getEntityId()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-type", StringPlaceholders.single("type", entity.getType().name()));
@@ -217,7 +216,6 @@ public class StackToolListener implements Listener {
                 ItemMeta itemMeta = item.getItemStack().getItemMeta();
 
                 this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-id", StringPlaceholders.single("id", stackedItem.getId()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-uuid", StringPlaceholders.single("uuid", item.getUniqueId().toString()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.single("id", item.getEntityId()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-item-type", StringPlaceholders.single("type", item.getItemStack().getType().name()));
@@ -244,7 +242,6 @@ public class StackToolListener implements Listener {
                     return;
 
                 this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-id", StringPlaceholders.single("id", stackedBlock.getId()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-block-type", StringPlaceholders.single("type", clickedBlock.getType().name()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", stackedBlock.getStackSize()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", clickedBlock.getX())
@@ -257,7 +254,6 @@ public class StackToolListener implements Listener {
                     return;
 
                 this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-id", StringPlaceholders.single("id", stackedSpawner.getId()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.single("type", stackedSpawner.getSpawner().getSpawnedType().name()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", stackedSpawner.getStackSize()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", clickedBlock.getX())

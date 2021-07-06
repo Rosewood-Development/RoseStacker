@@ -26,6 +26,7 @@ softdepend:
   - EliteMobs
   - Boss
   - WorldGuard
+  - mcMMO
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions
@@ -35,8 +36,6 @@ permissions:
       rosestacker.clearall: true
       rosestacker.stats: true
       rosestacker.convert: true
-      rosestacker.purgedata: true
-      rosestacker.querydata: true
       rosestacker.translate: true
       rosestacker.stacktool: true
       rosestacker.stacktool.give: true
@@ -56,12 +55,6 @@ permissions:
     default: op
   rosestacker.convert:
     description: Allows using the convert command
-    default: op
-  rosestacker.purgedata:
-    description: Allows using the purgedata command
-    default: op
-  rosestacker.querydata:
-    description: Allows using the querydata command
     default: op
   rosestacker.translate:
     description: Allows using the translate command

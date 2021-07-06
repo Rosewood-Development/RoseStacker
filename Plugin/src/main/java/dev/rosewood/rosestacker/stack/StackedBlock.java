@@ -21,9 +21,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
 
     private BlockStackSettings stackSettings;
 
-    public StackedBlock(int id, int size, Block block) {
-        super(id);
-
+    public StackedBlock(int size, Block block) {
         this.size = size;
         this.block = block;
         this.stackedBlockGui = null;
@@ -34,10 +32,6 @@ public class StackedBlock extends Stack<BlockStackSettings> {
             if (Bukkit.isPrimaryThread())
                 this.updateDisplay();
         }
-    }
-
-    public StackedBlock(int size, Block block) {
-        this(-1, size, block);
     }
 
     public Block getBlock() {

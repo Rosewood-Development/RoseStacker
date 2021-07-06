@@ -1,57 +1,29 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.entity.LivingEntity;
 
 public final class EntitySerializer {
 
-    /**
-     * Serializes a stacked entity into a byte array
-     *
-     * @param stackedEntity to turn into a byte array.
-     * @return byte array of the stacked entity dat
-     */
-    public static byte[] toBlob(StackedEntity stackedEntity) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
+    private EntitySerializer() {
 
-            // Write the size of the nbt data
-            List<byte[]> nbtData = stackedEntity.getStackedEntityNBT();
-            dataOutput.writeInt(nbtData.size());
-
-            // Save every element in the list
-            for (byte[] data : nbtData) {
-                dataOutput.writeInt(data.length);
-                for (byte b : data)
-                    dataOutput.writeByte(b);
-            }
-
-            // Serialize that array
-            dataOutput.close();
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     /**
      * Deserializes a stacked entity from a byte array
      *
-     * @param id the id of the stacked entity
      * @param livingEntity the living entity to attach the stack to
      * @param data byte array to convert to a stacked entity
      * @return the stacked entity
      */
-    public static StackedEntity fromBlob(int id, LivingEntity livingEntity, byte[] data) {
+    public static StackedEntity fromBlob(LivingEntity livingEntity, byte[] data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -67,7 +39,12 @@ public final class EntitySerializer {
                 stackNbtData.add(nbtData);
             }
 
-            return new StackedEntity(id, livingEntity, Collections.synchronizedList(stackNbtData));
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            CompactNBT compactNBT = nmsHandler.createCompactNBT(livingEntity);
+            for (byte[] entry : stackNbtData)
+                compactNBT.addFirst(nmsHandler.createEntityFromNBT(entry, livingEntity.getLocation(), livingEntity.getType()));
+
+            return new StackedEntity(livingEntity, compactNBT);
         } catch (Exception e) {
             e.printStackTrace();
         }

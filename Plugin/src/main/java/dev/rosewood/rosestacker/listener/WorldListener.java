@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -53,7 +54,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        this.stackManager.unloadChunk(event.getChunk());
+        this.stackManager.saveChunk(event.getChunk());
     }
 
     @EventHandler
@@ -64,6 +65,11 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent event) {
         this.stackManager.unloadWorld(event.getWorld());
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        this.stackManager.processNametags();
     }
 
 }

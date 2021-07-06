@@ -1,20 +1,19 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -25,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -38,6 +38,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public final class StackerUtils {
 
+    public static final String MIN_SUPPORTED_VERSION = "1.14.4";
     public static final String MAX_SUPPORTED_VERSION = "1.17";
     public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.17";
 
@@ -51,6 +52,8 @@ public final class StackerUtils {
     private static Set<EntityType> cachedStackableEntityTypes;
 
     private static NumberFormat formatter = NumberFormat.getInstance();
+
+    public static final NamespacedKey CONVERTED_KEY = new NamespacedKey(RoseStacker.getInstance(), "converted");
 
     /**
      * Formats a string from THIS_FORMAT to This Format
@@ -179,25 +182,22 @@ public final class StackerUtils {
     }
 
     public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
-        List<byte[]> nbtList = new LinkedList<>(stackedEntity.getStackedEntityNBT());
-        List<LivingEntity> livingEntities = new ArrayList<>(nbtList.size());
+        List<WrappedNBT<?>> wrappedNBT = stackedEntity.getStackedEntityNBT().getAll();
+        List<LivingEntity> livingEntities = new ArrayList<>(wrappedNBT.size());
         Location location = stackedEntity.getLocation();
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (byte[] nbt : nbtList)
-            livingEntities.add(nmsHandler.createEntityFromNBT(nbt, location, false));
+        for (WrappedNBT<?> nbt : wrappedNBT)
+            livingEntities.add(nmsHandler.createEntityFromNBT(nbt, location, false, stackedEntity.getEntity().getType()));
 
         return livingEntities;
     }
 
     public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
-        List<byte[]> nbtList = Collections.synchronizedList(new LinkedList<>());
-
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        CompactNBT compactNBT = NMSAdapter.getHandler().createCompactNBT(stackedEntity.getEntity());
         for (LivingEntity livingEntity : livingEntities)
-            nbtList.add(nmsHandler.getEntityAsNBT(livingEntity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean()));
-
-        stackedEntity.setStackedEntityNBT(nbtList);
+            compactNBT.addFirst(livingEntity);
+        stackedEntity.setStackedEntityNBT(compactNBT);
     }
 
     /**

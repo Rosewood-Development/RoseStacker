@@ -5,7 +5,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.database.DatabaseConnector;
 import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
-import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -27,8 +27,6 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
 
     @Override
     public void convert() {
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
         // Query their database ourselves
         DatabaseConnector connector = new SQLiteConnector(this.epicSpawners);
         connector.connect(connection -> {
@@ -53,7 +51,13 @@ public class EpicSpawnersPluginConverter extends StackPluginConverter {
                 }
             }
 
-            dataManager.createOrUpdateStackedSpawners(stackedSpawners);
+            if (!stackedSpawners.isEmpty()) {
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+                    for (StackedSpawner stackedSpawner : stackedSpawners)
+                        stackManager.createSpawnerStack(stackedSpawner.getLocation().getBlock(), stackedSpawner.getStackSize(), false);
+                });
+            }
         });
     }
 

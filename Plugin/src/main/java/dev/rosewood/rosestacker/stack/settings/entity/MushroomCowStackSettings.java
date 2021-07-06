@@ -2,7 +2,6 @@ package dev.rosewood.rosestacker.stack.settings.entity;
 
 import com.google.gson.JsonObject;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -16,14 +15,11 @@ public class MushroomCowStackSettings extends EntityStackSettings {
     public MushroomCowStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
-        this.dontStackIfDifferentType = NMSUtil.getVersionNumber() >= 14 && this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
     }
 
     @Override
     protected EntityStackComparisonResult canStackWithInternal(StackedEntity stack1, StackedEntity stack2) {
-        if (NMSUtil.getVersionNumber() <= 13)
-            return EntityStackComparisonResult.CAN_STACK;
-
         MushroomCow mushroomCow1 = (MushroomCow) stack1.getEntity();
         MushroomCow mushroomCow2 = (MushroomCow) stack2.getEntity();
 
@@ -35,8 +31,7 @@ public class MushroomCowStackSettings extends EntityStackSettings {
 
     @Override
     protected void setDefaultsInternal() {
-        if (NMSUtil.getVersionNumber() >= 14)
-            this.setIfNotExists("dont-stack-if-different-type", false);
+        this.setIfNotExists("dont-stack-if-different-type", false);
     }
 
     @Override

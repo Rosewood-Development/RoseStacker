@@ -78,21 +78,7 @@ public class EnglishLocale implements Locale {
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
             this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.");
 
-            this.put("#9", "Purge Data Command");
-            this.put("command-purgedata-description", "&8 - &d/rs purgedata &7- Deletes stack data from a world");
-            this.put("command-purgedata-none", "&eNo stack data was found with the given world name.");
-            this.put("command-purgedata-purged", "&ePurged &b%amount% &estack data entries from the database.");
-
-            this.put("#10", "Query Data Command");
-            this.put("command-querydata-description", "&8 - &d/rs querydata &7- Gets saved stack data info");
-            this.put("command-querydata-none", "&eNo data was found with the given world name.");
-            this.put("command-querydata-header", "&aQueried Data Results:");
-            this.put("command-querydata-entity", "&eSaved entity stacks: &b%amount%");
-            this.put("command-querydata-item", "&eSaved item stacks: &b%amount%");
-            this.put("command-querydata-block", "&eSaved block stacks: &b%amount%");
-            this.put("command-querydata-spawner", "&eSaved spawner stacks: &b%amount%");
-
-            this.put("#11", "Translate Command");
+            this.put("#9", "Translate Command");
             this.put("command-translate-description", "&8 - &d/rs translate &7- Translates the stack names");
             this.put("command-translate-loading", "&eDownloading and applying translation data, this may take a moment.");
             this.put("command-translate-failure", "&cUnable to translate the stack names. There was a problem fetching the locale data. Please try again later.");
@@ -102,7 +88,7 @@ public class EnglishLocale implements Locale {
             this.put("command-translate-spawner-format-invalid", "&cThe spawner format you provided is invalid. It must contain &b{} &cfor the mob name placement.");
             this.put("command-translate-success", "&aSuccessfully translated the stack names.");
 
-            this.put("#12", "Stacking Tool Command");
+            this.put("#10", "Stacking Tool Command");
             this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Gives a player the stacking tool");
             this.put("command-stacktool-given", "&eYou have been given the stacking tool.");
             this.put("command-stacktool-given-other", "&b%player% &ahas been given the stacking tool.");
@@ -117,7 +103,6 @@ public class EnglishLocale implements Locale {
             this.put("command-stacktool-can-stack", "&aEntity #1 can stack with Entity #2.");
             this.put("command-stacktool-can-not-stack", "&cEntity 1 can not stack with Entity 2. Reason: &b%reason%");
             this.put("command-stacktool-info", "&eStack Info:");
-            this.put("command-stacktool-info-id", "&eStack ID: &b%id%");
             this.put("command-stacktool-info-uuid", "&eUUID: &b%uuid%");
             this.put("command-stacktool-info-entity-id", "&eEntity ID: &b%id%");
             this.put("command-stacktool-info-custom-name", "&eCustom Name: &r%name%");
@@ -134,7 +119,7 @@ public class EnglishLocale implements Locale {
             this.put("command-stacktool-info-spawner-type", "&eSpawner Type: &b%type%");
             this.put("command-stacktool-info-stack-size", "&eStack Size: &b%amount%");
 
-            this.put("#13", "Stacked Block GUI");
+            this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");
             this.put("gui-stacked-block-page-back", Collections.singletonList("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
             this.put("gui-stacked-block-page-forward", Collections.singletonList("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
@@ -143,7 +128,7 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirm", "&eYes, destroy the stack"));
             this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cCancel", "&eNo, go back to previous screen"));
 
-            this.put("#14", "Stacked Spawner GUI");
+            this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Viewing %name%");
             this.put("gui-stacked-spawner-stats", "&6Spawner Stats");
             this.put("gui-stacked-spawner-min-spawn-delay", "&eMin Spawn Delay: &b%delay%");
@@ -163,7 +148,7 @@ public class EnglishLocale implements Locale {
             this.put("gui-stacked-spawner-entities-can-spawn", "&aEntities are able to spawn");
             this.put("gui-stacked-spawner-conditions-preventing-spawns", "&eConditions preventing spawns:");
 
-            this.put("#15", "Spawn Condition Messages");
+            this.put("#13", "Spawn Condition Messages");
             this.put("spawner-condition-invalid", "&7 - &c%message%");
             this.put("spawner-condition-info", "&e%condition%");
             this.put("spawner-condition-single", "&e%condition%: &b%value%");
@@ -201,14 +186,14 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-skylight-access-invalid", "No spawn blocks with skylight access");
             this.put("spawner-condition-none-invalid", "Exceeded maximum spawn attempts");
 
-            this.put("#16", "Given Stack Item Lore");
-            this.put("#17", "Note: Changing these will invalidate items with the old lore");
+            this.put("#14", "Given Stack Item Lore");
+            this.put("#15", "Note: Changing these will invalidate items with the old lore");
             this.put("stack-item-lore-stack-size", "&7Stack Size: &c");
             this.put("stack-item-lore-entity-type", "&7Entity Type: &c");
             this.put("stack-item-lore-block-type", "&7Block Type: &c");
             this.put("stack-item-lore-spawner-type", "&7Spawner Type: &c");
 
-            this.put("#18", "ACF-Core Messages");
+            this.put("#16", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
             this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
             this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
@@ -227,17 +212,17 @@ public class EnglishLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
 
-            this.put("#19", "ACF-Minecraft Messages");
+            this.put("#17", "ACF-Minecraft Messages");
             this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
             this.put("acf-minecraft-is-not-a-valid-name", "&cError: &b{name} &cis not a valid player name.");
 
-            this.put("#20", "Convert Lock Messages");
+            this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +
                     "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
                     "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +
                     "That file will also allow you to acknowledge that you have read this warning and let you to disable this message.");
 
-            this.put("#21", "Misc Messages");
+            this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.");
             this.put("spawner-advanced-place-no-permission", "&cWarning! &eYou do not have permission to place that type of spawner.");
             this.put("spawner-advanced-break-no-permission", "&cWarning! &eYou do not have permission to pick up that type of spawner.");

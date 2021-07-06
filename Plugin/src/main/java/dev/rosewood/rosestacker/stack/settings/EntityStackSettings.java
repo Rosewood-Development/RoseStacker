@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
@@ -306,7 +305,7 @@ public abstract class EntityStackSettings extends StackSettings {
                 return EntityStackComparisonResult.HAS_CHEST;
         }
 
-        if (NMSUtil.getVersionNumber() >= 14 && this.isEntityRaider()) {
+        if (this.isEntityRaider()) {
             Raider raider1 = (Raider) entity1;
             Raider raider2 = (Raider) entity2;
 
@@ -440,7 +439,7 @@ public abstract class EntityStackSettings extends StackSettings {
     private boolean isEntityRaider() {
         if (this.isRaider == null) {
             Class<?> entityClass = this.getEntityType().getEntityClass();
-            if (NMSUtil.getVersionNumber() <= 13 || entityClass == null) {
+            if (entityClass == null) {
                 this.isRaider = false;
             } else {
                 this.isRaider = Raider.class.isAssignableFrom(entityClass);
@@ -481,9 +480,13 @@ public abstract class EntityStackSettings extends StackSettings {
 
     @Override
     public int getMaxStackSize() {
-        if (this.maxStackSize != -1)
-            return this.maxStackSize;
-        return Setting.ENTITY_MAX_STACK_SIZE.getInt();
+        int size;
+        if (this.maxStackSize != -1) {
+            size = this.maxStackSize;
+        } else {
+            size = Setting.ENTITY_MAX_STACK_SIZE.getInt();
+        }
+        return Math.min(size, 1_000_000); // Force a max entity stack size of one million, there can be data problems otherwise
     }
 
     public boolean shouldKillEntireStackOnDeath() {

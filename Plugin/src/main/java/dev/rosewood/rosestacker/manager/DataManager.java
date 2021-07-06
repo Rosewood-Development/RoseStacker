@@ -6,7 +6,6 @@ import dev.rosewood.rosegarden.manager.AbstractDataManager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -19,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -28,11 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -91,21 +86,13 @@ public class DataManager extends AbstractDataManager {
 
         Runnable task = () -> {
             Set<StackedEntity> stackedEntities = new HashSet<>();
-            Set<Stack<?>> cleanup = new HashSet<>();
-
             for (StackedEntityData stackData : stackedEntityData) {
                 Entity entity = chunkEntities.get(stackData.entityUUID);
-                if (entity != null) {
-                    stackedEntities.add(EntitySerializer.fromBlob(stackData.id, (LivingEntity) entity, stackData.stackEntities));
-                } else {
-                    cleanup.add(new StackedEntity(stackData.id, null, null));
-                }
+                if (entity != null)
+                    stackedEntities.add(EntitySerializer.fromBlob((LivingEntity) entity, stackData.stackEntities));
             }
 
             callback.accept(stackedEntities);
-
-            if (!cleanup.isEmpty())
-                Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
         };
 
         if (Bukkit.isPrimaryThread()) {
@@ -157,21 +144,13 @@ public class DataManager extends AbstractDataManager {
 
         Runnable task = () -> {
             Set<StackedItem> stackedItems = new HashSet<>();
-            Set<Stack<?>> cleanup = new HashSet<>();
-
             for (StackedItemData stackData : stackedItemData) {
                 Entity entity = chunkEntities.get(stackData.entityUUID);
-                if (entity != null) {
-                    stackedItems.add(new StackedItem(stackData.id, stackData.stackSize, (Item) entity));
-                } else {
-                    cleanup.add(new StackedItem(stackData.id, 0, null));
-                }
+                if (entity != null)
+                    stackedItems.add(new StackedItem(stackData.stackSize, (Item) entity));
             }
 
             callback.accept(stackedItems);
-
-            if (!cleanup.isEmpty())
-                Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
         };
 
         if (Bukkit.isPrimaryThread()) {
@@ -207,8 +186,6 @@ public class DataManager extends AbstractDataManager {
 
         Runnable task = () -> {
             Set<StackedBlock> stackedBlocks = new HashSet<>();
-            Set<Stack<?>> cleanup = new HashSet<>();
-
             for (StackedBlockData stackData : stackedBlockData) {
                 World world = Bukkit.getWorld(stackData.world);
                 Block block = null;
@@ -220,17 +197,11 @@ public class DataManager extends AbstractDataManager {
                         invalid = true;
                 }
 
-                if (!invalid) {
-                    stackedBlocks.add(new StackedBlock(stackData.id, stackData.stackSize, block));
-                } else {
-                    cleanup.add(new StackedBlock(stackData.id, 0, null));
-                }
+                if (!invalid)
+                    stackedBlocks.add(new StackedBlock(stackData.stackSize, block));
             }
 
             callback.accept(stackedBlocks);
-
-            if (!cleanup.isEmpty())
-                Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
         };
 
         if (Bukkit.isPrimaryThread()) {
@@ -267,8 +238,6 @@ public class DataManager extends AbstractDataManager {
 
         Runnable task = () -> {
             Set<StackedSpawner> stackedSpawners = new HashSet<>();
-            Set<Stack<?>> cleanup = new HashSet<>();
-
             for (StackedSpawnerData stackData : stackedSpawnerData) {
                 World world = Bukkit.getWorld(stackData.world);
                 Block block = null;
@@ -280,17 +249,11 @@ public class DataManager extends AbstractDataManager {
                         invalid = true;
                 }
 
-                if (!invalid) {
-                    stackedSpawners.add(new StackedSpawner(stackData.id, stackData.stackSize, (CreatureSpawner) block.getState(), stackData.placedByPlayer));
-                } else {
-                    cleanup.add(new StackedBlock(stackData.id, 0, null));
-                }
+                if (!invalid)
+                    stackedSpawners.add(new StackedSpawner(stackData.stackSize, (CreatureSpawner) block.getState(), stackData.placedByPlayer));
             }
 
             callback.accept(stackedSpawners);
-
-            if (!cleanup.isEmpty())
-                Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> this.deleteStacks(cleanup));
         };
 
         if (Bukkit.isPrimaryThread()) {
@@ -298,315 +261,6 @@ public class DataManager extends AbstractDataManager {
         } else {
             Bukkit.getScheduler().runTask(this.rosePlugin, task);
         }
-    }
-
-    public void createOrUpdateStackedEntities(Collection<StackedEntity> stackedEntities) {
-        if (stackedEntities.isEmpty())
-            return;
-
-        this.databaseConnector.connect(connection -> {
-            Set<StackedEntity> update = stackedEntities.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<StackedEntity> insert = stackedEntities.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_entity SET entity_uuid = ?, stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedEntity stack : update) {
-                        statement.setString(1, stack.getEntity().getUniqueId().toString());
-                        statement.setBytes(2, EntitySerializer.toBlob(stack));
-                        statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
-                        statement.setInt(6, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_entity (entity_uuid, stack_entities, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
-
-                if (this.databaseConnector instanceof SQLiteConnector) {
-                    batchInsert += " ON CONFLICT(entity_uuid) DO UPDATE SET stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                } else {
-                    batchInsert += " ON DUPLICATE KEY UPDATE stack_entities = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                }
-
-                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (StackedEntity stack : insert) {
-                        statement.setString(1, stack.getEntity().getUniqueId().toString());
-                        statement.setBytes(2, EntitySerializer.toBlob(stack));
-                        statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
-                        // On conflict
-                        statement.setBytes(6, EntitySerializer.toBlob(stack));
-                        statement.setString(7, stack.getLocation().getWorld().getName());
-                        statement.setInt(8, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(9, stack.getLocation().getBlockZ() >> 4);
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void createOrUpdateStackedItems(Collection<StackedItem> stackedItems) {
-        if (stackedItems.isEmpty())
-            return;
-
-        this.databaseConnector.connect(connection -> {
-            Set<StackedItem> update = stackedItems.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<StackedItem> insert = stackedItems.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_item SET stack_size = ?, entity_uuid = ?, world = ?, chunk_x = ?, chunk_z = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedItem stack : update) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getItem().getUniqueId().toString());
-                        statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
-                        statement.setInt(6, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_item (stack_size, entity_uuid, world, chunk_x, chunk_z) VALUES (?, ?, ?, ?, ?)";
-
-                if (this.databaseConnector instanceof SQLiteConnector) {
-                    batchInsert += " ON CONFLICT(entity_uuid) DO UPDATE SET stack_size = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                } else {
-                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?, world = ?, chunk_x = ?, chunk_z = ?";
-                }
-
-                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (StackedItem stack : insert) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getItem().getUniqueId().toString());
-                        statement.setString(3, stack.getLocation().getWorld().getName());
-                        statement.setInt(4, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockZ() >> 4);
-                        // On conflict
-                        statement.setInt(6, stack.getStackSize());
-                        statement.setString(7, stack.getLocation().getWorld().getName());
-                        statement.setInt(8, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(9, stack.getLocation().getBlockZ() >> 4);
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void createOrUpdateStackedBlocks(Collection<StackedBlock> stackedBlocks) {
-        if (stackedBlocks.isEmpty())
-            return;
-
-        this.databaseConnector.connect(connection -> {
-            Set<StackedBlock> update = stackedBlocks.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<StackedBlock> insert = stackedBlocks.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_block SET stack_size = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedBlock stack : update) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setInt(2, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_block (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-                if (this.databaseConnector instanceof SQLiteConnector) {
-                    batchInsert += " ON CONFLICT(world, chunk_x, chunk_z, block_x, block_y, block_z) DO UPDATE SET stack_size = ?";
-                } else {
-                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?";
-                }
-
-                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (StackedBlock stack : insert) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getLocation().getWorld().getName());
-                        statement.setInt(3, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(4, stack.getLocation().getBlockZ() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
-                        statement.setInt(6, stack.getLocation().getBlockY());
-                        statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
-                        statement.setInt(8, stack.getStackSize());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void createOrUpdateStackedSpawners(Collection<StackedSpawner> stackedSpawners) {
-        if (stackedSpawners.isEmpty())
-            return;
-
-        this.databaseConnector.connect(connection -> {
-            Set<StackedSpawner> update = stackedSpawners.stream().filter(x -> x.getId() != -1).collect(Collectors.toSet());
-            Set<StackedSpawner> insert = stackedSpawners.stream().filter(x -> x.getId() == -1).collect(Collectors.toSet());
-
-            if (!update.isEmpty()) {
-                String batchUpdate = "UPDATE " + this.getTablePrefix() + "stacked_spawner SET stack_size = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(batchUpdate)) {
-                    for (StackedSpawner stack : update) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setInt(2, stack.getId());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            if (!insert.isEmpty()) {
-                String batchInsert = "INSERT INTO " + this.getTablePrefix() + "stacked_spawner (stack_size, world, chunk_x, chunk_z, block_x, block_y, block_z, placed_by_player) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-                if (this.databaseConnector instanceof SQLiteConnector) {
-                    batchInsert += " ON CONFLICT(world, chunk_x, chunk_z, block_x, block_y, block_z) DO UPDATE SET stack_size = ?";
-                } else {
-                    batchInsert += " ON DUPLICATE KEY UPDATE stack_size = ?";
-                }
-
-                try (PreparedStatement statement = connection.prepareStatement(batchInsert)) {
-                    for (StackedSpawner stack : insert) {
-                        statement.setInt(1, stack.getStackSize());
-                        statement.setString(2, stack.getLocation().getWorld().getName());
-                        statement.setInt(3, stack.getLocation().getBlockX() >> 4);
-                        statement.setInt(4, stack.getLocation().getBlockZ() >> 4);
-                        statement.setInt(5, stack.getLocation().getBlockX() & 0xF);
-                        statement.setInt(6, stack.getLocation().getBlockY());
-                        statement.setInt(7, stack.getLocation().getBlockZ() & 0xF);
-                        statement.setBoolean(8, stack.isPlacedByPlayer());
-                        statement.setInt(9, stack.getStackSize());
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void deleteStacks(Set<Stack<?>> stacks) {
-        if (stacks.isEmpty())
-            return;
-
-        Set<StackedBlock> stackedBlocks = new HashSet<>();
-        Set<StackedEntity> stackedEntities = new HashSet<>();
-        Set<StackedItem> stackedItems = new HashSet<>();
-        Set<StackedSpawner> stackedSpawners = new HashSet<>();
-
-        for (Stack<?> stack : stacks) {
-            if (stack.getId() == -1)
-                continue;
-
-            if (stack instanceof StackedBlock) {
-                stackedBlocks.add((StackedBlock) stack);
-            } else if (stack instanceof StackedEntity) {
-                stackedEntities.add((StackedEntity) stack);
-            } else if (stack instanceof StackedItem) {
-                stackedItems.add((StackedItem) stack);
-            } else if (stack instanceof StackedSpawner) {
-                stackedSpawners.add((StackedSpawner) stack);
-            }
-        }
-
-        this.databaseConnector.connect(connection -> {
-            if (!stackedBlocks.isEmpty())
-                this.deleteStackBatch(connection, stackedBlocks, "stacked_block");
-
-            if (!stackedEntities.isEmpty())
-                this.deleteStackBatch(connection, stackedEntities, "stacked_entity");
-
-            if (!stackedItems.isEmpty())
-                this.deleteStackBatch(connection, stackedItems, "stacked_item");
-
-            if (!stackedSpawners.isEmpty())
-                this.deleteStackBatch(connection, stackedSpawners, "stacked_spawner");
-        });
-    }
-
-    private <T extends Stack<?>> void deleteStackBatch(Connection connection, Set<T> stacks, String tableName) {
-        String batchDelete = "DELETE FROM " + this.getTablePrefix() + tableName + " WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(batchDelete)) {
-            for (Stack<?> stack : stacks) {
-                statement.setInt(1, stack.getId());
-                statement.addBatch();
-            }
-            statement.executeBatch();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public int purgeData(String world) {
-        AtomicInteger totalDeleted = new AtomicInteger();
-        this.databaseConnector.connect(connection -> {
-            Set<String> types = Stream.of(StackType.values()).map(x -> "stacked_" + x.name().toLowerCase()).collect(Collectors.toSet());
-            for (String type : types) {
-                String delete = "DELETE FROM " + this.getTablePrefix() + type + " WHERE world = ?";
-                try (PreparedStatement statement = connection.prepareStatement(delete)) {
-                    statement.setString(1, world);
-                    totalDeleted.addAndGet(statement.executeUpdate());
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-        return totalDeleted.get();
-    }
-
-    public StackCounts queryData(String world) {
-        AtomicReference<StackCounts> stackCounts = new AtomicReference<>();
-        this.databaseConnector.connect(connection -> stackCounts.set(new StackCounts(
-                this.queryData(world, StackType.ENTITY, connection),
-                this.queryData(world, StackType.ITEM, connection),
-                this.queryData(world, StackType.BLOCK, connection),
-                this.queryData(world, StackType.SPAWNER, connection)
-        )));
-        return stackCounts.get();
-    }
-
-    private int queryData(String world, StackType stackType, Connection connection) throws SQLException {
-        AtomicInteger total = new AtomicInteger();
-        String query = "SELECT COUNT(*) FROM " + this.getTablePrefix() + "stacked_" + stackType.name().toLowerCase() + " WHERE world = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, world);
-            ResultSet result = statement.executeQuery();
-            result.next();
-            total.addAndGet(result.getInt(1));
-        }
-        return total.get();
     }
 
     public void setConversionHandlers(Set<ConverterType> converterTypes) {
@@ -762,33 +416,6 @@ public class DataManager extends AbstractDataManager {
                 statement.executeBatch();
             }
         });
-    }
-
-    public static class StackCounts {
-        private int entity, item, block, spawner;
-
-        private StackCounts(int entity, int item, int block, int spawner) {
-            this.entity = entity;
-            this.item = item;
-            this.block = block;
-            this.spawner = spawner;
-        }
-
-        public int getEntityCount() {
-            return this.entity;
-        }
-
-        public int getItemCount() {
-            return this.item;
-        }
-
-        public int getBlockCount() {
-            return this.block;
-        }
-
-        public int getSpawnerCount() {
-            return this.spawner;
-        }
     }
 
     private static class StackedBlockData {

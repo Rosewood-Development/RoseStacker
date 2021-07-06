@@ -77,21 +77,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-convert-failed", "&c无法转化插件 &b%plugin% &c的数据, 该插件未处于运行状态。");
             this.put("command-convert-aborted", "&c已中止对插件 &b%plugin% &c进行数据转化的尝试， 您已经从另一个堆叠插件转化过数据了。");
 
-            this.put("#9", "清除数据命令");
-            this.put("command-purgedata-description", "&8 - &d/rs purgedata &7- 删除一个世界的堆叠数据");
-            this.put("command-purgedata-none", "&e您所提供的世界中没有堆叠数据。");
-            this.put("command-purgedata-purged", "&e已从数据库中清理 &b%amount% &e份整体堆叠数据。");
-
-            this.put("#10", "搜寻数据命令");
-            this.put("command-querydata-description", "&8 - &d/rs querydata &7- 获取已保存的堆叠数据");
-            this.put("command-querydata-none", "&e您所提供的世界中没有被找到的堆叠数据。");
-            this.put("command-querydata-header", "&a匹配到的数据结果:");
-            this.put("command-querydata-entity", "&e已保存的实体堆叠数据: &b%amount%");
-            this.put("command-querydata-item", "&e已保存的物品堆叠数据: &b%amount%");
-            this.put("command-querydata-block", "&e已保存的方块堆叠数据: &b%amount%");
-            this.put("command-querydata-spawner", "&e已保存的刷怪笼堆叠数据: &b%amount%");
-
-            this.put("#11", "翻译命令");
+            this.put("#9", "翻译命令");
             this.put("command-translate-description", "&8 - &d/rs translate &7- 翻译堆叠整体的显示名称");
             this.put("command-translate-loading", "&e正在下载并应用翻译数据, 这可能会花点时间。");
             this.put("command-translate-failure", "&c无法翻译堆叠整体的显示名称。在获取语言数据时发生了错误，请稍后再试一次。");
@@ -101,7 +87,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-translate-spawner-format-invalid", "&c您所提供的刷怪笼翻译名称格式是无效的。其必须包含 &b{} &c作为生物名字的占位符变量。");
             this.put("command-translate-success", "&a成功翻译堆叠整体的显示名称。");
 
-            this.put("#12", "堆叠工具命令");
+            this.put("#10", "堆叠工具命令");
             this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- 给予玩家一份堆叠工具");
             this.put("command-stacktool-given", "&e您已被给予堆叠工具。");
             this.put("command-stacktool-given-other", "&b%player% &a已被给予堆叠工具。");
@@ -116,7 +102,6 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-can-stack", "&a实体 #1 能与实体 #2 进行堆叠。");
             this.put("command-stacktool-can-not-stack", "&c实体 #1 不能与实体 #2 进行堆叠。原因如下: &b%reason%");
             this.put("command-stacktool-info", "&e堆叠信息:");
-            this.put("command-stacktool-info-id", "&e堆叠ID: &b%id%");
             this.put("command-stacktool-info-uuid", "&eUUID: &b%uuid%");
             this.put("command-stacktool-info-entity-id", "&e实体ID: &b%id%");
             this.put("command-stacktool-info-custom-name", "&e自定义名称: &r%name%");
@@ -133,7 +118,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stacktool-info-spawner-type", "&e刷怪笼类型: &b%type%");
             this.put("command-stacktool-info-stack-size", "&e所包含个体数: &b%amount%");
 
-            this.put("#13", "堆叠方块 GUI");
+            this.put("#11", "堆叠方块 GUI");
             this.put("gui-stacked-block-title", "编辑堆叠 %name% 中");
             this.put("gui-stacked-block-page-back", Collections.singletonList("&e上一页 (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
             this.put("gui-stacked-block-page-forward", Collections.singletonList("&e下一页 (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
@@ -142,7 +127,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&a确认", "&e是的，帮我拆分它"));
             this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&c取消", "&e不，我想回到上一页"));
 
-            this.put("#14", "堆叠刷怪笼 GUI");
+            this.put("#12", "堆叠刷怪笼 GUI");
             this.put("gui-stacked-spawner-title", "查看 %name% 中");
             this.put("gui-stacked-spawner-stats", "&6刷怪笼信息");
             this.put("gui-stacked-spawner-min-spawn-delay", "&e最小生成延时: &b%delay%");
@@ -162,7 +147,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("gui-stacked-spawner-entities-can-spawn", "&a实体目前能被生成");
             this.put("gui-stacked-spawner-conditions-preventing-spawns", "&e阻碍生成的因素:");
 
-            this.put("#15", "生成条件信息");
+            this.put("#13", "生成条件信息");
             this.put("spawner-condition-invalid", "&7 - &c%message%");
             this.put("spawner-condition-info", "&e%condition%");
             this.put("spawner-condition-single", "&e%condition%: &b%value%");
@@ -200,14 +185,14 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-skylight-access-invalid", "范围内没有受到自然光照照射的方块可供生物生成");
             this.put("spawner-condition-none-invalid", "超过最大的生成尝试次数");
 
-            this.put("#16", "给予物品描述(lore)");
-            this.put("#17", "注意：更改这些将使旧的描述(lore)失效");
+            this.put("#14", "给予物品描述(lore)");
+            this.put("#15", "注意：更改这些将使旧的描述(lore)失效");
             this.put("stack-item-lore-stack-size", "&7堆叠个体量: &c");
             this.put("stack-item-lore-entity-type", "&7实体类型: &c");
             this.put("stack-item-lore-block-type", "&7方块类型: &c");
             this.put("stack-item-lore-spawner-type", "&7刷怪笼类型: &c");
 
-            this.put("#18", "ACF-Core 信息");
+            this.put("#16", "ACF-Core 信息");
             this.put("acf-core-permission-denied", "&c您没有权限那么做!");
             this.put("acf-core-permission-denied-parameter", "&c您没有权限那么做!");
             this.put("acf-core-error-generic-logged", "&c发生了一个错误。请向插件作者发送报告。");
@@ -226,17 +211,17 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("acf-core-could-not-find-player", "&c错误: 没有找到您寻找的玩家: &b{search}");
             this.put("acf-core-no-command-matched-search", "&c错误: 没有命令与您的搜索匹配 &b{search}&c。");
 
-            this.put("#19", "ACF-Minecraft 信息");
+            this.put("#17", "ACF-Minecraft 信息");
             this.put("acf-minecraft-no-player-found-server", "&c错误: 没有找到您要寻找的玩家: &b{search}");
             this.put("acf-minecraft-is-not-a-valid-name", "&c错误: &b{name} &c不是个有效的玩家名。");
 
-            this.put("#20", "转化锁定信息");
+            this.put("#18", "转化锁定信息");
             this.put("convert-lock-conflictions", "&c服务器上有一些插件与RoseStacker冲突。" +
                     "为了防止冲突造成 数据丢失，RoseStacker禁用了一个或多个堆叠类型。 " +
                     "与此同时，我们在 plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " 创建了文件， 您可以在其中配置禁用的堆叠类型 " +
                     "该文件还允许您确认您已阅读此警告，并允许您禁用此消息。");
 
-            this.put("#21", "杂项信息");
+            this.put("#19", "杂项信息");
             this.put("spawner-silk-touch-protect", "&c警告! &e您需要附魔有精准采集的稿子 并且/或 有权限拿起一个刷怪笼。否则您将不能这样做。");
             this.put("spawner-convert-not-enough", "&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的刷怪蛋数量并不足以进行转换的操作。");
             this.put("spawner-advanced-place-no-permission", "&c警告! &e您没有恰当的权限来放置这种类型的刷怪笼。");

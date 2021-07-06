@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.bukkit.entity.LivingEntity;
 
@@ -25,8 +24,7 @@ public class EntityConversionHandler extends ConversionHandler {
             entity.setCustomName(null); // This could cause data loss if the entity actually has a custom name, but we have to remove the stack tag
             entity.setCustomNameVisible(false);
 
-            List<byte[]> entityStackData = this.createEntityStackNBT(entity.getType(), data.getStackSize(), entity.getLocation());
-            StackedEntity stackedEntity = new StackedEntity(data.getEntity(), entityStackData);
+            StackedEntity stackedEntity = new StackedEntity(data.getEntity(), this.createEntityStackNBT(entity.getType(), data.getStackSize(), entity.getLocation()));
             this.stackManager.addEntityStack(stackedEntity);
             stacks.add(stackedEntity);
         }

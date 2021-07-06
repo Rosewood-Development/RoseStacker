@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.DataManager;
+import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -66,9 +67,8 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
             }
 
             // Load blocks
+            Set<StackedBlock> stackedBlocks = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
-                Set<StackedBlock> stackedBlocks = new HashSet<>();
-
                 ResultSet result = statement.executeQuery("SELECT amount, world, x, y, z FROM ultimatestacker_blocks");
                 while (result.next()) {
                     World world = Bukkit.getWorld(result.getString("world"));
@@ -82,14 +82,11 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
                     Block block = world.getBlockAt(result.getInt("x"), result.getInt("y"), result.getInt("z"));
                     stackedBlocks.add(new StackedBlock(amount, block));
                 }
-
-                dataManager.createOrUpdateStackedBlocks(stackedBlocks);
             }
 
             // Load spawners
+            Set<StackedSpawner> stackedSpawners = new HashSet<>();
             try (Statement statement = connection.createStatement()) {
-                Set<StackedSpawner> stackedSpawners = new HashSet<>();
-
                 ResultSet result = statement.executeQuery("SELECT amount, world, x, y, z FROM ultimatestacker_spawners");
                 while (result.next()) {
                     World world = Bukkit.getWorld(result.getString("world"));
@@ -104,8 +101,17 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
                     int amount = result.getInt("amount");
                     stackedSpawners.add(new StackedSpawner(amount, location));
                 }
+            }
 
-                dataManager.createOrUpdateStackedSpawners(stackedSpawners);
+            if (!stackedBlocks.isEmpty() || !stackedSpawners.isEmpty()) {
+                StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    for (StackedBlock stackedBlock : stackedBlocks)
+                        stackManager.createBlockStack(stackedBlock.getLocation().getBlock(), stackedBlock.getStackSize());
+
+                    for (StackedSpawner stackedSpawner : stackedSpawners)
+                        stackManager.createSpawnerStack(stackedSpawner.getLocation().getBlock(), stackedSpawner.getStackSize(), false);
+                });
             }
         });
     }

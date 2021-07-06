@@ -11,14 +11,14 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,7 +37,7 @@ import org.bukkit.util.Vector;
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
-    private List<byte[]> serializedStackedEntities;
+    private CompactNBT serializedStackedEntities;
     private int npcCheckCounter;
 
     private String displayName;
@@ -45,9 +45,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(int id, LivingEntity entity, List<byte[]> serializedStackedEntities) {
-        super(id);
-
+    public StackedEntity(LivingEntity entity, CompactNBT serializedStackedEntities) {
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
@@ -57,18 +55,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         if (this.entity != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
-
-            if (Bukkit.isPrimaryThread())
-                this.updateDisplay();
+            this.updateDisplay();
         }
     }
 
-    public StackedEntity(LivingEntity entity, List<byte[]> serializedStackedEntities) {
-        this(-1, entity, serializedStackedEntities);
-    }
-
     public StackedEntity(LivingEntity entity) {
-        this(entity, Collections.synchronizedList(new LinkedList<>()));
+        this(entity, NMSAdapter.getHandler().createCompactNBT(entity));
     }
 
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
@@ -102,11 +94,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
-            byte[] nbtData = NMSAdapter.getHandler().getEntityAsNBT(entity, Setting.ENTITY_SAVE_ATTRIBUTES.getBoolean());
             if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-                this.serializedStackedEntities.add(nbtData);
+                this.serializedStackedEntities.addLast(entity);
             } else {
-                this.serializedStackedEntities.add(0, nbtData);
+                this.serializedStackedEntities.addFirst(entity);
             }
 
             if (updateDisplay)
@@ -123,11 +114,11 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
     }
 
-    public void increaseStackSize(List<byte[]> entityNBTStrings) {
+    public void increaseStackSize(CompactNBT serializedStackedEntities) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-            this.serializedStackedEntities.addAll(entityNBTStrings);
+            this.serializedStackedEntities.addAllLast(serializedStackedEntities.getAll());
         } else {
-            this.serializedStackedEntities.addAll(0, entityNBTStrings);
+            this.serializedStackedEntities.addAllFirst(serializedStackedEntities.getAll());
         }
         this.updateDisplay();
     }
@@ -145,7 +136,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         LivingEntity oldEntity = this.entity;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.remove(0), oldEntity.getLocation(), true);
+        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.pop(), oldEntity.getLocation(), true, oldEntity.getType());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
@@ -166,11 +157,11 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
-        return new StackedEntity(-1, oldEntity, Collections.synchronizedList(new LinkedList<>()));
+        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createCompactNBT(oldEntity));
     }
 
-    public List<byte[]> getStackedEntityNBT() {
-        return Collections.unmodifiableList(this.serializedStackedEntities);
+    public CompactNBT getStackedEntityNBT() {
+        return this.serializedStackedEntities;
     }
 
     /**
@@ -178,10 +169,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * This method overwrites the serialized nbt and NOTHING ELSE.
      * If the stack size were to change, there would be no way of detecting it, you have been warned!
      *
-     * @param serializedNbt The nbt to overwrite with
+     * @param serializedStackedEntities The nbt to overwrite with
      */
-    public void setStackedEntityNBT(List<byte[]> serializedNbt) {
-        this.serializedStackedEntities = serializedNbt;
+    public void setStackedEntityNBT(CompactNBT serializedStackedEntities) {
+        this.serializedStackedEntities = serializedStackedEntities;
         this.updateDisplay();
     }
 
@@ -199,8 +190,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (byte[] entityNBT : new ArrayList<>(this.serializedStackedEntities)) {
-                LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false);
+            for (WrappedNBT<?> entityNBT : this.serializedStackedEntities.getAll()) {
+                LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
                 if (entity == null)
                     continue;
                 internalEntities.add(entity);
@@ -296,8 +287,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.entity instanceof EnderDragon)
             return true;
 
-        LivingEntity entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.get(0), this.entity.getLocation(), false);
-        StackedEntity stackedEntity = new StackedEntity(entity, Collections.emptyList());
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        LivingEntity entity = nmsHandler.createEntityFromNBT(this.serializedStackedEntities.peek(), this.entity.getLocation(), false, this.entity.getType());
+        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createCompactNBT(entity));
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 

@@ -13,17 +13,16 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.utils.QueryUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -535,37 +534,12 @@ public final class RoseStackerAPI {
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedEntities
+     * @deprecated See {@link RoseStackerAPI#getStackedEntities(Collection)}
      */
     @NotNull
+    @Deprecated
     public CompletableFuture<Set<StackedEntity>> getChunkEntityStacks(@NotNull Collection<Chunk> chunks) {
-        Objects.requireNonNull(chunks);
-
-        Set<Chunk> loadedChunks = new HashSet<>();
-        Set<Chunk> unloadedChunks = new HashSet<>();
-
-        for (Chunk chunk : chunks) {
-            if (chunk.isLoaded()) {
-                loadedChunks.add(chunk);
-            } else {
-                unloadedChunks.add(chunk);
-            }
-        }
-
-        Set<StackedEntity> stacks = this.stackManager.getStackedEntities().values().stream()
-                .filter(x -> loadedChunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toSet());
-
-        if (!unloadedChunks.isEmpty()) {
-            CompletableFuture<Set<StackedEntity>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedEntities(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
-            return future;
-        }
-
-        return CompletableFuture.completedFuture(stacks);
+        return CompletableFuture.completedFuture(new HashSet<>(this.getStackedEntities(chunks)));
     }
 
     /**
@@ -575,37 +549,12 @@ public final class RoseStackerAPI {
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedItems
+     * @deprecated See {@link RoseStackerAPI#getStackedItems(Collection)}
      */
     @NotNull
+    @Deprecated
     public CompletableFuture<Set<StackedItem>> getChunkItemStacks(@NotNull Collection<Chunk> chunks) {
-        Objects.requireNonNull(chunks);
-
-        Set<Chunk> loadedChunks = new HashSet<>();
-        Set<Chunk> unloadedChunks = new HashSet<>();
-
-        for (Chunk chunk : chunks) {
-            if (chunk.isLoaded()) {
-                loadedChunks.add(chunk);
-            } else {
-                unloadedChunks.add(chunk);
-            }
-        }
-
-        Set<StackedItem> stacks = this.stackManager.getStackedItems().values().stream()
-                .filter(x -> loadedChunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toSet());
-
-        if (!unloadedChunks.isEmpty()) {
-            CompletableFuture<Set<StackedItem>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedItems(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
-            return future;
-        }
-
-        return CompletableFuture.completedFuture(stacks);
+        return CompletableFuture.completedFuture(new HashSet<>(this.getStackedItems(chunks)));
     }
 
     /**
@@ -615,37 +564,12 @@ public final class RoseStackerAPI {
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedBlocks
+     * @deprecated See {@link RoseStackerAPI#getStackedBlocks(Collection)}
      */
     @NotNull
+    @Deprecated
     public CompletableFuture<Set<StackedBlock>> getChunkBlockStacks(@NotNull Collection<Chunk> chunks) {
-        Objects.requireNonNull(chunks);
-
-        Set<Chunk> loadedChunks = new HashSet<>();
-        Set<Chunk> unloadedChunks = new HashSet<>();
-
-        for (Chunk chunk : chunks) {
-            if (chunk.isLoaded()) {
-                loadedChunks.add(chunk);
-            } else {
-                unloadedChunks.add(chunk);
-            }
-        }
-
-        Set<StackedBlock> stacks = this.stackManager.getStackedBlocks().values().stream()
-                .filter(x -> loadedChunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toSet());
-
-        if (!unloadedChunks.isEmpty()) {
-            CompletableFuture<Set<StackedBlock>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedBlocks(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
-            return future;
-        }
-
-        return CompletableFuture.completedFuture(stacks);
+        return CompletableFuture.completedFuture(new HashSet<>(this.getStackedBlocks(chunks)));
     }
 
     /**
@@ -655,37 +579,72 @@ public final class RoseStackerAPI {
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedSpawners
+     * @deprecated See {@link RoseStackerAPI#getStackedSpawners(Collection)}
      */
     @NotNull
+    @Deprecated
     public CompletableFuture<Set<StackedSpawner>> getChunkSpawnerStacks(@NotNull Collection<Chunk> chunks) {
+        return CompletableFuture.completedFuture(new HashSet<>(this.getStackedSpawners(chunks)));
+    }
+
+    /**
+     * Gets a List of loaded StackedEntities within the given Collection of Chunks
+     *
+     * @param chunks The Chunks to query
+     * @return A List of StackedEntities
+     */
+    @NotNull
+    public List<StackedEntity> getStackedEntities(@NotNull Collection<Chunk> chunks) {
         Objects.requireNonNull(chunks);
 
-        Set<Chunk> loadedChunks = new HashSet<>();
-        Set<Chunk> unloadedChunks = new HashSet<>();
+        return this.stackManager.getStackedEntities().values().stream()
+                .filter(x -> chunks.contains(x.getLocation().getChunk()))
+                .collect(Collectors.toList());
+    }
 
-        for (Chunk chunk : chunks) {
-            if (chunk.isLoaded()) {
-                loadedChunks.add(chunk);
-            } else {
-                unloadedChunks.add(chunk);
-            }
-        }
+    /**
+     * Gets a List of loaded StackedItems within the given Collection of Chunks
+     *
+     * @param chunks The Chunks to query
+     * @return A List of StackedItems
+     */
+    @NotNull
+    public List<StackedItem> getStackedItems(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
 
-        Set<StackedSpawner> stacks = this.stackManager.getStackedSpawners().values().stream()
-                .filter(x -> loadedChunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toSet());
+        return this.stackManager.getStackedItems().values().stream()
+                .filter(x -> chunks.contains(x.getLocation().getChunk()))
+                .collect(Collectors.toList());
+    }
 
-        if (!unloadedChunks.isEmpty()) {
-            CompletableFuture<Set<StackedSpawner>> future = new CompletableFuture<>();
-            Bukkit.getScheduler().runTaskAsynchronously(this.roseStacker, () ->
-                    this.dataManager.getStackedSpawners(unloadedChunks, QueryUtils.buildChunksWhere(unloadedChunks), results -> {
-                        stacks.addAll(results);
-                        future.complete(stacks);
-                    }));
-            return future;
-        }
+    /**
+     * Gets a List of loaded StackedBlocks within the given Collection of Chunks
+     *
+     * @param chunks The Chunks to query
+     * @return A List of StackedBlocks
+     */
+    @NotNull
+    public List<StackedBlock> getStackedBlocks(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
 
-        return CompletableFuture.completedFuture(stacks);
+        return this.stackManager.getStackedBlocks().values().stream()
+                .filter(x -> chunks.contains(x.getLocation().getChunk()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a List of loaded StackedSpawners within the given Collection of Chunks
+     *
+     * @param chunks The Chunks to query
+     * @return A List of StackedSpawners
+     */
+    @NotNull
+    public List<StackedSpawner> getStackedSpawners(@NotNull Collection<Chunk> chunks) {
+        Objects.requireNonNull(chunks);
+
+        return this.stackManager.getStackedSpawners().values().stream()
+                .filter(x -> chunks.contains(x.getLocation().getChunk()))
+                .collect(Collectors.toList());
     }
 
     //endregion

@@ -70,7 +70,7 @@ public class RoseStacker extends RosePlugin {
     public void enable() {
         this.getLogger().info("Detected server API version as " + NMSUtil.getVersion());
         if (!NMSAdapter.isValidVersion()) {
-            this.getLogger().severe("RoseStacker only supports 1.13.2 through " + StackerUtils.MAX_SUPPORTED_VERSION + ". The plugin has been disabled.");
+            this.getLogger().severe(String.format("RoseStacker only supports %s through %s. The plugin has been disabled.", StackerUtils.MIN_SUPPORTED_VERSION, StackerUtils.MAX_SUPPORTED_VERSION));
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -86,17 +86,12 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new ItemListener(this), this);
         pluginManager.registerEvents(new StackToolListener(this), this);
         pluginManager.registerEvents(new BreedingListener(this), this);
+        pluginManager.registerEvents(new BlockShearListener(this), this);
+        pluginManager.registerEvents(new RaidListener(), this);
 
         // Bees are only in 1.15+
         if (NMSUtil.getVersionNumber() >= 15)
             pluginManager.registerEvents(new BeeListener(this), this);
-
-        // Dispensers can only shear sheep in 1.14+
-        // Raids are only in 1.14+
-        if (NMSUtil.getVersionNumber() >= 14) {
-            pluginManager.registerEvents(new BlockShearListener(this), this);
-            pluginManager.registerEvents(new RaidListener(), this);
-        }
 
         // Try to hook with PlaceholderAPI
         if (PlaceholderAPIHook.enabled())
@@ -128,11 +123,11 @@ public class RoseStacker extends RosePlugin {
     @Override
     protected List<Class<? extends Manager>> getManagerLoadPriority() {
         return Arrays.asList(
-                DataManager.class,
+                HologramManager.class,
                 StackSettingManager.class,
+                DataManager.class,
                 CommandManager.class,
                 ConversionManager.class,
-                HologramManager.class,
                 EntityCacheManager.class,
                 StackManager.class,
                 SpawnerSpawnManager.class
