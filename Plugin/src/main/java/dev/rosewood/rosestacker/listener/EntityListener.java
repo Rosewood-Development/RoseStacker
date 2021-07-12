@@ -28,14 +28,21 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.Blaze;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.ElderGuardian;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
@@ -237,7 +244,24 @@ public class EntityListener implements Listener {
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
             internalEntities.removeIf(killedEntities::contains);
-            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), 0);
+
+            // Pick a random amount of exp to drop based on the entity type
+            // This is only an incredibly rough estimate and isn't 1:1 with vanilla
+            int experience;
+            Class<? extends Entity> type = stackedEntity.getStackSettings().getEntityType().getEntityClass();
+            if (type == null || NPC.class.isAssignableFrom(type) || Golem.class.isAssignableFrom(type) || type == Bat.class) {
+                experience = 0;
+            } else if (Animals.class.isAssignableFrom(type)) {
+                experience = StackerUtils.randomInRange(1, 3);
+            } else if (type == Wither.class) {
+                experience = 50;
+            } else if (type == Blaze.class || Guardian.class.isAssignableFrom(type)) {
+                experience = 10;
+            } else {
+                experience = 5;
+            }
+
+            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
         }
 
         StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
