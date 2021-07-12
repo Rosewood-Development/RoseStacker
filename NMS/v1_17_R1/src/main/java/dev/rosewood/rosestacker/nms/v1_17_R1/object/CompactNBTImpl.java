@@ -37,11 +37,11 @@ public class CompactNBTImpl implements CompactNBT {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
-            this.base = NbtIo.readCompressed(dataInput);
+            this.base = NbtIo.read(dataInput);
             int length = dataInput.readInt();
             List<CompoundTag> tags = new LinkedList<>();
             for (int i = 0; i < length; i++)
-                tags.add(NbtIo.readCompressed(dataInput));
+                tags.add(NbtIo.read(dataInput));
             this.data = Collections.synchronizedList(tags);
         } catch (Exception e) {
             throw new CompactNBTException(e);
@@ -90,10 +90,12 @@ public class CompactNBTImpl implements CompactNBT {
 
     @Override
     public List<WrappedNBT<?>> getAll() {
-        List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
-        for (CompoundTag compoundTag : this.data)
-            wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
-        return wrapped;
+        synchronized (this.data) {
+            List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
+            for (CompoundTag compoundTag : this.data)
+                wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
+            return wrapped;
+        }
     }
 
     @Override
@@ -101,10 +103,12 @@ public class CompactNBTImpl implements CompactNBT {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
-            NbtIo.writeCompressed(this.base, dataOutput);
-            dataOutput.writeInt(this.data.size());
-            for (CompoundTag compoundTag : this.data)
-                NbtIo.writeCompressed(compoundTag, dataOutput);
+            NbtIo.write(this.base, dataOutput);
+            synchronized (this.data) {
+                dataOutput.writeInt(this.data.size());
+                for (CompoundTag compoundTag : this.data)
+                    NbtIo.write(compoundTag, dataOutput);
+            }
 
             dataOutput.close();
             return outputStream.toByteArray();
