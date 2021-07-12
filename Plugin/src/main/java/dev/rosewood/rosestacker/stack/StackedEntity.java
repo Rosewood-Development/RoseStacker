@@ -19,11 +19,13 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -225,21 +227,24 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
             int totalExp = droppedExp;
             NMSHandler nmsHandler = NMSAdapter.getHandler();
+            boolean isAnimal = thisEntity instanceof Animals;
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
                 entity.setFireTicks(thisEntity.getFireTicks());
                 entity.setLastDamageCause(thisEntity.getLastDamageCause());
                 nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
 
-                Collection<ItemStack> entityLoot = EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                boolean isBaby = isAnimal && !((Animals) entity).isAdult();
+                int desiredExp = isBaby ? 0 : droppedExp;
+                Collection<ItemStack> entityLoot = isBaby ? Collections.emptyList() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                 if (callEvents && !multiplyCustomLoot) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), droppedExp);
+                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     totalExp += deathEvent.getDroppedExp();
                     loot.addAll(deathEvent.getDrops());
                 } else {
                     loot.addAll(entityLoot);
-                    totalExp += droppedExp;
+                    totalExp += desiredExp;
                 }
             }
 
