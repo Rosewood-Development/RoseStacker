@@ -850,7 +850,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
                 stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
 
-        this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
+        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty())
+            this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
     }
 
     public void saveChunk(Chunk chunk, boolean clearStored) {
