@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
@@ -821,24 +822,33 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void loadChunk(Chunk chunk) {
-        Entity[] entities = chunk.getEntities();
-        if (this.stackManager.isEntityStackingEnabled())
-            this.stackedEntities.putAll(Arrays.stream(entities)
-                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
-                    .map(x -> (LivingEntity) x)
-                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
-                    .map(DataUtils::readStackedEntity)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
+        Runnable entitiesTask = () -> {
+            Entity[] entities = chunk.getEntities();
+            if (this.stackManager.isEntityStackingEnabled())
+                this.stackedEntities.putAll(Arrays.stream(entities)
+                        .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
+                        .map(x -> (LivingEntity) x)
+                        .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
+                        .map(DataUtils::readStackedEntity)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
 
-        if (this.stackManager.isItemStackingEnabled())
-            this.stackedItems.putAll(Arrays.stream(entities)
-                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
-                    .map(x -> (Item) x)
-                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
-                    .map(DataUtils::readStackedItem)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
+            if (this.stackManager.isItemStackingEnabled())
+                this.stackedItems.putAll(Arrays.stream(entities)
+                        .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                        .map(x -> (Item) x)
+                        .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
+                        .map(DataUtils::readStackedItem)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
+        };
+
+        // TODO: Temporary HACK of a "fix" for SPIGOT-6547
+        if (NMSUtil.getVersionNumber() >= 17) {
+            Bukkit.getScheduler().runTaskLater(this.rosePlugin, entitiesTask, 30L);
+        } else {
+            entitiesTask.run();
+        }
 
         Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
         if (this.stackManager.isSpawnerStackingEnabled())
