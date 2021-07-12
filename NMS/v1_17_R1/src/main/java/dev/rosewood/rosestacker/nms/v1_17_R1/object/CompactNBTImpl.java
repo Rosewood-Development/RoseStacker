@@ -163,6 +163,8 @@ public class CompactNBTImpl implements CompactNBT {
         compoundTag.remove("Spigot.ticksLived");
         compoundTag.remove("Paper.OriginWorld");
         compoundTag.remove("Paper.Origin");
+        CompoundTag bukkitValues = compoundTag.getCompound("BukkitValues");
+        bukkitValues.remove("rosestacker:stacked_entity_data");
     }
 
     private void stripAttributeUuids(CompoundTag compoundTag) {
