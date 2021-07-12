@@ -158,6 +158,9 @@ public class CompactNBTImpl implements CompactNBT {
         compoundTag.remove("Motion");
         compoundTag.remove("OnGround");
         compoundTag.remove("FallDistance");
+        compoundTag.remove("Spigot.ticksLived");
+        compoundTag.remove("Paper.OriginWorld");
+        compoundTag.remove("Paper.Origin");
     }
 
     private void stripAttributeUuids(NBTTagCompound compoundTag) {
