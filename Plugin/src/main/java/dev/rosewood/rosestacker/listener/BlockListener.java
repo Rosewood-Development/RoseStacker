@@ -146,6 +146,7 @@ public class BlockListener implements Listener {
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
             if (this.tryDropSpawners(player, dropLocation, entityType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
+                BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     stackedSpawner.setStackSize(0);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
