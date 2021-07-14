@@ -823,6 +823,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     public void loadChunk(Chunk chunk) {
         Runnable entitiesTask = () -> {
+            if (!chunk.isLoaded())
+                return;
+
             Entity[] entities = chunk.getEntities();
             if (this.stackManager.isEntityStackingEnabled())
                 this.stackedEntities.putAll(Arrays.stream(entities)

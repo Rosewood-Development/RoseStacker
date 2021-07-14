@@ -500,6 +500,7 @@ public class StackManager extends Manager implements StackingLogic {
 
         if (!this.pendingLoadChunks.isEmpty()) {
             Set<Chunk> chunks = this.pendingLoadChunks.keySet().stream()
+                    .filter(Chunk::isLoaded)
                     .filter(x -> !PersistentDataUtils.isChunkMigrated(x))
                     .peek(PersistentDataUtils::setChunkMigrated)
                     .collect(Collectors.toSet());
@@ -507,6 +508,7 @@ public class StackManager extends Manager implements StackingLogic {
             Set<Chunk> convertChunks = null;
             if (this.conversionManager.hasConversions()) {
                 convertChunks = this.pendingLoadChunks.keySet().stream()
+                        .filter(Chunk::isLoaded)
                         .filter(x -> !PersistentDataUtils.isChunkConverted(x))
                         .peek(PersistentDataUtils::setChunkConverted)
                         .collect(Collectors.toSet());
