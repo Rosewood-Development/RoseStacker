@@ -90,12 +90,10 @@ public class CompactNBTImpl implements CompactNBT {
 
     @Override
     public List<WrappedNBT<?>> getAll() {
-        synchronized (this.data) {
-            List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
-            for (CompoundTag compoundTag : this.data)
-                wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
-            return wrapped;
-        }
+        List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
+        for (CompoundTag compoundTag : new ArrayList<>(this.data))
+            wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
+        return wrapped;
     }
 
     @Override
@@ -104,11 +102,9 @@ public class CompactNBTImpl implements CompactNBT {
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
             NbtIo.write(this.base, dataOutput);
-            synchronized (this.data) {
-                dataOutput.writeInt(this.data.size());
-                for (CompoundTag compoundTag : this.data)
-                    NbtIo.write(compoundTag, dataOutput);
-            }
+            dataOutput.writeInt(this.data.size());
+            for (CompoundTag compoundTag : new ArrayList<>(this.data))
+                NbtIo.write(compoundTag, dataOutput);
 
             dataOutput.close();
             return outputStream.toByteArray();
