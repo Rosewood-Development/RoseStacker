@@ -1,8 +1,10 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -17,8 +19,8 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 public class WorldListener implements Listener {
 
-    private RosePlugin rosePlugin;
-    private StackManager stackManager;
+    private final RosePlugin rosePlugin;
+    private final StackManager stackManager;
 
     public WorldListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
@@ -48,7 +50,12 @@ public class WorldListener implements Listener {
                 if (entity instanceof LivingEntity)
                     PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-            this.stackManager.loadChunk(event.getChunk());
+            // TODO: Temporary HACK of a "fix" for SPIGOT-6547
+            if (NMSUtil.getVersionNumber() >= 17) {
+                Bukkit.getScheduler().runTaskLater(this.rosePlugin, () -> this.stackManager.loadChunk(event.getChunk()), 30L);
+            } else {
+                this.stackManager.loadChunk(event.getChunk());
+            }
         }
     }
 

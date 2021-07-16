@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
@@ -69,9 +68,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final EntityCacheManager entityCacheManager;
     private final World targetWorld;
 
-    private final BukkitTask entityStackTask;
-    private final BukkitTask itemStackTask;
-    private final BukkitTask nametagTask;
+    private final BukkitTask entityStackTask, itemStackTask, nametagTask;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -80,6 +77,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private boolean entityStackSwitch;
     private int cleanupTimer;
 
+    boolean dynamicEntityTags, dynamicItemTags, dynamicBlockTags;
+    double entityDynamicViewRangeSqrd, itemDynamicViewRangeSqrd, blockSpawnerDynamicViewRangeSqrd;
+    boolean entityDynamicWallDetection, itemDynamicWallDetection, blockDynamicWallDetection;
+
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
@@ -87,15 +88,31 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.targetWorld = targetWorld;
 
         long entityStackDelay = (long) Math.max(1, Setting.STACK_FREQUENCY.getLong() / 2.0);
-        this.entityStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackEntities, 5L, entityStackDelay);
+        this.entityStackTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::stackEntities, 5L, entityStackDelay);
         this.itemStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackItems, 5L, Setting.ITEM_STACK_FREQUENCY.getLong());
-        this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
+        this.nametagTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
         this.stackChunkData = new ConcurrentHashMap<>();
 
         this.cleanupTimer = 0;
+
+        this.dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
+        this.dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
+        this.dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
+
+        double entityDynamicViewRange = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+        double itemDynamicViewRange = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+        double blockSpawnerDynamicViewRange = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+
+        this.entityDynamicViewRangeSqrd = entityDynamicViewRange * entityDynamicViewRange;
+        this.itemDynamicViewRangeSqrd = itemDynamicViewRange * itemDynamicViewRange;
+        this.blockSpawnerDynamicViewRangeSqrd = blockSpawnerDynamicViewRange * blockSpawnerDynamicViewRange;
+
+        this.entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        this.itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        this.blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
         // Disable AI for all existing stacks in the target world
         this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
@@ -108,34 +125,36 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return;
 
         // Auto stack entities
-        if (this.entityStackSwitch) {
-            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values())) {
-                LivingEntity livingEntity = stackedEntity.getEntity();
-                if (this.isRemoved(livingEntity)) {
-                    this.removeEntityStack(stackedEntity);
-                    continue;
-                }
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            if (this.entityStackSwitch) {
+                for (StackedEntity stackedEntity : this.stackedEntities.values()) {
+                    LivingEntity livingEntity = stackedEntity.getEntity();
+                    if (this.isRemoved(livingEntity)) {
+                        this.removeEntityStack(stackedEntity);
+                        continue;
+                    }
 
-                this.tryStackEntity(stackedEntity);
+                    this.tryStackEntity(stackedEntity);
+                }
             }
-        }
+
+            // Auto unstack entities
+            if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
+                for (StackedEntity stackedEntity : this.stackedEntities.values())
+                    if (!stackedEntity.shouldStayStacked())
+                        Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                            if (stackedEntity.getStackSize() > 1)
+                                this.splitEntityStack(stackedEntity);
+                        });
+        });
 
         // Run entity stacking half as often as the unstacking
         this.entityStackSwitch = !this.entityStackSwitch;
 
-        // Auto unstack entities
-        if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
-            for (StackedEntity stackedEntity : new HashSet<>(this.stackedEntities.values()))
-                if (!stackedEntity.shouldStayStacked())
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                        if (stackedEntity.getStackSize() > 1)
-                            this.splitEntityStack(stackedEntity);
-                    });
-
         // Cleans up entities/items that aren't stacked
         this.cleanupTimer++;
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
-            for (Entity entity : NMSAdapter.getHandler().getEntities(this.targetWorld)) {
+            for (Entity entity : this.targetWorld.getEntities()) {
                 if (this.isRemoved(entity))
                     continue;
 
@@ -159,7 +178,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return;
 
         // Auto stack items
-        for (StackedItem stackedItem : new HashSet<>(this.stackedItems.values())) {
+        for (StackedItem stackedItem : this.stackedItems.values()) {
             Item item = stackedItem.getItem();
             if (item == null || this.isRemoved(item)) {
                 this.removeItemStack(stackedItem);
@@ -171,90 +190,78 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void processNametags() {
-        // Handle dynamic stack tags
-        boolean dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
-        boolean dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
-        boolean dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
-
-        if (!(dynamicEntityTags || dynamicItemTags || dynamicBlockTags))
+        if (!this.dynamicEntityTags && !this.dynamicItemTags && !this.dynamicBlockTags)
             return;
 
-        double entityDynamicViewRange = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE.getDouble();
-        double itemDynamicViewRange = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE.getDouble();
-        double blockSpawnerDynamicViewRange = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
-
-        double entityDynamicViewRangeSqrd = entityDynamicViewRange * entityDynamicViewRange;
-        double itemDynamicViewRangeSqrd = itemDynamicViewRange * itemDynamicViewRange;
-        double blockSpawnerDynamicViewRangeSqrd = blockSpawnerDynamicViewRange * blockSpawnerDynamicViewRange;
-
-        boolean entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-        boolean itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-        boolean blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-
+        // Handle dynamic stack tags
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
-        for (Player player : new ArrayList<>(this.targetWorld.getPlayers())) {
-            if (player.getWorld() != this.targetWorld)
-                continue;
+        List<Entity> entities = this.targetWorld.getEntities();
 
-            ItemStack itemStack = player.getInventory().getItemInMainHand();
-            boolean displayStackingToolParticles = ItemUtils.isStackingTool(itemStack);
-
-            for (Entity entity : new ArrayList<>(NMSAdapter.getHandler().getEntities(this.targetWorld))) {
-                if (entity.getType() == EntityType.PLAYER)
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            for (Player player : this.targetWorld.getPlayers()) {
+                if (player.getWorld() != this.targetWorld)
                     continue;
 
-                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.ARMOR_STAND)
-                        && (entity.getCustomName() == null || !entity.isCustomNameVisible()))
-                    continue;
+                ItemStack itemStack = player.getInventory().getItemInMainHand();
+                boolean displayStackingToolParticles = ItemUtils.isStackingTool(itemStack);
 
-                double distanceSqrd;
-                try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
-                    distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
-                } catch (Exception e) {
-                    continue;
-                }
+                for (Entity entity : entities) {
+                    if (entity.getType() == EntityType.PLAYER)
+                        continue;
 
-                if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
-                    continue;
+                    if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.ARMOR_STAND)
+                            && (entity.getCustomName() == null || !entity.isCustomNameVisible()))
+                        continue;
 
-                boolean visible;
-                if (dynamicEntityTags && (validEntities.contains(entity.getType()))) {
-                    visible = distanceSqrd < entityDynamicViewRangeSqrd;
-                    if (entityDynamicWallDetection)
-                        visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
-                    visible = distanceSqrd < itemDynamicViewRangeSqrd;
-                    if (itemDynamicWallDetection)
-                        visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND) {
-                    visible = distanceSqrd < blockSpawnerDynamicViewRangeSqrd;
-                    if (blockDynamicWallDetection)
-                        visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else continue;
-
-                if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity) {
-                    LivingEntity livingEntity = (LivingEntity) entity;
-                    StackedEntity stackedEntity = this.getStackedEntity(livingEntity);
-                    if (stackedEntity != null)
-                        nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
-
-                    // Spawn particles for holding the stacking tool
-                    if (visible && displayStackingToolParticles) {
-                        Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
-                        DustOptions dustOptions;
-                        if (PersistentDataUtils.isUnstackable(livingEntity)) {
-                            dustOptions = StackerUtils.UNSTACKABLE_DUST_OPTIONS;
-                        } else {
-                            dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;
-                        }
-                        player.spawnParticle(Particle.REDSTONE, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
+                    double distanceSqrd;
+                    try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
+                        distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
+                    } catch (Exception e) {
+                        continue;
                     }
-                } else {
-                    nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
+
+                    if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
+                        continue;
+
+                    boolean visible;
+                    if (this.dynamicEntityTags && (validEntities.contains(entity.getType()))) {
+                        visible = distanceSqrd < this.entityDynamicViewRangeSqrd;
+                        if (this.entityDynamicWallDetection)
+                            visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
+                    } else if (this.dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
+                        visible = distanceSqrd < this.itemDynamicViewRangeSqrd;
+                        if (this.itemDynamicWallDetection)
+                            visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
+                    } else if (this.dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND) {
+                        visible = distanceSqrd < this.blockSpawnerDynamicViewRangeSqrd;
+                        if (this.blockDynamicWallDetection)
+                            visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
+                    } else continue;
+
+                    if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity) {
+                        LivingEntity livingEntity = (LivingEntity) entity;
+                        StackedEntity stackedEntity = this.getStackedEntity(livingEntity);
+                        if (stackedEntity != null)
+                            nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
+
+                        // Spawn particles for holding the stacking tool
+                        if (visible && displayStackingToolParticles) {
+                            Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
+                            DustOptions dustOptions;
+                            if (PersistentDataUtils.isUnstackable(livingEntity)) {
+                                dustOptions = StackerUtils.UNSTACKABLE_DUST_OPTIONS;
+                            } else {
+                                dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;
+                            }
+                            player.spawnParticle(Particle.REDSTONE, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
+                        }
+                    } else {
+                        nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
+                    }
                 }
             }
-        }
+        });
     }
 
     @Override
@@ -822,36 +829,27 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void loadChunk(Chunk chunk) {
-        Runnable entitiesTask = () -> {
-            if (!chunk.isLoaded())
-                return;
+        if (!chunk.isLoaded())
+            return;
 
-            Entity[] entities = chunk.getEntities();
-            if (this.stackManager.isEntityStackingEnabled())
-                this.stackedEntities.putAll(Arrays.stream(entities)
-                        .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
-                        .map(x -> (LivingEntity) x)
-                        .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
-                        .map(DataUtils::readStackedEntity)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
+        Entity[] entities = chunk.getEntities();
+        if (this.stackManager.isEntityStackingEnabled())
+            this.stackedEntities.putAll(Arrays.stream(entities)
+                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
+                    .map(x -> (LivingEntity) x)
+                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
+                    .map(DataUtils::readStackedEntity)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(x -> x.getEntity().getUniqueId(), Function.identity())));
 
-            if (this.stackManager.isItemStackingEnabled())
-                this.stackedItems.putAll(Arrays.stream(entities)
-                        .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
-                        .map(x -> (Item) x)
-                        .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
-                        .map(DataUtils::readStackedItem)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
-        };
-
-        // TODO: Temporary HACK of a "fix" for SPIGOT-6547
-        if (NMSUtil.getVersionNumber() >= 17) {
-            Bukkit.getScheduler().runTaskLater(this.rosePlugin, entitiesTask, 30L);
-        } else {
-            entitiesTask.run();
-        }
+        if (this.stackManager.isItemStackingEnabled())
+            this.stackedItems.putAll(Arrays.stream(entities)
+                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                    .map(x -> (Item) x)
+                    .peek(x -> x.removeMetadata(REMOVED_METADATA, this.rosePlugin))
+                    .map(DataUtils::readStackedItem)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(x -> x.getItem().getUniqueId(), Function.identity())));
 
         Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
         if (this.stackManager.isSpawnerStackingEnabled())

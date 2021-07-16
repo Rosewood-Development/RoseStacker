@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +48,7 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
-import org.bukkit.Chunk;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
@@ -302,7 +301,8 @@ public class NMSHandlerImpl implements NMSHandler {
         net.minecraft.world.entity.monster.Creeper nmsCreeper = ((CraftCreeper) creeper).getHandle();
 
         nmsCreeper.getEntityData().set(value_Creeper_DATA_IS_IGNITED, false);
-        nmsCreeper.swell = nmsCreeper.maxSwell;
+        if (!Bukkit.getBukkitVersion().contains("1.17-"))
+            nmsCreeper.swell = nmsCreeper.maxSwell;
     }
 
     @Override
@@ -376,41 +376,6 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner) {
         return new SpawnerTileWrapperImpl(spawner);
-    }
-
-    @Override
-    public List<org.bukkit.entity.Entity> getEntities(World world) {
-        try {
-            ServerLevel level = ((CraftWorld) world).getHandle();
-            PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(level);
-            List<org.bukkit.entity.Entity> entities = new ArrayList<>();
-            for (Entity entity : entityManager.getEntityGetter().getAll()) {
-                if (entity == null)
-                    continue;
-
-                org.bukkit.entity.Entity bukkitEntity = entity.getBukkitEntity();
-                if (bukkitEntity != null && bukkitEntity.isValid())
-                    entities.add(bukkitEntity);
-            }
-            return entities;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    @Override
-    public List<org.bukkit.entity.Entity> getEntities(Chunk chunk) {
-        try {
-            Location location = new Location(null, 0, 0, 0);
-            return this.getEntities(chunk.getWorld()).stream().filter((entity) -> {
-                entity.getLocation(location);
-                return location.getBlockX() >> 4 == chunk.getX() && location.getBlockZ() >> 4 == chunk.getZ();
-            }).collect(Collectors.toList());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return new ArrayList<>();
-        }
     }
 
     @Override

@@ -168,42 +168,42 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 spawnAmount = spawnerTile.getSpawnCount();
             }
 
-            Set<Location> spawnLocations = new HashSet<>();
-            int spawnRange = spawnerTile.getSpawnRange();
-            for (int i = 0; i < spawnAmount; i++) {
-                int attempts = 0;
-                while (attempts < maxFailedSpawnAttempts) {
-                    int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int yOffset = !spawnersUseVerticalRange ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-
-                    Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
-
-                    Block target = block.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
-
-                    boolean invalid = false;
-                    for (ConditionTag conditionTag : perSpawnConditions) {
-                        if (!conditionTag.check(spawner, stackSettings, target)) {
-                            invalid = true;
-                        } else {
-                            invalidSpawnConditions.remove(conditionTag);
-                        }
-                    }
-
-                    if (invalid) {
-                        attempts++;
-                        continue;
-                    }
-
-                    if (!passedSpawnerChecks)
-                        break;
-
-                    spawnLocations.add(spawnLocation);
-                    break;
-                }
-            }
-
             Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+                Set<Location> spawnLocations = new HashSet<>();
+                int spawnRange = spawnerTile.getSpawnRange();
+                for (int i = 0; i < spawnAmount; i++) {
+                    int attempts = 0;
+                    while (attempts < maxFailedSpawnAttempts) {
+                        int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                        int yOffset = !spawnersUseVerticalRange ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                        int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+
+                        Location spawnLocation = block.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
+
+                        Block target = block.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
+
+                        boolean invalid = false;
+                        for (ConditionTag conditionTag : perSpawnConditions) {
+                            if (!conditionTag.check(spawner, stackSettings, target)) {
+                                invalid = true;
+                            } else {
+                                invalidSpawnConditions.remove(conditionTag);
+                            }
+                        }
+
+                        if (invalid) {
+                            attempts++;
+                            continue;
+                        }
+
+                        if (!passedSpawnerChecks)
+                            break;
+
+                        spawnLocations.add(spawnLocation);
+                        break;
+                    }
+                }
+
                 Predicate<Entity> predicate = entity -> entity.getType() == entityType;
                 Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(spawner.getLocation(), stackSettings.getSpawnRange(), predicate);
                 List<StackedEntity> nearbyStackedEntities = new ArrayList<>();

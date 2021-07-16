@@ -2,9 +2,9 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.cache.ConcurrentCache;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.minecraft.server.level.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -27,14 +28,15 @@ public class EntityCacheManager extends Manager {
     public EntityCacheManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
-        this.entityCache = new ConcurrentCache<>(3, TimeUnit.SECONDS, chunk -> {
+        this.entityCache = new ConcurrentCache<>(5, TimeUnit.SECONDS, chunk -> {
             Collection<Entity> entities = new LinkedBlockingDeque<>();
             try {
                 if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
                     return entities;
-                entities.addAll(NMSAdapter.getHandler().getEntities(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ())));
-            } catch (Exception ignored) {
-                // Do not want this to error
+                // TODO: Cannot make this call async!
+                entities.addAll(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return entities;
         });

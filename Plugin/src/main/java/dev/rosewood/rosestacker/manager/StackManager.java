@@ -13,18 +13,23 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.QueryUtils;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -517,19 +522,32 @@ public class StackManager extends Manager implements StackingLogic {
             if (chunks.isEmpty() && (convertChunks == null || convertChunks.isEmpty()))
                 return;
 
+            Map<UUID, Entity> chunkEntities;
+            if (!chunks.isEmpty()) {
+                chunkEntities = chunks.stream().flatMap(x -> Arrays.stream(x.getEntities())).collect(Collectors.toMap(Entity::getUniqueId, Function.identity()));
+            } else {
+                chunkEntities = Collections.emptyMap();
+            }
+
+            List<Entity> convertChunkEntities;
+            if (convertChunks != null && !convertChunks.isEmpty()) {
+                convertChunkEntities = chunks.stream().flatMap(x -> Arrays.stream(x.getEntities())).collect(Collectors.toList());
+            } else {
+                convertChunkEntities = Collections.emptyList();
+            }
+
             this.processingChunks = true;
             this.processingChunksTime = System.currentTimeMillis();
 
-            Set<Chunk> fConvertChunks = convertChunks;
             Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-                if (fConvertChunks != null && !fConvertChunks.isEmpty())
-                    this.conversionManager.convertChunks(fConvertChunks);
+                if (!convertChunkEntities.isEmpty())
+                    this.conversionManager.convertChunkEntities(convertChunkEntities);
 
                 if (!chunks.isEmpty()) {
                     DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
                     String chunkQuery = QueryUtils.buildChunksWhere(chunks);
                     if (this.isEntityStackingEnabled()) {
-                        dataManager.getStackedEntities(chunks, chunkQuery, stacks -> {
+                        dataManager.getStackedEntities(chunks, chunkEntities, chunkQuery, stacks -> {
                             for (StackedEntity stack : stacks) {
                                 StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                                 if (stackingThread != null)
@@ -539,7 +557,7 @@ public class StackManager extends Manager implements StackingLogic {
                     }
 
                     if (this.isItemStackingEnabled()) {
-                        dataManager.getStackedItems(chunks, chunkQuery, stacks -> {
+                        dataManager.getStackedItems(chunks, chunkEntities, chunkQuery, stacks -> {
                             for (StackedItem stack : stacks) {
                                 StackingThread stackingThread = this.getStackingThread(stack.getWorld());
                                 if (stackingThread != null)
@@ -577,10 +595,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     public void processNametags() {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            for (StackingThread stackingThread : this.stackingThreads.values())
-                stackingThread.processNametags();
-        });
+        for (StackingThread stackingThread : this.stackingThreads.values())
+            stackingThread.processNametags();
     }
 
     /**

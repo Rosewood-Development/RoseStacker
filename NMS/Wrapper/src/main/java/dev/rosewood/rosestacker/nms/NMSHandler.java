@@ -3,11 +3,7 @@ package dev.rosewood.rosestacker.nms;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
-import java.util.Arrays;
-import java.util.List;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -155,26 +151,6 @@ public interface NMSHandler {
      * @return A SpawnerTileWrapper for a CreatureSpawner
      */
     SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner);
-
-    /**
-     * Get a list of all entities in this World
-     *
-     * @param world The world to get the entities from
-     * @return A List of all Entities currently residing in the given world
-     */
-    default List<Entity> getEntities(World world) {
-        return world.getEntities();
-    }
-
-    /**
-     * Get a list of all entities in this Chunk
-     *
-     * @param chunk The chunk to get the entities from
-     * @return A List of all Entities currently residing in the given chunk
-     */
-    default List<Entity> getEntities(Chunk chunk) {
-        return Arrays.asList(chunk.getEntities());
-    }
 
     /**
      * Sets the LivingEntity's lastHurtByPlayer value to the given Player

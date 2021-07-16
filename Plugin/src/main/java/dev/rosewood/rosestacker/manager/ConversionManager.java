@@ -12,16 +12,15 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -130,22 +129,12 @@ public class ConversionManager extends Manager implements Listener {
         return !this.conversionHandlers.isEmpty();
     }
 
-    public void convertChunks(Set<Chunk> chunks) {
-        if (this.conversionHandlers.isEmpty())
-            return;
-
+    public void convertChunkEntities(List<Entity> chunkEntities) {
         Set<StackType> requiredStackTypes = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers)
             requiredStackTypes.add(conversionHandler.getRequiredDataStackType());
 
-        Set<Entity> entities = new HashSet<>();
-        for (Chunk chunk : chunks) {
-            try {
-                entities.addAll(Arrays.asList(chunk.getEntities()));
-            } catch (Exception ignored) { }
-        }
-
-        Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(entities, requiredStackTypes);
+        Map<StackType, Set<ConversionData>> conversionData = this.dataManager.getConversionData(chunkEntities, requiredStackTypes);
 
         Set<Stack<?>> convertedStacks = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers) {
@@ -154,12 +143,12 @@ public class ConversionManager extends Manager implements Listener {
                 data = new HashSet<>();
                 switch (conversionHandler.getRequiredDataStackType()) {
                     case ENTITY:
-                        for (Entity entity : entities)
+                        for (Entity entity : chunkEntities)
                             if (entity.getType() != EntityType.DROPPED_ITEM)
                                 data.add(new ConversionData(entity));
                         break;
                     case ITEM:
-                        for (Entity entity : entities)
+                        for (Entity entity : chunkEntities)
                             if (entity.getType() == EntityType.DROPPED_ITEM)
                                 data.add(new ConversionData(entity));
                         break;

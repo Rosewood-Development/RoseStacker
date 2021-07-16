@@ -44,30 +44,9 @@ public class DataManager extends AbstractDataManager {
         super(rosePlugin);
     }
 
-    public void getStackedEntities(Set<Chunk> chunks, String where, Consumer<Set<StackedEntity>> callback) {
+    public void getStackedEntities(Set<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedEntity>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
-
-        Map<UUID, Entity> chunkEntities = new HashMap<>();
-        for (Chunk chunk : chunks) {
-            List<Entity> fetched = null;
-            try {
-                fetched = NMSAdapter.getHandler().getEntities(chunk);
-            } catch (Exception e) {
-                // Try one more time if it failed the first time
-                try {
-                    fetched = NMSAdapter.getHandler().getEntities(chunk);
-                } catch (Exception e2) {
-                    this.rosePlugin.getLogger().severe("Possible entity stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
-                    e2.printStackTrace();
-                }
-            }
-
-            if (fetched != null)
-                for (Entity entity : fetched)
-                    if (entity != null)
-                        chunkEntities.put(entity.getUniqueId(), entity);
-        }
 
         String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_entity WHERE " + where;
         Set<StackedEntityData> stackedEntityData = new HashSet<>();
@@ -102,30 +81,9 @@ public class DataManager extends AbstractDataManager {
         }
     }
 
-    public void getStackedItems(Set<Chunk> chunks, String where, Consumer<Set<StackedItem>> callback) {
+    public void getStackedItems(Set<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedItem>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
-
-        Map<UUID, Entity> chunkEntities = new HashMap<>();
-        for (Chunk chunk : chunks) {
-            List<Entity> fetched = null;
-            try {
-                fetched = NMSAdapter.getHandler().getEntities(chunk);
-            } catch (Exception e) {
-                // Try one more time if it failed the first time
-                try {
-                    fetched = NMSAdapter.getHandler().getEntities(chunk);
-                } catch (Exception e2) {
-                    this.rosePlugin.getLogger().severe("Possible item stack data loss due to failing to get chunk entities! Please report the following to the plugin author:");
-                    e2.printStackTrace();
-                }
-            }
-
-            if (fetched != null)
-                for (Entity entity : fetched)
-                    if (entity != null)
-                        chunkEntities.put(entity.getUniqueId(), entity);
-        }
 
         String query = "SELECT * FROM " + this.getTablePrefix() + "stacked_item WHERE " + where;
         Set<StackedItemData> stackedItemData = new HashSet<>();
@@ -332,7 +290,7 @@ public class DataManager extends AbstractDataManager {
         });
     }
 
-    public Map<StackType, Set<ConversionData>> getConversionData(Set<Entity> entities, Set<StackType> requiredStackTypes) {
+    public Map<StackType, Set<ConversionData>> getConversionData(List<Entity> entities, Set<StackType> requiredStackTypes) {
         Map<StackType, Set<ConversionData>> conversionData = new HashMap<>();
         if (requiredStackTypes.isEmpty())
             return conversionData;
@@ -348,7 +306,7 @@ public class DataManager extends AbstractDataManager {
         return conversionData;
     }
 
-    private Set<ConversionData> getConversionData(Set<Entity> entities, String tableName, Connection connection) throws SQLException {
+    private Set<ConversionData> getConversionData(List<Entity> entities, String tableName, Connection connection) throws SQLException {
         Set<ConversionData> conversionData = new HashSet<>();
 
         Map<UUID, Entity> entityMap = new HashMap<>();
