@@ -24,7 +24,7 @@ public class WorldListener implements Listener {
 
     public WorldListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
-        this.stackManager = this.rosePlugin.getManager(StackManager.class);;
+        this.stackManager = this.rosePlugin.getManager(StackManager.class);
     }
 
     @EventHandler
@@ -32,30 +32,34 @@ public class WorldListener implements Listener {
         if (this.stackManager.isWorldDisabled(event.getWorld()))
             return;
 
-        if (event.isNewChunk()) {
-            // Stack new entities
-            if (this.stackManager.isEntityStackingEnabled())
+        Runnable task = () -> {
+            if (event.isNewChunk()) {
+                // Stack new entities
+                if (this.stackManager.isEntityStackingEnabled())
+                    for (Entity entity : event.getChunk().getEntities())
+                        if (entity instanceof LivingEntity)
+                            this.stackManager.createEntityStack((LivingEntity) entity, true);
+
+                // Stack new spawners
+                if (this.stackManager.isSpawnerStackingEnabled())
+                    for (BlockState tileEntity : event.getChunk().getTileEntities())
+                        if (tileEntity instanceof CreatureSpawner)
+                            this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
+            } else {
+                // Make sure AI is disabled if it's marked
                 for (Entity entity : event.getChunk().getEntities())
                     if (entity instanceof LivingEntity)
-                        this.stackManager.createEntityStack((LivingEntity) entity, true);
+                        PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-            // Stack new spawners
-            if (this.stackManager.isSpawnerStackingEnabled())
-                for (BlockState tileEntity : event.getChunk().getTileEntities())
-                    if (tileEntity instanceof CreatureSpawner)
-                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
-        } else {
-            // Make sure AI is disabled if it's marked
-            for (Entity entity : event.getChunk().getEntities())
-                if (entity instanceof LivingEntity)
-                    PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
-
-            // TODO: Temporary HACK of a "fix" for SPIGOT-6547
-            if (NMSUtil.getVersionNumber() >= 17) {
-                Bukkit.getScheduler().runTaskLater(this.rosePlugin, () -> this.stackManager.loadChunk(event.getChunk()), 30L);
-            } else {
                 this.stackManager.loadChunk(event.getChunk());
             }
+        };
+
+        // TODO: Temporary HACK of a "fix" for SPIGOT-6547
+        if (NMSUtil.getVersionNumber() >= 17) {
+            Bukkit.getScheduler().runTaskLater(this.rosePlugin, task, 30L);
+        } else {
+            task.run();
         }
     }
 

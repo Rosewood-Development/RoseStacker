@@ -84,7 +84,7 @@ public class StackManager extends Manager implements StackingLogic {
         long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
-            this.autosaveTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::saveAllData, interval, interval);
+            this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::saveAllData, interval, interval);
         }
     }
 
