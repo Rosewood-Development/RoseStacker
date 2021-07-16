@@ -2,17 +2,16 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.utils.cache.ConcurrentCache;
+import dev.rosewood.rosestacker.stack.StackingThread;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.minecraft.server.level.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,29 +21,17 @@ import org.bukkit.util.BoundingBox;
 
 public class EntityCacheManager extends Manager {
 
-    private final ConcurrentCache<ChunkLocation, Collection<Entity>> entityCache;
+    private final Map<ChunkLocation, Collection<Entity>> entityCache;
     private BukkitTask refreshTask;
 
     public EntityCacheManager(RosePlugin rosePlugin) {
         super(rosePlugin);
-
-        this.entityCache = new ConcurrentCache<>(5, TimeUnit.SECONDS, chunk -> {
-            Collection<Entity> entities = new LinkedBlockingDeque<>();
-            try {
-                if (!chunk.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ()))
-                    return entities;
-                // TODO: Cannot make this call async!
-                entities.addAll(Arrays.asList(chunk.getWorld().getChunkAt(chunk.getX(), chunk.getZ()).getEntities()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return entities;
-        });
+        this.entityCache = new ConcurrentHashMap<>();
     }
 
     @Override
     public void reload() {
-        this.refreshTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this.entityCache::refresh, 0L, 20L);
+        this.refreshTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::refresh, 5L, 60L);
     }
 
     @Override
@@ -85,9 +72,13 @@ public class EntityCacheManager extends Manager {
         int minZ = (int) boundingBox.getMinZ() >> 4;
         int maxZ = (int) boundingBox.getMaxZ() >> 4;
 
-        for (int x = minX; x <= maxX; x++)
-            for (int z = minZ; z <= maxZ; z++)
-                nearbyEntities.addAll(this.entityCache.get(new ChunkLocation(world, x, z)));
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world, x, z));
+                if (entities != null)
+                    nearbyEntities.addAll(entities);
+            }
+        }
 
         return nearbyEntities.stream()
                 .filter(Entity::isValid)
@@ -121,9 +112,27 @@ public class EntityCacheManager extends Manager {
      */
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
-        Collection<Entity> entities = this.entityCache.getIfPresent(new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
         if (entities != null)
             entities.add(entity);
+    }
+
+    private void refresh() {
+        synchronized (this.entityCache) {
+            this.entityCache.clear();
+            for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
+                World world = stackingThread.getTargetWorld();
+                for (Entity entity : world.getEntities()) {
+                    ChunkLocation chunkLocation = new ChunkLocation(world, entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
+                    Collection<Entity> entities = this.entityCache.get(chunkLocation);
+                    if (entities == null) {
+                        entities = new LinkedBlockingDeque<>();
+                        this.entityCache.put(chunkLocation, entities);
+                    }
+                    entities.add(entity);
+                }
+            }
+        }
     }
 
     private static class ChunkLocation {
