@@ -47,9 +47,10 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         this.updateDisplay();
     }
 
-    public void increaseStackSize(int amount) {
+    public void increaseStackSize(int amount, boolean updateDisplay) {
         this.size += amount;
-        this.updateDisplay();
+        if (updateDisplay)
+            this.updateDisplay();
     }
 
     public void setStackSize(int size) {

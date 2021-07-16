@@ -480,7 +480,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         StackedItem newStackedItem = new StackedItem(newSize, newItem);
         this.stackedItems.put(newItem.getUniqueId(), newStackedItem);
-        stackedItem.increaseStackSize(-newSize);
+        stackedItem.increaseStackSize(-newSize, true);
         return newStackedItem;
     }
 
@@ -589,7 +589,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
                         stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                 if (matchingEntity.isPresent()) {
-                    matchingEntity.get().increaseStackSize(entity);
+                    matchingEntity.get().increaseStackSize(entity, false);
                 } else {
                     stackedEntities.add(newStack);
                 }
@@ -633,14 +633,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             Optional<StackedItem> matchingItem = stackedItems.stream().filter(x ->
                     x.getItem().getItemStack().isSimilar(itemStack) && x.getStackSize() + itemStack.getAmount() <= x.getStackSettings().getMaxStackSize()).findFirst();
             if (matchingItem.isPresent()) {
-                matchingItem.get().increaseStackSize(itemStack.getAmount());
+                matchingItem.get().increaseStackSize(itemStack.getAmount(), false);
             } else {
                 Item item = location.getWorld().dropItemNaturally(location, itemStack);
                 stackedItems.add(new StackedItem(item.getItemStack().getAmount(), item));
             }
         }
 
-        stackedItems.forEach(this::addItemStack);
+        for (StackedItem stackedItem : stackedItems) {
+            this.addItemStack(stackedItem);
+            stackedItem.updateDisplay();
+        }
+
         this.stackManager.setEntityStackingTemporarilyDisabled(false);
     }
 
@@ -794,7 +798,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (itemStackEvent.isCancelled())
                 continue;
 
-            increased.increaseStackSize(removed.getStackSize());
+            increased.increaseStackSize(removed.getStackSize(), true);
             increased.getItem().setTicksLived(1); // Reset the 5 minute pickup timer
             removed.getItem().setPickupDelay(100); // Don't allow the item we just merged to get picked up or stacked
             increased.getItem().setPickupDelay(5);
@@ -828,11 +832,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         entity.setMetadata(REMOVED_METADATA, new FixedMetadataValue(this.rosePlugin, true));
     }
 
-    public void loadChunk(Chunk chunk) {
+    public void loadChunk(Chunk chunk, Entity[] entities) {
         if (!chunk.isLoaded())
             return;
 
-        Entity[] entities = chunk.getEntities();
         if (this.stackManager.isEntityStackingEnabled())
             this.stackedEntities.putAll(Arrays.stream(entities)
                     .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)

@@ -13,17 +13,14 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.QueryUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -75,7 +72,7 @@ public class StackManager extends Manager implements StackingLogic {
         // Load all existing stacks
         for (StackingThread stackingThread : this.stackingThreads.values()) {
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
-                stackingThread.loadChunk(chunk);
+                stackingThread.loadChunk(chunk, chunk.getEntities());
                 this.pendingLoadChunks.put(chunk, System.nanoTime());
             }
         }
@@ -419,11 +416,12 @@ public class StackManager extends Manager implements StackingLogic {
      * Loads all stacks from a chunk
      *
      * @param chunk the target chunk
+     * @param entities the chunk entities
      */
-    public void loadChunk(Chunk chunk) {
+    public void loadChunk(Chunk chunk, Entity[] entities) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null) {
-            stackingThread.loadChunk(chunk);
+            stackingThread.loadChunk(chunk, entities);
             this.pendingLoadChunks.put(chunk, System.nanoTime());
         }
     }
@@ -504,37 +502,39 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         if (!this.pendingLoadChunks.isEmpty()) {
-            Set<Chunk> chunks = this.pendingLoadChunks.keySet().stream()
-                    .filter(Chunk::isLoaded)
-                    .filter(x -> !PersistentDataUtils.isChunkMigrated(x))
-                    .peek(PersistentDataUtils::setChunkMigrated)
-                    .collect(Collectors.toSet());
+            List<Chunk> chunks = new ArrayList<>();
+            List<Chunk> convertChunks = new ArrayList<>();
+            Map<UUID, Entity> chunkEntities = new HashMap<>();
+            List<Entity> convertChunkEntities = new ArrayList<>();
 
-            Set<Chunk> convertChunks = null;
-            if (this.conversionManager.hasConversions()) {
-                convertChunks = this.pendingLoadChunks.keySet().stream()
-                        .filter(Chunk::isLoaded)
-                        .filter(x -> !PersistentDataUtils.isChunkConverted(x))
-                        .peek(PersistentDataUtils::setChunkConverted)
-                        .collect(Collectors.toSet());
+            for (Chunk chunk : this.pendingLoadChunks.keySet()) {
+                if (!chunk.isLoaded())
+                    continue;
+
+                Map<UUID, Entity> entities = null;
+                if (!PersistentDataUtils.isChunkMigrated(chunk)) {
+                    chunks.add(chunk);
+                    entities = new HashMap<>();
+                    for (Entity entity : chunk.getEntities())
+                        entities.put(entity.getUniqueId(), entity);
+
+                    chunkEntities.putAll(entities);
+                    PersistentDataUtils.setChunkMigrated(chunk);
+                }
+
+                if (this.conversionManager.hasConversions() && !PersistentDataUtils.isChunkConverted(chunk)) {
+                    convertChunks.add(chunk);
+                    if (entities != null) {
+                        convertChunkEntities.addAll(entities.values());
+                    } else {
+                        convertChunkEntities.addAll(Arrays.asList(chunk.getEntities()));
+                    }
+                    PersistentDataUtils.setChunkConverted(chunk);
+                }
             }
 
-            if (chunks.isEmpty() && (convertChunks == null || convertChunks.isEmpty()))
+            if (chunks.isEmpty() && convertChunks.isEmpty())
                 return;
-
-            Map<UUID, Entity> chunkEntities;
-            if (!chunks.isEmpty()) {
-                chunkEntities = chunks.stream().flatMap(x -> Arrays.stream(x.getEntities())).collect(Collectors.toMap(Entity::getUniqueId, Function.identity()));
-            } else {
-                chunkEntities = Collections.emptyMap();
-            }
-
-            List<Entity> convertChunkEntities;
-            if (convertChunks != null && !convertChunks.isEmpty()) {
-                convertChunkEntities = chunks.stream().flatMap(x -> Arrays.stream(x.getEntities())).collect(Collectors.toList());
-            } else {
-                convertChunkEntities = Collections.emptyList();
-            }
 
             this.processingChunks = true;
             this.processingChunksTime = System.currentTimeMillis();

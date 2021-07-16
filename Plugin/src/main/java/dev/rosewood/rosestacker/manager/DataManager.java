@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class DataManager extends AbstractDataManager {
         super(rosePlugin);
     }
 
-    public void getStackedEntities(Set<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedEntity>> callback) {
+    public void getStackedEntities(Collection<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedEntity>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
 
@@ -81,7 +82,7 @@ public class DataManager extends AbstractDataManager {
         }
     }
 
-    public void getStackedItems(Set<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedItem>> callback) {
+    public void getStackedItems(Collection<Chunk> chunks, Map<UUID, Entity> chunkEntities, String where, Consumer<Set<StackedItem>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
 
@@ -118,7 +119,7 @@ public class DataManager extends AbstractDataManager {
         }
     }
 
-    public void getStackedBlocks(Set<Chunk> chunks, String where, Consumer<Set<StackedBlock>> callback) {
+    public void getStackedBlocks(Collection<Chunk> chunks, String where, Consumer<Set<StackedBlock>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
 
@@ -169,7 +170,7 @@ public class DataManager extends AbstractDataManager {
         }
     }
 
-    public void getStackedSpawners(Set<Chunk> chunks, String where, Consumer<Set<StackedSpawner>> callback) {
+    public void getStackedSpawners(Collection<Chunk> chunks, String where, Consumer<Set<StackedSpawner>> callback) {
         if (chunks.isEmpty())
             callback.accept(Collections.emptySet());
 

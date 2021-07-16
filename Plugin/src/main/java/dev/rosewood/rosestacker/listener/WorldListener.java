@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -32,26 +33,31 @@ public class WorldListener implements Listener {
         if (this.stackManager.isWorldDisabled(event.getWorld()))
             return;
 
+        Chunk chunk = event.getChunk();
         Runnable task = () -> {
+            if (!chunk.isLoaded())
+                return;
+
+            Entity[] entities = chunk.getEntities();
             if (event.isNewChunk()) {
                 // Stack new entities
                 if (this.stackManager.isEntityStackingEnabled())
-                    for (Entity entity : event.getChunk().getEntities())
+                    for (Entity entity : entities)
                         if (entity instanceof LivingEntity)
                             this.stackManager.createEntityStack((LivingEntity) entity, true);
 
                 // Stack new spawners
                 if (this.stackManager.isSpawnerStackingEnabled())
-                    for (BlockState tileEntity : event.getChunk().getTileEntities())
+                    for (BlockState tileEntity : chunk.getTileEntities())
                         if (tileEntity instanceof CreatureSpawner)
                             this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
             } else {
                 // Make sure AI is disabled if it's marked
-                for (Entity entity : event.getChunk().getEntities())
+                for (Entity entity : entities)
                     if (entity instanceof LivingEntity)
                         PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-                this.stackManager.loadChunk(event.getChunk());
+                this.stackManager.loadChunk(chunk, entities);
             }
         };
 
