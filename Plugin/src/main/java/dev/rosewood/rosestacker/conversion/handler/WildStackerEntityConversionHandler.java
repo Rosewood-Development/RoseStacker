@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,14 +35,14 @@ public class WildStackerEntityConversionHandler extends ConversionHandler {
 
         for (LivingEntity entity : entities) {
             PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
-            if (dataContainer.has(StackerUtils.CONVERTED_KEY, PersistentDataType.INTEGER))
+            if (dataContainer.has(PersistentDataUtils.CONVERTED_KEY, PersistentDataType.INTEGER))
                 continue;
 
             int stackSize = dataContainer.getOrDefault(STACK_KEY, PersistentDataType.INTEGER, -1);
             if (stackSize == -1)
                 continue;
 
-            dataContainer.set(StackerUtils.CONVERTED_KEY, PersistentDataType.INTEGER, 1);
+            dataContainer.set(PersistentDataUtils.CONVERTED_KEY, PersistentDataType.INTEGER, 1);
             StackedEntity stackedEntity = new StackedEntity(entity, this.createEntityStackNBT(entity.getType(), stackSize, entity.getLocation()));
             this.stackManager.addEntityStack(stackedEntity);
             stacks.add(stackedEntity);

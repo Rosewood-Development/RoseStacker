@@ -22,15 +22,16 @@ public final class PersistentDataUtils {
     private static final String SPAWNED_FROM_SPAWNER_METADATA_NAME = "spawner_spawned";
     private static final String TOTAL_SPAWNS_METADATA_NAME = "total_spawns";
     private static final NamespacedKey MIGRATED_KEY = new NamespacedKey(RoseStacker.getInstance(), "chunk_migrated");
+    public static final NamespacedKey CONVERTED_KEY = new NamespacedKey(RoseStacker.getInstance(), "converted");
 
     public static boolean isChunkConverted(Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
-        return pdc.has(StackerUtils.CONVERTED_KEY, PersistentDataType.INTEGER);
+        return pdc.has(CONVERTED_KEY, PersistentDataType.INTEGER);
     }
 
     public static void setChunkConverted(Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
-        pdc.set(StackerUtils.CONVERTED_KEY, PersistentDataType.INTEGER, 1);
+        pdc.set(CONVERTED_KEY, PersistentDataType.INTEGER, 1);
     }
 
     public static boolean isChunkMigrated(Chunk chunk) {

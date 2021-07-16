@@ -53,8 +53,6 @@ public final class StackerUtils {
 
     private static NumberFormat formatter = NumberFormat.getInstance();
 
-    public static final NamespacedKey CONVERTED_KEY = new NamespacedKey(RoseStacker.getInstance(), "converted");
-
     /**
      * Formats a string from THIS_FORMAT to This Format
      *
