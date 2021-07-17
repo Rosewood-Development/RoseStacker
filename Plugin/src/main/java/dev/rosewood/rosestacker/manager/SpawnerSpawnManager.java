@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -86,9 +84,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
         boolean spawnersUseVerticalRange = Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean();
 
-        Map<Block, StackedSpawner> stackedSpawners = stackManager.getStackedSpawners();
-        for (Entry<Block, StackedSpawner> entry : stackedSpawners.entrySet()) {
-            Block block = entry.getKey();
+        List<StackedSpawner> stackedSpawners = stackManager.getStackedSpawnersList();
+        for (StackedSpawner stackedSpawner : stackedSpawners) {
+            Block block = stackedSpawner.getBlock();
 
             // Make sure the chunk is loaded
             if (!block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4))
@@ -98,7 +96,6 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             if (block.getType() != Material.SPAWNER)
                 continue;
 
-            StackedSpawner stackedSpawner = entry.getValue();
             SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
             SpawnerTileWrapper spawnerTile = stackedSpawner.getSpawnerTile();
             CreatureSpawner spawner = stackedSpawner.getSpawner();

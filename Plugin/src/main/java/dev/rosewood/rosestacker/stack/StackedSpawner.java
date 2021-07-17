@@ -17,6 +17,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -26,6 +27,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private int size;
     private CreatureSpawner spawner;
     private SpawnerTileWrapper spawnerTile;
+    private Block block;
     private Location location;
     private boolean placedByPlayer;
     private StackedSpawnerGui stackedSpawnerGui;
@@ -50,6 +52,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         if (this.spawner != null) {
             this.spawnerTile = NMSAdapter.getHandler().getSpawnerTile(this.spawner);
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
+            this.block = spawner.getBlock();
 
             if (Bukkit.isPrimaryThread()) {
                 this.updateSpawnerProperties(true);
@@ -76,6 +79,12 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     public SpawnerTileWrapper getSpawnerTile() {
         return this.spawnerTile;
+    }
+
+    public Block getBlock() {
+        if (this.block == null)
+            this.block = this.spawner.getBlock();
+        return this.block;
     }
 
     public void kickOutGuiViewers() {

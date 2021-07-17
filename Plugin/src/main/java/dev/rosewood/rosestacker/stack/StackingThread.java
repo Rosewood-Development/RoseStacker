@@ -304,6 +304,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
+    public List<StackedSpawner> getStackedSpawnersList() {
+        List<StackedSpawner> stackedSpawners = new ArrayList<>();
+        for (StackChunkData stackChunkData : this.stackChunkData.values())
+            stackedSpawners.addAll(stackChunkData.getSpawners().values());
+        return stackedSpawners;
+    }
+
+    @Override
     public StackedEntity getStackedEntity(LivingEntity livingEntity) {
         return this.stackedEntities.get(livingEntity.getUniqueId());
     }

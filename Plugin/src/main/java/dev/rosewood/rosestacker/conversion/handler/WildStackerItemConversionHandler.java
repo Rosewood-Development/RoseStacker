@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;

@@ -144,6 +144,13 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
+    public List<StackedSpawner> getStackedSpawnersList() {
+        List<StackedSpawner> stackedSpawners = new ArrayList<>();
+        this.stackingThreads.values().forEach(x -> stackedSpawners.addAll(x.getStackedSpawnersList()));
+        return stackedSpawners;
+    }
+
+    @Override
     public StackedEntity getStackedEntity(LivingEntity livingEntity) {
         StackingThread stackingThread = this.getStackingThread(livingEntity.getWorld());
         if (stackingThread == null)
