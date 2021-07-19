@@ -10,6 +10,7 @@ softdepend:
   - Holograms
   - GHolo
   - CMI
+  - CMILib
   - TrHologram
   - UltimateStacker
   - EpicSpawners
