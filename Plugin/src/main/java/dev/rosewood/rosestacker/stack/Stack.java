@@ -39,7 +39,7 @@ public abstract class Stack<T extends StackSettings> {
             return players;
 
         for (Player player : world.getPlayers())
-            if (player.getLocation().distanceSquared(location) <= StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
+            if (player.getWorld().equals(world) && player.getLocation().distanceSquared(location) <= StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
                 players.add(player);
 
         return players;
