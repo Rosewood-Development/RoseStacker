@@ -184,6 +184,13 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        // Prevent guardians with disabled AI from spiking their attacker
+        if (event.getEntity().getType() == EntityType.PLAYER
+                && event.getDamager() instanceof Guardian
+                && PersistentDataUtils.isAiDisabled((Guardian) event.getDamager())) {
+            event.setCancelled(true);
+        }
+
         if (!(event.getEntity() instanceof LivingEntity) || event.getEntity().getType() == EntityType.PLAYER)
             return;
 
