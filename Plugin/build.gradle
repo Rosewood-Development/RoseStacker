@@ -51,7 +51,7 @@ dependencies {
     compileOnly 'com.gmail.nossr50:mcmmo:2.1.198'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.0.7-SNAPSHOT'
+    api 'dev.rosewood:rosegarden:1.0.7'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
     api 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }
