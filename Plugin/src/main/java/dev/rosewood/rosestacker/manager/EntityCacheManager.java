@@ -99,10 +99,11 @@ public class EntityCacheManager extends Manager {
         if (world == null)
             return new ArrayList<>();
 
-        return this.entityCache.get(new ChunkLocation(world, location.getBlockX() >> 4, location.getBlockZ() >> 4))
-                .stream()
-                .filter(predicate)
-                .collect(Collectors.toSet());
+        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world, location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        if (entities == null)
+            return new ArrayList<>();
+
+        return entities.stream().filter(predicate).collect(Collectors.toSet());
     }
 
     /**
