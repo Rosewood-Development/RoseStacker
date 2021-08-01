@@ -133,6 +133,7 @@ public class InteractListener implements Listener {
                 case SALMON:
                 case PUFFERFISH:
                 case TROPICAL_FISH:
+                case AXOLOTL:
                     break;
                 default: return;
             }
