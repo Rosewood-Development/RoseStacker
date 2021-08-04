@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
@@ -126,7 +127,9 @@ public class EntityListener implements Listener {
 
         LivingEntity entity = (LivingEntity) event.getEntity();
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
-        if (this.stackSettingManager.getSpawnerStackSettings(event.getSpawner()).isMobAIDisabled())
+        StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
+        boolean placedByPlayer = stackedSpawner != null && stackedSpawner.isPlacedByPlayer();
+        if (this.stackSettingManager.getSpawnerStackSettings(event.getSpawner()).isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || placedByPlayer))
             PersistentDataUtils.removeEntityAi(entity);
     }
 

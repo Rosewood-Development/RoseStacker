@@ -266,7 +266,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 if (ageable)
                     ((Ageable) entity).setAdult();
 
-                if (spawner.getStackSettings().isMobAIDisabled())
+                if (spawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || spawner.isPlacedByPlayer()))
                     PersistentDataUtils.removeEntityAi(entity);
                 PersistentDataUtils.tagSpawnedFromSpawner(entity);
 

@@ -87,6 +87,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISPLAY_TAGS_SINGLE("global-spawner-settings.display-tags-single", false, "Should tags be displayed if the stack only has one spawner?"),
         SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT("global-spawner-settings.display-tags-single-amount", false, "Should stacks of size one show the amount on their tags if enabled?"),
         SPAWNER_DISABLE_MOB_AI("global-spawner-settings.disable-mob-ai", false, "Should mob AI be disabled for mobs spawned by spawners?"),
+        SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED("global-spawner-settings.disable-mob-ai-only-player-placed", false, "Should only spawners placed by players spawn mobs with disabled AI?", "disable-mob-ai must be enabled for this to work"),
         SPAWNER_DISABLE_ATTACKING("global-spawner-settings.disable-attacking", false, "Should mobs spawned from spawners be prevented from attacking anything?"),
         SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS("global-spawner-settings.max-failed-spawn-attempts", 50, "How many random blocks should we check to spawn a mob before giving up?"),
         SPAWNER_DEACTIVATE_WHEN_POWERED("global-spawner-settings.deactivate-when-powered", false, "Should spawners turn off when powered by redstone?"),
