@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedBlockGui;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
@@ -62,6 +63,11 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     }
 
     public void openGui(Player player) {
+        StackGUIOpenEvent event = new StackGUIOpenEvent(player, this);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
         if (this.stackedBlockGui == null)
             this.stackedBlockGui = new StackedBlockGui(this);
         this.stackedBlockGui.openFor(player);

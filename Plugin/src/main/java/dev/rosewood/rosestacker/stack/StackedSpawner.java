@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
@@ -105,6 +106,11 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public void openGui(Player player) {
+        StackGUIOpenEvent event = new StackGUIOpenEvent(player, this);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
         if (this.stackedSpawnerGui == null)
             this.stackedSpawnerGui = new StackedSpawnerGui(this);
         this.stackedSpawnerGui.openFor(player);
