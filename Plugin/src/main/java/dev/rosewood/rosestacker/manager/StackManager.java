@@ -65,7 +65,8 @@ public class StackManager extends Manager implements StackingLogic {
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
-        this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
+        if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
+            this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
         this.processingChunks = false;
         this.processingChunksTime = System.currentTimeMillis();
 
@@ -429,7 +430,8 @@ public class StackManager extends Manager implements StackingLogic {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null) {
             stackingThread.loadChunk(chunk, entities);
-            this.pendingLoadChunks.put(chunk, System.nanoTime());
+            if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
+                this.pendingLoadChunks.put(chunk, System.nanoTime());
         }
     }
 
