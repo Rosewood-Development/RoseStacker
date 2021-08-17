@@ -47,8 +47,10 @@ dependencies {
     compileOnly 'io.lumine.xikage:mythicmobs:4.10.0'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
     compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
+    compileOnly 'com.bgsoftware:WildChestsAPI:latest'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.gmail.nossr50:mcmmo:2.1.198'
+    compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
     api 'dev.rosewood:rosegarden:1.0.7'

@@ -47,13 +47,11 @@ public final class RoseStackerAPI {
     private final RoseStacker roseStacker;
     private final StackManager stackManager;
     private final StackSettingManager stackSettingManager;
-    private final DataManager dataManager;
 
     private RoseStackerAPI() {
         this.roseStacker = RoseStacker.getInstance();
         this.stackManager = this.roseStacker.getManager(StackManager.class);
         this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
-        this.dataManager = this.roseStacker.getManager(DataManager.class);
     }
 
     /**

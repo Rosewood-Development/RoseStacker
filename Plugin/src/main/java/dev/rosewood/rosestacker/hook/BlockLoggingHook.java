@@ -21,6 +21,9 @@ public class BlockLoggingHook {
     private static Boolean logBlockEnabled;
     private static Consumer logBlockConsumer;
 
+    /**
+     * @return true if CoreProtect is enabled, false otherwise
+     */
     public static boolean coreProtectEnabled() {
         if (!Setting.MISC_COREPROTECT_LOGGING.getBoolean())
             return false;
@@ -37,6 +40,9 @@ public class BlockLoggingHook {
         }
     }
 
+    /**
+     * @return true if LogBlock is enabled, false otherwise
+     */
     public static boolean logBlockEnabled() {
         if (!Setting.MISC_LOGBLOCK_LOGGING.getBoolean())
             return false;
@@ -53,6 +59,12 @@ public class BlockLoggingHook {
         }
     }
 
+    /**
+     * Records a block place
+     *
+     * @param player The Player that placed the block
+     * @param block The Block that was placed
+     */
     public static void recordBlockPlace(Player player, Block block) {
         if (coreProtectEnabled()) {
             Material type = block.getType();
@@ -68,6 +80,12 @@ public class BlockLoggingHook {
             logBlockConsumer.queueBlockPlace(new Actor(player.getName(), player.getUniqueId()), block.getState());
     }
 
+    /**
+     * Records a block break
+     *
+     * @param player The Player that broke the block
+     * @param block The Block that was broken
+     */
     public static void recordBlockBreak(Player player, Block block) {
         if (coreProtectEnabled()) {
             Material type = block.getType();

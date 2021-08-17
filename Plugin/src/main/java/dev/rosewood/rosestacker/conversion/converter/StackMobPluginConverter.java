@@ -7,7 +7,7 @@ import uk.antiperson.stackmob.StackMob;
 
 public class StackMobPluginConverter extends StackPluginConverter {
 
-    private StackMob stackMob;
+    private final StackMob stackMob;
 
     public StackMobPluginConverter(RosePlugin rosePlugin) {
         super(rosePlugin, "StackMob", StackPlugin.StackMob, ConverterType.STACKMOB);

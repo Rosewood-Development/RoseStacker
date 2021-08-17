@@ -2,16 +2,15 @@ package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.database.DataMigration;
-import dev.rosewood.rosegarden.hook.PlaceholderAPIHook;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
 import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
 import dev.rosewood.rosestacker.database.migrations._4_Alter_Spawner_Table_Player_Placed;
-import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;
+import dev.rosewood.rosestacker.hook.WildChestsStackerProvider;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
@@ -93,10 +92,6 @@ public class RoseStacker extends RosePlugin {
         if (NMSUtil.getVersionNumber() >= 15)
             pluginManager.registerEvents(new BeeListener(this), this);
 
-        // Try to hook with PlaceholderAPI
-        if (PlaceholderAPIHook.enabled())
-            new RoseStackerPlaceholderExpansion(this).register();
-
         // Try to hook with ShopGuiPlus
         Bukkit.getScheduler().runTask(this, () -> {
             if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
@@ -110,6 +105,10 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with ViaVersion
         if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion"))
             ViaVersionHook.suppressMetadataErrors();
+
+        // Try to hook with WildChests
+        if (Bukkit.getPluginManager().isPluginEnabled("WildChests"))
+            WildChestsStackerProvider.register();
 
         // Try fetching the translation locales
         this.getManager(LocaleManager.class).fetchMinecraftTranslationLocales();

@@ -17,7 +17,7 @@ import org.bukkit.World;
 
 public class EpicSpawnersPluginConverter extends StackPluginConverter {
 
-    private EpicSpawners epicSpawners;
+    private final EpicSpawners epicSpawners;
 
     public EpicSpawnersPluginConverter(RosePlugin rosePlugin) {
         super(rosePlugin, "EpicSpawners", StackPlugin.EpicSpawners);

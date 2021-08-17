@@ -29,6 +29,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
@@ -212,9 +213,9 @@ public class EntityListener implements Listener {
 
         AttributeInstance attributeInstance = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (attributeInstance != null) {
-            event.setDamage(attributeInstance.getValue());
+            event.setDamage(attributeInstance.getValue() * 2);
         } else {
-            event.setDamage(entity.getHealth());
+            event.setDamage(entity.getHealth() * 2);
         }
     }
 
@@ -342,6 +343,7 @@ public class EntityListener implements Listener {
         // Decrease stack size by 1
         stackedEntity.updateDisplay();
         stackedEntity.decreaseStackSize();
+        stackedEntity.getEntity().setVelocity(new Vector());
 
         if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean()) {
             stackedEntity.getEntity().setVelocity(entity.getVelocity());

@@ -48,4 +48,9 @@ public class TrHologramHandler implements HologramHandler {
         return false; // TrHologram appears to use packets and therefore does not use entities
     }
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

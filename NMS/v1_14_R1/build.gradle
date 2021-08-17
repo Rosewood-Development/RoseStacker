@@ -1,4 +1,0 @@
-dependencies {
-    compileOnly project(':NMS:Wrapper')
-    compileOnly 'org.spigotmc:spigot:1.14.4'
-}

@@ -23,7 +23,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 public class ItemListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public ItemListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

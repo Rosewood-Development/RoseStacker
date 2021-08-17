@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 
 public class ClearlagListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public ClearlagListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

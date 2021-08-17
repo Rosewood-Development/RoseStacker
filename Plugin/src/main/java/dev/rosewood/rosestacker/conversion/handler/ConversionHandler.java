@@ -20,8 +20,8 @@ public abstract class ConversionHandler {
     protected RosePlugin rosePlugin;
     protected StackManager stackManager;
 
-    private StackType requiredDataStackType;
-    private boolean useChunkEntities;
+    private final StackType requiredDataStackType;
+    private final boolean useChunkEntities;
 
     public ConversionHandler(RosePlugin rosePlugin, StackType requiredDataStackType) {
         this(rosePlugin, requiredDataStackType, false);
@@ -34,12 +34,24 @@ public abstract class ConversionHandler {
         this.useChunkEntities = useChunkEntities;
     }
 
+    /**
+     * Handles the conversion of data
+     *
+     * @param conversionData The conversion data from the other stacker plugin
+     * @return any newly created stacks from the conversion data
+     */
     public abstract Set<Stack<?>> handleConversion(Set<ConversionData> conversionData);
 
+    /**
+     * @return the stack type that this conversion handler handles
+     */
     public StackType getRequiredDataStackType() {
         return this.requiredDataStackType;
     }
 
+    /**
+     * @return true if the conversion data set of {@link #handleConversion(Set)} should be populated with all chunk entities
+     */
     public boolean shouldUseChunkEntities() {
         return this.useChunkEntities;
     }

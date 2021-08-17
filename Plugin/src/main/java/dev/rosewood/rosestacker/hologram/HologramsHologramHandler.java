@@ -88,4 +88,9 @@ public class HologramsHologramHandler implements HologramHandler {
         return this.holograms.stream().anyMatch(id::equals);
     }
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

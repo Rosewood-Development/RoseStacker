@@ -25,7 +25,7 @@ import org.bukkit.block.Block;
 
 public class UltimateStackerPluginConverter extends StackPluginConverter {
 
-    private UltimateStacker ultimateStacker;
+    private final UltimateStacker ultimateStacker;
 
     public UltimateStackerPluginConverter(RosePlugin rosePlugin) {
         super(rosePlugin, "UltimateStacker", StackPlugin.UltimateStacker, ConverterType.ENTITY, ConverterType.ULTIMATESTACKER);

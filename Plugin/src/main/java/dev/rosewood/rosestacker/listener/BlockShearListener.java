@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class BlockShearListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public BlockShearListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

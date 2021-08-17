@@ -7,10 +7,10 @@ import org.bukkit.entity.LivingEntity;
 
 public class ConversionData {
 
-    private LivingEntity entity;
-    private Item item;
-    private int stackSize;
-    private UUID uuid;
+    private final LivingEntity entity;
+    private final Item item;
+    private final int stackSize;
+    private final UUID uuid;
 
     private ConversionData(LivingEntity entity, Item item, int stackSize, UUID uuid) {
         this.entity = entity;
@@ -33,18 +33,30 @@ public class ConversionData {
         this(entity, -1);
     }
 
+    /**
+     * @return the LivingEntity this data holds, or null if there is none
+     */
     public LivingEntity getEntity() {
         return this.entity;
     }
 
+    /**
+     * @return the Item this data holds, or null if there is none
+     */
     public Item getItem() {
         return this.item;
     }
 
+    /**
+     * @return the stack size this data holds
+     */
     public int getStackSize() {
         return this.stackSize;
     }
 
+    /**
+     * @return the UUID of the LivingEntity or Item that this data holds
+     */
     public UUID getUniqueId() {
         return this.uuid;
     }

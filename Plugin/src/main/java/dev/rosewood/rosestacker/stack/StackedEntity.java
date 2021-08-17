@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -159,6 +160,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
+        DataUtils.clearStackedEntityData(oldEntity);
         return new StackedEntity(oldEntity, NMSAdapter.getHandler().createCompactNBT(oldEntity));
     }
 

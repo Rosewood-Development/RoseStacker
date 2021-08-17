@@ -54,4 +54,9 @@ public class GHoloHologramHandler implements HologramHandler {
                 .anyMatch(x -> x.equals(entity.getUniqueId()));
     }
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

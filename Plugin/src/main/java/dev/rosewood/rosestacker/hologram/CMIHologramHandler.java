@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.hologram;
 import com.Zrips.CMI.CMI;
 import com.Zrips.CMI.Modules.Holograms.CMIHologram;
 import com.Zrips.CMI.Modules.Holograms.HologramManager;
+import com.Zrips.CMI.Modules.ModuleHandling.CMIModule;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +55,11 @@ public class CMIHologramHandler implements HologramHandler {
     @Override
     public boolean isHologram(Entity entity) {
         return false; // CMI Holograms appear to use packets and therefore do not use entities
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return CMIModule.holograms.isEnabled();
     }
 
 }

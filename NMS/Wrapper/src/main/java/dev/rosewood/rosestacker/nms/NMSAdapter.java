@@ -14,10 +14,16 @@ public final class NMSAdapter {
         } catch (Exception ignored) { }
     }
 
+    /**
+     * @return true if this server version is supported, false otherwise
+     */
     public static boolean isValidVersion() {
         return nmsHandler != null;
     }
 
+    /**
+     * @return the instance of the NMSHandler, or null if this server version is not supported
+     */
     public static NMSHandler getHandler() {
         return nmsHandler;
     }

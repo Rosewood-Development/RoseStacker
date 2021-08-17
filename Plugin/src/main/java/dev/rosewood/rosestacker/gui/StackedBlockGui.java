@@ -50,12 +50,20 @@ public class StackedBlockGui {
         this.guiContainer = null;
     }
 
+    /**
+     * Opens the GUI for a player
+     *
+     * @param player The player to open the GUI for
+     */
     public void openFor(Player player) {
         if (this.isInvalid())
             this.buildGui();
         this.guiContainer.openFor(player);
     }
 
+    /**
+     * Builds the GUI from scratch
+     */
     private void buildGui() {
         this.guiContainer = GuiFactory.createContainer();
 
@@ -152,15 +160,27 @@ public class StackedBlockGui {
         this.guiFramework.getGuiManager().registerGui(this.guiContainer);
     }
 
+    /**
+     * Forcefully closes the GUI for all viewers
+     */
     public void kickOutViewers() {
         if (this.guiContainer != null)
             this.guiContainer.closeViewers();
     }
 
+    /**
+     * @return true if this GUI has any viewers, false otherwise
+     */
     public boolean hasViewers() {
         return this.guiContainer != null;
     }
 
+    /**
+     * Updates the StackedBlock with the changed item contents
+     *
+     * @param player The Player that finalized the change
+     * @param items The Items that are inside the StackedBlock
+     */
     private void updateStackedBlock(Player player, List<ItemStack> items) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
 
@@ -207,6 +227,12 @@ public class StackedBlockGui {
         }
     }
 
+    /**
+     * Takes away items from a Player
+     *
+     * @param player The Player to take items from
+     * @param amount The number of items to take
+     */
     private void takeFromPlayer(Player player, int amount) {
         int toRemove = amount;
         Inventory playerInventory = player.getInventory();
@@ -226,16 +252,26 @@ public class StackedBlockGui {
         }
     }
 
+    /**
+     * Destroys the StackedBlock and drops all its items either onto the ground or a player inventory
+     *
+     * @param player The Player that destroyed the stack
+     */
     private void destroyStackedBlock(Player player) {
         this.kickOutViewers();
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+            BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
+            Bukkit.getPluginManager().callEvent(blockUnstackEvent);
+            if (blockUnstackEvent.isCancelled())
+                return;
+
             List<ItemStack> itemsToDrop;
             if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
-                itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
+                itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount());
             } else {
-                itemsToDrop = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize()));
+                itemsToDrop = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount()));
             }
 
             if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
@@ -244,14 +280,19 @@ public class StackedBlockGui {
                 stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation());
             }
 
-            this.stackedBlock.setStackSize(0);
-            stackManager.removeBlockStack(this.stackedBlock);
-            this.stackedBlock.getBlock().setType(Material.AIR);
+            this.stackedBlock.setStackSize(this.stackedBlock.getStackSize() - blockUnstackEvent.getDecreaseAmount());
+            if (this.stackedBlock.getStackSize() <= 0) {
+                stackManager.removeBlockStack(this.stackedBlock);
+                this.stackedBlock.getBlock().setType(Material.AIR);
 
-            this.stackedBlock.getBlock().getWorld().playSound(this.stackedBlock.getBlock().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.1F, 0.01F);
+                this.stackedBlock.getBlock().getWorld().playSound(this.stackedBlock.getBlock().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.1F, 0.01F);
+            }
         });
     }
 
+    /**
+     * @return true if the GUI needs to be rebuilt, false otherwise
+     */
     private boolean isInvalid() {
         return this.guiContainer == null || !this.guiFramework.getGuiManager().getActiveGuis().contains(this.guiContainer);
     }

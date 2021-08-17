@@ -22,8 +22,8 @@ public abstract class StackPluginConverter {
 
     protected RosePlugin rosePlugin;
     protected Plugin plugin;
-    private StackPlugin stackPlugin;
-    private Set<ConverterType> converterTypes;
+    private final StackPlugin stackPlugin;
+    private final Set<ConverterType> converterTypes;
 
     public StackPluginConverter(RosePlugin rosePlugin, String pluginName, StackPlugin stackPlugin, ConverterType... converterTypes) {
         this.rosePlugin = rosePlugin;
@@ -32,20 +32,37 @@ public abstract class StackPluginConverter {
         this.converterTypes = new HashSet<>(Arrays.asList(converterTypes));
     }
 
+    /**
+     * @return true if this converter can be used, false otherwise
+     */
     public boolean canConvert() {
         return this.plugin != null && this.plugin.isEnabled();
     }
 
+    /**
+     * Disables the plugin that this converter converts from
+     */
     public void disablePlugin() {
         Bukkit.getPluginManager().disablePlugin(this.plugin);
     }
 
+    /**
+     * @return the types of stacks that this converter can convert from
+     */
     public Set<ConverterType> getConverterTypes() {
         return this.converterTypes;
     }
 
+    /**
+     * Runs the conversion
+     */
     public abstract void convert();
 
+    /**
+     * Adds stack types that are blocked by the conflicting convert plugin, if any
+     *
+     * @param config The config to add values to
+     */
     public void configureLockFile(CommentedFileConfiguration config) {
         if (this.plugin == null || config.isConfigurationSection(this.plugin.getName()))
             return;
@@ -55,12 +72,26 @@ public abstract class StackPluginConverter {
             configurationSection.set("lock-" + stackType.name().toLowerCase() + "-stacking", true);
     }
 
+    /**
+     * Checks if stacking for a specific type is blocked due to a confliction with this convert plugin
+     *
+     * @param config The config to read values from
+     * @param stackType The stack type to check
+     * @return true if stacking for the given type is blocked, false otherwise
+     */
     public boolean isStackingLocked(CommentedFileConfiguration config, StackType stackType) {
         if (this.plugin == null || !this.plugin.isEnabled() || !this.stackPlugin.getStackTypes().contains(stackType))
             return false;
         return config.getConfigurationSection(this.plugin.getName()).getBoolean("lock-" + stackType.name().toLowerCase() + "-stacking");
     }
 
+    /**
+     * Parses a Location string and character separator into a Location
+     *
+     * @param locationString The location string
+     * @param separator The character separator
+     * @return the parsed Location, or null if the location string was invalid
+     */
     protected Location parseLocation(String locationString, char separator) {
         String[] pieces = locationString.split(Pattern.quote(String.valueOf(separator)));
         if (pieces.length != 4)

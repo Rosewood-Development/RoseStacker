@@ -13,6 +13,7 @@ allprojects {
     repositories {
         mavenCentral()
 
+        maven { url = 'https://repo.bg-software.com/repository/api/' }
         maven { url = 'https://bitbucket.org/kangarko/libraries/raw/master' }
         maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://repo.md-5.net/content/repositories/public/' }
@@ -39,9 +40,6 @@ allprojects {
 dependencies {
     implementation project(':Plugin')
     implementation project(':NMS:Wrapper')
-    implementation project(':NMS:v1_14_R1')
-    implementation project(':NMS:v1_15_R1')
-    implementation project(':NMS:v1_16_R1')
     implementation project(':NMS:v1_16_R2')
     implementation project(':NMS:v1_16_R3')
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')

@@ -64,4 +64,9 @@ public class HolographicDisplaysHologramHandler implements HologramHandler {
         return this.holograms.values().stream().anyMatch(target::equals);
     }
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

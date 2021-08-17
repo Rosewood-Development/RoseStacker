@@ -35,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class InteractListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public InteractListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

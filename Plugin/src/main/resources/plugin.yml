@@ -11,6 +11,7 @@ softdepend:
   - GHolo
   - CMI
   - CMILib
+  - Vault
   - TrHologram
   - UltimateStacker
   - EpicSpawners
@@ -27,8 +28,10 @@ softdepend:
   - EpicBosses
   - EliteMobs
   - Boss
+  - WildChests
   - WorldGuard
   - mcMMO
+  - RoseLoot
 permissions:
   rosestacker.*:
     description: Inherits all plugin permissions

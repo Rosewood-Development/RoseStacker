@@ -37,6 +37,9 @@ public class HologramManager extends Manager {
             if (Bukkit.getPluginManager().isPluginEnabled(handler.getKey())) {
                 try {
                     this.hologramHandler = handler.getValue().getConstructor().newInstance();
+                    if (!this.hologramHandler.isEnabled())
+                        continue;
+
                     this.rosePlugin.getLogger().info(String.format("%s is being used as the Hologram Handler.", handler.getKey()));
                     break;
                 } catch (Exception ex) {

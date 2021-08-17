@@ -78,6 +78,9 @@ public class ConversionManager extends Manager implements Listener {
         this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "convert-lock-conflictions");
     }
 
+    /**
+     * Loads any convert locks for conflicting stacker plugins and writes them to the lock file
+     */
     private void loadConvertLocks() {
         File convertLockFile = new File(this.rosePlugin.getDataFolder(), FILE_NAME);
         if (!convertLockFile.exists()) {
@@ -103,6 +106,12 @@ public class ConversionManager extends Manager implements Listener {
         this.convertLockConfig.save();
     }
 
+    /**
+     * Attempts to run the conversion for the given StackPlugin
+     *
+     * @param stackPlugin The StackPlugin to attempt to convert
+     * @return true if the conversion was successful, false otherwise
+     */
     public boolean convert(StackPlugin stackPlugin) {
         StackPluginConverter converter = this.converters.get(stackPlugin);
         if (!converter.canConvert())
@@ -125,10 +134,18 @@ public class ConversionManager extends Manager implements Listener {
         return true;
     }
 
+    /**
+     * @return true if any conversion handlers are loaded
+     */
     public boolean hasConversions() {
         return !this.conversionHandlers.isEmpty();
     }
 
+    /**
+     * Runs the chunk data conversion for any conversion handlers
+     *
+     * @param chunkEntities The entities in the chunk to convert
+     */
     public void convertChunkEntities(List<Entity> chunkEntities) {
         Set<StackType> requiredStackTypes = new HashSet<>();
         for (ConversionHandler conversionHandler : this.conversionHandlers)
@@ -170,6 +187,9 @@ public class ConversionManager extends Manager implements Listener {
             Bukkit.getScheduler().runTask(this.rosePlugin, () -> convertedStacks.forEach(Stack::updateDisplay));
     }
 
+    /**
+     * @return a set of StackPlugins that have enabled converters
+     */
     public Set<StackPlugin> getEnabledConverters() {
         return this.converters.entrySet().stream()
                 .filter(x -> x.getValue().canConvert())
@@ -177,10 +197,16 @@ public class ConversionManager extends Manager implements Listener {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * @return a set of ConversionHandlers to run when a chunk loads
+     */
     public Set<ConversionHandler> getEnabledHandlers() {
         return Collections.unmodifiableSet(this.conversionHandlers);
     }
 
+    /**
+     * @return true if entity stacking is prevented by a convert lock, false otherwise
+     */
     public boolean isEntityStackingLocked() {
         if (this.convertLockConfig == null)
             return false;
@@ -190,6 +216,9 @@ public class ConversionManager extends Manager implements Listener {
                 .anyMatch(x -> x.isStackingLocked(this.convertLockConfig, StackType.ENTITY));
     }
 
+    /**
+     * @return true if item stacking is prevented by a convert lock, false otherwise
+     */
     public boolean isItemStackingLocked() {
         if (this.convertLockConfig == null)
             return false;
@@ -199,6 +228,9 @@ public class ConversionManager extends Manager implements Listener {
                 .anyMatch(x -> x.isStackingLocked(this.convertLockConfig, StackType.ITEM));
     }
 
+    /**
+     * @return true if block stacking is prevented by a convert lock, false otherwise
+     */
     public boolean isBlockStackingLocked() {
         if (this.convertLockConfig == null)
             return false;
@@ -208,6 +240,9 @@ public class ConversionManager extends Manager implements Listener {
                 .anyMatch(x -> x.isStackingLocked(this.convertLockConfig, StackType.BLOCK));
     }
 
+    /**
+     * @return true if spawner stacking is prevented by a convert lock, false otherwise
+     */
     public boolean isSpawnerStackingLocked() {
         if (this.convertLockConfig == null)
             return false;

@@ -27,6 +27,12 @@ public class RaidListener implements Listener {
         activeRaids.remove(event.getRaid());
     }
 
+    /**
+     * Checks if a LivingEntity is part of a raid
+     *
+     * @param entity The LivingEntity to check
+     * @return true if the LivingEntity is part of a raid, false otherwise
+     */
     public static boolean isActiveRaider(LivingEntity entity) {
         if (NMSUtil.getVersionNumber() < 14 || !(entity instanceof Raider))
             return false;

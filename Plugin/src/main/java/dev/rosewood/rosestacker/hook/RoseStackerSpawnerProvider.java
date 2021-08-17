@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class RoseStackerSpawnerProvider implements ExternalSpawnerProvider {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public RoseStackerSpawnerProvider(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

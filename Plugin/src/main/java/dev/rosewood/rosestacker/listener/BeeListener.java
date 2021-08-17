@@ -13,7 +13,7 @@ import org.bukkit.event.entity.EntityEnterBlockEvent;
 
 public class BeeListener implements Listener {
 
-    private RosePlugin rosePlugin;
+    private final RosePlugin rosePlugin;
 
     public BeeListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;

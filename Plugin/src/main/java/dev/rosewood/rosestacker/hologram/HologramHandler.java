@@ -33,4 +33,9 @@ public interface HologramHandler {
      */
     boolean isHologram(Entity entity);
 
+    /**
+     * @return true if this hologram handler plugin is enabled, false otherwise
+     */
+    boolean isEnabled();
+
 }

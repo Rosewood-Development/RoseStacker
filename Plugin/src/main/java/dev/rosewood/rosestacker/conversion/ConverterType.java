@@ -25,6 +25,9 @@ public enum ConverterType {
         this.conversionHandler = conversionHandler;
     }
 
+    /**
+     * @return a newly created ConversionHandler instance for this type
+     */
     public ConversionHandler getConversionHandler() {
         try {
             return this.conversionHandler.getConstructor(RosePlugin.class).newInstance(RoseStacker.getInstance());
@@ -34,8 +37,14 @@ public enum ConverterType {
         }
     }
 
+    /**
+     * Gets a ConverterType by its name
+     *
+     * @param name The name of the ConverterType
+     * @return The ConverterType, or null if not found
+     */
     public static ConverterType get(String name) {
-        if (name.toUpperCase().equals("ULTIMATESTACKER_ENTITY")) { // legacy compatibility with pre-1.1.4 versions
+        if (name.equalsIgnoreCase("ULTIMATESTACKER_ENTITY")) { // legacy compatibility with pre-1.1.4 versions
             return ConverterType.ULTIMATESTACKER;
         } else {
             try {

@@ -48,12 +48,20 @@ public class StackedSpawnerGui {
         this.guiContainer = null;
     }
 
+    /**
+     * Opens the GUI for a player
+     *
+     * @param player The player to open the GUI for
+     */
     public void openFor(Player player) {
         if (this.isInvalid())
             this.buildGui();
         this.guiContainer.openFor(player);
     }
 
+    /**
+     * Builds the GUI from scratch
+     */
     private void buildGui() {
         this.guiContainer = GuiFactory.createContainer()
                 .setTickRate(Setting.SPAWNER_GUI_TICK_UPDATE_RATE.getInt());
@@ -187,19 +195,38 @@ public class StackedSpawnerGui {
         this.guiFramework.getGuiManager().registerGui(this.guiContainer);
     }
 
+    /**
+     * Gets a spawner GUI string for one of the condition properties
+     *
+     * @param key The key in the locale file
+     * @param placeholders Placeholders to be replaced
+     * @return the GuiString to be displayed on the ItemStack
+     */
     private GuiString getString(String key, StringPlaceholders placeholders) {
         return GuiFactory.createString(this.localeManager.getLocaleMessage("gui-stacked-spawner-" + key, placeholders));
     }
 
+    /**
+     * Gets a spawner GUI string for one of the condition properties
+     *
+     * @param key The key in the locale file
+     * @return the GuiString to be displayed on the ItemStack
+     */
     private GuiString getString(String key) {
         return this.getString(key, StringPlaceholders.empty());
     }
 
+    /**
+     * Forcefully closes the GUI for all viewers
+     */
     public void kickOutViewers() {
         if (this.guiContainer != null)
             this.guiContainer.closeViewers();
     }
 
+    /**
+     * @return true if the GUI needs to be rebuilt, false otherwise
+     */
     private boolean isInvalid() {
         return this.guiContainer == null || !this.guiFramework.getGuiManager().getActiveGuis().contains(this.guiContainer);
     }

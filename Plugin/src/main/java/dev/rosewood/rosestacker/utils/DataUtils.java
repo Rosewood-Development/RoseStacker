@@ -87,6 +87,10 @@ public final class DataUtils {
             pdc.set(ENTITY_KEY, PersistentDataType.BYTE_ARRAY, data);
     }
 
+    public static void clearStackedEntityData(LivingEntity entity) {
+        entity.getPersistentDataContainer().remove(ENTITY_KEY);
+    }
+
     public static StackedItem readStackedItem(Item item) {
         PersistentDataContainer pdc = item.getPersistentDataContainer();
 

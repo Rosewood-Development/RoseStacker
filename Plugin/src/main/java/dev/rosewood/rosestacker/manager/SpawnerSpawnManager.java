@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.hook.McMMOHook;
+import dev.rosewood.rosestacker.hook.SpawnerSpawnedFlagHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -261,7 +261,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
                 LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location);
-                McMMOHook.flagSpawnerSpawned(entity);
+                SpawnerSpawnedFlagHook.flagSpawnerSpawned(entity);
 
                 if (ageable)
                     ((Ageable) entity).setAdult();
@@ -324,7 +324,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
 
                     LivingEntity entity = (LivingEntity) world.spawnEntity(location, entityType);
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
-                    McMMOHook.flagSpawnerSpawned(entity);
+                    SpawnerSpawnedFlagHook.flagSpawnerSpawned(entity);
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, spawner.getSpawner());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);

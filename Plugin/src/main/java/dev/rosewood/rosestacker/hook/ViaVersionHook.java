@@ -2,6 +2,10 @@ package dev.rosewood.rosestacker.hook;
 
 public class ViaVersionHook {
 
+    /**
+     * Edits the ViaVersion config to suppress metadata errors.
+     * This is here because our dynamic nametag system will spam the console with messages without this.
+     */
     public static void suppressMetadataErrors() {
         // ViaVersion has changed its package name in the newer dev builds
         boolean oldPackage;

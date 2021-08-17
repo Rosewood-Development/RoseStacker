@@ -27,6 +27,9 @@ public enum StackPlugin {
         this.stackTypes = Arrays.asList(stackTypes);
     }
 
+    /**
+     * @return a newly created StackPluginConverter for this StackPlugin
+     */
     public StackPluginConverter getConverter() {
         try {
             return this.converterClass.getConstructor(RosePlugin.class).newInstance(RoseStacker.getInstance());
@@ -36,6 +39,9 @@ public enum StackPlugin {
         }
     }
 
+    /**
+     * @return the StackTypes that this StackPlugin is capable of converting
+     */
     public List<StackType> getStackTypes() {
         return Collections.unmodifiableList(this.stackTypes);
     }

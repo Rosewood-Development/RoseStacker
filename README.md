@@ -12,4 +12,4 @@ If there's anything we left out, you have a question, you want to report a bug, 
 ### Server Compatibility
 RoseStacker is compatible with [Spigot](https://www.spigotmc.org/) and any forks.  We recommend using [Paper](https://papermc.io/) to run your server.  CraftBukkit servers will not be compatible with the plugin.
 
-We support Minecraft versions 1.14.4 and newer.
+We support Minecraft versions 1.16.3 and newer.

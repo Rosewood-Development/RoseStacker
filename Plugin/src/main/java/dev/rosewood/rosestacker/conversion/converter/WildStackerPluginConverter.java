@@ -25,7 +25,7 @@ import org.bukkit.block.CreatureSpawner;
 
 public class WildStackerPluginConverter extends StackPluginConverter {
 
-    private WildStackerPlugin wildStacker;
+    private final WildStackerPlugin wildStacker;
 
     public WildStackerPluginConverter(RosePlugin rosePlugin) {
         super(rosePlugin, "WildStacker", StackPlugin.WildStacker, ConverterType.WS_ENTITY, ConverterType.WS_ITEM);

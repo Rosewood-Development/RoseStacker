@@ -24,6 +24,8 @@ public class WorldGuardFlagHook {
 
     /**
      * UNCHECKED! Call {@link WorldGuardHook#testLocation}}
+     *
+     * @param location The Location to test
      */
     public static boolean testLocation(Location location) {
         if (!ConfigurationManager.Setting.MISC_WORLDGUARD_REGION.getBoolean())
