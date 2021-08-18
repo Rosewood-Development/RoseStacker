@@ -38,6 +38,11 @@ public class BreedingListener implements Listener {
         if (!animal.canBreed())
             return;
 
+        if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {
+            event.setCancelled(true);
+            return;
+        }
+
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isEntityStackingEnabled())
             return;

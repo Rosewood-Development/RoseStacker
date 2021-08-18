@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import org.bukkit.Chunk;
@@ -107,14 +108,20 @@ public final class PersistentDataUtils {
 
     public static void applyDisabledAi(LivingEntity entity) {
         if (isAiDisabled(entity)) {
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            nmsHandler.removeEntityGoals(entity);
-            entity.setSilent(true);
+            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.getBoolean()) {
+                NMSHandler nmsHandler = NMSAdapter.getHandler();
+                nmsHandler.removeEntityGoals(entity);
+            }
 
-            // Make the entity unable to take knockback
-            AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-            if (knockbackAttribute != null)
-                knockbackAttribute.setBaseValue(Double.MAX_VALUE);
+            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_SILENCE.getBoolean())
+                entity.setSilent(true);
+
+            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK.getBoolean()) {
+                // Make the entity unable to take knockback
+                AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+                if (knockbackAttribute != null)
+                    knockbackAttribute.setBaseValue(Double.MAX_VALUE);
+            }
         }
     }
 
