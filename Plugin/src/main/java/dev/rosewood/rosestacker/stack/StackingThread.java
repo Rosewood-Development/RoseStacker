@@ -141,7 +141,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             // Auto unstack entities
             if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
                 for (StackedEntity stackedEntity : this.stackedEntities.values())
-                    if (!stackedEntity.shouldStayStacked())
+                    if (!stackedEntity.shouldStayStacked() && stackedEntity.getEntity().isValid())
                         Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                             if (stackedEntity.getStackSize() > 1)
                                 this.splitEntityStack(stackedEntity);
