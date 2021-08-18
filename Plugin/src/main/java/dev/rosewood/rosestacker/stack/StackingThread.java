@@ -14,6 +14,8 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.CompactNBT;
+import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -34,7 +36,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -139,13 +140,25 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             }
 
             // Auto unstack entities
-            if (!this.stackManager.isEntityUnstackingTemporarilyDisabled())
-                for (StackedEntity stackedEntity : this.stackedEntities.values())
-                    if (!stackedEntity.shouldStayStacked() && stackedEntity.getEntity().isValid())
+            if (!this.stackManager.isEntityUnstackingTemporarilyDisabled()) {
+                boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
+                for (StackedEntity stackedEntity : this.stackedEntities.values()) {
+                    if (!stackedEntity.shouldStayStacked() && stackedEntity.getEntity().isValid()) {
                         Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                             if (stackedEntity.getStackSize() > 1)
                                 this.splitEntityStack(stackedEntity);
                         });
+                    } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
+                        NMSHandler nmsHandler = NMSAdapter.getHandler();
+                        CompactNBT nbt = stackedEntity.getStackedEntityNBT();
+                        stackedEntity.setStackedEntityNBT(nmsHandler.createCompactNBT(stackedEntity.getEntity()));
+                        Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                            for (WrappedNBT<?> wrappedNBT : nbt.getAll())
+                                nmsHandler.createEntityFromNBT(wrappedNBT, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
+                        });
+                    }
+                }
+            }
         });
 
         // Run entity stacking half as often as the unstacking

@@ -182,7 +182,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType overwriteType) {
+    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType entityType) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -190,7 +190,7 @@ public class NMSHandlerImpl implements NMSHandler {
             dataInput.readUTF();
 
             // Read NBT
-            return this.createEntityFromNBT(new WrappedNBTImpl(NBTCompressedStreamTools.a((InputStream) dataInput)), location, false, overwriteType);
+            return this.createEntityFromNBT(new WrappedNBTImpl(NBTCompressedStreamTools.a((InputStream) dataInput)), location, false, entityType);
         } catch (Exception e) {
             e.printStackTrace();
         }

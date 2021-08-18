@@ -29,10 +29,10 @@ public interface NMSHandler {
      * @param serialized entity
      * @param location to spawn the entity at
      * @param addToWorld whether or not to add the entity to the world
-     * @param overwriteType entity type to use over the serialized type, nullable
+     * @param entityType entity type to create and apply the serialized nbt over
      * @return the entity spawned from the NBT
      */
-    LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType overwriteType);
+    LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**
      * Deserializes and creates a LivingEntity from compressed NBT data.
@@ -40,10 +40,10 @@ public interface NMSHandler {
      *
      * @param serialized entity
      * @param location to spawn the entity at
-     * @param overwriteType entity type to use over the serialized type, nullable
+     * @param entityType entity type to create and apply the serialized nbt over
      * @return the entity spawned from the NBT
      */
-    LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType overwriteType);
+    LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType entityType);
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world

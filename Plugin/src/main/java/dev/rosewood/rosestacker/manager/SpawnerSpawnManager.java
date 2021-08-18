@@ -302,8 +302,9 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                 }
                 this.stackManager.setEntityStackingTemporarilyDisabled(false);
 
-                // Spawn particles for new entities
+                // Spawn particles for new entities and update nametags
                 for (StackedEntity entity : newStacks) {
+                    entity.updateDisplay();
                     World world = entity.getLocation().getWorld();
                     if (world != null)
                         world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);

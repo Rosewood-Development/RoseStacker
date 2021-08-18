@@ -29,7 +29,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;

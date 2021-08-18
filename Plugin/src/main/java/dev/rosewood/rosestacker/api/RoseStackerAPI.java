@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.api;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;

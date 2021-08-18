@@ -28,6 +28,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_MERGE_RADIUS("global-entity-settings.merge-radius", 5, "How close do entities need to be to merge with each other?"),
         ENTITY_MERGE_ENTIRE_CHUNK("global-entity-settings.merge-entire-chunk", false, "Should we merge all similar entities into a single stack per chunk?", "This setting overrides the above"),
         ENTITY_MIN_STACK_COUNT_ONLY_INDIVIDUALS("global-entity-settings.min-stack-count-only-individuals", false, "Should only individual entities be counted for the min-stack-size requirement?", "When false, an existing stack larger than min-stack-size can have other mobs stack into it"),
+        ENTITY_MIN_SPLIT_IF_LOWER("global-entity-settings.min-split-if-lower", false, "Should entity stacks split into individual mobs if the stack size goes below the min-stack-size setting?"),
         ENTITY_DISPLAY_TAGS("global-entity-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         ENTITY_DISPLAY_TAGS_SINGLE("global-entity-settings.display-tags-single", false, "Should tags be displayed if the stack only has one entity?"),
         ENTITY_DISPLAY_TAGS_HOVER("global-entity-settings.display-tags-hover", false, "Do stacks need to be hovered over for their tags to be visible?"),
