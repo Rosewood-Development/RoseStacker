@@ -164,6 +164,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
                 "&bShift Right Click:",
                 "&7- &eMark an entire entity stack as unstackable.",
                 "&7- &eThis will cause everything to unstack.",
+                "&7- &eIf used on a spawner, will cause it to spawn instantly.",
                 "&bWhile Held:",
                 "&7- &eA particle will appear above nearby mobs.",
                 "&7- &aGreen &emeans the mob can stack.",

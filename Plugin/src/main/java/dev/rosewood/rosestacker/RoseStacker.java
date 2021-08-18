@@ -74,8 +74,6 @@ public class RoseStacker extends RosePlugin {
             return;
         }
 
-        StackerUtils.clearCache();
-
         // Register listeners
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new BlockListener(this), this);
@@ -112,6 +110,12 @@ public class RoseStacker extends RosePlugin {
 
         // Try fetching the translation locales
         this.getManager(LocaleManager.class).fetchMinecraftTranslationLocales();
+    }
+
+    @Override
+    public void reload() {
+        super.reload();
+        StackerUtils.clearCache();
     }
 
     @Override

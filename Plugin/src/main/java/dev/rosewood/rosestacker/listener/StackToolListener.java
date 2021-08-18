@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -260,6 +262,27 @@ public class StackToolListener implements Listener {
                         .addPlaceholder("y", clickedBlock.getY()).addPlaceholder("z", clickedBlock.getZ()).addPlaceholder("world", clickedBlock.getWorld().getName()).build());
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", clickedBlock.getChunk().getX())
                         .addPlaceholder("z", clickedBlock.getChunk().getZ()).build());
+            }
+        }
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Block clickedBlock = event.getClickedBlock();
+            if (clickedBlock == null || clickedBlock.getType() != Material.SPAWNER)
+                return;
+
+            CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
+            creatureSpawner.setDelay(5);
+            creatureSpawner.update();
+
+            int points = 50;
+            for (int i = 0; i < points; i++) {
+                double dx = Math.cos(Math.PI * 2 * ((double) i / points)) * 0.25;
+                double dy = 0.5;
+                double dz = Math.sin(Math.PI * 2 * ((double) i / points)) * 0.25;
+                double angle = Math.atan2(dz, dx);
+                double xAng = Math.cos(angle);
+                double zAng = Math.sin(angle);
+                clickedBlock.getWorld().spawnParticle(Particle.END_ROD, clickedBlock.getLocation().add(0.5 + dx, dy, 0.5 + dz), 0, xAng, 0, zAng, 0.15);
             }
         }
 
