@@ -94,6 +94,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISABLE_MOB_AI_OPTIONS_SILENCE("global-spawner-settings.disable-mob-ai-options.silence", true, "Should mobs be silenced so they don't make any sounds?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK("global-spawner-settings.disable-mob-ai-options.no-knockback", true, "Should knockback be disabled?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING("global-spawner-settings.disable-mob-ai-options.disable-breeding", true, "Should mobs with disabled AI be able to breed?"),
+        SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH("global-spawner-settings.disable-mob-ai-options.kill-entire-stack-on-death", false, "Should the entire stack of mobs be killed on death?", "This will only apply to mobs with disabled AI and overwrites any other settings."),
         SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED("global-spawner-settings.disable-mob-ai-only-player-placed", false, "Should only spawners placed by players spawn mobs with disabled AI?", "disable-mob-ai must be enabled for this to work"),
         SPAWNER_DISABLE_ATTACKING("global-spawner-settings.disable-attacking", false, "Should mobs spawned from spawners be prevented from attacking anything?"),
         SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS("global-spawner-settings.max-failed-spawn-attempts", 50, "How many random blocks should we check to spawn a mob before giving up?"),

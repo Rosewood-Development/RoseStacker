@@ -320,6 +320,7 @@ public class EntityListener implements Listener {
         // Should we kill the entire stack at once?
         EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
         if (useLastDamageCause && (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
+                || (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.getBoolean() && PersistentDataUtils.isAiDisabled(entity))
                 || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name()))))) {
 
             if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
