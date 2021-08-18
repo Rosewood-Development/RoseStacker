@@ -586,7 +586,7 @@ public class BlockListener implements Listener {
                     }
                     stackAmount = spawnerStackEvent.getIncreaseAmount();
                 } else {
-                    stackedSpawner = stackManager.createSpawnerStack(against, 1, true);
+                    stackedSpawner = stackManager.createSpawnerStack(against, 1, false);
 
                     SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, true);
                     Bukkit.getPluginManager().callEvent(spawnerStackEvent);
