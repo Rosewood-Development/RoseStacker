@@ -644,7 +644,7 @@ public class BlockListener implements Listener {
                 } else {
                     stackedBlock = stackManager.createBlockStack(against, 1);
 
-                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount, true);
+                    BlockStackEvent blockStackEvent = new BlockStackEvent(player, stackedBlock, stackAmount, false);
                     Bukkit.getPluginManager().callEvent(blockStackEvent);
                     if (blockStackEvent.isCancelled()) {
                         event.setCancelled(true);
