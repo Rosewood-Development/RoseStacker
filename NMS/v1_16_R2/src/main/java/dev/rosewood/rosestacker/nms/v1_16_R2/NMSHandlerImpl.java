@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.nms.v1_16_R2;
 
 import com.google.common.collect.Lists;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
@@ -88,6 +89,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_PathfinderGoalSelector_d; // Field to get a PathfinderGoalSelector of an insentient entity, normally private
     private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
 
+    private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
+
     static {
         try {
             field_PacketPlayOutEntityMetadata_a = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "a");
@@ -101,6 +104,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_PathfinderGoalSelector_d = ReflectionUtils.getFieldByName(PathfinderGoalSelector.class, "d");
             field_EntityInsentient_moveController = ReflectionUtils.getFieldByName(EntityInsentient.class, "moveController");
+
+            if (NMSAdapter.isPaper())
+                field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -199,7 +205,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location) {
+    public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
             return null;
@@ -216,7 +222,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 null,
                 null,
                 new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                EnumMobSpawn.SPAWN_EGG
+                this.toNmsSpawnReason(spawnReason)
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
@@ -239,6 +245,12 @@ public class NMSHandlerImpl implements NMSHandler {
         if (newEntity == null) {
             return null;
         } else {
+            if (field_Entity_spawnReason != null) {
+                try {
+                    field_Entity_spawnReason.set(newEntity, this.toBukkitSpawnReason(enummobspawn));
+                } catch (IllegalAccessException ignored) { }
+            }
+
             newEntity.setPositionRotation(blockposition.getX() + 0.5D, blockposition.getY(), blockposition.getZ() + 0.5D, MathHelper.g(worldserver.random.nextFloat() * 360.0F), 0.0F);
             if (newEntity instanceof EntityInsentient) {
                 EntityInsentient entityinsentient = (EntityInsentient)newEntity;
@@ -424,6 +436,28 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public CompactNBT loadCompactNBT(byte[] data) {
         return new CompactNBTImpl(data);
+    }
+
+    private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {
+        switch (mobSpawnType) {
+            case SPAWN_EGG:
+                return SpawnReason.SPAWNER_EGG;
+            case SPAWNER:
+                return SpawnReason.SPAWNER;
+            default:
+                return SpawnReason.CUSTOM;
+        }
+    }
+
+    private EnumMobSpawn toNmsSpawnReason(SpawnReason spawnReason) {
+        switch (spawnReason) {
+            case SPAWNER_EGG:
+                return EnumMobSpawn.SPAWN_EGG;
+            case SPAWNER:
+                return EnumMobSpawn.SPAWNER;
+            default:
+                return EnumMobSpawn.COMMAND;
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.nms.v1_17_R1;
 
 import com.google.common.collect.Lists;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
@@ -56,6 +57,7 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftMob;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
@@ -77,6 +79,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
 
+    private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -84,6 +88,8 @@ public class NMSHandlerImpl implements NMSHandler {
             field_GoalSelector_availableGoals = ReflectionUtils.getFieldByPositionAndType(GoalSelector.class, 0, Set.class);
             field_Mob_moveControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, MoveControl.class);
             field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
+            if (NMSAdapter.isPaper())
+                field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -179,7 +185,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location) {
+    public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
             return null;
@@ -196,7 +202,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 null,
                 null,
                 new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                MobSpawnType.SPAWN_EGG
+                this.toNmsSpawnReason(spawnReason)
         );
 
         return nmsEntity == null ? null : (LivingEntity) nmsEntity.getBukkitEntity();
@@ -218,6 +224,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
         if (newEntity == null)
             return null;
+
+        if (field_Entity_spawnReason != null) {
+            try {
+                field_Entity_spawnReason.set(newEntity, this.toBukkitSpawnReason(mobSpawnType));
+            } catch (IllegalAccessException ignored) { }
+        }
 
         newEntity.moveTo(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, Mth.wrapDegrees(world.random.nextFloat() * 360.0F), 0.0F);
         if (newEntity instanceof Mob) {
@@ -392,6 +404,28 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public CompactNBT loadCompactNBT(byte[] data) {
         return new CompactNBTImpl(data);
+    }
+
+    private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {
+        switch (mobSpawnType) {
+            case SPAWN_EGG:
+                return SpawnReason.SPAWNER_EGG;
+            case SPAWNER:
+                return SpawnReason.SPAWNER;
+            default:
+                return SpawnReason.CUSTOM;
+        }
+    }
+
+    private MobSpawnType toNmsSpawnReason(SpawnReason spawnReason) {
+        switch (spawnReason) {
+            case SPAWNER_EGG:
+                return MobSpawnType.SPAWN_EGG;
+            case SPAWNER:
+                return MobSpawnType.SPAWNER;
+            default:
+                return MobSpawnType.COMMAND;
+        }
     }
 
 }

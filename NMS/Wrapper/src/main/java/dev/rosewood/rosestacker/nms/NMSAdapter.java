@@ -28,4 +28,16 @@ public final class NMSAdapter {
         return nmsHandler;
     }
 
+    /**
+     * @return true if the server is running Paper or a fork of Paper, false otherwise
+     */
+    public static boolean isPaper() {
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
 }

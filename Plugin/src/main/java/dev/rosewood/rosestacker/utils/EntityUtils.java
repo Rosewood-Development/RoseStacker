@@ -17,6 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.Lootable;
@@ -149,7 +150,7 @@ public final class EntityUtils {
 
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
-            boundingBox = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0)).getBoundingBox();
+            boundingBox = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0), CreatureSpawnEvent.SpawnReason.CUSTOM).getBoundingBox();
             cachedBoundingBoxes.put(entityType, boundingBox);
         }
 

@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.stack.StackType;
 import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 /**
  * Handles converting data that we weren't able to without having specific locations
@@ -66,9 +67,9 @@ public abstract class ConversionHandler {
      */
     protected CompactNBT createEntityStackNBT(EntityType entityType, int amount, Location location) {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        CompactNBT compactNBT = nmsHandler.createCompactNBT(nmsHandler.createNewEntityUnspawned(entityType, location));
+        CompactNBT compactNBT = nmsHandler.createCompactNBT(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
         for (int i = 0; i < amount - 1; i++)
-            compactNBT.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location));
+            compactNBT.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
 
         return compactNBT;
     }

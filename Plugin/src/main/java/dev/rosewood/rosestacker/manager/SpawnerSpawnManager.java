@@ -260,7 +260,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location);
+                LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
                 SpawnerSpawnedFlagHook.flagSpawnerSpawned(entity);
 
                 if (ageable)

@@ -103,7 +103,10 @@ public class EntityCacheManager extends Manager {
         if (entities == null)
             return new ArrayList<>();
 
-        return entities.stream().filter(predicate).collect(Collectors.toSet());
+        return entities.stream()
+                .filter(Entity::isValid)
+                .filter(predicate)
+                .collect(Collectors.toSet());
     }
 
     /**
