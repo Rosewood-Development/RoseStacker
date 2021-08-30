@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
@@ -537,6 +538,8 @@ public abstract class EntityStackSettings extends StackSettings {
             // Aging counts down until it reaches 0, at which it still stop and is capable of breeding
             stackedAnimals.setAge(unstackedAnimals.getAge());
         }
+
+        SpawnerFlagPersistenceHook.copyPersistence(unstacked, stacked);
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
     }
