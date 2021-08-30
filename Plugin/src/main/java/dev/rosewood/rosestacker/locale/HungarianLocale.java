@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class EnglishLocale implements Locale {
+public class HungarianLocale implements Locale {
 
     @Override
     public String getLocaleName() {
