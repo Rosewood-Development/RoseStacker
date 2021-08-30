@@ -51,9 +51,9 @@ public class EnglishLocale implements Locale {
 
             this.put("#5", "Give Command");
             this.put("command-give-description", "&8 - &d/rs give &7- Ad előre stackelt tárgyakat");
-            this.put("command-give-usage", "&cHasználat: &e/rs give <block|spawner|entity> <játékos> <típus> [stackMéret] [mennyiség]");
+            this.put("command-give-usage", "&cHasználat: &e/rs give <blokk|spawner|entitás> <játékos> <típus> [stackMéret] [mennyiség]");
             this.put("command-give-given", "&eAdtál &b%player% &e[%display%&e].");
-            this.put("command-give-given-multiple", "&eAdtál &b%player%-nek/nak &e%amount%x [%display%&e].");
+            this.put("command-give-given-multiple", "&eAdtál &b%player%-nak/nek &e%amount%x [%display%&e].");
             this.put("command-give-unstackable", "&cA típus amit megadtál nem stackelhető.");
             this.put("command-give-too-large", "&cA mennyiség amit megadtál nagyobb mint a maximum stack méret ennél a típusnál.");
 
