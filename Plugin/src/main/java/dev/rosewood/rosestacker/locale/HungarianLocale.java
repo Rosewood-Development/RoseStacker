@@ -224,8 +224,8 @@ public class HungarianLocale implements Locale {
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra és/vagy legyen jogod felszedni anélkül a spawnert. Egyébként nem fogod tudni felszedni.");
-            this.put("spawner-advanced-place-no-permission", "&cFigyelmeztetés! &eNincs jogod lerakni ezt a típusu spawnert.");
-            this.put("spawner-advanced-break-no-permission", "&cFigyelmeztetés! &eNincs jogod felszedni ezt a típusu spawnert.");
+            this.put("spawner-advanced-place-no-permission", "&cFigyelmeztetés! &eNincs jogod lerakni ezt a típusú spawnert.");
+            this.put("spawner-advanced-break-no-permission", "&cFigyelmeztetés! &eNincs jogod felszedni ezt a típusú spawnert.");
             this.put("spawner-advanced-break-silktouch-no-permission", "&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra hogy felszed ezt a típusu spawnert.");
             this.put("spawner-convert-not-enough", "&cFigyelmeztetés! &eNem sikerült megváltoztatni a spawnert az Idéző Tojásokkal. Nem fogsz a kezedben elegendő mennyiségű Idéző Tojást.");
             this.put("number-separator", ",");
