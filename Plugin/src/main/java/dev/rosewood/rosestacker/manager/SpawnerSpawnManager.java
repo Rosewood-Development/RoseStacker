@@ -100,7 +100,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             SpawnerTileWrapper spawnerTile = stackedSpawner.getSpawnerTile();
             CreatureSpawner spawner = stackedSpawner.getSpawner();
             if (redstoneSpawners) {
-                boolean isPowered = block.isBlockPowered();
+                boolean isPowered = block.isBlockIndirectlyPowered();
                 boolean wasPowered = stackedSpawner.isPowered();
                 boolean changed = false;
                 if (isPowered && !wasPowered) {
