@@ -98,8 +98,8 @@ public class EntityListener implements Listener {
             return;
 
         if (entity instanceof Item) {
-            this.stackManager.createItemStack((Item) entity, true);
             this.entityCacheManager.preCacheEntity(entity);
+            this.stackManager.createItemStack((Item) entity, true);
         }
     }
 
@@ -113,11 +113,10 @@ public class EntityListener implements Listener {
             return;
 
         PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
+        this.entityCacheManager.preCacheEntity(entity);
         this.stackManager.createEntityStack(entity, true);
 
         PersistentDataUtils.applyDisabledAi(entity);
-
-        this.entityCacheManager.preCacheEntity(entity);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

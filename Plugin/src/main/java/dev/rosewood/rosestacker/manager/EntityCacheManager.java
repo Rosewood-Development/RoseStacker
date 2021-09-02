@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
@@ -116,9 +117,13 @@ public class EntityCacheManager extends Manager {
      */
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
-        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
-        if (entities != null)
-            entities.add(entity);
+        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+        Collection<Entity> entities = this.entityCache.get(chunkLocation);
+        if (entities == null) {
+            entities = new LinkedBlockingDeque<>();
+            this.entityCache.put(chunkLocation, entities);
+        }
+        entities.add(entity);
     }
 
     private void refresh() {
@@ -127,6 +132,10 @@ public class EntityCacheManager extends Manager {
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
                 for (Entity entity : world.getEntities()) {
+                    EntityType type = entity.getType();
+                    if (type != EntityType.DROPPED_ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                        continue;
+
                     ChunkLocation chunkLocation = new ChunkLocation(world, entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
                     Collection<Entity> entities = this.entityCache.get(chunkLocation);
                     if (entities == null) {

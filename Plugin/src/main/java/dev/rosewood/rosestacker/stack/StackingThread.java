@@ -63,6 +63,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     private final static int CLEANUP_TIMER_TARGET = 10;
     private final static String REMOVED_METADATA = "RS_removed";
+    private final static String NEW_METADATA = "RS_new";
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
@@ -516,8 +517,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
         this.stackedEntities.put(livingEntity.getUniqueId(), newStackedEntity);
 
-        if (tryStack && Setting.ENTITY_INSTANT_STACK.getBoolean())
+        if (tryStack && Setting.ENTITY_INSTANT_STACK.getBoolean()) {
+            livingEntity.setMetadata(NEW_METADATA, new FixedMetadataValue(this.rosePlugin, true));
             this.tryStackEntity(newStackedEntity);
+            livingEntity.removeMetadata(NEW_METADATA, this.rosePlugin);
+        }
 
         return newStackedEntity;
     }
@@ -530,8 +534,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
         this.stackedItems.put(item.getUniqueId(), newStackedItem);
 
-        if (tryStack)
+        if (tryStack) {
+            item.setMetadata(NEW_METADATA, new FixedMetadataValue(this.rosePlugin, true));
             this.tryStackItem(newStackedItem);
+            item.removeMetadata(NEW_METADATA, this.rosePlugin);
+        }
 
         return newStackedItem;
     }
@@ -846,7 +853,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private boolean isRemoved(Entity entity) {
-        return entity == null || !entity.isValid() || entity.hasMetadata(REMOVED_METADATA);
+        return entity == null || (!entity.isValid() && !entity.hasMetadata(NEW_METADATA)) || entity.hasMetadata(REMOVED_METADATA);
     }
 
     private void setRemoved(Entity entity) {
