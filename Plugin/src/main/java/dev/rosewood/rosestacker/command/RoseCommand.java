@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 @CommandAlias("rs|rosestacker|stacker")
+@CommandPermission("rosestacker.basecommand")
 public class RoseCommand extends BaseCommand {
 
     protected final RosePlugin rosePlugin;
