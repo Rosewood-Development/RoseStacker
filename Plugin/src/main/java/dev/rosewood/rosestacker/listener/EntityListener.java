@@ -282,7 +282,7 @@ public class EntityListener implements Listener {
             return;
 
         // Don't allow mobs to naturally burn in the daylight if their AI is disabled
-        if (PersistentDataUtils.isAiDisabled((LivingEntity) entity))
+        if (PersistentDataUtils.isAiDisabled((LivingEntity) entity) && !Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_UNDEAD_BURN_IN_DAYLIGHT.getBoolean())
             event.setCancelled(true);
     }
 
