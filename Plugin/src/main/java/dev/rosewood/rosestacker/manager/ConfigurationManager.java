@@ -91,6 +91,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISABLE_MOB_AI("global-spawner-settings.disable-mob-ai", false, "Should mob AI be disabled for mobs spawned by spawners?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS("global-spawner-settings.disable-mob-ai-options", null, "Options to apply to mobs with disabled AI"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS("global-spawner-settings.disable-mob-ai-options.remove-goals", true, "Should mob goals be removed? This includes movement and targeting"),
+        SPAWNER_DISABLE_MOB_AI_OPTIONS_UNDEAD_BURN_IN_DAYLIGHT("global-spawner-settings.disable-mob-ai-options.undead-burn-in-daylight", false, "Should undead mobs be able to burn in the daylight?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_SILENCE("global-spawner-settings.disable-mob-ai-options.silence", true, "Should mobs be silenced so they don't make any sounds?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK("global-spawner-settings.disable-mob-ai-options.no-knockback", true, "Should knockback be disabled?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING("global-spawner-settings.disable-mob-ai-options.disable-breeding", true, "Should mobs with disabled AI be able to breed?"),
