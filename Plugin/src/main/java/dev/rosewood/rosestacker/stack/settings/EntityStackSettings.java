@@ -539,7 +539,7 @@ public abstract class EntityStackSettings extends StackSettings {
             stackedAnimals.setAge(unstackedAnimals.getAge());
         }
 
-        SpawnerFlagPersistenceHook.copyPersistence(unstacked, stacked);
+        SpawnerFlagPersistenceHook.setPersistence(stacked);
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
     }

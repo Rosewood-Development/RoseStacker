@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.compat.layers.persistentdata.MobMetaFlagType;
 import dev.rosewood.roseloot.util.LootUtils;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -62,17 +63,15 @@ public class SpawnerFlagPersistenceHook {
     }
 
     /**
-     * Copies spawner flag persistence from one mob to another
+     * Set's the LivingEntity's spawner persistence state if it was spawned from a spawner
      *
-     * @param from The entity to transfer from
-     * @param to The entity to transfer to
+     * @param entity The entity to set the persistence state of
      */
-    public static void copyPersistence(LivingEntity from, LivingEntity to) {
-        if (jobsEnabled() && from.hasMetadata("jobsMobSpawner")) {
+    public static void setPersistence(LivingEntity entity) {
+        if (jobsEnabled() && PersistentDataUtils.isSpawnedFromSpawner(entity)) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
-            if (jobsPlugin != null) {
-                to.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
-            }
+            if (jobsPlugin != null)
+                entity.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
         }
     }
 
