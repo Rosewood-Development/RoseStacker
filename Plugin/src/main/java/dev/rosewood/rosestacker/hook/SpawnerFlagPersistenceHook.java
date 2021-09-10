@@ -68,7 +68,13 @@ public class SpawnerFlagPersistenceHook {
      * @param entity The entity to set the persistence state of
      */
     public static void setPersistence(LivingEntity entity) {
-        if (jobsEnabled() && PersistentDataUtils.isSpawnedFromSpawner(entity)) {
+        if (!PersistentDataUtils.isSpawnedFromSpawner(entity))
+            return;
+
+        if (mcMMOEnabled())
+            mcMMO.getCompatibilityManager().getPersistentDataLayer().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+
+        if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
