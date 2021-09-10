@@ -128,18 +128,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         // Auto stack entities
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            if (this.entityStackSwitch) {
-                for (StackedEntity stackedEntity : this.stackedEntities.values()) {
-                    LivingEntity livingEntity = stackedEntity.getEntity();
-                    if (this.isRemoved(livingEntity)) {
-                        this.removeEntityStack(stackedEntity);
-                        continue;
-                    }
-
-                    this.tryStackEntity(stackedEntity);
-                }
-            }
-
             // Auto unstack entities
             if (!this.stackManager.isEntityUnstackingTemporarilyDisabled()) {
                 boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
@@ -158,6 +146,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                                 nmsHandler.createEntityFromNBT(wrappedNBT, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
                         });
                     }
+                }
+            }
+
+            if (this.entityStackSwitch) {
+                for (StackedEntity stackedEntity : this.stackedEntities.values()) {
+                    LivingEntity livingEntity = stackedEntity.getEntity();
+                    if (this.isRemoved(livingEntity)) {
+                        this.removeEntityStack(stackedEntity);
+                        continue;
+                    }
+
+                    this.tryStackEntity(stackedEntity);
                 }
             }
         });

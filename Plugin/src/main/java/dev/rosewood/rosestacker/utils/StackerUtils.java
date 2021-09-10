@@ -193,7 +193,7 @@ public final class StackerUtils {
     public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
         CompactNBT compactNBT = NMSAdapter.getHandler().createCompactNBT(stackedEntity.getEntity());
         for (LivingEntity livingEntity : livingEntities)
-            compactNBT.addFirst(livingEntity);
+            compactNBT.addLast(livingEntity);
         stackedEntity.setStackedEntityNBT(compactNBT);
     }
 
