@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.gui;
 
 import dev.rosewood.guiframework.GuiFactory;
 import dev.rosewood.guiframework.GuiFramework;
+import dev.rosewood.guiframework.framework.gui.FrameworkView;
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.guiframework.gui.ClickAction;
 import dev.rosewood.guiframework.gui.GuiButtonFlag;
@@ -59,6 +60,12 @@ public class StackedBlockGui {
         if (this.isInvalid())
             this.buildGui();
         this.guiContainer.openFor(player);
+        // TODO: Add support for switching the currently viewed page directly to GuiFramework instead, this works for now
+        FrameworkView view = (FrameworkView) this.guiContainer.getCurrentViewers().get(player.getUniqueId());
+        if (view != null) {
+            view.setViewingPage(view.getViewingScreen().getMaximumPageNumber() - 1);
+            player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
+        }
     }
 
     /**
