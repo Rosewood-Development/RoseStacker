@@ -33,26 +33,15 @@ public class HologramManager extends Manager {
 
     @Override
     public void reload() {
-        for (Map.Entry<String, Class<? extends HologramHandler>> handler : this.hologramHandlers.entrySet()) {
-            if (Bukkit.getPluginManager().isPluginEnabled(handler.getKey())) {
-                try {
-                    this.hologramHandler = handler.getValue().getConstructor().newInstance();
-                    if (!this.hologramHandler.isEnabled())
-                        continue;
-
-                    this.rosePlugin.getLogger().info(String.format("%s is being used as the Hologram Handler.", handler.getKey()));
-                    break;
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+        if (!this.attemptLoad()) {
+            Bukkit.getScheduler().runTaskLater(this.rosePlugin, () -> {
+                if (!this.attemptLoad()) {
+                    String validPlugins = String.join(", ", this.hologramHandlers.keySet());
+                    this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
+                            "If you want stack tags to be displayed above stacked spawners or blocks, " +
+                            "please install one of the following plugins: [" + validPlugins + "]");
                 }
-            }
-        }
-
-        if (this.hologramHandler == null) {
-            String validPlugins = String.join(", ", this.hologramHandlers.keySet());
-            this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
-                    "If you want stack tags to be displayed above stacked spawners or blocks, " +
-                    "please install one of the following plugins: [" + validPlugins + "]");
+            }, 1);
         }
     }
 
@@ -62,6 +51,24 @@ public class HologramManager extends Manager {
             this.hologramHandler.deleteAllHolograms();
             this.hologramHandler = null;
         }
+    }
+
+    private boolean attemptLoad() {
+        for (Map.Entry<String, Class<? extends HologramHandler>> handler : this.hologramHandlers.entrySet()) {
+            if (Bukkit.getPluginManager().isPluginEnabled(handler.getKey())) {
+                try {
+                    this.hologramHandler = handler.getValue().getConstructor().newInstance();
+                    if (!this.hologramHandler.isEnabled())
+                        continue;
+
+                    this.rosePlugin.getLogger().info(String.format("%s is being used as the Hologram Handler.", handler.getKey()));
+                    return true;
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return false;
     }
 
     /**
