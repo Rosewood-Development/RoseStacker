@@ -12,8 +12,12 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.locale.DutchLocale;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
+import dev.rosewood.rosestacker.locale.FilipinoLocale;
 import dev.rosewood.rosestacker.locale.GermanLocale;
+import dev.rosewood.rosestacker.locale.HungarianLocale;
+import dev.rosewood.rosestacker.locale.RomanianLocale;
 import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
+import dev.rosewood.rosestacker.locale.TraditionalChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.InputStreamReader;
@@ -49,8 +53,12 @@ public class LocaleManager extends AbstractLocaleManager {
         return Arrays.asList(
                 new DutchLocale(),
                 new EnglishLocale(),
+                new FilipinoLocale(),
                 new GermanLocale(),
-                new SimplifiedChineseLocale()
+                new HungarianLocale(),
+                new RomanianLocale(),
+                new SimplifiedChineseLocale(),
+                new TraditionalChineseLocale()
         );
     }
 
