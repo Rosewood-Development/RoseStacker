@@ -351,15 +351,11 @@ public class BlockListener implements Listener {
         boolean stackedBlockProtection = Setting.BLOCK_EXPLOSION_PROTECTION.getBoolean() && stackManager.isBlockStackingEnabled();
         boolean stackedSpawnerProtection = Setting.SPAWNER_EXPLOSION_PROTECTION.getBoolean() && stackManager.isSpawnerStackingEnabled();
 
-        if (stackedSpawnerProtection) {
+        if (stackedSpawnerProtection)
             blockList.removeIf(stackManager::isSpawnerStacked);
-            return;
-        }
 
-        if (stackedBlockProtection) {
+        if (stackedBlockProtection)
             blockList.removeIf(stackManager::isBlockStacked);
-            return;
-        }
 
         for (Block block : new ArrayList<>(blockList)) {
             if (stackManager.isBlockStacked(block)) {
