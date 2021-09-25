@@ -238,6 +238,11 @@ public final class ItemUtils {
         return 1;
     }
 
+    public static boolean hasStoredStackSize(ItemStack itemStack) {
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        return nmsHandler.getItemStackNBTInt(itemStack, "StackSize") > 0;
+    }
+
     public static EntityType getStackedItemEntityType(ItemStack itemStack) {
         if (itemStack.getType() != Material.SPAWNER)
             return null;

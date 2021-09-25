@@ -178,7 +178,7 @@ public class InteractListener implements Listener {
     }
 
     private boolean spawnEntities(Entity original, Location spawnLocation, ItemStack itemStack) {
-        if (!ItemUtils.isSpawnEgg(itemStack.getType()))
+        if (!ItemUtils.isSpawnEgg(itemStack.getType()) || !ItemUtils.hasStoredStackSize(itemStack))
             return false;
 
         int spawnAmount = ItemUtils.getStackedItemStackAmount(itemStack);
