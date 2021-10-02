@@ -115,7 +115,7 @@ public class LocaleManager extends AbstractLocaleManager {
 
             String queryLink;
             if (Setting.MISC_USE_MIRROR_SITE_LANGS.getBoolean()) {
-                queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version; #Nope
+                queryLink = "https://cross.obfs.dev/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version; #Nope
             } else {
                 queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
             }
