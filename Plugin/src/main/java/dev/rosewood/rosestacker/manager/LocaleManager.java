@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosegarden.manager.AbstractLocaleManager;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
@@ -112,8 +113,13 @@ public class LocaleManager extends AbstractLocaleManager {
                 return;
             }
 
-            String queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
-
+            String queryLink;
+            if (Setting.MISC_USE_MIRROR_SITE_LANGS.getBoolean()) {
+                queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version; #Nope
+            } else {
+                queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
+            }
+            
             try {
                 URL url = new URL(queryLink);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -152,8 +158,12 @@ public class LocaleManager extends AbstractLocaleManager {
                 version = "1.15.2";
             }
 
-            String fileLink = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
-
+            String fileLink;
+            if (Setting.MISC_USE_MIRROR_SITE_LANGS.getBoolean()) {
+                fileLink = "https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
+            } else {
+                fileLink = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
+            }
             Result result;
             try {
                 URL url = new URL(fileLink);
