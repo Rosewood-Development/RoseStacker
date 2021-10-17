@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Animals;
@@ -270,6 +271,10 @@ public class EntityListener implements Listener {
             }
 
             stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
+
+            Player killer = entity.getKiller();
+            if (killer != null)
+                killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killedEntities.size() - 1);
         }
 
         StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
@@ -334,6 +339,10 @@ public class EntityListener implements Listener {
                 EntityDeathEvent deathEvent = (EntityDeathEvent) event;
                 deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
             }
+
+            Player killer = entity.getKiller();
+            if (killer != null)
+                killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), stackedEntity.getStackSize() - 1);
 
             this.stackManager.removeEntityStack(stackedEntity);
             return;
