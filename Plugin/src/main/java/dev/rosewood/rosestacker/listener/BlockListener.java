@@ -533,12 +533,15 @@ public class BlockListener implements Listener {
                 && (against.getType() != Material.SPAWNER || ((CreatureSpawner) against.getState()).getSpawnedType() != entityType)) {
             double closestDistance = autoStackRange * autoStackRange;
             StackedSpawner nearest = null;
+            boolean anyNearby = false;
             for (StackedSpawner spawner : new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values())) {
                 double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                if (distance < closestDistance && spawner.getSpawner().getSpawnedType() == entityType
-                        && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                    closestDistance = distance;
-                    nearest = spawner;
+                if (distance < closestDistance && spawner.getSpawner().getSpawnedType() == entityType) {
+                    anyNearby = true;
+                    if (spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                        closestDistance = distance;
+                        nearest = spawner;
+                    }
                 }
             }
 
@@ -546,6 +549,9 @@ public class BlockListener implements Listener {
                 against = nearest.getSpawner().getBlock();
                 isAdditiveStack = true;
                 isDistanceStack = true;
+            } else if (anyNearby) {
+                event.setCancelled(true);
+                return;
             }
         }
 
