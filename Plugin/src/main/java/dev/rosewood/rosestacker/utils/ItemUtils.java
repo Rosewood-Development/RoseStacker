@@ -140,10 +140,16 @@ public final class ItemUtils {
             return itemStack;
 
         BlockStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(material);
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", amount)
-                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", amount).addPlaceholder("name", stackSettings.getDisplayName()).build();
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", placeholders);
 
         itemMeta.setDisplayName(displayString);
+
+        // Set the lore, if defined
+        List<String> lore = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("stack-item-lore-block", placeholders);
+        if (!lore.isEmpty())
+            itemMeta.setLore(lore);
+
         itemStack.setItemMeta(itemMeta);
 
         // Set stack size
@@ -164,16 +170,20 @@ public final class ItemUtils {
             return itemStack;
 
         SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", amount).addPlaceholder("name", stackSettings.getDisplayName()).build();
         String displayString;
         if (amount == 1) {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", placeholders);
         } else {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", amount)
-                    .addPlaceholder("name", stackSettings.getDisplayName()).build());
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", placeholders);
         }
 
         itemMeta.setDisplayName(displayString);
+
+        // Set the lore, if defined
+        List<String> lore = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("stack-item-lore-spawner", placeholders);
+        if (!lore.isEmpty())
+            itemMeta.setLore(lore);
 
         // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
         BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
@@ -205,10 +215,16 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", amount)
-                .addPlaceholder("name", stackSettings.getDisplayName()).build());
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", amount).addPlaceholder("name", stackSettings.getDisplayName()).build();
+        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-spawn-egg", placeholders);
 
         itemMeta.setDisplayName(displayString);
+
+        // Set the lore, if defined
+        List<String> lore = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("stack-item-lore-entity", placeholders);
+        if (!lore.isEmpty())
+            itemMeta.setLore(lore);
+
         itemStack.setItemMeta(itemMeta);
 
         // Set stack size
@@ -219,23 +235,9 @@ public final class ItemUtils {
     }
 
     public static int getStackedItemStackAmount(ItemStack itemStack) {
-        // First, check the NBT
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         int stackSize = nmsHandler.getItemStackNBTInt(itemStack, "StackSize");
-        if (stackSize > 0)
-            return stackSize;
-
-        // Fall back to the legacy lore checking
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null || itemMeta.getLore() == null || itemMeta.getLore().isEmpty())
-            return 1;
-
-        String lore = ChatColor.stripColor(itemMeta.getLore().get(0));
-        try {
-            return Integer.parseInt(lore.substring(ItemLoreValue.STACK_SIZE.getValueStripped().length(), lore.length() - 1));
-        } catch (Exception ignored) { }
-
-        return 1;
+        return Math.max(stackSize, 1);
     }
 
     public static boolean hasStoredStackSize(ItemStack itemStack) {
@@ -265,14 +267,6 @@ public final class ItemUtils {
         CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
         if (creatureSpawner.getSpawnedType() != EntityType.PIG)
             return creatureSpawner.getSpawnedType();
-
-        // Fall back to the legacy lore checking
-        if (itemMeta.getLore() != null && itemMeta.getLore().size() >= 2) {
-            String name = ChatColor.stripColor(itemMeta.getLore().get(1)).replace(ItemLoreValue.SPAWNER_TYPE.getValueStripped(), "");
-            try {
-                return EntityType.valueOf(name.toUpperCase().replaceAll(" ", "_"));
-            } catch (Exception ignored) { }
-        }
 
         // Use the name to determine the type, name must be colored
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
@@ -324,26 +318,6 @@ public final class ItemUtils {
     public static void clearCache() {
         skullCache.clear();
         cachedStackingTool = null;
-    }
-
-    private enum ItemLoreValue {
-        STACK_SIZE,
-        ENTITY_TYPE,
-        BLOCK_TYPE,
-        SPAWNER_TYPE;
-
-        public String getValue(Object placeholderValue) {
-            LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
-            return localeManager.getLocaleMessage("stack-item-lore-" + this.getKey()) + placeholderValue;
-        }
-
-        public String getValueStripped() {
-            return ChatColor.stripColor(this.getValue(""));
-        }
-
-        private String getKey() {
-            return this.name().toLowerCase().replace("_", "-");
-        }
     }
 
 }

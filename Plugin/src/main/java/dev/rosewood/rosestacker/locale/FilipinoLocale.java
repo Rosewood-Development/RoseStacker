@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -187,11 +188,10 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-condition-none-invalid", "Lumagpas sa maximum na mga pagtatangka ng spawn");
 
             this.put("#14", "Given Stack Item Lore");
-            this.put("#15", "Note: Changing these will invalidate items with the old lore");
-            this.put("stack-item-lore-stack-size", "&7Laki ng Stack: &c");
-            this.put("stack-item-lore-entity-type", "&7Uri ng Entity: &c");
-            this.put("stack-item-lore-block-type", "&7Uri ng Pag-block: &c");
-            this.put("stack-item-lore-spawner-type", "&7Uri ng Spawner: &c");
+            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("stack-item-lore-spawner", new ArrayList<>());
+            this.put("stack-item-lore-block", new ArrayList<>());
+            this.put("stack-item-lore-entity", new ArrayList<>());
 
             this.put("#16", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cWala kang pahintulot para doon!");

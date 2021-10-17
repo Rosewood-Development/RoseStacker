@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -187,11 +188,10 @@ public class TraditionalChineseLocale implements Locale {
             this.put("spawner-condition-none-invalid", "已到達嘗試生成次數上限");
 
             this.put("#14", "已給予的物品描述");
-            this.put("#15", "注意: 更改以下將會使舊的物品描述失效");
-            this.put("stack-item-lore-stack-size", "&7堆疊數量: &c");
-            this.put("stack-item-lore-entity-type", "&7實體類別: &c");
-            this.put("stack-item-lore-block-type", "&7方塊類別: &c");
-            this.put("stack-item-lore-spawner-type", "&7生怪磚類別: &c");
+            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("stack-item-lore-spawner", new ArrayList<>());
+            this.put("stack-item-lore-block", new ArrayList<>());
+            this.put("stack-item-lore-entity", new ArrayList<>());
 
             this.put("#16", "ACF-Core 訊息");
             this.put("acf-core-permission-denied", "&c你沒有權限這樣做!");

@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -186,12 +187,11 @@ public class GermanLocale implements Locale {
             this.put("spawner-condition-skylight-access-invalid", "Keine Spawn Blöcke mit Zugang zum Himmelslicht");
             this.put("spawner-condition-none-invalid", "Maximale Spawn-Versuche überschritten");
 
-            this.put("#14", "Lore der Items die durch /rs give gegeben werden");
-            this.put("#15", "Bemerkung: Wenn du dies änderst werden Gegenstände mit der alten lore unbrauchbar.");
-            this.put("stack-item-lore-stack-size", "&7Stack Größe: &c");
-            this.put("stack-item-lore-entity-type", "&7Entity Typ: &c");
-            this.put("stack-item-lore-block-type", "&7Block Typ: &c");
-            this.put("stack-item-lore-spawner-type", "&7Spawner Typ: &c");
+            this.put("#14", "Given Stack Item Lore");
+            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("stack-item-lore-spawner", new ArrayList<>());
+            this.put("stack-item-lore-block", new ArrayList<>());
+            this.put("stack-item-lore-entity", new ArrayList<>());
 
             this.put("#16", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cDafür hast du nicht die benötigten Berechtigungen!");

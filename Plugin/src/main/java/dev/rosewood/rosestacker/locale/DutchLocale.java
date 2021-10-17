@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -186,12 +187,10 @@ public class DutchLocale implements Locale {
             this.put("spawner-condition-none-invalid", "Maximum spawn pogingen overschreden");
 
             this.put("#14", "Given Stack Item Lore");
-
-            this.put("#15", "Note: Changing these will invalidate items with the old lore");
-            this.put("stack-item-lore-stack-size", "&7Stack grootte: &c");
-            this.put("stack-item-lore-entity-type", "&7Entity soort: &c");
-            this.put("stack-item-lore-block-type", "&7Blok soort: &c");
-            this.put("stack-item-lore-spawner-type", "&7Spawner soort: &c");
+            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("stack-item-lore-spawner", new ArrayList<>());
+            this.put("stack-item-lore-block", new ArrayList<>());
+            this.put("stack-item-lore-entity", new ArrayList<>());
 
             this.put("#16", "ACF-Core Messages");
             this.put("acf-core-permission-denied", "&cJe hebt hier geen toestemming voor!");

@@ -95,6 +95,19 @@ public class LocaleManager extends AbstractLocaleManager {
         return message;
     }
 
+    /**
+     * Gets a list of locale messages with the given placeholders applied, will return an empty list for no messages
+     *
+     * @param messageKey The key of the message to get
+     * @param stringPlaceholders The placeholders to apply
+     * @return The locale message with the given placeholders applied
+     */
+    public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
+        return this.locale.getStringList(messageKey).stream()
+                .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
+                .collect(Collectors.toList());
+    }
+
     public void fetchMinecraftTranslationLocales() {
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
             String version;
