@@ -63,6 +63,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ITEM_MERGE_RADIUS("global-item-settings.merge-radius", 2.5, "How close do items need to be to merge with each other?"),
         ITEM_DISPLAY_TAGS("global-item-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         ITEM_DISPLAY_TAGS_SINGLE("global-item-settings.display-tags-single", false, "Should tags be displayed if the stack only has one item?"),
+        ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE("global-item-settings.display-tags-above-vanilla-stack-size", false, "Should tags only be displayed if the stack size goes above the vanilla value?"),
         ITEM_DISPLAY_CUSTOM_NAMES("global-item-settings.display-custom-names", true, "Should items with custom names be shown on their tags?"),
         ITEM_DISPLAY_CUSTOM_NAMES_COLOR("global-item-settings.display-custom-names-color", true, "Should the color of custom names be shown on their tags?"),
         ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS("global-item-settings.display-custom-names-always", true, "Should items with a custom name always display their tags?", "This mirrors vanilla behavior"),

@@ -103,7 +103,8 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", StringPlaceholders.single("name", displayName));
         }
 
-        this.item.setCustomNameVisible(this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName));
+        this.item.setCustomNameVisible((this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName)) &&
+                (this.size > itemStack.getMaxStackSize() || !Setting.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.getBoolean()));
         this.item.setCustomName(displayString);
     }
 
