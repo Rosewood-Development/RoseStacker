@@ -13,13 +13,11 @@ import org.bukkit.entity.PigZombie;
 public class ZombifiedPiglinStackSettings extends EntityStackSettings {
 
     protected final boolean dontStackIfAngry;
-    protected final boolean dontStackIfDifferentAge;
 
     public ZombifiedPiglinStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfAngry = this.settingsConfiguration.getBoolean("dont-stack-if-angry");
-        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override
@@ -30,16 +28,12 @@ public class ZombifiedPiglinStackSettings extends EntityStackSettings {
         if (this.dontStackIfAngry && (pigZombie1.isAngry() || pigZombie2.isAngry()))
             return EntityStackComparisonResult.ANGRY;
 
-        if (this.dontStackIfDifferentAge && pigZombie1.isBaby() != pigZombie2.isBaby())
-            return EntityStackComparisonResult.DIFFERENT_AGES;
-
         return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-angry", false);
-        this.setIfNotExists("dont-stack-if-different-age", false);
     }
 
     @Override

@@ -12,14 +12,12 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
 
     protected boolean dontStackIfDifferentProfession;
     protected boolean dontStackIfConverting;
-    protected boolean dontStackIfDifferentAge;
 
     public ZombieVillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override
@@ -33,9 +31,6 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
         if (this.dontStackIfConverting && (zombieVillager1.isConverting() || zombieVillager2.isConverting()))
             return EntityStackComparisonResult.CONVERTING;
 
-        if (this.dontStackIfDifferentAge && zombieVillager1.isBaby() != zombieVillager2.isBaby())
-            return EntityStackComparisonResult.DIFFERENT_AGES;
-
         return EntityStackComparisonResult.CAN_STACK;
     }
 
@@ -43,7 +38,6 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-profession", false);
         this.setIfNotExists("dont-stack-if-converting", false);
-        this.setIfNotExists("dont-stack-if-different-age", false);
     }
 
     @Override

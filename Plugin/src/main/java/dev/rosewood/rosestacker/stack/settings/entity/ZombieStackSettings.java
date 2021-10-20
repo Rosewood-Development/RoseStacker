@@ -11,13 +11,11 @@ import org.bukkit.entity.Zombie;
 public class ZombieStackSettings extends EntityStackSettings {
 
     protected boolean dontStackIfConverting;
-    protected boolean dontStackIfDifferentAge;
 
     public ZombieStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
     }
 
     @Override
@@ -28,16 +26,12 @@ public class ZombieStackSettings extends EntityStackSettings {
         if (this.dontStackIfConverting && (zombie1.isConverting() || zombie2.isConverting()))
             return EntityStackComparisonResult.CONVERTING;
 
-        if (this.dontStackIfDifferentAge && zombie1.isBaby() != zombie2.isBaby())
-            return EntityStackComparisonResult.DIFFERENT_AGES;
-
         return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-converting", false);
-        this.setIfNotExists("dont-stack-if-different-age", false);
     }
 
     @Override

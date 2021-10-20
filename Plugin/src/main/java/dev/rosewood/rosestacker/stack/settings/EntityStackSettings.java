@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Boss;
@@ -28,6 +29,8 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -64,6 +67,7 @@ public abstract class EntityStackSettings extends StackSettings {
     private Boolean isSittable;
     private Boolean isTameable;
     private Boolean isAnimals;
+    private Boolean isAgeable;
     private Boolean isAbstractHorse;
     private Boolean isChestedHorse;
     private Boolean isRaider;
@@ -105,10 +109,12 @@ public abstract class EntityStackSettings extends StackSettings {
             this.dontStackIfDifferentOwners = this.settingsConfiguration.getBoolean("dont-stack-if-different-owners");
         }
 
-        if (this.isEntityAnimals()) {
+        if (this.isEntityAnimals())
+            this.dontStackIfBreeding = this.settingsConfiguration.getBoolean("dont-stack-if-breeding");
+
+        if (this.isEntityAgeable()) {
             this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
             this.dontStackIfBaby = this.settingsConfiguration.getBoolean("dont-stack-if-baby");
-            this.dontStackIfBreeding = this.settingsConfiguration.getBoolean("dont-stack-if-breeding");
         }
 
         if (this.isEntityAbstractHorse())
@@ -146,10 +152,12 @@ public abstract class EntityStackSettings extends StackSettings {
             this.setIfNotExists("dont-stack-if-different-owners", false);
         }
 
-        if (this.isEntityAnimals()) {
+        if (this.isEntityAnimals())
+            this.setIfNotExists("dont-stack-if-breeding", false);
+
+        if (this.isEntityAgeable()) {
             this.setIfNotExists("dont-stack-if-different-age", true);
             this.setIfNotExists("dont-stack-if-baby", false);
-            this.setIfNotExists("dont-stack-if-breeding", false);
         }
 
         if (this.isEntityAbstractHorse())
@@ -280,14 +288,19 @@ public abstract class EntityStackSettings extends StackSettings {
             Animals animals1 = (Animals) entity1;
             Animals animals2 = (Animals) entity2;
 
-            if (this.dontStackIfDifferentAge && animals1.isAdult() != animals2.isAdult())
-                return EntityStackComparisonResult.DIFFERENT_AGES;
-
-            if (this.dontStackIfBaby && (!animals1.isAdult() || !animals2.isAdult()))
-                return EntityStackComparisonResult.BABY;
-
             if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || (!animals1.canBreed() && animals1.isAdult()) || (!animals2.canBreed() && animals2.isAdult())))
                 return EntityStackComparisonResult.BREEDING;
+        }
+
+        if (this.isEntityAgeable()) {
+            Ageable ageable1 = (Ageable) entity1;
+            Ageable ageable2 = (Ageable) entity2;
+
+            if (this.dontStackIfDifferentAge && ageable1.isAdult() != ageable2.isAdult())
+                return EntityStackComparisonResult.DIFFERENT_AGES;
+
+            if (this.dontStackIfBaby && (!ageable1.isAdult() || !ageable2.isAdult()))
+                return EntityStackComparisonResult.BABY;
         }
 
         if (this.isEntityAbstractHorse()) {
@@ -409,6 +422,19 @@ public abstract class EntityStackSettings extends StackSettings {
         }
 
         return this.isAnimals;
+    }
+
+    private boolean isEntityAgeable() {
+        if (this.isAgeable == null) {
+            Class<?> entityClass = this.getEntityType().getEntityClass();
+            if (entityClass == null) {
+                this.isAgeable = false;
+            } else {
+                this.isAgeable = Ageable.class.isAssignableFrom(entityClass);
+            }
+        }
+
+        return this.isAgeable;
     }
 
     private boolean isEntityAbstractHorse() {

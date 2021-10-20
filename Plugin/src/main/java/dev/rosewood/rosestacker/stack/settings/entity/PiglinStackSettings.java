@@ -11,7 +11,6 @@ import org.bukkit.entity.Piglin;
 public class PiglinStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfConverting;
-    private final boolean dontStackIfDifferentAge;
     private final boolean dontStackIfUnableToHunt;
     private final boolean dontStackIfImmuneToZombification;
 
@@ -19,7 +18,6 @@ public class PiglinStackSettings extends EntityStackSettings {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
         this.dontStackIfUnableToHunt = this.settingsConfiguration.getBoolean("dont-stack-if-unable-to-hunt");
         this.dontStackIfImmuneToZombification = this.settingsConfiguration.getBoolean("dont-stack-if-immune-to-zombification");
     }
@@ -31,9 +29,6 @@ public class PiglinStackSettings extends EntityStackSettings {
 
         if (this.dontStackIfConverting && (piglin1.isConverting() || piglin2.isConverting()))
             return EntityStackComparisonResult.CONVERTING;
-
-        if (this.dontStackIfDifferentAge && (piglin1.isBaby() != piglin2.isBaby()))
-            return EntityStackComparisonResult.DIFFERENT_AGES;
 
         if (this.dontStackIfUnableToHunt && (!piglin1.isAbleToHunt() || !piglin2.isAbleToHunt()))
             return EntityStackComparisonResult.UNABLE_TO_HUNT;
@@ -47,7 +42,6 @@ public class PiglinStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-converting", false);
-        this.setIfNotExists("dont-stack-if-different-age", false);
         this.setIfNotExists("dont-stack-if-unable-to-hunt", false);
         this.setIfNotExists("dont-stack-if-immune-to-zombification", false);
     }

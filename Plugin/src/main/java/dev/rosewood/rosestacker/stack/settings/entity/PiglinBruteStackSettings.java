@@ -11,14 +11,12 @@ import org.bukkit.entity.PiglinBrute;
 public class PiglinBruteStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfConverting;
-    private final boolean dontStackIfDifferentAge;
     private final boolean dontStackIfImmuneToZombification;
 
     public PiglinBruteStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfConverting = this.settingsConfiguration.getBoolean("dont-stack-if-converting");
-        this.dontStackIfDifferentAge = this.settingsConfiguration.getBoolean("dont-stack-if-different-age");
         this.dontStackIfImmuneToZombification = this.settingsConfiguration.getBoolean("dont-stack-if-immune-to-zombification");
     }
 
@@ -30,9 +28,6 @@ public class PiglinBruteStackSettings extends EntityStackSettings {
         if (this.dontStackIfConverting && (piglinBrute1.isConverting() || piglinBrute2.isConverting()))
             return EntityStackComparisonResult.CONVERTING;
 
-        if (this.dontStackIfDifferentAge && (piglinBrute1.isBaby() != piglinBrute2.isBaby()))
-            return EntityStackComparisonResult.DIFFERENT_AGES;
-
         if (this.dontStackIfImmuneToZombification && (piglinBrute1.isImmuneToZombification() || piglinBrute2.isImmuneToZombification()))
             return EntityStackComparisonResult.IMMUNE_TO_ZOMBIFICATION;
 
@@ -42,7 +37,6 @@ public class PiglinBruteStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-converting", false);
-        this.setIfNotExists("dont-stack-if-different-age", false);
         this.setIfNotExists("dont-stack-if-immune-to-zombification", false);
     }
 
