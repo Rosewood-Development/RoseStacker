@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
@@ -98,6 +99,14 @@ public interface NMSHandler {
      * @param creeper The creeper to unignite
      */
     void unigniteCreeper(Creeper creeper);
+
+    /**
+     * Used to check if a turtle is pregnant (has an egg to lay)
+     *
+     * @param turtle the turtle
+     * @return true if the turtle is trying to lay an egg, false otherwise
+     */
+    boolean isTurtlePregnant(Turtle turtle);
 
     /**
      * Removes entity goals and movement

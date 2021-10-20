@@ -58,6 +58,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftTurtle;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftNamespacedKey;
@@ -65,6 +66,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
@@ -314,6 +316,11 @@ public class NMSHandlerImpl implements NMSHandler {
         nmsCreeper.getEntityData().set(value_Creeper_DATA_IS_IGNITED, false);
         if (!Bukkit.getBukkitVersion().contains("1.17-"))
             nmsCreeper.swell = nmsCreeper.maxSwell;
+    }
+
+    @Override
+    public boolean isTurtlePregnant(Turtle turtle) {
+        return ((CraftTurtle) turtle).getHandle().hasEgg();
     }
 
     @Override

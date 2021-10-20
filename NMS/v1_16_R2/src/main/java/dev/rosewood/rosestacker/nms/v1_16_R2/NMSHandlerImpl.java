@@ -65,6 +65,7 @@ import org.bukkit.craftbukkit.v1_16_R2.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftTurtle;
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftNamespacedKey;
@@ -72,6 +73,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
@@ -347,6 +349,11 @@ public class NMSHandlerImpl implements NMSHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isTurtlePregnant(Turtle turtle) {
+        return ((CraftTurtle) turtle).getHandle().hasEgg();
     }
 
     @Override

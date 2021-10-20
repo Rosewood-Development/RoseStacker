@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Zoglin;
 
 public class ZoglinStackSettings extends EntityStackSettings {
 

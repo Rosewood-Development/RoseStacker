@@ -8,6 +8,8 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -29,8 +31,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Turtle;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -288,7 +289,9 @@ public abstract class EntityStackSettings extends StackSettings {
             Animals animals1 = (Animals) entity1;
             Animals animals2 = (Animals) entity2;
 
-            if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || (!animals1.canBreed() && animals1.isAdult()) || (!animals2.canBreed() && animals2.isAdult())))
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            boolean hasEgg = animals1.getType() == EntityType.TURTLE && (nmsHandler.isTurtlePregnant((Turtle) animals1) || nmsHandler.isTurtlePregnant((Turtle) animals2));
+            if (this.dontStackIfBreeding && (animals1.isLoveMode() || animals2.isLoveMode() || (!animals1.canBreed() && animals1.isAdult()) || (!animals2.canBreed() && animals2.isAdult()) || hasEgg))
                 return EntityStackComparisonResult.BREEDING;
         }
 
