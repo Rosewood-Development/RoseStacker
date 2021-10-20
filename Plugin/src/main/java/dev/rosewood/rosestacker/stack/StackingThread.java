@@ -531,6 +531,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isItemStackingEnabled())
             return null;
 
+        ItemStackSettings itemStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getItemStackSettings(item);
+        if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
+            return null;
+
         StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
         this.stackedItems.put(item.getUniqueId(), newStackedItem);
 

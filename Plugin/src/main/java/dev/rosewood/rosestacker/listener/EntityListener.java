@@ -15,6 +15,7 @@ import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
@@ -99,6 +100,10 @@ public class EntityListener implements Listener {
             return;
 
         if (entity instanceof Item) {
+            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings((Item) event.getEntity());
+            if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
+                return;
+
             this.entityCacheManager.preCacheEntity(entity);
             this.stackManager.createItemStack((Item) entity, true);
         }
