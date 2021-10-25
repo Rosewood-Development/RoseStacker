@@ -831,7 +831,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 continue;
 
             increased.increaseStackSize(removed.getStackSize(), true);
-            increased.getItem().setTicksLived(1); // Reset the 5 minute pickup timer
+            if (Setting.ITEM_RESET_DESPAWN_TIMER_ON_MERGE.getBoolean())
+                increased.getItem().setTicksLived(1); // Reset the 5 minute pickup timer
             removed.getItem().setPickupDelay(100); // Don't allow the item we just merged to get picked up or stacked
             increased.getItem().setPickupDelay(5);
 
