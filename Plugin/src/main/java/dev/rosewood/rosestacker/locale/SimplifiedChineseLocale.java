@@ -186,6 +186,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "自然光照要求");
             this.put("spawner-condition-skylight-access-invalid", "范围内没有受到自然光照照射的方块可供生物生成");
             this.put("spawner-condition-none-invalid", "超过最大的生成尝试次数");
+            this.put("spawner-condition-not-player-placed-invalid", "必须由玩家放置");
 
             this.put("#14", "给予物品描述(lore)");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

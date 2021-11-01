@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
@@ -130,11 +131,19 @@ public class EntityListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity))
             return;
 
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+            return;
+
         LivingEntity entity = (LivingEntity) event.getEntity();
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
+        SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
+        if (stackedSpawner == null)
+            stackedSpawner = stackManager.createSpawnerStack(event.getSpawner().getBlock(), 1, false);
+
         boolean placedByPlayer = stackedSpawner != null && stackedSpawner.isPlacedByPlayer();
-        if (this.stackSettingManager.getSpawnerStackSettings(event.getSpawner()).isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || placedByPlayer))
+        if (stackSettings.isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || placedByPlayer))
             PersistentDataUtils.removeEntityAi(entity);
     }
 

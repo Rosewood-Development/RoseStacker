@@ -186,6 +186,7 @@ public class TraditionalChineseLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "自然光條件");
             this.put("spawner-condition-skylight-access-invalid", "沒有生成方塊能接觸自然光");
             this.put("spawner-condition-none-invalid", "已到達嘗試生成次數上限");
+            this.put("spawner-condition-not-player-placed-invalid", "它必須由玩家放置");
 
             this.put("#14", "已給予的物品描述");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

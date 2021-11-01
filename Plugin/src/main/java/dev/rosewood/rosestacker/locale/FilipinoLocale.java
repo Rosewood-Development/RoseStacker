@@ -186,6 +186,7 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Pag-access sa Skylight");
             this.put("spawner-condition-skylight-access-invalid", "Walang mga bloke ng itlog na may access sa skylight");
             this.put("spawner-condition-none-invalid", "Lumagpas sa maximum na mga pagtatangka ng spawn");
+            this.put("spawner-condition-not-player-placed-invalid", "Dapat ilagay ng isang manlalaro");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

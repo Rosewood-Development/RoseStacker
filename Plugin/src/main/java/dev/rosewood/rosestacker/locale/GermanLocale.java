@@ -186,6 +186,7 @@ public class GermanLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Zugang zum Himmelslicht");
             this.put("spawner-condition-skylight-access-invalid", "Keine Spawn Blöcke mit Zugang zum Himmelslicht");
             this.put("spawner-condition-none-invalid", "Maximale Spawn-Versuche überschritten");
+            this.put("spawner-condition-not-player-placed-invalid", "Muss von einem Spieler platziert werden");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

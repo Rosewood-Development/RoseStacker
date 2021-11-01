@@ -186,6 +186,7 @@ public class HungarianLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Természetes Fény");
             this.put("spawner-condition-skylight-access-invalid", "Nincs spawn blokk természetes fénnyel");
             this.put("spawner-condition-none-invalid", "Maximum spawnolási próba száma átlépve");
+            this.put("spawner-condition-not-player-placed-invalid", "Egy játékosnak kell elhelyeznie");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

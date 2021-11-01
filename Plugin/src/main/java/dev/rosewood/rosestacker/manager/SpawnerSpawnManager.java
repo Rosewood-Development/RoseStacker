@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
+import dev.rosewood.rosestacker.stack.settings.spawner.tags.NotPlayerPlacedConditionTag;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
         int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt();
         boolean redstoneSpawners = Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
         boolean spawnersUseVerticalRange = Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean();
+        boolean onlySpawnPlacedByPlayer = Setting.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.getBoolean();
 
         List<StackedSpawner> stackedSpawners = stackManager.getStackedSpawnersList();
         for (StackedSpawner stackedSpawner : stackedSpawners) {
@@ -148,6 +150,10 @@ public class SpawnerSpawnManager extends Manager implements Runnable {
             spawnRequirements.removeAll(perSpawnConditions);
 
             Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(spawner, stackSettings, block)).collect(Collectors.toSet());
+
+            if (onlySpawnPlacedByPlayer && !stackedSpawner.isPlacedByPlayer())
+                invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
+
             boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
 
             invalidSpawnConditions.addAll(perSpawnConditions); // Will be removed when they pass

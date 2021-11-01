@@ -185,6 +185,7 @@ public class RomanianLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Acces la lumina naturala");
             this.put("spawner-condition-skylight-access-invalid", "Necesita lumina naturala");
             this.put("spawner-condition-none-invalid", "Incercari de spawnere depasita");
+            this.put("spawner-condition-not-player-placed-invalid", "Trebuie să fie plasat de către un jucător");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

@@ -186,6 +186,7 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Skylight Access");
             this.put("spawner-condition-skylight-access-invalid", "No spawn blocks with skylight access");
             this.put("spawner-condition-none-invalid", "Exceeded maximum spawn attempts");
+            this.put("spawner-condition-not-player-placed-invalid", "Must be placed by a player");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

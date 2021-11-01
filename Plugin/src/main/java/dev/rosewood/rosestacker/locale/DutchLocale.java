@@ -185,6 +185,7 @@ public class DutchLocale implements Locale {
             this.put("spawner-condition-skylight-access-info", "Zonlicht toegang");
             this.put("spawner-condition-skylight-access-invalid", "Geen spawn blokken met zonlicht toegang");
             this.put("spawner-condition-none-invalid", "Maximum spawn pogingen overschreden");
+            this.put("spawner-condition-not-player-placed-invalid", "Moet geplaatst worden door een speler");
 
             this.put("#14", "Given Stack Item Lore");
             this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");

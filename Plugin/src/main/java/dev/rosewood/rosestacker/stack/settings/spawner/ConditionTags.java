@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.stack.settings.spawner.tags.LightnessConditionTa
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.MaxNearbyEntityConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoSkylightAccessConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.NoneConditionTag;
+import dev.rosewood.rosestacker.stack.settings.spawner.tags.NotPlayerPlacedConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.stack.settings.spawner.tags.SkylightAccessConditionTag;
 import java.lang.reflect.Constructor;
@@ -49,6 +50,9 @@ public final class ConditionTags {
 
         // Tag for when all conditions were met, but no entities were able to spawn
         registerTag("none", NoneConditionTag.class, null);
+
+        // Tag for when only spawners placed by players can spawn mobs
+        registerTag("not-player-placed", NotPlayerPlacedConditionTag.class, null);
     }
 
     public static Map<String, String> getTagDescriptionMap() {
