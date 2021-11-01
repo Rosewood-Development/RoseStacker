@@ -372,7 +372,7 @@ public class BlockListener implements Listener {
                 if (destroyAmountFixed != -1) {
                     destroyAmount = destroyAmountFixed;
                 } else {
-                    destroyAmount = stackedBlock.getStackSize() - (int) Math.floor(stackedBlock.getStackSize() * (Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                    destroyAmount = stackedBlock.getStackSize() - (int) Math.ceil(stackedBlock.getStackSize() * (Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
                 }
 
                 BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(null, stackedBlock, destroyAmount);
@@ -414,7 +414,7 @@ public class BlockListener implements Listener {
                 if (destroyAmountFixed != -1) {
                     destroyAmount = destroyAmountFixed;
                 } else {
-                    destroyAmount = stackedSpawner.getStackSize() - (int) Math.floor(stackedSpawner.getStackSize() * (Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
+                    destroyAmount = stackedSpawner.getStackSize() - (int) Math.ceil(stackedSpawner.getStackSize() * (Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_PERCENTAGE.getDouble() / 100));
                 }
 
                 SpawnerUnstackEvent spawnerUnstackEvent = new SpawnerUnstackEvent(null, stackedSpawner, destroyAmount);
