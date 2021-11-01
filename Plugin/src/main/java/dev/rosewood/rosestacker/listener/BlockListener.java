@@ -529,8 +529,7 @@ public class BlockListener implements Listener {
 
         // See if we can stack the spawner (if applicable) into one nearby
         int autoStackRange = Setting.SPAWNER_AUTO_STACK_RANGE.getInt();
-        if (autoStackRange != -1 && block.getType() == Material.SPAWNER
-                && (against.getType() != Material.SPAWNER || ((CreatureSpawner) against.getState()).getSpawnedType() != entityType)) {
+        if (autoStackRange > 0 && block.getType() == Material.SPAWNER) {
             double closestDistance = autoStackRange * autoStackRange;
             StackedSpawner nearest = null;
             boolean anyNearby = false;
@@ -566,7 +565,7 @@ public class BlockListener implements Listener {
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
 
-        if (isAdditiveStack && !player.isSneaking()) {
+        if (isAdditiveStack && (!player.isSneaking() || isDistanceStack)) {
             if (block.getType() == Material.SPAWNER) {
                 if (!stackManager.isSpawnerTypeStackable(entityType))
                     return;
