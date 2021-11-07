@@ -82,7 +82,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         BLOCK_BREAK_ENTIRE_STACK_WHILE_SNEAKING("global-block-settings.break-entire-stack-while-sneaking", true, "Should the entire stack be broken if the player is sneaking?"),
         BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE("global-block-settings.break-entire-stack-into-separate", true, "Should the entire stack be broken into individual blocks?"),
         BLOCK_GUI_ENABLED("global-block-settings.gui-enabled", true, "Should a GUI to edit the stack open when the player shift-right-clicks the stack?"),
-        BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?", "If you want no border, set it to AIR"),
+        BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?"),
 
         GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml will override these values"),
         SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead."),

@@ -18,6 +18,7 @@ public class NPCsHook {
     private static Boolean epicBossesEnabled;
     private static Boolean eliteMobsEnabled;
     private static Boolean bossEnabled;
+    private static Boolean proCosmeticsEnabled;
 
     /**
      * @return true if Citizens is enabled, false otherwise
@@ -79,6 +80,13 @@ public class NPCsHook {
         return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
     }
 
+    public static boolean proCosmeticsEnabled() {
+        if (proCosmeticsEnabled != null)
+            return proCosmeticsEnabled;
+
+        return proCosmeticsEnabled = Bukkit.getPluginManager().isPluginEnabled("ProCosmetics");
+    }
+
     /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
@@ -88,7 +96,8 @@ public class NPCsHook {
                 || mythicMobsEnabled()
                 || epicBossesEnabled()
                 || eliteMobsEnabled()
-                || bossEnabled();
+                || bossEnabled()
+                || proCosmeticsEnabled();
     }
 
     /**
@@ -117,6 +126,9 @@ public class NPCsHook {
 
         if (!npc && bossEnabled())
             npc = BossAPI.isBoss(entity);
+
+        if (!npc && proCosmeticsEnabled())
+            npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
 
         return npc;
     }
