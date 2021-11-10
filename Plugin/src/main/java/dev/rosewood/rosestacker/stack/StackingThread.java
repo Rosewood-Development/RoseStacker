@@ -652,6 +652,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (location.getWorld() == null)
             return;
 
+        // Filter out itemstacks of air in case they somehow got in here, can't drop that
+        items.removeIf(x -> x.getType() == Material.AIR);
+
         if (!this.stackManager.isItemStackingEnabled()) {
             for (ItemStack item : items)
                 location.getWorld().dropItemNaturally(location, item);
