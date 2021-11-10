@@ -9,6 +9,7 @@ softdepend:
   - HolographicDisplays
   - Holograms
   - GHolo
+  - DecentHolograms
   - CMI
   - CMILib
   - Vault
