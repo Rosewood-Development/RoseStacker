@@ -227,7 +227,7 @@ public class FrenchLocale implements Locale {
             this.put("spawner-silk-touch-protect", "&cAvertissement! &eVous devez utiliser une pioche Toucher de soie et/ou avoir la permission de ramasser des générateurs. Vous ne pourrez pas le faire autrement.");
             this.put("spawner-advanced-place-no-permission", "&cAvertissement! &eVous n'êtes pas autorisé à placer ce type de générateur.");
             this.put("spawner-advanced-break-no-permission", "&cAvertissement! &eVous n'êtes pas autorisé à récupérer ce type de générateur.");
-            this.put("spawner-advanced-break-silktouch-no-permission", "&cAvertissement! &eVous devez utiliser une pioche Toucher de soie pour ramasser ce type de géniteur.");
+            this.put("spawner-advanced-break-silktouch-no-permission", "&cAvertissement! &eVous devez utiliser une pioche Toucher de soie pour ramasser ce type de générateur.");
             this.put("spawner-convert-not-enough", "&cAvertissement! &eImpossible de convertir les générateurs à l'aide d'œufs de spawn. Vous ne tenez pas assez d'œufs d'apparition pour effectuer cette conversion.");
             this.put("number-separator", ",");
         }};
