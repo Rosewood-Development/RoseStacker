@@ -653,6 +653,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return;
 
         // Filter out itemstacks of air in case they somehow got in here, can't drop that
+        items = new ArrayList<>(items);
         items.removeIf(x -> x.getType() == Material.AIR);
 
         if (!this.stackManager.isItemStackingEnabled()) {

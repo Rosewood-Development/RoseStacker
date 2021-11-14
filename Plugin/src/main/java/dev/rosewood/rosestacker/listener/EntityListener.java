@@ -287,7 +287,7 @@ public class EntityListener implements Listener {
             stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
 
             Player killer = entity.getKiller();
-            if (killer != null)
+            if (killer != null && killedEntities.size() - 1 > 0)
                 killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killedEntities.size() - 1);
         }
 
@@ -355,7 +355,7 @@ public class EntityListener implements Listener {
             }
 
             Player killer = entity.getKiller();
-            if (killer != null)
+            if (killer != null && stackedEntity.getStackSize() - 1 > 0)
                 killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), stackedEntity.getStackSize() - 1);
 
             this.stackManager.removeEntityStack(stackedEntity);
