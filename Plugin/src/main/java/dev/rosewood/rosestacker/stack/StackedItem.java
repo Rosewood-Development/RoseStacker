@@ -78,8 +78,10 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
         this.item.setItemStack(itemStack);
 
-        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || !this.stackSettings.isStackingEnabled())
+        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || !this.stackSettings.isStackingEnabled()) {
+            this.item.setCustomNameVisible(false);
             return;
+        }
 
         String displayName;
         ItemMeta itemMeta = itemStack.getItemMeta();

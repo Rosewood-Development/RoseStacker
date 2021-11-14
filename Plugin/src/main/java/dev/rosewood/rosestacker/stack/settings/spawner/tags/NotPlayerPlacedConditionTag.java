@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.stack.settings.spawner.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
-import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
