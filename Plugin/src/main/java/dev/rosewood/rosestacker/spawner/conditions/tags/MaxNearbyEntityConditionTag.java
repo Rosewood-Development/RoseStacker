@@ -1,13 +1,13 @@
-package dev.rosewood.rosestacker.stack.settings.spawner.tags;
+package dev.rosewood.rosestacker.spawner.conditions.tags;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

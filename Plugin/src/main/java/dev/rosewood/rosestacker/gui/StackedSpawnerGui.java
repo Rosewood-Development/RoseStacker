@@ -11,13 +11,12 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.manager.SpawnerSpawnManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTags;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
@@ -131,7 +130,7 @@ public class StackedSpawnerGui {
                 .setLoreSupplier(() -> {
                     List<GuiString> lore = new ArrayList<>();
 
-                    SpawnerTileWrapper spawnerTile = this.stackedSpawner.getSpawnerTile();
+                    StackedSpawnerTile spawnerTile = this.stackedSpawner.getSpawnerTile();
                     lore.add(this.getString("min-spawn-delay", StringPlaceholders.single("delay", spawnerTile.getMinSpawnDelay())));
                     lore.add(this.getString("max-spawn-delay", StringPlaceholders.single("delay", spawnerTile.getMaxSpawnDelay())));
                     lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
@@ -164,8 +163,8 @@ public class StackedSpawnerGui {
                 }));
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
-                .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getLastDelay() - SpawnerSpawnManager.DELAY_THRESHOLD + 1)))
-                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawner())))))
+                .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getSpawnerTile().getDelay() + 1)))
+                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
         ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
                 .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))

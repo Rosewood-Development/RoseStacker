@@ -1,12 +1,8 @@
 package dev.rosewood.rosestacker.nms.object;
 
-import java.util.List;
-import org.bukkit.entity.EntityType;
+import org.bukkit.persistence.PersistentDataContainer;
 
-/**
- * Used to bypass the costly BlockState snapshot system that Bukkit uses
- */
-public interface SpawnerTileWrapper {
+public interface StackedSpawnerTile {
 
     /**
      * @return the delay of the spawner
@@ -88,13 +84,15 @@ public interface SpawnerTileWrapper {
     /**
      * Set the radius around which the spawner will attempt to spawn mobs in
      *
-     * @param spawnRange
+     * @param spawnRange The maximum distance from the spawner mobs can spawn
      */
     void setSpawnRange(int spawnRange);
 
     /**
-     * @return the types of entities that will be spawned from this spawner
+     * Gets the custom tag container capable of storing tags on the object
+     *
+     * @return The PersistentDataContainer attached to this spawner tile
      */
-    List<EntityType> getSpawnedTypes();
+    PersistentDataContainer getPersistentDataContainer();
 
 }

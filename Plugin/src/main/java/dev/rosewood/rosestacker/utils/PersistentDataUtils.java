@@ -5,11 +5,11 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -146,7 +146,7 @@ public final class PersistentDataUtils {
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER);
     }
 
-    public static void increaseSpawnCount(CreatureSpawner spawner, long amount) {
+    public static void increaseSpawnCount(StackedSpawnerTile spawner, long amount) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer dataContainer = spawner.getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
@@ -155,10 +155,9 @@ public final class PersistentDataUtils {
         } else {
             dataContainer.set(key, PersistentDataType.LONG, getTotalSpawnCount(spawner) + amount);
         }
-        spawner.update();
     }
 
-    public static long getTotalSpawnCount(CreatureSpawner spawner) {
+    public static long getTotalSpawnCount(StackedSpawnerTile spawner) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer persistentDataContainer = spawner.getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);

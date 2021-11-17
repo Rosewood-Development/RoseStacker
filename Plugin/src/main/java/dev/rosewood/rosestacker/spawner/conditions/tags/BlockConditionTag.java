@@ -1,8 +1,8 @@
-package dev.rosewood.rosestacker.stack.settings.spawner.tags;
+package dev.rosewood.rosestacker.spawner.conditions.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,17 +11,17 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
 
-public class BlockExceptionConditionTag extends ConditionTag {
+public class BlockConditionTag extends ConditionTag {
 
     private List<Material> blocks;
 
-    public BlockExceptionConditionTag(String tag) {
+    public BlockConditionTag(String tag) {
         super(tag, true);
     }
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        return !this.blocks.contains(spawnBlock.getRelative(BlockFace.DOWN).getType());
+        return this.blocks.contains(spawnBlock.getRelative(BlockFace.DOWN).getType());
     }
 
     @Override

@@ -4,15 +4,17 @@ import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.SettingFetcher;
+import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.CompactNBTImpl;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.SpawnerTileWrapperImpl;
+import dev.rosewood.rosestacker.nms.v1_17_R1.object.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.SynchedEntityDataWrapper;
 import dev.rosewood.rosestacker.nms.v1_17_R1.object.WrappedNBTImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Field;
@@ -48,6 +50,9 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -69,6 +74,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
@@ -82,6 +88,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
 
+    private static Unsafe unsafe;
+    private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -91,6 +100,12 @@ public class NMSHandlerImpl implements NMSHandler {
             field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
+
+            Field field_SpawnerBlockEntity_spawner = ReflectionUtils.getFieldByPositionAndType(SpawnerBlockEntity.class, 0, BaseSpawner.class);
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            unsafe = (Unsafe) unsafeField.get(null);
+            field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -392,11 +407,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner) {
-        return new SpawnerTileWrapperImpl(spawner);
-    }
-
-    @Override
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().lastHurtByPlayer = ((CraftPlayer) player).getHandle();
@@ -410,6 +420,25 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public CompactNBT loadCompactNBT(byte[] data) {
         return new CompactNBTImpl(data);
+    }
+
+    @Override
+    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
+        StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
+        CreatureSpawner spawner = stackedSpawner.getSpawner();
+        ServerLevel level = ((CraftWorld) spawner.getWorld()).getHandle();
+        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(spawner.getX(), spawner.getY(), spawner.getZ()));
+        if (blockEntity instanceof SpawnerBlockEntity) {
+            SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
+            if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
+                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner, settingFetcher);
+                unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
+                return stackedSpawnerTile;
+            } else {
+                return (StackedSpawnerTile) spawnerBlockEntity.getSpawner();
+            }
+        }
+        return null;
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {

@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.nms.object.SettingFetcher;
 import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;
@@ -85,7 +86,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         BLOCK_GUI_BORDER_MATERIAL("global-block-settings.gui-border-material", Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?"),
 
         GLOBAL_SPAWNER_SETTINGS("global-spawner-settings", null, "Global spawner settings", "Changed values in spawner_settings.yml will override these values"),
-        SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead."),
+        SPAWNER_STACKING_ENABLED("global-spawner-settings.stacking-enabled", true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead.", "Changing this setting will require a full server restart to fully take effect."),
         SPAWNER_MAX_STACK_SIZE("global-spawner-settings.max-stack-size", 32, "The maximum number of spawners that can be in a single stack"),
         SPAWNER_DISPLAY_TAGS("global-spawner-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         SPAWNER_DISPLAY_TAGS_SINGLE("global-spawner-settings.display-tags-single", false, "Should tags be displayed if the stack only has one spawner?"),
@@ -227,8 +228,21 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         }
     }
 
+    private final SettingFetcher settingFetcher = new SettingFetcher() {
+
+        @Override
+        public boolean allowSpawnerRedstoneToggle() {
+            return Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
+        }
+
+    };
+
     public ConfigurationManager(RosePlugin rosePlugin) {
         super(rosePlugin, Setting.class);
+    }
+
+    public SettingFetcher getSettingFetcher() {
+        return this.settingFetcher;
     }
 
     @Override

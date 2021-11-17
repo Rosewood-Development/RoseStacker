@@ -1,24 +1,24 @@
-package dev.rosewood.rosestacker.stack.settings.spawner.tags;
+package dev.rosewood.rosestacker.spawner.conditions.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 
-public class AboveYAxisConditionTag extends ConditionTag {
+public class BelowYAxisConditionTag extends ConditionTag {
 
     private int yValue;
 
-    public AboveYAxisConditionTag(String tag) {
+    public BelowYAxisConditionTag(String tag) {
         super(tag, true);
     }
 
     @Override
     public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
-        return spawnBlock.getY() >= this.yValue;
+        return spawnBlock.getY() <= this.yValue;
     }
 
     @Override

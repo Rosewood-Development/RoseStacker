@@ -900,9 +900,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
-        if (this.stackManager.isSpawnerStackingEnabled())
+        if (this.stackManager.isSpawnerStackingEnabled()) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
                 stackedSpawners.put(stackedSpawner.getSpawner().getBlock(), stackedSpawner);
+        }
 
         Map<Block, StackedBlock> stackedBlocks = new ConcurrentHashMap<>();
         if (this.stackManager.isBlockStackingEnabled())

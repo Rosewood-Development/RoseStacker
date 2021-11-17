@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.stack.settings.spawner;
+package dev.rosewood.rosestacker.spawner.conditions;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
