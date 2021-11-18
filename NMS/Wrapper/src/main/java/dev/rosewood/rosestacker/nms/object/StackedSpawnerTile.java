@@ -1,8 +1,21 @@
 package dev.rosewood.rosestacker.nms.object;
 
+import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;
 
 public interface StackedSpawnerTile {
+
+    /**
+     * @return the type of entity that this spawner will spawn next
+     */
+    EntityType getSpawnedType();
+
+    /**
+     * Sets the type of entity that this spawner will spawn
+     *
+     * @param entityType The type of entity to spawn
+     */
+    void setSpawnedType(EntityType entityType);
 
     /**
      * @return the delay of the spawner
@@ -89,8 +102,6 @@ public interface StackedSpawnerTile {
     void setSpawnRange(int spawnRange);
 
     /**
-     * Gets the custom tag container capable of storing tags on the object
-     *
      * @return The PersistentDataContainer attached to this spawner tile
      */
     PersistentDataContainer getPersistentDataContainer();

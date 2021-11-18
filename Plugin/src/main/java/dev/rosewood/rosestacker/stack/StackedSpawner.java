@@ -20,40 +20,34 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private int size;
-    private CreatureSpawner spawner;
     private StackedSpawnerTile spawnerTile;
     private Block block;
-    private Location location;
     private boolean placedByPlayer;
     private StackedSpawnerGui stackedSpawnerGui;
     private List<Class<? extends ConditionTag>> lastInvalidConditions;
-
     private SpawnerStackSettings stackSettings;
 
-    public StackedSpawner(int size, CreatureSpawner spawner, boolean placedByPlayer) {
+    public StackedSpawner(int size, Block spawner, boolean placedByPlayer) {
+        if (spawner.getType() != Material.SPAWNER)
+            throw new IllegalArgumentException("Block must be a spawner");
+
         this.size = size;
-        this.spawner = spawner;
         this.placedByPlayer = placedByPlayer;
-        this.location = this.spawner.getLocation();
         this.stackedSpawnerGui = null;
         this.lastInvalidConditions = new ArrayList<>();
 
-        if (this.spawner != null) {
-            this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
-            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
-            this.block = spawner.getBlock();
+        this.block = spawner;
+        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
-            if (Bukkit.isPrimaryThread()) {
-                this.updateSpawnerProperties(true);
-                this.updateDisplay();
-            }
+        if (Bukkit.isPrimaryThread()) {
+            this.updateSpawnerProperties(true);
+            this.updateDisplay();
         }
     }
 
@@ -65,12 +59,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
      */
     public StackedSpawner(int size, Location location) {
         this.size = size;
-        this.spawner = null;
-        this.location = location;
-    }
-
-    public CreatureSpawner getSpawner() {
-        return this.spawner;
+        if (location.getWorld() != null)
+            this.block = location.getWorld().getBlockAt(location);
     }
 
     public StackedSpawnerTile getSpawnerTile() {
@@ -78,8 +68,6 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public Block getBlock() {
-        if (this.block == null)
-            this.block = this.spawner.getBlock();
         return this.block;
     }
 
@@ -122,7 +110,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     @Override
     public Location getLocation() {
-        return this.location;
+        return this.block.getLocation();
     }
 
     @Override
@@ -132,7 +120,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
-        Location location = this.location.clone().add(0.5, 0.75, 0.5);
+        Location location = this.block.getLocation().add(0.5, 0.75, 0.5);
 
         int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
         if (this.size <= sizeForHologram) {
@@ -162,14 +150,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public void updateSpawnerProperties(boolean resetDelay) {
-        if (this.spawner.getBlock().getType() != Material.SPAWNER)
-            return;
-
         // Handle the entity type changing
-        EntityType oldEntityType = this.spawner.getSpawnedType();
-        this.updateSpawnerState();
-        if (oldEntityType != this.spawner.getSpawnedType())
-            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
         if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
         if (this.stackSettings.getMaxSpawnDelay() != -1) this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
@@ -181,15 +163,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         if (resetDelay) {
             delay = StackerUtils.randomInRange(this.spawnerTile.getMinSpawnDelay(), this.spawnerTile.getMaxSpawnDelay());
         } else {
-            delay = this.spawner.getDelay();
+            delay = this.spawnerTile.getDelay();
         }
 
         this.spawnerTile.setDelay(delay);
-    }
-
-    public void updateSpawnerState() {
-        if (this.spawner.getBlock().getType() == Material.SPAWNER)
-            this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
     }
 
 }

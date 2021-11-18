@@ -33,6 +33,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -62,7 +63,7 @@ public class MobSpawningMethod implements SpawningMethod {
         List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
         spawnRequirements.removeAll(perSpawnConditions);
 
-        Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner.getSpawner(), stackSettings, stackedSpawner.getBlock())).collect(Collectors.toSet());
+        Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());
         if (Setting.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.getBoolean() && !stackedSpawner.isPlacedByPlayer())
             invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
 
@@ -101,7 +102,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
                     boolean invalid = false;
                     for (ConditionTag conditionTag : perSpawnConditions) {
-                        if (!conditionTag.check(stackedSpawner.getSpawner(), stackSettings, target)) {
+                        if (!conditionTag.check(stackedSpawner, target)) {
                             invalid = true;
                         } else {
                             invalidSpawnConditions.remove(conditionTag);
@@ -121,7 +122,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 }
             }
 
-            EntityType entityType = stackedSpawner.getSpawner().getSpawnedType();
+            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
             Predicate<Entity> predicate = entity -> entity.getType() == entityType;
             Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(stackedSpawner.getLocation(), stackSettings.getSpawnRange(), predicate);
             List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
@@ -150,7 +151,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
-                    if (stackedSpawner.getSpawner().getBlock().getType() == Material.SPAWNER)
+                    if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });
             }
@@ -208,7 +209,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 for (StackedEntity stackedEntity : newStacks) {
                     LivingEntity entity = stackedEntity.getEntity();
 
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, (CreatureSpawner) stackedSpawner.getBlock().getState());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                     if (spawnerSpawnEvent.isCancelled())
                         continue;
@@ -244,7 +245,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
                     SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, (CreatureSpawner) stackedSpawner.getBlock().getState());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                     if (spawnerSpawnEvent.isCancelled()) {
                         entity.remove();

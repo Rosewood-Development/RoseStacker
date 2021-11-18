@@ -33,7 +33,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -208,7 +207,7 @@ public class DataManager extends AbstractDataManager {
                 }
 
                 if (!invalid)
-                    stackedSpawners.add(new StackedSpawner(stackData.stackSize, (CreatureSpawner) block.getState(), stackData.placedByPlayer));
+                    stackedSpawners.add(new StackedSpawner(stackData.stackSize, block, stackData.placedByPlayer));
             }
 
             callback.accept(stackedSpawners);

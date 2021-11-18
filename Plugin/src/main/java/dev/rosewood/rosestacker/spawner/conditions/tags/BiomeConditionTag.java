@@ -2,13 +2,12 @@ package dev.rosewood.rosestacker.spawner.conditions.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 
 public class BiomeConditionTag extends ConditionTag {
 
@@ -19,7 +18,7 @@ public class BiomeConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
+    public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
         return this.biomes.contains(spawnBlock.getBiome());
     }
 

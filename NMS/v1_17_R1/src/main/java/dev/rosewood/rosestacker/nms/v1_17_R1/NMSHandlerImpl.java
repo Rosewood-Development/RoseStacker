@@ -57,7 +57,7 @@ import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -425,9 +425,9 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
         StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
-        CreatureSpawner spawner = stackedSpawner.getSpawner();
-        ServerLevel level = ((CraftWorld) spawner.getWorld()).getHandle();
-        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(spawner.getX(), spawner.getY(), spawner.getZ()));
+        Block block = stackedSpawner.getBlock();
+        ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
+        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(block.getX(), block.getY(), block.getZ()));
         if (blockEntity instanceof SpawnerBlockEntity) {
             SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
             if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
@@ -435,7 +435,9 @@ public class NMSHandlerImpl implements NMSHandler {
                 unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
                 return stackedSpawnerTile;
             } else {
-                return (StackedSpawnerTile) spawnerBlockEntity.getSpawner();
+                StackedSpawnerTileImpl spawnerTile = (StackedSpawnerTileImpl) spawnerBlockEntity.getSpawner();
+                spawnerTile.updateStackedSpawner(stackedSpawner);
+                return spawnerTile;
             }
         }
         return null;

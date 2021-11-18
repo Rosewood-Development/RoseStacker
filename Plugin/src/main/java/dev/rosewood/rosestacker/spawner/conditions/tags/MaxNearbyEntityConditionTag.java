@@ -7,12 +7,12 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -28,15 +28,16 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock) {
+    public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
         if (this.stackManager == null || this.entityCacheManager == null) {
             this.stackManager = RoseStacker.getInstance().getManager(StackManager.class);
             this.entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         }
 
-        int detectionRange = stackSettings.getEntitySearchRange() == -1 ? creatureSpawner.getSpawnRange() : stackSettings.getEntitySearchRange();
-        Block block = creatureSpawner.getBlock();
-        EntityType entityType = creatureSpawner.getSpawnedType();
+        SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
+        int detectionRange = stackSettings.getEntitySearchRange() == -1 ? stackedSpawner.getSpawnerTile().getSpawnRange() : stackSettings.getEntitySearchRange();
+        Block block = stackedSpawner.getBlock();
+        EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
 
         Collection<Entity> nearbyEntities = this.entityCacheManager.getNearbyEntities(
                 block.getLocation().clone().add(0.5, 0.5, 0.5),

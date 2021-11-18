@@ -2,7 +2,6 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.manager.StackManager;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Location;
@@ -37,13 +36,6 @@ public interface StackingLogic {
      * @return a map of all loaded stacked spawners
      */
     Map<Block, StackedSpawner> getStackedSpawners();
-
-    /**
-     * Gets all active stacked spawners in a list format, this call is faster to produce a result than {@link StackingLogic#getStackedSpawners()}
-     *
-     * @return a list of all active stacked spawners
-     */
-    List<StackedSpawner> getStackedSpawnersList();
 
     /**
      * Gets a StackedEntity for a given LivingEntity

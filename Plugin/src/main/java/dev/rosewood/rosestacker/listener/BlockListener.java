@@ -120,20 +120,11 @@ public class BlockListener implements Listener {
             if (!stackManager.isSpawnerStackingEnabled())
                 return;
 
-            EntityType entityType = ((CreatureSpawner) block.getState()).getSpawnedType();
-
-            // Always drop the correct spawner type even if it's not stacked
-            if (!isStacked) {
-                if (this.tryDropSpawners(player, dropLocation, entityType, 1, false)) {
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> block.setType(Material.AIR));
-                    BlockLoggingHook.recordBlockBreak(player, block);
-                    this.damageTool(player);
-                }
-                event.setCancelled(true);
-                return;
-            }
-
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            if (stackedSpawner == null)
+                stackedSpawner = stackManager.createSpawnerStack(block, 1, false);
+
+            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
             boolean breakEverything = Setting.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             int breakAmount = breakEverything ? stackedSpawner.getStackSize() : 1;
 
@@ -436,10 +427,9 @@ public class BlockListener implements Listener {
                 } else {
                     stackedSpawner.setStackSize(0);
                     stackManager.removeSpawnerStack(stackedSpawner);
-                    EntityType spawnedType = ((CreatureSpawner) block.getState()).getSpawnedType();
                     block.setType(Material.AIR);
                     Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                            block.getWorld().dropItemNaturally(block.getLocation().clone(), ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize)));
+                            block.getWorld().dropItemNaturally(block.getLocation().clone(), ItemUtils.getSpawnerAsStackedItemStack(stackedSpawner.getSpawnerTile().getSpawnedType(), newStackSize)));
                 }
             }
         }
@@ -535,7 +525,7 @@ public class BlockListener implements Listener {
             boolean anyNearby = false;
             for (StackedSpawner spawner : new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values())) {
                 double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                if (distance < closestDistance && spawner.getSpawner().getSpawnedType() == entityType) {
+                if (distance < closestDistance && spawner.getSpawnerTile().getSpawnedType() == entityType) {
                     anyNearby = true;
                     if (spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
                         closestDistance = distance;
@@ -545,7 +535,7 @@ public class BlockListener implements Listener {
             }
 
             if (nearest != null) {
-                against = nearest.getSpawner().getBlock();
+                against = nearest.getBlock();
                 isAdditiveStack = true;
                 isDistanceStack = true;
             } else if (anyNearby) {
@@ -667,7 +657,6 @@ public class BlockListener implements Listener {
             // Set the spawner type
             StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
             if (placedItem.getType() == Material.SPAWNER) {
-                CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = ItemUtils.getStackedItemEntityType(placedItem);
                 if (spawnedType == null)
                     return;
@@ -675,9 +664,6 @@ public class BlockListener implements Listener {
                 SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnedType);
                 if (spawnerStackSettings == null)
                     return;
-
-                spawner.setSpawnedType(spawnedType);
-                spawner.update(false, false);
 
                 if (stackAmount <= 0)
                     return;
@@ -687,7 +673,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedSpawner tempStackedSpawner = new StackedSpawner(0, spawner, true);
+                StackedSpawner tempStackedSpawner = new StackedSpawner(0, block, true);
                 SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {
@@ -697,7 +683,11 @@ public class BlockListener implements Listener {
                 }
                 stackAmount = spawnerStackEvent.getIncreaseAmount();
 
-                stackManager.createSpawnerStack(block, stackAmount, true);
+                StackedSpawner stackedSpawner = stackManager.createSpawnerStack(block, stackAmount, true);
+                if (stackedSpawner != null) {
+                    stackedSpawner.getSpawnerTile().setSpawnedType(spawnedType);
+                    stackedSpawner.updateSpawnerProperties(true);
+                }
             } else {
                 if (stackAmount <= 1)
                     return;

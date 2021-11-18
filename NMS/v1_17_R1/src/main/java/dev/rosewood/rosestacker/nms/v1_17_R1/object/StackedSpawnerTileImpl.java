@@ -9,6 +9,7 @@ import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
@@ -25,9 +26,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawnerTile {
 
     private final SpawnerBlockEntity blockEntity;
-    private final StackedSpawner stackedSpawner;
     private final SettingFetcher settingFetcher;
     private final BlockPos blockPos;
+    private StackedSpawner stackedSpawner;
+
     private boolean redstoneDeactivated;
 
     public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner, SettingFetcher settingFetcher) {
@@ -137,6 +139,28 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         this.requiredPlayerRange = baseSpawner.requiredPlayerRange;
         this.spawnRange = baseSpawner.spawnRange;
         this.updateTile();
+    }
+
+    public void updateStackedSpawner(StackedSpawner stackedSpawner) {
+        this.stackedSpawner = stackedSpawner;
+    }
+
+    @Override
+    public EntityType getSpawnedType() {
+        ResourceLocation resourceLocation = ResourceLocation.tryParse(this.nextSpawnData.getTag().getString("id"));
+        if (resourceLocation != null) {
+            NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
+            EntityType entityType = this.fromKey(namespacedKey);
+            if (entityType != null)
+                return entityType;
+        }
+        return EntityType.PIG;
+    }
+
+    @Override
+    public void setSpawnedType(EntityType entityType) {
+        this.nextSpawnData.getTag().putString("id", entityType.getKey().getKey());
+        this.spawnPotentials = WeightedRandomList.create();
     }
 
     @Override

@@ -2,11 +2,10 @@ package dev.rosewood.rosestacker.spawner.conditions;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 
 /**
  * Represents a tag for a spawner condition
@@ -50,12 +49,11 @@ public abstract class ConditionTag {
     /**
      * Checks if the spawn block meets this tag's condition
      *
-     * @param creatureSpawner The spawner that will be spawning the entity
-     * @param stackSettings The spawner stack settings
-     * @param spawnBlock The block the entity will be in
+     * @param stackedSpawner The spawner that will be spawning the entity
+     * @param spawnBlock The block the entity will be spawned in
      * @return true if the condition is met, otherwise false
      */
-    public abstract boolean check(CreatureSpawner creatureSpawner, SpawnerStackSettings stackSettings, Block spawnBlock);
+    public abstract boolean check(StackedSpawner stackedSpawner, Block spawnBlock);
 
     /**
      * Parses the value portion of the tag

@@ -17,7 +17,7 @@ public class StackChunkData {
     }
 
     public void addSpawner(StackedSpawner stackedSpawner) {
-        this.stackedSpawners.put(stackedSpawner.getSpawner().getBlock(), stackedSpawner);
+        this.stackedSpawners.put(stackedSpawner.getBlock(), stackedSpawner);
     }
 
     public void addBlock(StackedBlock stackedBlock) {
@@ -25,7 +25,7 @@ public class StackChunkData {
     }
 
     public void removeSpawner(StackedSpawner stackedSpawner) {
-        this.stackedSpawners.remove(stackedSpawner.getSpawner().getBlock());
+        this.stackedSpawners.remove(stackedSpawner.getBlock());
     }
 
     public void removeBlock(StackedBlock stackedBlock) {
