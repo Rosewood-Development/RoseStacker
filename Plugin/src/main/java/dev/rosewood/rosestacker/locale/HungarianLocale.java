@@ -173,6 +173,8 @@ public class HungarianLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Érvénytelen kivételes spawn blokkok");
             this.put("spawner-condition-darkness-info", "Alacsony Fény Szint");
             this.put("spawner-condition-darkness-invalid", "Terület túl fényes");
+            this.put("spawner-condition-total-darkness-info", "Teljes sötétség");
+            this.put("spawner-condition-total-darkness-invalid", "A területen nem lehet fény");
             this.put("spawner-condition-fluid-info", "Folyadék Szükséges");
             this.put("spawner-condition-fluid-invalid", "Nincs közelben folyadék");
             this.put("spawner-condition-lightness-info", "Nagy Fény Szint");

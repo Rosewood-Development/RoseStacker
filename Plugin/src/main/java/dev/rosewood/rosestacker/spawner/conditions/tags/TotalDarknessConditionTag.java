@@ -9,9 +9,9 @@ import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 
-public class DarknessConditionTag extends ConditionTag {
+public class TotalDarknessConditionTag extends ConditionTag {
 
-    public DarknessConditionTag(String tag) {
+    public TotalDarknessConditionTag(String tag) {
         super(tag, true);
     }
 
@@ -20,10 +20,7 @@ public class DarknessConditionTag extends ConditionTag {
         if (StackerUtils.isOccluding(spawnBlock.getType()))
             return false;
 
-        if (stackedSpawner.getSpawnerTile().getSpawnedType() == EntityType.BLAZE || stackedSpawner.getSpawnerTile().getSpawnedType() == EntityType.SILVERFISH)
-            return spawnBlock.getLightLevel() <= 11;
-
-        return spawnBlock.getLightLevel() <= 7;
+        return spawnBlock.getLightLevel() == 0;
     }
 
     @Override

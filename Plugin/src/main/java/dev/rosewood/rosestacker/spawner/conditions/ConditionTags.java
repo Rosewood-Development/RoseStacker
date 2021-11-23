@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.spawner.conditions.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.spawner.conditions.tags.NotPlayerPlacedConditionTag;
 import dev.rosewood.rosestacker.spawner.conditions.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.spawner.conditions.tags.SkylightAccessConditionTag;
+import dev.rosewood.rosestacker.spawner.conditions.tags.TotalDarknessConditionTag;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public final class ConditionTags {
         registerTag("block", BlockConditionTag.class, "Spawn area must be on one of the given blocks. Example: `block:grass_block,sand`");
         registerTag("block-exception", BlockExceptionConditionTag.class, "Spawn area must not be on one of the given blocks. Example: `block-exeption:bedrock,barrier`");
         registerTag("darkness", DarknessConditionTag.class, "Spawn area must be below light level 8");
+        registerTag("total-darkness", TotalDarknessConditionTag.class, "Spawn area must have no light at all");
         registerTag("fluid", FluidConditionTag.class, "Spawn area must be inside a fluid. Valid values are `water` and `lava`. Example: `fluid:water`");
         registerTag("lightness", LightnessConditionTag.class, "Spawn area must be above light level 8");
         registerTag("max-nearby-entities", MaxNearbyEntityConditionTag.class, "Spawn area must have below a certain number of entities. Example: `max-nearby-entities:6`");

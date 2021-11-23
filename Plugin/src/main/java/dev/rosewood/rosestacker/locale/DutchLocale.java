@@ -172,6 +172,8 @@ public class DutchLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Uitgezonderde spawn blocks");
             this.put("spawner-condition-darkness-info", "Laag licht level");
             this.put("spawner-condition-darkness-invalid", "Arena is te licht");
+            this.put("spawner-condition-total-darkness-info", "Totale Duisternis");
+            this.put("spawner-condition-total-darkness-invalid", "Gebied mag geen licht hebben");
             this.put("spawner-condition-fluid-info", "Heeft vloeistof nodig");
             this.put("spawner-condition-fluid-invalid", "Geen vloeistof in de buurt");
             this.put("spawner-condition-lightness-info", "Hoog licht level");
