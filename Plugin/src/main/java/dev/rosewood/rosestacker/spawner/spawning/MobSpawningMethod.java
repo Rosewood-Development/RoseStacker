@@ -53,7 +53,8 @@ public class MobSpawningMethod implements SpawningMethod {
     }
 
     @Override
-    public void spawn(StackedSpawner stackedSpawner, StackedSpawnerTile spawnerTile) {
+    public void spawn(StackedSpawner stackedSpawner) {
+        StackedSpawnerTile spawnerTile = stackedSpawner.getSpawnerTile();
         SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
 
         // Mob spawning logic

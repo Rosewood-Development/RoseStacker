@@ -22,6 +22,9 @@ allprojects {
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.viaversion.com/' }
+        maven { url = 'https://jitpack.io' }
+        maven { url = 'https://libraries.minecraft.net' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
         maven {
@@ -43,6 +46,7 @@ dependencies {
     implementation project(':NMS:v1_16_R2')
     implementation project(':NMS:v1_16_R3')
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_18_R1', configuration: 'remapped')
 }
 
 shadowJar {

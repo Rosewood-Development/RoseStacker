@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_17_R1;
+package dev.rosewood.rosestacker.nms.v1_18_R1;
 
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -8,11 +8,13 @@ import dev.rosewood.rosestacker.nms.object.SettingFetcher;
 import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
-import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
-import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.CompactNBTImpl;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.SynchedEntityDataWrapper;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.WrappedNBTImpl;
+import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SoloEntitySpider;
+import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_18_R1.object.CompactNBTImpl;
+import dev.rosewood.rosestacker.nms.v1_18_R1.object.StackedSpawnerTileImpl;
+import dev.rosewood.rosestacker.nms.v1_18_R1.object.SynchedEntityDataWrapper;
+import dev.rosewood.rosestacker.nms.v1_18_R1.object.WrappedNBTImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Field;
@@ -49,20 +51,22 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreeper;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftTurtle;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftNamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftCreeper;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftTurtle;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftNamespacedKey;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -277,7 +281,7 @@ public class NMSHandlerImpl implements NMSHandler {
         if (world == null)
             throw new IllegalArgumentException("Entity is not in a loaded world");
 
-        ((CraftWorld) world).getHandle().addEntity(((CraftEntity) entity).getHandle(), spawnReason);
+        ((CraftWorld) world).getHandle().entityManager.addNewEntity(((CraftEntity) entity).getHandle());
     }
 
     @Override
@@ -420,6 +424,22 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
+        StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
+        Block block = stackedSpawner.getBlock();
+        ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
+        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(block.getX(), block.getY(), block.getZ()));
+        if (blockEntity instanceof SpawnerBlockEntity) {
+            SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
+            if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
+                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner, settingFetcher);
+                unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
+                return stackedSpawnerTile;
+            } else {
+                StackedSpawnerTileImpl spawnerTile = (StackedSpawnerTileImpl) spawnerBlockEntity.getSpawner();
+                spawnerTile.updateStackedSpawner(stackedSpawner);
+                return spawnerTile;
+            }
+        }
         return null;
     }
 
