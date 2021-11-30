@@ -1,11 +1,11 @@
 package dev.rosewood.rosestacker.hologram;
 
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import eu.decentsoftware.holograms.api.DecentHologramsProvider;
+import eu.decentsoftware.holograms.api.DecentHolograms;
+import eu.decentsoftware.holograms.api.DecentHologramsAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
-import eu.decentsoftware.holograms.api.managers.HologramManager;
-import eu.decentsoftware.holograms.core.holograms.DefaultHologram;
-import eu.decentsoftware.holograms.core.holograms.DefaultHologramLine;
+import eu.decentsoftware.holograms.api.holograms.HologramLine;
+import eu.decentsoftware.holograms.api.holograms.HologramPage;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,11 +14,11 @@ import org.bukkit.entity.Entity;
 
 public class DecentHologramsHandler implements HologramHandler {
 
-    private final HologramManager manager;
+    private final DecentHolograms decentHolograms;
     private final Map<Location, Hologram> holograms;
 
     public DecentHologramsHandler() {
-        this.manager = DecentHologramsProvider.getDecentHolograms().getHologramManager();
+        this.decentHolograms = DecentHologramsAPI.get();
         this.holograms = new HashMap<>();
     }
 
@@ -27,13 +27,15 @@ public class DecentHologramsHandler implements HologramHandler {
         String key = StackerUtils.locationAsKey(location);
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = new DefaultHologram(key, location.clone().add(0, 1, 0), false);
-            hologram.addLine(new DefaultHologramLine(location, text));
-            this.manager.registerHologram(hologram);
+            hologram = new Hologram(key, location.clone().add(0, 1, 0), false);
+            HologramPage page = hologram.getPage(0);
+            page.addLine(new HologramLine(page, location, text));
+            this.decentHolograms.getHologramManager().registerHologram(hologram);
             this.holograms.put(location, hologram);
         } else {
-            hologram.getLine(0).setContent(text);
-            hologram.getLine(0).update();
+            HologramLine line = hologram.getPage(0).getLine(0);
+            line.setContent(text);
+            line.update();
         }
     }
 
@@ -41,8 +43,8 @@ public class DecentHologramsHandler implements HologramHandler {
     public void deleteHologram(Location location) {
         String key = StackerUtils.locationAsKey(location);
         this.holograms.remove(location);
-        if (this.manager.containsHologram(key))
-            this.manager.removeHologram(key);
+        if (this.decentHolograms.getHologramManager().containsHologram(key))
+            this.decentHolograms.getHologramManager().removeHologram(key);
     }
 
     @Override

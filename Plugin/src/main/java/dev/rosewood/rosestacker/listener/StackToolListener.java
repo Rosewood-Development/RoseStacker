@@ -256,7 +256,7 @@ public class StackToolListener implements Listener {
                     return;
 
                 this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.single("type", stackedSpawner.getSpawner().getSpawnedType().name()));
+                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.single("type", stackedSpawner.getSpawnerTile().getSpawnedType().name()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", stackedSpawner.getStackSize()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", clickedBlock.getX())
                         .addPlaceholder("y", clickedBlock.getY()).addPlaceholder("z", clickedBlock.getZ()).addPlaceholder("world", clickedBlock.getWorld().getName()).build());
@@ -270,9 +270,14 @@ public class StackToolListener implements Listener {
             if (clickedBlock == null || clickedBlock.getType() != Material.SPAWNER)
                 return;
 
-            CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
-            creatureSpawner.setDelay(5);
-            creatureSpawner.update();
+            StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
+            if (stackedSpawner == null) {
+                CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
+                creatureSpawner.setDelay(5);
+                creatureSpawner.update();
+            } else {
+                stackedSpawner.getSpawnerTile().setDelay(5);
+            }
 
             int points = 50;
             for (int i = 0; i < points; i++) {

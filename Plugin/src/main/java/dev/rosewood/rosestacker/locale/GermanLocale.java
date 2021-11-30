@@ -173,6 +173,8 @@ public class GermanLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Ausgeschlossene Spawn Blöcke");
             this.put("spawner-condition-darkness-info", "Niedriges Licht Level");
             this.put("spawner-condition-darkness-invalid", "Bereich ist zu Hell");
+            this.put("spawner-condition-total-darkness-info", "Totale Dunkelheit");
+            this.put("spawner-condition-total-darkness-invalid", "Bereich darf kein Licht haben");
             this.put("spawner-condition-fluid-info", "Benötigt Flüssigkeit");
             this.put("spawner-condition-fluid-invalid", "Keine Flüssigkeit in der Nähe");
             this.put("spawner-condition-lightness-info", "Hohes Licht Level");

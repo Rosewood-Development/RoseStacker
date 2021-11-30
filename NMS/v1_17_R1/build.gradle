@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     compileOnly project(':NMS:Wrapper')
+    compileOnly project(':Plugin')
     compileOnly 'org.spigotmc:spigot:1.17.1:remapped-mojang'
 
     mojangToObf 'org.spigotmc:minecraft-server:1.17.1:maps-mojang@txt'

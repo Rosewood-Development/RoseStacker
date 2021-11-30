@@ -20,7 +20,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -155,7 +154,7 @@ public final class DataUtils {
                     boolean placedByPlayer = dataInput.readBoolean();
                     Block block = chunk.getBlock(x, y, z);
                     if (block.getType() == Material.SPAWNER)
-                        stackedSpawners.add(new StackedSpawner(stackSize, (CreatureSpawner) block.getState(), placedByPlayer));
+                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer));
                 }
             }
         } catch (Exception e) {

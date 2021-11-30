@@ -15,7 +15,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -58,9 +57,12 @@ public class InteractListener implements Listener {
                     && ItemUtils.isSpawnEgg(item.getType())
                     && ItemUtils.getStackedItemStackAmount(item) == 1) {
 
-                CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                if (stackedSpawner == null)
+                    stackedSpawner = stackManager.createSpawnerStack(clickedBlock, 1, false);
+
                 EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
-                if (stackSettings != null && stackSettings.getEntityType() == creatureSpawner.getSpawnedType()) {
+                if (stackSettings != null && stackSettings.getEntityType() == stackedSpawner.getSpawnerTile().getSpawnedType()) {
                     // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
                     event.setCancelled(true);
                     return;
@@ -71,10 +73,6 @@ public class InteractListener implements Listener {
                     return;
                 }
 
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-                if (stackedSpawner == null)
-                    return;
-
                 if (Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean()
                         && item.getAmount() < stackedSpawner.getStackSize()
                         && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
@@ -83,13 +81,14 @@ public class InteractListener implements Listener {
                     return;
                 }
 
+                StackedSpawner finalStackedSpawner = stackedSpawner;
                 Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                     // Make sure spawners convert and update their display properly
-                    stackedSpawner.updateSpawnerProperties(false);
-                    stackedSpawner.updateDisplay();
+                    finalStackedSpawner.updateSpawnerProperties(false);
+                    finalStackedSpawner.updateDisplay();
 
-                    if (stackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
-                        item.setAmount(item.getAmount() - stackedSpawner.getStackSize() + 1);
+                    if (finalStackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
+                        item.setAmount(item.getAmount() - finalStackedSpawner.getStackSize() + 1);
                 });
 
                 return;

@@ -4,13 +4,13 @@ import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.SettingFetcher;
+import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.object.CompactNBTImpl;
-import dev.rosewood.rosestacker.nms.v1_16_R3.object.SpawnerTileWrapperImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.object.WrappedNBTImpl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -59,7 +59,6 @@ import net.minecraft.server.v1_16_R3.PathfinderGoalWrapped;
 import net.minecraft.server.v1_16_R3.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
@@ -425,11 +424,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public SpawnerTileWrapper getSpawnerTile(CreatureSpawner spawner) {
-        return new SpawnerTileWrapperImpl(spawner);
-    }
-
-    @Override
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().killer = ((CraftPlayer) player).getHandle();
@@ -443,6 +437,11 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public CompactNBT loadCompactNBT(byte[] data) {
         return new CompactNBTImpl(data);
+    }
+
+    @Override
+    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawner, SettingFetcher settingFetcher) {
+        return null; // TODO
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

@@ -173,6 +173,8 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "范围内有被排除的生成方块");
             this.put("spawner-condition-darkness-info", "低光限制");
             this.put("spawner-condition-darkness-invalid", "该区域目前光源充足，太亮了");
+            this.put("spawner-condition-total-darkness-info", "完全黑暗");
+            this.put("spawner-condition-total-darkness-invalid", "该地区必须没有光线");
             this.put("spawner-condition-fluid-info", "需要流体");
             this.put("spawner-condition-fluid-invalid", "附近没有流体");
             this.put("spawner-condition-lightness-info", "高光要求");

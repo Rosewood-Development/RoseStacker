@@ -318,14 +318,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
-    public List<StackedSpawner> getStackedSpawnersList() {
-        List<StackedSpawner> stackedSpawners = new ArrayList<>();
-        for (StackChunkData stackChunkData : this.stackChunkData.values())
-            stackedSpawners.addAll(stackChunkData.getSpawners().values());
-        return stackedSpawners;
-    }
-
-    @Override
     public StackedEntity getStackedEntity(LivingEntity livingEntity) {
         return this.stackedEntities.get(livingEntity.getUniqueId());
     }
@@ -419,7 +411,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     @Override
     public void removeSpawnerStack(StackedSpawner stackedSpawner) {
-        Block key = stackedSpawner.getSpawner().getBlock();
+        Block key = stackedSpawner.getBlock();
         stackedSpawner.kickOutGuiViewers();
 
         StackChunkData stackChunkData = this.stackChunkData.get(key.getChunk());
@@ -573,7 +565,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isSpawnerStackingEnabled() || !this.stackManager.isSpawnerTypeStackable(creatureSpawner.getSpawnedType()))
             return null;
 
-        StackedSpawner newStackedSpawner = new StackedSpawner(amount, creatureSpawner, placedByPlayer);
+        StackedSpawner newStackedSpawner = new StackedSpawner(amount, block, placedByPlayer);
 
         StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
         if (stackChunkData == null) {
@@ -902,7 +894,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
         if (this.stackManager.isSpawnerStackingEnabled())
             for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
-                stackedSpawners.put(stackedSpawner.getSpawner().getBlock(), stackedSpawner);
+                stackedSpawners.put(stackedSpawner.getBlock(), stackedSpawner);
 
         Map<Block, StackedBlock> stackedBlocks = new ConcurrentHashMap<>();
         if (this.stackManager.isBlockStackingEnabled())
@@ -995,7 +987,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      * @param stackedSpawner to load
      */
     public void putStackedSpawner(StackedSpawner stackedSpawner) {
-        Block block = stackedSpawner.getSpawner().getBlock();
+        Block block = stackedSpawner.getBlock();
         StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
         if (stackChunkData == null) {
             stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());

@@ -173,6 +173,8 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Excluded spawn blocks");
             this.put("spawner-condition-darkness-info", "Low Light Level");
             this.put("spawner-condition-darkness-invalid", "Area is too bright");
+            this.put("spawner-condition-total-darkness-info", "Total Darkness");
+            this.put("spawner-condition-total-darkness-invalid", "Area must have no light");
             this.put("spawner-condition-fluid-info", "Requires Fluid");
             this.put("spawner-condition-fluid-invalid", "No nearby fluid");
             this.put("spawner-condition-lightness-info", "High Light Level");

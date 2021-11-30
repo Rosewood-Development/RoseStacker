@@ -172,6 +172,8 @@ public class RomanianLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Block-uri de spawnare excluse");
             this.put("spawner-condition-darkness-info", "Nivel scazut de lumina");
             this.put("spawner-condition-darkness-invalid", "Necesita intuneric");
+            this.put("spawner-condition-total-darkness-info", "Întuneric total");
+            this.put("spawner-condition-total-darkness-invalid", "Zona nu trebuie să aibă lumină");
             this.put("spawner-condition-fluid-info", "Necesita fluiditate");
             this.put("spawner-condition-fluid-invalid", "Fluiditate negasita");
             this.put("spawner-condition-lightness-info", "Nivel ridicat de lumina");

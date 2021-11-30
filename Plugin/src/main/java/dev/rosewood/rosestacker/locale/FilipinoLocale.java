@@ -173,6 +173,8 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "Hindi kasama ang mga spawn block");
             this.put("spawner-condition-darkness-info", "Mababang Antas ng Magaan");
             this.put("spawner-condition-darkness-invalid", "Masyadong maliwanag ang lugar");
+            this.put("spawner-condition-total-darkness-info", "Ganap na Kadiliman");
+            this.put("spawner-condition-total-darkness-invalid", "Dapat walang ilaw ang lugar");
             this.put("spawner-condition-fluid-info", "Nangangailangan ng Fluid");
             this.put("spawner-condition-fluid-invalid", "Walang malapit na likido");
             this.put("spawner-condition-lightness-info", "Mataas na Antas ng Magaan");

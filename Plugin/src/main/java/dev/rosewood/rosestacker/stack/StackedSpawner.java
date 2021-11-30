@@ -4,14 +4,15 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
+import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.object.SpawnerTileWrapper;
+import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
+import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,46 +20,34 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private int size;
-    private CreatureSpawner spawner;
-    private SpawnerTileWrapper spawnerTile;
+    private StackedSpawnerTile spawnerTile;
     private Block block;
-    private Location location;
     private boolean placedByPlayer;
     private StackedSpawnerGui stackedSpawnerGui;
     private List<Class<? extends ConditionTag>> lastInvalidConditions;
-
-    private boolean powered;
-    private int lastDelay;
-
     private SpawnerStackSettings stackSettings;
 
-    public StackedSpawner(int size, CreatureSpawner spawner, boolean placedByPlayer) {
+    public StackedSpawner(int size, Block spawner, boolean placedByPlayer) {
+        if (spawner.getType() != Material.SPAWNER)
+            throw new IllegalArgumentException("Block must be a spawner");
+
         this.size = size;
-        this.spawner = spawner;
         this.placedByPlayer = placedByPlayer;
-        this.location = this.spawner.getLocation();
         this.stackedSpawnerGui = null;
         this.lastInvalidConditions = new ArrayList<>();
 
-        this.powered = false;
-        this.lastDelay = spawner.getDelay();
+        this.block = spawner;
+        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
-        if (this.spawner != null) {
-            this.spawnerTile = NMSAdapter.getHandler().getSpawnerTile(this.spawner);
-            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
-            this.block = spawner.getBlock();
-
-            if (Bukkit.isPrimaryThread()) {
-                this.updateSpawnerProperties(true);
-                this.updateDisplay();
-            }
+        if (Bukkit.isPrimaryThread()) {
+            this.updateSpawnerProperties(true);
+            this.updateDisplay();
         }
     }
 
@@ -70,21 +59,15 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
      */
     public StackedSpawner(int size, Location location) {
         this.size = size;
-        this.spawner = null;
-        this.location = location;
+        if (location.getWorld() != null)
+            this.block = location.getWorld().getBlockAt(location);
     }
 
-    public CreatureSpawner getSpawner() {
-        return this.spawner;
-    }
-
-    public SpawnerTileWrapper getSpawnerTile() {
+    public StackedSpawnerTile getSpawnerTile() {
         return this.spawnerTile;
     }
 
     public Block getBlock() {
-        if (this.block == null)
-            this.block = this.spawner.getBlock();
         return this.block;
     }
 
@@ -127,7 +110,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     @Override
     public Location getLocation() {
-        return this.location;
+        return this.block.getLocation();
     }
 
     @Override
@@ -137,7 +120,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
-        Location location = this.location.clone().add(0.5, 0.75, 0.5);
+        Location location = this.block.getLocation().add(0.5, 0.75, 0.5);
 
         int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
         if (this.size <= sizeForHologram) {
@@ -167,15 +150,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public void updateSpawnerProperties(boolean resetDelay) {
-        if (this.spawner.getBlock().getType() != Material.SPAWNER)
-            return;
-
         // Handle the entity type changing
-        EntityType oldEntityType = this.spawner.getSpawnedType();
-        this.updateSpawnerState();
-        this.spawnerTile = NMSAdapter.getHandler().getSpawnerTile(this.spawner);
-        if (oldEntityType != this.spawner.getSpawnedType())
-            this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawner);
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
         if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
         if (this.stackSettings.getMaxSpawnDelay() != -1) this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
@@ -187,31 +163,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         if (resetDelay) {
             delay = StackerUtils.randomInRange(this.spawnerTile.getMinSpawnDelay(), this.spawnerTile.getMaxSpawnDelay());
         } else {
-            delay = this.spawner.getDelay();
+            delay = this.spawnerTile.getDelay();
         }
 
         this.spawnerTile.setDelay(delay);
-    }
-
-    public void updateSpawnerState() {
-        if (this.spawner.getBlock().getType() == Material.SPAWNER)
-            this.spawner = (CreatureSpawner) this.spawner.getBlock().getState();
-    }
-
-    public void setPowered(boolean powered) {
-        this.powered = powered;
-    }
-
-    public boolean isPowered() {
-        return this.powered;
-    }
-
-    public void setLastDelay(int lastDelay) {
-        this.lastDelay = lastDelay;
-    }
-
-    public int getLastDelay() {
-        return this.lastDelay;
     }
 
 }

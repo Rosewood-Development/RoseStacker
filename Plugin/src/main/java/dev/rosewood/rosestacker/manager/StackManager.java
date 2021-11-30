@@ -145,13 +145,6 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public List<StackedSpawner> getStackedSpawnersList() {
-        List<StackedSpawner> stackedSpawners = new ArrayList<>();
-        this.stackingThreads.values().forEach(x -> stackedSpawners.addAll(x.getStackedSpawnersList()));
-        return stackedSpawners;
-    }
-
-    @Override
     public StackedEntity getStackedEntity(LivingEntity livingEntity) {
         StackingThread stackingThread = this.getStackingThread(livingEntity.getWorld());
         if (stackingThread == null)
@@ -230,7 +223,7 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void removeSpawnerStack(StackedSpawner stackedSpawner) {
-        StackingThread stackingThread = this.getStackingThread(stackedSpawner.getSpawner().getWorld());
+        StackingThread stackingThread = this.getStackingThread(stackedSpawner.getWorld());
         if (stackingThread != null)
             stackingThread.removeSpawnerStack(stackedSpawner);
     }

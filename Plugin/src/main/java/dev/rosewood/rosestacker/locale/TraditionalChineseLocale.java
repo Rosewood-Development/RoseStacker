@@ -173,6 +173,8 @@ public class TraditionalChineseLocale implements Locale {
             this.put("spawner-condition-block-exception-invalid", "已從有效名單剔除的例外生成方塊");
             this.put("spawner-condition-darkness-info", "低亮度");
             this.put("spawner-condition-darkness-invalid", "該範圍太光了");
+            this.put("spawner-condition-total-darkness-info", "完全黑暗");
+            this.put("spawner-condition-total-darkness-invalid", "區域必須沒有光");
             this.put("spawner-condition-fluid-info", "要求流體");
             this.put("spawner-condition-fluid-invalid", "附近沒有流體");
             this.put("spawner-condition-lightness-info", "高亮度");

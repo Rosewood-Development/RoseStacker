@@ -26,6 +26,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -249,12 +250,23 @@ public final class ItemUtils {
         if (itemStack.getType() != Material.SPAWNER)
             return null;
 
-        // First, check the NBT
+        // First, check our NBT value
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         String entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "EntityType");
         if (!entityTypeName.isEmpty()) {
             try {
                 return EntityType.valueOf(entityTypeName);
+            } catch (Exception ignored) { }
+        }
+
+        // Then check if the spawner was created by a Purpur server
+        entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "Purpur.mob_type");
+        if (!entityTypeName.isEmpty()) {
+            try {
+                NamespacedKey entityTypeKey = NamespacedKey.fromString(entityTypeName);
+                for (EntityType entityType : EntityType.values())
+                    if (entityType != EntityType.UNKNOWN && entityType.getKey().equals(entityTypeKey))
+                        return EntityType.valueOf(entityTypeName);
             } catch (Exception ignored) { }
         }
 
