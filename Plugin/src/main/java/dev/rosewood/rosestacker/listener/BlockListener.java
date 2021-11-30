@@ -389,8 +389,15 @@ public class BlockListener implements Listener {
                     stackManager.removeBlockStack(stackedBlock);
                     Material type = block.getType();
                     block.setType(Material.AIR);
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                            stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(type, newStackSize), block.getLocation().clone().add(0.5, 0.5, 0.5)));
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                        List<ItemStack> items;
+                        if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+                            items = GuiUtil.getMaterialAmountAsItemStacks(type, newStackSize);
+                        } else {
+                            items = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(type, newStackSize));
+                        }
+                        stackManager.preStackItems(items, block.getLocation().clone().add(0.5, 0.5, 0.5));
+                    });
                 }
             } else if (stackManager.isSpawnerStacked(block)) {
                 blockList.remove(block);
@@ -427,9 +434,19 @@ public class BlockListener implements Listener {
                 } else {
                     stackedSpawner.setStackSize(0);
                     stackManager.removeSpawnerStack(stackedSpawner);
+                    EntityType spawnedType = stackedSpawner.getSpawnerTile().getSpawnedType();
                     block.setType(Material.AIR);
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () ->
-                            block.getWorld().dropItemNaturally(block.getLocation().clone(), ItemUtils.getSpawnerAsStackedItemStack(stackedSpawner.getSpawnerTile().getSpawnedType(), newStackSize)));
+                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                        List<ItemStack> items;
+                        if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+                            items = new ArrayList<>();
+                            for (int i = 0; i < newStackSize; i++)
+                                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
+                        } else {
+                            items = Collections.singletonList(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize));
+                        }
+                        stackManager.preStackItems(items, block.getLocation().clone());
+                    });
                 }
             }
         }
