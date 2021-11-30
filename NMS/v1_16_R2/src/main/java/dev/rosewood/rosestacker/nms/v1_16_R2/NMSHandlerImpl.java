@@ -11,7 +11,9 @@ import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_16_R2.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R2.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_16_R2.object.CompactNBTImpl;
+import dev.rosewood.rosestacker.nms.v1_16_R2.object.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R2.object.WrappedNBTImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -46,6 +48,7 @@ import net.minecraft.server.v1_16_R2.IChatBaseComponent;
 import net.minecraft.server.v1_16_R2.IChunkAccess;
 import net.minecraft.server.v1_16_R2.IRegistry;
 import net.minecraft.server.v1_16_R2.MathHelper;
+import net.minecraft.server.v1_16_R2.MobSpawnerAbstract;
 import net.minecraft.server.v1_16_R2.NBTBase;
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
@@ -56,9 +59,12 @@ import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_16_R2.PathfinderGoalFloat;
 import net.minecraft.server.v1_16_R2.PathfinderGoalSelector;
 import net.minecraft.server.v1_16_R2.PathfinderGoalWrapped;
+import net.minecraft.server.v1_16_R2.TileEntity;
+import net.minecraft.server.v1_16_R2.TileEntityMobSpawner;
 import net.minecraft.server.v1_16_R2.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
@@ -75,6 +81,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
@@ -92,6 +99,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
 
+    private static Unsafe unsafe;
+    private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
+
     static {
         try {
             field_PacketPlayOutEntityMetadata_a = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "a");
@@ -108,6 +118,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
+
+            Field field_SpawnerBlockEntity_spawner = ReflectionUtils.getFieldByPositionAndType(TileEntityMobSpawner.class, 0, MobSpawnerAbstract.class);
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            unsafe = (Unsafe) unsafeField.get(null);
+            field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -440,8 +456,24 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawner, SettingFetcher settingFetcher) {
-        return null; // TODO
+    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
+        StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
+        Block block = stackedSpawner.getBlock();
+        WorldServer level = ((CraftWorld) block.getWorld()).getHandle();
+        TileEntity blockEntity = level.getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));
+        if (blockEntity instanceof TileEntityMobSpawner) {
+            TileEntityMobSpawner spawnerBlockEntity = (TileEntityMobSpawner) blockEntity;
+            if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
+                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner, settingFetcher);
+                unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
+                return stackedSpawnerTile;
+            } else {
+                StackedSpawnerTileImpl spawnerTile = (StackedSpawnerTileImpl) spawnerBlockEntity.getSpawner();
+                spawnerTile.updateStackedSpawner(stackedSpawner);
+                return spawnerTile;
+            }
+        }
+        return null;
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

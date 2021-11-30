@@ -7,7 +7,6 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 
 public class TotalDarknessConditionTag extends ConditionTag {
 
