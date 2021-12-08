@@ -89,8 +89,8 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         }
 
         // Randomize spawn potentials
-        if (this.mobs.isEmpty())
-            this.spawnData = WeightedRandom.a(this.a().random, this.mobs);
+        if (!this.mobs.isEmpty())
+            this.setSpawnData(WeightedRandom.a(this.a().random, this.mobs));
     }
 
     private EntityType fromKey(NamespacedKey namespacedKey) {

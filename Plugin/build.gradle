@@ -13,7 +13,7 @@ compileJava {
 
 dependencies {
     // Other modules
-    implementation project(':NMS:Wrapper')
+    compileOnly project(':NMS:Wrapper')
 
     // Referenced dependencies
     compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT'
