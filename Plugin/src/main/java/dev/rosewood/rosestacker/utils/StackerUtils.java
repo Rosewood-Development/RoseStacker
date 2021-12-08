@@ -27,9 +27,12 @@ import org.bukkit.Material;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permissible;
@@ -277,6 +280,14 @@ public final class StackerUtils {
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
         symbols.setGroupingSeparator(!separator.isEmpty() ? separator.charAt(0) : ',');
         formatter = new DecimalFormat("#,##0", symbols);
+    }
+
+    public static int getLuckLevel(Player player) {
+        double luck = 0;
+        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_LUCK);
+        if (attribute != null)
+            luck += attribute.getValue();
+        return (int) Math.floor(luck);
     }
 
 }
