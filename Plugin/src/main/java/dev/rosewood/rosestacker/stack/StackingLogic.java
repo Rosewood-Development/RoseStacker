@@ -2,10 +2,13 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.manager.StackManager;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -246,5 +249,37 @@ public interface StackingLogic {
      * @param location the location to spawn at
      */
     void preStackItems(Collection<ItemStack> items, Location location);
+
+    /**
+     * Loads stacks for blocks and spawners for a chunk
+     *
+     * @param chunk The chunk to load data in
+     */
+    void loadChunkBlocks(Chunk chunk);
+
+    /**
+     * Loads stacks for entities and items for a chunk
+     *
+     * @param chunk The chunk to load data in
+     * @param entities The entities that are to be loaded
+     */
+    void loadChunkEntities(Chunk chunk, List<Entity> entities);
+
+    /**
+     * Saves stacks for blocks and spawners for a chunk
+     *
+     * @param chunk The chunk to save data to
+     * @param clearStored If the data should be cleared from cache
+     */
+    void saveChunkBlocks(Chunk chunk, boolean clearStored);
+
+    /**
+     * Saves stacks for entities and items for a chunk
+     *
+     * @param chunk The chunk to save data to
+     * @param entities The entities that are to be saved
+     * @param clearStored If the data should be cleared from cache
+     */
+    void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored);
 
 }

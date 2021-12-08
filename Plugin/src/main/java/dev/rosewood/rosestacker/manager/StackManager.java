@@ -73,7 +73,8 @@ public class StackManager extends Manager implements StackingLogic {
         // Load all existing stacks
         for (StackingThread stackingThread : this.stackingThreads.values()) {
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
-                stackingThread.loadChunk(chunk, chunk.getEntities());
+                stackingThread.loadChunkBlocks(chunk);
+                stackingThread.loadChunkEntities(chunk, Arrays.asList(chunk.getEntities()));
                 this.pendingLoadChunks.put(chunk, System.nanoTime());
             }
         }
@@ -82,7 +83,7 @@ public class StackManager extends Manager implements StackingLogic {
         long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
-            this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::saveAllData, interval, interval);
+            this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, () -> this.saveAllData(false), interval, interval);
         }
     }
 
@@ -107,9 +108,7 @@ public class StackManager extends Manager implements StackingLogic {
         this.pendingLoadChunks.clear();
 
         // Save anything that's loaded
-        for (StackingThread stackingThread : this.stackingThreads.values())
-            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
-                stackingThread.saveChunk(chunk, true);
+        this.saveAllData(true);
 
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
@@ -354,6 +353,49 @@ public class StackManager extends Manager implements StackingLogic {
         stackingThread.preStackItems(items, location);
     }
 
+    @Override
+    public void loadChunkBlocks(Chunk chunk) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread != null)
+            stackingThread.loadChunkBlocks(chunk);
+    }
+
+    @Override
+    public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread != null) {
+            stackingThread.loadChunkEntities(chunk, entities);
+            if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
+                this.pendingLoadChunks.put(chunk, System.nanoTime());
+        }
+    }
+
+    @Override
+    public void saveChunkBlocks(Chunk chunk, boolean clearStored) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread != null)
+            stackingThread.saveChunkBlocks(chunk, clearStored);
+    }
+
+    @Override
+    public void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored) {
+        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        if (stackingThread != null)
+            stackingThread.saveChunkEntities(chunk, entities, clearStored);
+    }
+
+    /**
+     * Saves all data in loaded chunks
+     */
+    public void saveAllData(boolean clearStored) {
+        for (StackingThread stackingThread : this.stackingThreads.values()) {
+            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
+                stackingThread.saveChunkBlocks(chunk, clearStored);
+                stackingThread.saveChunkEntities(chunk, Arrays.asList(chunk.getEntities()), clearStored);
+            }
+        }
+    }
+
     public boolean isEntityStackingEnabled() {
         return Setting.ENTITY_STACKING_ENABLED.getBoolean() && !this.conversionManager.isEntityStackingLocked();
     }
@@ -411,41 +453,6 @@ public class StackManager extends Manager implements StackingLogic {
             stackingThread.close();
             this.stackingThreads.remove(worldUUID);
         }
-    }
-
-    /**
-     * Loads all stacks from a chunk
-     *
-     * @param chunk the target chunk
-     * @param entities the chunk entities
-     */
-    public void loadChunk(Chunk chunk, Entity[] entities) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null) {
-            stackingThread.loadChunk(chunk, entities);
-            if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
-                this.pendingLoadChunks.put(chunk, System.nanoTime());
-        }
-    }
-
-    /**
-     * Saves all stacks in a chunk and unloads them
-     *
-     * @param chunk the target chunk
-     */
-    public void saveChunk(Chunk chunk) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null)
-            stackingThread.saveChunk(chunk, true);
-    }
-
-    /**
-     * Saves all data in loaded chunks
-     */
-    public void saveAllData() {
-        for (StackingThread stackingThread : this.stackingThreads.values())
-            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks())
-                stackingThread.saveChunk(chunk, false);
     }
 
     /**

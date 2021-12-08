@@ -4,7 +4,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import org.bukkit.Bukkit;
+import java.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -20,58 +20,56 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 public class WorldListener implements Listener {
 
-    private final RosePlugin rosePlugin;
     private final StackManager stackManager;
 
     public WorldListener(RosePlugin rosePlugin) {
-        this.rosePlugin = rosePlugin;
-        this.stackManager = this.rosePlugin.getManager(StackManager.class);
+        this.stackManager = rosePlugin.getManager(StackManager.class);
     }
 
+    /**
+     * 1.17 loads entities async and is handled in {@link EntitiesLoadListener} instead
+     *
+     * @param event The ChunkLoadEvent
+     */
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
         if (this.stackManager.isWorldDisabled(event.getWorld()))
             return;
 
         Chunk chunk = event.getChunk();
-        Runnable task = () -> {
-            if (!chunk.isLoaded())
-                return;
+        if (event.isNewChunk()) {
+            // Stack new entities
+            if (NMSUtil.getVersionNumber() < 17 && this.stackManager.isEntityStackingEnabled())
+                for (Entity entity : chunk.getEntities())
+                    if (entity instanceof LivingEntity)
+                        this.stackManager.createEntityStack((LivingEntity) entity, true);
 
-            Entity[] entities = chunk.getEntities();
-            if (event.isNewChunk()) {
-                // Stack new entities
-                if (this.stackManager.isEntityStackingEnabled())
-                    for (Entity entity : entities)
-                        if (entity instanceof LivingEntity)
-                            this.stackManager.createEntityStack((LivingEntity) entity, true);
-
-                // Stack new spawners
-                if (this.stackManager.isSpawnerStackingEnabled())
-                    for (BlockState tileEntity : chunk.getTileEntities())
-                        if (tileEntity instanceof CreatureSpawner)
-                            this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
-            } else {
+            // Stack new spawners
+            if (this.stackManager.isSpawnerStackingEnabled())
+                for (BlockState tileEntity : chunk.getTileEntities())
+                    if (tileEntity instanceof CreatureSpawner)
+                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
+        } else {
+            if (NMSUtil.getVersionNumber() < 17) {
                 // Make sure AI is disabled if it's marked
+                Entity[] entities = chunk.getEntities();
                 for (Entity entity : entities)
                     if (entity instanceof LivingEntity)
                         PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-                this.stackManager.loadChunk(chunk, entities);
+                this.stackManager.loadChunkEntities(chunk, Arrays.asList(entities));
             }
-        };
 
-        // TODO: Temporary HACK of a "fix" for SPIGOT-6547
-        if (NMSUtil.getVersionNumber() >= 17) {
-            Bukkit.getScheduler().runTaskLater(this.rosePlugin, task, 30L);
-        } else {
-            task.run();
+            this.stackManager.loadChunkBlocks(chunk);
         }
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        this.stackManager.saveChunk(event.getChunk());
+        this.stackManager.saveChunkBlocks(event.getChunk(), true);
+
+        if (NMSUtil.getVersionNumber() < 17)
+            this.stackManager.saveChunkEntities(event.getChunk(), Arrays.asList(event.getChunk().getEntities()), true);
     }
 
     @EventHandler

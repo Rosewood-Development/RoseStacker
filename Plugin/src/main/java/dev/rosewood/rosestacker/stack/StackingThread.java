@@ -24,7 +24,6 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -646,7 +645,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         // Filter out itemstacks of air in case they somehow got in here, can't drop that
         items = new ArrayList<>(items);
-        items.removeIf(x -> x.getType() == Material.AIR);
+        items.removeIf(x -> x == null || x.getType() == Material.AIR);
 
         if (!this.stackManager.isItemStackingEnabled()) {
             for (ItemStack item : items)
@@ -674,6 +673,105 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         this.stackManager.setEntityStackingTemporarilyDisabled(false);
+    }
+
+    @Override
+    public void loadChunkBlocks(Chunk chunk) {
+        if (!chunk.isLoaded())
+            return;
+
+        Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
+        if (this.stackManager.isSpawnerStackingEnabled())
+            for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
+                stackedSpawners.put(stackedSpawner.getBlock(), stackedSpawner);
+
+        Map<Block, StackedBlock> stackedBlocks = new ConcurrentHashMap<>();
+        if (this.stackManager.isBlockStackingEnabled())
+            for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
+                stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
+
+        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty())
+            this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
+    }
+
+    @Override
+    public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
+        if (this.stackManager.isEntityStackingEnabled()) {
+            for (Entity entity : entities) {
+                if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
+                    continue;
+
+                LivingEntity livingEntity = (LivingEntity) entity;
+                livingEntity.removeMetadata(REMOVED_METADATA, this.rosePlugin);
+                StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity);
+                if (stackedEntity != null) {
+                    this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+                } else {
+                    this.createEntityStack(livingEntity, true);
+                }
+            }
+        }
+
+        if (this.stackManager.isItemStackingEnabled()) {
+            for (Entity entity : entities) {
+                if (entity.getType() != EntityType.DROPPED_ITEM)
+                    continue;
+
+                Item item = (Item) entity;
+                item.removeMetadata(REMOVED_METADATA, this.rosePlugin);
+                StackedItem stackedItem = DataUtils.readStackedItem(item);
+                if (stackedItem != null) {
+                    this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+                } else {
+                    this.createItemStack(item, true);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void saveChunkBlocks(Chunk chunk, boolean clearStored) {
+        StackChunkData stackChunkData = this.stackChunkData.get(chunk);
+        if (stackChunkData == null)
+            return;
+
+        if (this.stackManager.isSpawnerStackingEnabled())
+            DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
+
+        if (this.stackManager.isBlockStackingEnabled())
+            DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
+
+        if (clearStored)
+            this.stackChunkData.remove(chunk);
+    }
+
+    @Override
+    public void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored) {
+        if (this.stackManager.isEntityStackingEnabled()) {
+            List<StackedEntity> stackedEntities = entities.stream()
+                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
+                    .map(x -> this.stackedEntities.get(x.getUniqueId()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            stackedEntities.forEach(DataUtils::writeStackedEntity);
+
+            if (clearStored)
+                stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+        }
+
+        if (this.stackManager.isItemStackingEnabled()) {
+            List<StackedItem> stackedItems = entities.stream()
+                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                    .map(x -> this.stackedItems.get(x.getUniqueId()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            stackedItems.forEach(DataUtils::writeStackedItem);
+
+            if (clearStored)
+                stackedItems.stream().map(StackedItem::getItem).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+        }
     }
 
     /**
@@ -859,92 +957,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     private void setRemoved(Entity entity) {
         entity.setMetadata(REMOVED_METADATA, new FixedMetadataValue(this.rosePlugin, true));
-    }
-
-    public void loadChunk(Chunk chunk, Entity[] entities) {
-        if (!chunk.isLoaded())
-            return;
-
-        if (this.stackManager.isEntityStackingEnabled()) {
-            for (Entity entity : entities) {
-                if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
-                    continue;
-
-                LivingEntity livingEntity = (LivingEntity) entity;
-                livingEntity.removeMetadata(REMOVED_METADATA, this.rosePlugin);
-                StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity);
-                if (stackedEntity != null)
-                    this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
-            }
-        }
-
-        if (this.stackManager.isItemStackingEnabled()) {
-            for (Entity entity : entities) {
-                if (entity.getType() != EntityType.DROPPED_ITEM)
-                    continue;
-
-                Item item = (Item) entity;
-                item.removeMetadata(REMOVED_METADATA, this.rosePlugin);
-                StackedItem stackedItem = DataUtils.readStackedItem(item);
-                if (stackedItem != null)
-                    this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
-            }
-        }
-
-        Map<Block, StackedSpawner> stackedSpawners = new ConcurrentHashMap<>();
-        if (this.stackManager.isSpawnerStackingEnabled())
-            for (StackedSpawner stackedSpawner : DataUtils.readStackedSpawners(chunk))
-                stackedSpawners.put(stackedSpawner.getBlock(), stackedSpawner);
-
-        Map<Block, StackedBlock> stackedBlocks = new ConcurrentHashMap<>();
-        if (this.stackManager.isBlockStackingEnabled())
-            for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
-                stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
-
-        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty())
-            this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
-    }
-
-    public void saveChunk(Chunk chunk, boolean clearStored) {
-        Entity[] entities = chunk.getEntities();
-        if (this.stackManager.isEntityStackingEnabled()) {
-            List<StackedEntity> stackedEntities = Arrays.stream(entities)
-                    .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
-                    .map(x -> this.stackedEntities.get(x.getUniqueId()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            stackedEntities.forEach(DataUtils::writeStackedEntity);
-
-            if (clearStored)
-                stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
-        }
-
-        if (this.stackManager.isItemStackingEnabled()) {
-            List<StackedItem> stackedItems = Arrays.stream(entities)
-                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
-                    .map(x -> this.stackedItems.get(x.getUniqueId()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            stackedItems.forEach(DataUtils::writeStackedItem);
-
-            if (clearStored)
-                stackedItems.stream().map(StackedItem::getItem).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
-        }
-
-        StackChunkData stackChunkData = this.stackChunkData.get(chunk);
-        if (stackChunkData == null)
-            return;
-
-        if (this.stackManager.isSpawnerStackingEnabled())
-            DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
-
-        if (this.stackManager.isBlockStackingEnabled())
-            DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
-
-        if (clearStored)
-            this.stackChunkData.remove(chunk);
     }
 
     /**

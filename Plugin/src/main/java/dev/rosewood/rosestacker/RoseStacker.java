@@ -17,6 +17,7 @@ import dev.rosewood.rosestacker.listener.BlockListener;
 import dev.rosewood.rosestacker.listener.BlockShearListener;
 import dev.rosewood.rosestacker.listener.BreedingListener;
 import dev.rosewood.rosestacker.listener.ClearlagListener;
+import dev.rosewood.rosestacker.listener.EntitiesLoadListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
@@ -88,6 +89,15 @@ public class RoseStacker extends RosePlugin {
         // Bees are only in 1.15+
         if (NMSUtil.getVersionNumber() >= 15)
             pluginManager.registerEvents(new BeeListener(this), this);
+
+        if (NMSUtil.getVersionNumber() >= 17) {
+            try {
+                Class.forName("org.bukkit.event.world.EntitiesLoadEvent");
+                pluginManager.registerEvents(new EntitiesLoadListener(this), this);
+            } catch (ClassNotFoundException e) {
+                this.getLogger().severe("Your version of 1.17 is VERY OUTDATED! Stacked entities and items WILL NOT LOAD until you update!");
+            }
+        }
 
         // Try to hook with ShopGuiPlus
         Bukkit.getScheduler().runTask(this, () -> {
