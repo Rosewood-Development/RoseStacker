@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Player;
 
 public class StackedSpawner extends Stack<SpawnerStackSettings> {
@@ -167,6 +168,15 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
 
         this.spawnerTile.setDelay(delay);
+    }
+
+    /**
+     * @return a freshly fetched copy of the spawner's CreatureSpawner state
+     * @deprecated Use {@link #getSpawnerTile} instead as it is updated live
+     */
+    @Deprecated
+    public CreatureSpawner getSpawner() {
+        return (CreatureSpawner) this.block.getState();
     }
 
 }
