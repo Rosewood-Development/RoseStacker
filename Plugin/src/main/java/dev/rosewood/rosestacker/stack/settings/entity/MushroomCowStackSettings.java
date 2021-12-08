@@ -11,11 +11,15 @@ import org.bukkit.entity.MushroomCow;
 public class MushroomCowStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfDifferentType;
+    private final boolean dropAdditionalMushroomsPerCowInStack;
+    private final int extraMushroomsPerCowInStack;
 
     public MushroomCowStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
+        this.dropAdditionalMushroomsPerCowInStack = this.settingsConfiguration.getBoolean("drop-additional-mushrooms-for-each-cow-in-stack");
+        this.extraMushroomsPerCowInStack = this.settingsConfiguration.getInt("extra-mushrooms-per-cow-in-stack");
     }
 
     @Override
@@ -32,11 +36,21 @@ public class MushroomCowStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-type", false);
+        this.setIfNotExists("drop-additional-mushrooms-for-each-cow-in-stack", true);
+        this.setIfNotExists("extra-mushrooms-per-cow-in-stack", 5);
     }
 
     @Override
     public EntityType getEntityType() {
         return EntityType.MUSHROOM_COW;
+    }
+
+    public boolean shouldDropAdditionalMushroomsPerCowInStack() {
+        return this.dropAdditionalMushroomsPerCowInStack;
+    }
+
+    public int getExtraMushroomsPerCowInStack() {
+        return this.extraMushroomsPerCowInStack;
     }
 
 }

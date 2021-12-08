@@ -2,7 +2,6 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -18,6 +17,7 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
+import dev.rosewood.rosestacker.stack.settings.entity.MushroomCowStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -411,20 +411,12 @@ public class EntityListener implements Listener {
 
             // Handle mooshroom shearing
             if (event.getEntityType() == EntityType.MUSHROOM_COW) {
-                int mushroomsDropped = stackedEntity.getStackSize() * 5; // 5 mushrooms per mooshroom sheared
+                MushroomCowStackSettings stackSettings = (MushroomCowStackSettings) stackedEntity.getStackSettings();
+                int mushroomsDropped = 5;
+                if (stackSettings.shouldDropAdditionalMushroomsPerCowInStack())
+                    mushroomsDropped += (stackedEntity.getStackSize() - 1) * stackSettings.getExtraMushroomsPerCowInStack();
 
-                MushroomCow mooshroom = (MushroomCow) event.getEntity();
-                Material dropType;
-                if (NMSUtil.getVersionNumber() > 13) {
-                    if (mooshroom.getVariant() == Variant.BROWN) {
-                        dropType = Material.BROWN_MUSHROOM;
-                    } else {
-                        dropType = Material.RED_MUSHROOM;
-                    }
-                } else {
-                    dropType = Material.RED_MUSHROOM;
-                }
-
+                Material dropType = ((MushroomCow) event.getEntity()).getVariant() == Variant.BROWN ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
                 this.stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
             }
 
