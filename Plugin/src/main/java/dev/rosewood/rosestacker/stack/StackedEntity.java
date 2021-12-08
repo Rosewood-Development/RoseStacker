@@ -31,7 +31,9 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
@@ -230,11 +232,21 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             int totalExp = droppedExp;
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean isAnimal = thisEntity instanceof Animals;
+            EntityType entityType = thisEntity.getType();
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
                 entity.setFireTicks(thisEntity.getFireTicks());
                 entity.setLastDamageCause(thisEntity.getLastDamageCause());
                 nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
+
+                switch (entityType) {
+                    case SLIME:
+                        ((Slime) entity).setSize(1);
+                        break;
+                    case MAGMA_CUBE:
+                        ((MagmaCube) entity).setSize(1);
+                        break;
+                }
 
                 boolean isBaby = isAnimal && !((Animals) entity).isAdult();
                 int desiredExp = isBaby ? 0 : droppedExp;
