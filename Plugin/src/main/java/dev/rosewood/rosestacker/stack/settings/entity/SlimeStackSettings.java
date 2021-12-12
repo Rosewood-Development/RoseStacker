@@ -11,11 +11,13 @@ import org.bukkit.entity.Slime;
 public class SlimeStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfDifferentSize;
+    private final boolean accurateDropsWithKillEntireStackOnDeath;
 
     public SlimeStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfDifferentSize = this.settingsConfiguration.getBoolean("dont-stack-if-different-size");
+        this.accurateDropsWithKillEntireStackOnDeath = this.settingsConfiguration.getBoolean("accurate-drops-with-kill-entire-stack-on-death");
     }
 
     @Override
@@ -32,11 +34,16 @@ public class SlimeStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-size", false);
+        this.setIfNotExists("accurate-drops-with-kill-entire-stack-on-death", true);
     }
 
     @Override
     public EntityType getEntityType() {
         return EntityType.SLIME;
+    }
+
+    public boolean isAccurateDropsWithKillEntireStackOnDeath() {
+        return this.accurateDropsWithKillEntireStackOnDeath;
     }
 
 }

@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.object.CompactNBT;
 import dev.rosewood.rosestacker.nms.object.WrappedNBT;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -31,7 +32,6 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -232,6 +232,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             int totalExp = droppedExp;
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean isAnimal = thisEntity instanceof Animals;
+            boolean isSlime = thisEntity instanceof Slime;
+            boolean isAccurateSlime = isSlime && ((SlimeStackSettings) this.stackSettings).isAccurateDropsWithKillEntireStackOnDeath();
             EntityType entityType = thisEntity.getType();
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
@@ -239,26 +241,35 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 entity.setLastDamageCause(thisEntity.getLastDamageCause());
                 nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
 
-                switch (entityType) {
-                    case SLIME:
-                        ((Slime) entity).setSize(1);
-                        break;
-                    case MAGMA_CUBE:
-                        ((MagmaCube) entity).setSize(1);
-                        break;
+                int iterations = 1;
+                if (isSlime) {
+                    Slime slime = (Slime) entity;
+                    if (isAccurateSlime) {
+                        int totalSlimes = 1;
+                        int size = slime.getSize();
+                        while (size > 1) {
+                            size /= 2;
+                            int currentSlimes = totalSlimes;
+                            totalSlimes = StackerUtils.randomInRange(currentSlimes * 2, currentSlimes * 4);
+                        }
+                        iterations = totalSlimes;
+                    }
+                    slime.setSize(1);
                 }
 
                 boolean isBaby = isAnimal && !((Animals) entity).isAdult();
                 int desiredExp = isBaby ? 0 : droppedExp;
-                Collection<ItemStack> entityLoot = isBaby ? Collections.emptyList() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
-                if (callEvents && !multiplyCustomLoot) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
-                    Bukkit.getPluginManager().callEvent(deathEvent);
-                    totalExp += deathEvent.getDroppedExp();
-                    loot.addAll(deathEvent.getDrops());
-                } else {
-                    loot.addAll(entityLoot);
-                    totalExp += desiredExp;
+                for (int i = 0; i < iterations; i++) {
+                    Collection<ItemStack> entityLoot = isBaby ? Collections.emptyList() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                    if (callEvents && !multiplyCustomLoot) {
+                        EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
+                        Bukkit.getPluginManager().callEvent(deathEvent);
+                        totalExp += deathEvent.getDroppedExp();
+                        loot.addAll(deathEvent.getDrops());
+                    } else {
+                        loot.addAll(entityLoot);
+                        totalExp += desiredExp;
+                    }
                 }
             }
 

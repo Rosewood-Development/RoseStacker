@@ -43,7 +43,6 @@ import org.bukkit.entity.Golem;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
 import org.bukkit.entity.NPC;
@@ -344,14 +343,8 @@ public class EntityListener implements Listener {
                 || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name()))))) {
 
             if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
-                switch (entity.getType()) {
-                    case SLIME:
-                        ((Slime) entity).setSize(1);
-                        break;
-                    case MAGMA_CUBE:
-                        ((MagmaCube) entity).setSize(1);
-                        break;
-                }
+                if (entity instanceof Slime)
+                    ((Slime) entity).setSize(1);
 
                 if (event instanceof EntityDeathEvent) {
                     EntityDeathEvent deathEvent = (EntityDeathEvent) event;
