@@ -149,17 +149,22 @@ public final class PersistentDataUtils {
     public static void increaseSpawnCount(StackedSpawnerTile spawner, long amount) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer dataContainer = spawner.getPersistentDataContainer();
-        NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
-        if (!dataContainer.has(key, PersistentDataType.LONG)) {
-            dataContainer.set(key, PersistentDataType.LONG, amount);
-        } else {
-            dataContainer.set(key, PersistentDataType.LONG, getTotalSpawnCount(spawner) + amount);
+        if (dataContainer != null) {
+            NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
+            if (!dataContainer.has(key, PersistentDataType.LONG)) {
+                dataContainer.set(key, PersistentDataType.LONG, amount);
+            } else {
+                dataContainer.set(key, PersistentDataType.LONG, getTotalSpawnCount(spawner) + amount);
+            }
         }
     }
 
     public static long getTotalSpawnCount(StackedSpawnerTile spawner) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer persistentDataContainer = spawner.getPersistentDataContainer();
+        if (persistentDataContainer == null)
+            return 0;
+
         NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
         Long amount = persistentDataContainer.get(key, PersistentDataType.LONG);
         return amount != null ? amount : 0;

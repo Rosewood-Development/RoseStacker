@@ -27,6 +27,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     private int size;
     private StackedSpawnerTile spawnerTile;
+    private CreatureSpawner cachedCreatureSpawner;
     private Block block;
     private boolean placedByPlayer;
     private StackedSpawnerGui stackedSpawnerGui;
@@ -43,6 +44,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.lastInvalidConditions = new ArrayList<>();
 
         this.block = spawner;
+        this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
         this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
@@ -64,8 +66,21 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
             this.block = location.getWorld().getBlockAt(location);
     }
 
+    /**
+     * @return the StackedSpawnerTile object containing the most up-to-date information about this spawner
+     */
     public StackedSpawnerTile getSpawnerTile() {
         return this.spawnerTile;
+    }
+
+    /**
+     * @return a freshly fetched copy of the spawner's CreatureSpawner state
+     * @implNote It is recommended to use {@link #getSpawnerTile} instead as it is updated live, this object is likely to be <i>very</i> stale
+     */
+    public CreatureSpawner getSpawner() {
+        if (this.cachedCreatureSpawner == null && this.block.getType() == Material.SPAWNER)
+            this.cachedCreatureSpawner = (CreatureSpawner) this.getBlock().getState();
+        return this.cachedCreatureSpawner;
     }
 
     public Block getBlock() {
@@ -168,15 +183,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
 
         this.spawnerTile.setDelay(delay);
-    }
-
-    /**
-     * @return a freshly fetched copy of the spawner's CreatureSpawner state
-     * @deprecated Use {@link #getSpawnerTile} instead as it is updated live
-     */
-    @Deprecated
-    public CreatureSpawner getSpawner() {
-        return (CreatureSpawner) this.block.getState();
+        this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
     }
 
 }

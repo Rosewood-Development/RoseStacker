@@ -185,7 +185,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 if (ageable)
                     ((Ageable) entity).setAdult();
 
-                if (stackedSpawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || stackedSpawner.isPlacedByPlayer()))
+                if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || stackedSpawner.isPlacedByPlayer())) || Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean())
                     PersistentDataUtils.removeEntityAi(entity);
                 PersistentDataUtils.tagSpawnedFromSpawner(entity);
 
@@ -210,7 +210,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 for (StackedEntity stackedEntity : newStacks) {
                     LivingEntity entity = stackedEntity.getEntity();
 
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, (CreatureSpawner) stackedSpawner.getBlock().getState());
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                     if (spawnerSpawnEvent.isCancelled())
                         continue;
@@ -246,7 +246,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
                     SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
-                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, (CreatureSpawner) stackedSpawner.getBlock().getState());
+                    SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                     if (spawnerSpawnEvent.isCancelled()) {
                         entity.remove();
