@@ -516,9 +516,6 @@ public class EntityListener implements Listener {
         if (stackManager.isWorldDisabled(entity.getWorld()))
             return false;
 
-        if (stackManager.isWorldDisabled(entity.getWorld()))
-            return false;
-
         if (!stackManager.isEntityStackingEnabled())
             return false;
 
