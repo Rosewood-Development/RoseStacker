@@ -38,11 +38,6 @@ public class BreedingListener implements Listener {
         if (!animal.canBreed())
             return;
 
-        if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {
-            event.setCancelled(true);
-            return;
-        }
-
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (!stackManager.isEntityStackingEnabled())
             return;
@@ -51,15 +46,19 @@ public class BreedingListener implements Listener {
         if (stackedEntity == null)
             return;
 
-        int stackSize = stackedEntity.getStackSize();
-        if (stackSize < 2)
-            return;
-
         Player player = event.getPlayer();
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         ItemStack breedingItem = player.getInventory().getItem(event.getHand());
-        if (!stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) ||
-                (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
+        if (!stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
+            return;
+
+        if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        int stackSize = stackedEntity.getStackSize();
+        if (stackSize < 2)
             return;
 
         Class<? extends Entity> entityClass = animal.getType().getEntityClass();
