@@ -19,7 +19,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ITEM_STACK_FREQUENCY("item-stack-frequency", 20, "How often should we try to stack nearby items?", "Values are in ticks, do not set lower than 1"),
         NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 30, "How often should we update stacked entity nametags?"),
         AUTOSAVE_FREQUENCY("autosave-frequency", 15, "How often should we autosave all loaded stack data?", "Value is measured in minutes, set to -1 to disable"),
-        LEGACY_DATA_MIGRATION("legacy-data-migration", true, "Should data from versions of RoseStacker older than v1.3.0 be updated to the new format?", "Disabling this will also disable any active stack plugin converters that are active", "Disabling this can provide a large performance boost, but it may be needed if your server is still updating data from an old RoseStacker version"),
+        LEGACY_DATA_MIGRATION("legacy-data-migration", true, "Should data from converted plugins still be actively converted?", "Disabling this can provide a performance boost, but it may be needed if your server is still converting data from an old stacker plugin"),
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),

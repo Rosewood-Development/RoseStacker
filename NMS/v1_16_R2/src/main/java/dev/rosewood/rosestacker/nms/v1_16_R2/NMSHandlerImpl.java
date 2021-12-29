@@ -205,23 +205,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType entityType) {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
-
-            // Read entity type
-            dataInput.readUTF();
-
-            // Read NBT
-            return this.createEntityFromNBT(new WrappedNBTImpl(NBTCompressedStreamTools.a((InputStream) dataInput)), location, false, entityType);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
     public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)

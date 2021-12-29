@@ -12,7 +12,6 @@ import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import dev.rosewood.rosestacker.utils.QueryUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -511,38 +510,19 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         if (!this.pendingLoadChunks.isEmpty()) {
-            List<Chunk> chunks = new ArrayList<>();
             List<Chunk> convertChunks = new ArrayList<>();
-            Map<UUID, Entity> chunkEntities = new HashMap<>();
             List<Entity> convertChunkEntities = new ArrayList<>();
 
             for (Chunk chunk : this.pendingLoadChunks.keySet()) {
-                if (!chunk.isLoaded())
+                if (!chunk.isLoaded() || !this.conversionManager.hasConversions() || PersistentDataUtils.isChunkConverted(chunk))
                     continue;
 
-                Map<UUID, Entity> entities = null;
-                if (!PersistentDataUtils.isChunkMigrated(chunk)) {
-                    chunks.add(chunk);
-                    entities = new HashMap<>();
-                    for (Entity entity : chunk.getEntities())
-                        entities.put(entity.getUniqueId(), entity);
-
-                    chunkEntities.putAll(entities);
-                    PersistentDataUtils.setChunkMigrated(chunk);
-                }
-
-                if (this.conversionManager.hasConversions() && !PersistentDataUtils.isChunkConverted(chunk)) {
-                    convertChunks.add(chunk);
-                    if (entities != null) {
-                        convertChunkEntities.addAll(entities.values());
-                    } else {
-                        convertChunkEntities.addAll(Arrays.asList(chunk.getEntities()));
-                    }
-                    PersistentDataUtils.setChunkConverted(chunk);
-                }
+                convertChunks.add(chunk);
+                convertChunkEntities.addAll(Arrays.asList(chunk.getEntities()));
+                PersistentDataUtils.setChunkConverted(chunk);
             }
 
-            if (chunks.isEmpty() && convertChunks.isEmpty())
+            if (convertChunks.isEmpty())
                 return;
 
             this.processingChunks = true;
@@ -551,51 +531,6 @@ public class StackManager extends Manager implements StackingLogic {
             Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
                 if (!convertChunkEntities.isEmpty())
                     this.conversionManager.convertChunkEntities(convertChunkEntities);
-
-                if (!chunks.isEmpty()) {
-                    DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-                    String chunkQuery = QueryUtils.buildChunksWhere(chunks);
-                    if (this.isEntityStackingEnabled()) {
-                        dataManager.getStackedEntities(chunks, chunkEntities, chunkQuery, stacks -> {
-                            for (StackedEntity stack : stacks) {
-                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
-                                if (stackingThread != null)
-                                    stackingThread.putStackedEntity(stack);
-                            }
-                        });
-                    }
-
-                    if (this.isItemStackingEnabled()) {
-                        dataManager.getStackedItems(chunks, chunkEntities, chunkQuery, stacks -> {
-                            for (StackedItem stack : stacks) {
-                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
-                                if (stackingThread != null)
-                                    stackingThread.putStackedItem(stack);
-                            }
-                        });
-                    }
-
-                    if (this.isBlockStackingEnabled()) {
-                        dataManager.getStackedBlocks(chunks, chunkQuery, stacks -> {
-                            for (StackedBlock stack : stacks) {
-                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
-                                if (stackingThread != null)
-                                    stackingThread.putStackedBlock(stack);
-                            }
-                        });
-                    }
-
-                    if (this.isSpawnerStackingEnabled()) {
-                        dataManager.getStackedSpawners(chunks, chunkQuery, stacks -> {
-                            for (StackedSpawner stack : stacks) {
-                                StackingThread stackingThread = this.getStackingThread(stack.getWorld());
-                                if (stackingThread != null)
-                                    stackingThread.putStackedSpawner(stack);
-                            }
-                        });
-                    }
-                }
-
                 this.processingChunks = false;
             });
 

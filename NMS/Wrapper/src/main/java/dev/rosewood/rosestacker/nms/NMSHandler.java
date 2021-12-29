@@ -36,17 +36,6 @@ public interface NMSHandler {
     LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**
-     * Deserializes and creates a LivingEntity from compressed NBT data.
-     * Should only be used for legacy purposes.
-     *
-     * @param serialized entity
-     * @param location to spawn the entity at
-     * @param entityType entity type to create and apply the serialized nbt over
-     * @return the entity spawned from the NBT
-     */
-    LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType entityType);
-
-    /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world
      *
      * @param entityType The type of the entity to spawn
