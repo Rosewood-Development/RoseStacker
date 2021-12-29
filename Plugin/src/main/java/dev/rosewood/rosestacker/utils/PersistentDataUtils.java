@@ -107,7 +107,7 @@ public final class PersistentDataUtils {
     }
 
     public static void applyDisabledAi(LivingEntity entity) {
-        if (isAiDisabled(entity)) {
+        if (isAiDisabled(entity) || Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean()) {
             if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.getBoolean()) {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 nmsHandler.removeEntityGoals(entity);

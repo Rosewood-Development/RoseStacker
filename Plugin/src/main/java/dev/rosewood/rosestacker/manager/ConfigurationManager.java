@@ -57,6 +57,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DEATH_EVENT_RUN_ASYNC("global-entity-settings.death-event-trigger-async", true, "Should the entity loot be calculated asynchronously?", "If you try enabling this and you get errors that say something like '<SomeEvent> may only be triggered synchronously'", "and has RoseStacker in the stacktrace, you should keep this as false.", "Set this as true for optimal performance if you are not having issues."),
         ENTITY_MULTIPLY_CUSTOM_LOOT("global-entity-settings.multiply-custom-loot", false, "This will cause only a single death event to run which will save resources but", "also make it so rare drops can drop significantly more often since the", "drops will be multiplied by the stack size.", "Note: This only applies to custom loot"),
         ENTITY_INSTANT_KILL_DISABLED_AI("global-entity-settings.instant-kill-disabled-ai", false, "Should entities with disabled AI be killed instantly when receiving damage from a player?"),
+        ENTITY_DISABLE_ALL_MOB_AI("global-entity-settings.disable-all-mob-ai", false, "Should the AI of all mobs on the server be disabled?", "The parts of the AI that are disabled can be further customized in the global-spawner-settings.disable-mob-ai-options section"),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
