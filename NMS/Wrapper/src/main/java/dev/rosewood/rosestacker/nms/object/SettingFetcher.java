@@ -7,4 +7,6 @@ public interface SettingFetcher {
 
     boolean allowSpawnerRedstoneToggle();
 
+    int redstoneCheckFrequency();
+
 }

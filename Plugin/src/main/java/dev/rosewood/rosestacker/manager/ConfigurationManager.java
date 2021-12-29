@@ -105,6 +105,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISABLE_ATTACKING("global-spawner-settings.disable-attacking", false, "Should mobs spawned from spawners be prevented from attacking anything?"),
         SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS("global-spawner-settings.max-failed-spawn-attempts", 50, "How many random blocks should we check to spawn a mob before giving up?"),
         SPAWNER_DEACTIVATE_WHEN_POWERED("global-spawner-settings.deactivate-when-powered", false, "Should spawners turn off when powered by redstone?"),
+        SPAWNER_POWERED_CHECK_FREQUENCY("global-spawner-settings.powered-check-frequency", 10, "How many ticks should there be between redstone power checks?", "Lower values will cause faster spawner updates at the cost of performance", "Value is measured in ticks, do not go below 1"),
         SPAWNER_EXPLOSION_PROTECTION("global-spawner-settings.explosion-protection", true, "Should spawners be protected from explosions?"),
         SPAWNER_EXPLOSION_DECREASE_STACK_SIZE_ONLY("global-spawner-settings.explosion-decrease-stack-size-only", true, "If enabled, only the stack size will decrease from explosions, no items will be dropped"),
         SPAWNER_EXPLOSION_DESTROY_CHANCE("global-spawner-settings.explosion-destroy-chance", 10.0, "The percentage chance of spawners getting destroyed from an explosion (0-100)"),
@@ -236,6 +237,11 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         @Override
         public boolean allowSpawnerRedstoneToggle() {
             return Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
+        }
+
+        @Override
+        public int redstoneCheckFrequency() {
+            return Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
         }
 
     };

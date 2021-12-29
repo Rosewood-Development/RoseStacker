@@ -28,6 +28,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private final BlockPosition blockPos;
     private StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
+    private int redstoneTimeSinceLastCheck;
 
     public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner, SettingFetcher settingFetcher) {
         this.blockEntity = blockEntity;
@@ -52,19 +53,23 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
 
         // Handle redstone deactivation if enabled
         if (this.settingFetcher.allowSpawnerRedstoneToggle()) {
-            boolean hasSignal = level.isBlockIndirectlyPowered(this.blockPos);
-            if (this.redstoneDeactivated && !hasSignal) {
-                this.redstoneDeactivated = false;
-                this.requiredPlayerRange = stackSettings.getPlayerActivationRange();
-                this.updateTile();
-            } else if (!this.redstoneDeactivated && hasSignal) {
-                this.redstoneDeactivated = true;
-                this.requiredPlayerRange = 0;
-                this.updateTile();
+            if (this.redstoneTimeSinceLastCheck == 0) {
+                boolean hasSignal = level.isBlockIndirectlyPowered(this.blockPos);
+                if (this.redstoneDeactivated && !hasSignal) {
+                    this.redstoneDeactivated = false;
+                    this.requiredPlayerRange = stackSettings.getPlayerActivationRange();
+                    this.updateTile();
+                } else if (!this.redstoneDeactivated && hasSignal) {
+                    this.redstoneDeactivated = true;
+                    this.requiredPlayerRange = 0;
+                    this.updateTile();
+                }
+
+                if (this.redstoneDeactivated)
+                    return;
             }
 
-            if (this.redstoneDeactivated)
-                return;
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % this.settingFetcher.redstoneCheckFrequency();
         }
 
         // Count down spawn timer unless we are ready to spawn
