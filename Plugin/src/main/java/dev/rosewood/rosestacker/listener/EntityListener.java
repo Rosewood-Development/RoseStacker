@@ -120,11 +120,20 @@ public class EntityListener implements Listener {
         if (!this.stackManager.isEntityStackingEnabled() || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
-        this.entityCacheManager.preCacheEntity(entity);
-        this.stackManager.createEntityStack(entity, true);
+        Runnable task = () -> {
+            PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
+            this.entityCacheManager.preCacheEntity(entity);
+            this.stackManager.createEntityStack(entity, true);
 
-        PersistentDataUtils.applyDisabledAi(entity);
+            PersistentDataUtils.applyDisabledAi(entity);
+        };
+
+        // Delay stacking by 1 tick for spawn eggs due to an egg duplication issue
+        if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        } else {
+            task.run();
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
