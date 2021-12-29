@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
 import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
 import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
 import dev.rosewood.rosestacker.database.migrations._4_Alter_Spawner_Table_Player_Placed;
+import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;
 import dev.rosewood.rosestacker.hook.WildChestsStackerProvider;
@@ -98,6 +99,10 @@ public class RoseStacker extends RosePlugin {
                 this.getLogger().severe("Your version of 1.17 is VERY OUTDATED! Stacked entities and items WILL NOT LOAD until you update!");
             }
         }
+
+        // Try to hook with PlaceholderAPI
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            new RoseStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus
         Bukkit.getScheduler().runTask(this, () -> {

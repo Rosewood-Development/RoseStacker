@@ -232,6 +232,7 @@ public class GermanLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&cWarnung! &eDu musst eine Spitzhacke mit Behutsamkeit nutzen um den Spawner abzubauen.");
             this.put("spawner-convert-not-enough", "&cWarnung! &eUmwandlung nicht möglich. Du hast nicht genug spawn-eier um diese konversion zu machen.");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

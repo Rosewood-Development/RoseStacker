@@ -232,6 +232,7 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke upang kunin ang ganitong uri ng spawner.");
             this.put("spawner-convert-not-enough", "&cBabala! &eHindi ma-convert ang mga spawner gamit ang mga itlog ng itlog. Wala kang sapat na itlog ng itlog upang gawin ang conversion na ito.");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

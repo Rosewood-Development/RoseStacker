@@ -231,6 +231,7 @@ public class DutchLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&cWaarschuwing! &eJe moet een silk touch pickaxe gebruiken om dit soort spawner op te rapen.");
             this.put("spawner-convert-not-enough", "&cWaarschuwing! &eSpawner converteren met spawn eggs niet mogelijk. Je hebt niet genoeg spawn eggs in je hand.");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

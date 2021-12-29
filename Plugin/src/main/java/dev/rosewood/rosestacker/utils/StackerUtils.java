@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -288,6 +289,12 @@ public final class StackerUtils {
         if (attribute != null)
             luck += attribute.getValue();
         return (int) Math.floor(luck);
+    }
+
+    public static double getSilkTouchChanceRaw(Player player) {
+        double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt());
+        chance += ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_LUCK_CHANCE_INCREASE.getInt() * StackerUtils.getLuckLevel(player);
+        return chance;
     }
 
 }

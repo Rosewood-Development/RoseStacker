@@ -230,6 +230,7 @@ public class RomanianLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch pentru a lua acest spawner.");
             this.put("spawner-convert-not-enough", "&cAtentie! &eNu s-au putut converti spawnerele folosind oua. Nu ai in mana suficiente oua pentru a efectua conversiunea.");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

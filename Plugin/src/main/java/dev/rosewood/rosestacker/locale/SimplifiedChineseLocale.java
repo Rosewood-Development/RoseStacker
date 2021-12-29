@@ -232,6 +232,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-advanced-break-no-permission", "&c警告! &e您没有恰当的权限来拾取这种类型的刷怪笼。");
             this.put("spawner-advanced-break-silktouch-no-permission", "&c警告! &e您需要用附魔有精准采集的稿子才能拿起那类刷怪笼。");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

@@ -232,6 +232,7 @@ public class TraditionalChineseLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬來拾起該類別的生怪磚。");
             this.put("spawner-convert-not-enough", "&c警告! 無法使用生成蛋轉換生怪磚，你並沒有持有足夠的形怪蛋。");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }

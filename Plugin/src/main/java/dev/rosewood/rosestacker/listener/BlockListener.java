@@ -258,10 +258,7 @@ public class BlockListener implements Listener {
             if (!(Setting.SPAWNER_SILK_TOUCH_ONLY_NATURAL.getBoolean() && placedByPlayer)
                     && (!Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean() || !hasAdvNoSilkPermission)
                     && (!Setting.SPAWNER_SILK_TOUCH_GUARANTEE.getBoolean() || silkTouchLevel < 2)) {
-                double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt());
-                chance += Setting.SPAWNER_SILK_TOUCH_LUCK_CHANCE_INCREASE.getInt() * StackerUtils.getLuckLevel(player);
-                chance /= 100;
-
+                double chance = StackerUtils.getSilkTouchChanceRaw(player) / 100;
                 for (int i = 0, n = amount - destroyAmount; i < n; i++) {
                     boolean passesChance = StackerUtils.passesChance(chance);
                     if (!passesChance || silkTouchLevel == 0)

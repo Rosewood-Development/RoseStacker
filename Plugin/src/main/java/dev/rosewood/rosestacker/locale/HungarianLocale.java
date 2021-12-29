@@ -232,6 +232,7 @@ public class HungarianLocale implements Locale {
             this.put("spawner-advanced-break-silktouch-no-permission", "&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra hogy felszed ezt a típusu spawnert.");
             this.put("spawner-convert-not-enough", "&cFigyelmeztetés! &eNem sikerült megváltoztatni a spawnert az Idéző Tojásokkal. Nem fogsz a kezedben elegendő mennyiségű Idéző Tojást.");
             this.put("number-separator", ",");
+            this.put("silktouch-chance-placeholder", "%chance%%");
         }};
     }
 }
