@@ -1,7 +1,7 @@
-package dev.rosewood.rosestacker.nms.v1_16_R3.object;
+package dev.rosewood.rosestacker.nms.v1_16_R3.spawner;
 
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
-import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
+import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
+import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;

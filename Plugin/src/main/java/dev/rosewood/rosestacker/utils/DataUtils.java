@@ -44,7 +44,7 @@ public final class DataUtils {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         byte[] data = pdc.get(ENTITY_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
-            return new StackedEntity(entity, nmsHandler.createCompactNBT(entity));
+            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity));
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(new GZIPInputStream(inputStream))) {
@@ -55,7 +55,7 @@ public final class DataUtils {
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
-                return new StackedEntity(entity, nmsHandler.loadCompactNBT(nbt));
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(nbt));
             }
         } catch (Exception e) {
             e.printStackTrace();

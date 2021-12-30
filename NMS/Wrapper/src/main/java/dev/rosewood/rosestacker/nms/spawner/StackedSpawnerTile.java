@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.object;
+package dev.rosewood.rosestacker.nms.spawner;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;

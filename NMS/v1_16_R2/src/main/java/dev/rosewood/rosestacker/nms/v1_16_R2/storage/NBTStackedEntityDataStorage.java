@@ -1,8 +1,8 @@
-package dev.rosewood.rosestacker.nms.v1_16_R3.object;
+package dev.rosewood.rosestacker.nms.v1_16_R2.storage;
 
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.CompactNBTException;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
@@ -14,19 +14,19 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.server.v1_16_R3.NBTBase;
-import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.NBTTagList;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
+import net.minecraft.server.v1_16_R2.NBTBase;
+import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
+import net.minecraft.server.v1_16_R2.NBTTagCompound;
+import net.minecraft.server.v1_16_R2.NBTTagList;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
 
-public class CompactNBTImpl implements CompactNBT {
+public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
     private final NBTTagCompound base;
     private final List<NBTTagCompound> data;
 
-    public CompactNBTImpl(LivingEntity livingEntity) {
+    public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new NBTTagCompound();
         ((CraftLivingEntity) livingEntity).getHandle().save(this.base);
         this.stripUnneeded(this.base);
@@ -35,7 +35,7 @@ public class CompactNBTImpl implements CompactNBT {
         this.data = Collections.synchronizedList(new LinkedList<>());
     }
 
-    public CompactNBTImpl(byte[] data) {
+    public NBTStackedEntityDataStorage(byte[] data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -46,7 +46,7 @@ public class CompactNBTImpl implements CompactNBT {
                 tags.add(NBTCompressedStreamTools.a((DataInput) dataInput));
             this.data = Collections.synchronizedList(tags);
         } catch (Exception e) {
-            throw new CompactNBTException(e);
+            throw new StackedEntityDataIOException(e);
         }
     }
 
@@ -61,23 +61,23 @@ public class CompactNBTImpl implements CompactNBT {
     }
 
     @Override
-    public void addAllFirst(List<WrappedNBT<?>> wrappedNbt) {
-        wrappedNbt.forEach(x -> this.addAt(0, x));
+    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+        stackedEntityDataEntry.forEach(x -> this.addAt(0, x));
     }
 
     @Override
-    public void addAllLast(List<WrappedNBT<?>> wrappedNbt) {
-        wrappedNbt.forEach(x -> this.addAt(this.data.size(), x));
+    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+        stackedEntityDataEntry.forEach(x -> this.addAt(this.data.size(), x));
     }
 
     @Override
-    public WrappedNBTImpl peek() {
-        return new WrappedNBTImpl(this.rebuild(this.data.get(0)));
+    public NBTStackedEntityDataEntry peek() {
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
     }
 
     @Override
-    public WrappedNBTImpl pop() {
-        return new WrappedNBTImpl(this.rebuild(this.data.remove(0)));
+    public NBTStackedEntityDataEntry pop() {
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0)));
     }
 
     @Override
@@ -91,11 +91,13 @@ public class CompactNBTImpl implements CompactNBT {
     }
 
     @Override
-    public List<WrappedNBT<?>> getAll() {
-        List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
-        for (NBTTagCompound compoundTag : new ArrayList<>(this.data))
-            wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
-        return wrapped;
+    public List<StackedEntityDataEntry<?>> getAll() {
+        synchronized (this.data) {
+            List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(this.data.size());
+            for (NBTTagCompound compoundTag : this.data)
+                wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)));
+            return wrapped;
+        }
     }
 
     @Override
@@ -104,14 +106,16 @@ public class CompactNBTImpl implements CompactNBT {
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
             NBTCompressedStreamTools.a(this.base, (DataOutput) dataOutput);
-            dataOutput.writeInt(this.data.size());
-            for (NBTTagCompound compoundTag : new ArrayList<>(this.data))
-                NBTCompressedStreamTools.a(compoundTag, (DataOutput) dataOutput);
+            synchronized (this.data) {
+                dataOutput.writeInt(this.data.size());
+                for (NBTTagCompound compoundTag : this.data)
+                    NBTCompressedStreamTools.a(compoundTag, (DataOutput) dataOutput);
+            }
 
             dataOutput.close();
             return outputStream.toByteArray();
         } catch (Exception e) {
-            throw new CompactNBTException(e);
+            throw new StackedEntityDataIOException(e);
         }
     }
 
@@ -124,8 +128,8 @@ public class CompactNBTImpl implements CompactNBT {
         this.data.add(index, compoundTag);
     }
 
-    private void addAt(int index, WrappedNBT<?> wrappedNBT) {
-        NBTTagCompound compoundTag = (NBTTagCompound) wrappedNBT.get();
+    private void addAt(int index, StackedEntityDataEntry<?> stackedEntityDataEntry) {
+        NBTTagCompound compoundTag = (NBTTagCompound) stackedEntityDataEntry.get();
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);

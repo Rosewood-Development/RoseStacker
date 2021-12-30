@@ -5,7 +5,7 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
+import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
 import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;

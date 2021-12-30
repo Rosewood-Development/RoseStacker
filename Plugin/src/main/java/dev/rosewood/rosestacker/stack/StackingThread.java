@@ -14,8 +14,8 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -138,11 +138,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                         });
                     } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
                         NMSHandler nmsHandler = NMSAdapter.getHandler();
-                        CompactNBT nbt = stackedEntity.getStackedEntityNBT();
-                        stackedEntity.setStackedEntityNBT(nmsHandler.createCompactNBT(stackedEntity.getEntity()));
+                        StackedEntityDataStorage nbt = stackedEntity.getStackedEntityNBT();
+                        stackedEntity.setStackedEntityNBT(nmsHandler.createEntityDataStorage(stackedEntity.getEntity()));
                         Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                            for (WrappedNBT<?> wrappedNBT : nbt.getAll())
-                                nmsHandler.createEntityFromNBT(wrappedNBT, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
+                            for (StackedEntityDataEntry<?> stackedEntityDataEntry : nbt.getAll())
+                                nmsHandler.createEntityFromNBT(stackedEntityDataEntry, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
                         });
                     }
                 }

@@ -11,8 +11,8 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -42,7 +42,7 @@ import org.bukkit.util.Vector;
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
-    private CompactNBT serializedStackedEntities;
+    private StackedEntityDataStorage serializedStackedEntities;
     private int npcCheckCounter;
 
     private String displayName;
@@ -50,7 +50,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(LivingEntity entity, CompactNBT serializedStackedEntities) {
+    public StackedEntity(LivingEntity entity, StackedEntityDataStorage serializedStackedEntities) {
         this.entity = entity;
         this.serializedStackedEntities = serializedStackedEntities;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
@@ -65,7 +65,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public StackedEntity(LivingEntity entity) {
-        this(entity, NMSAdapter.getHandler().createCompactNBT(entity));
+        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity));
     }
 
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
@@ -119,7 +119,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
     }
 
-    public void increaseStackSize(CompactNBT serializedStackedEntities) {
+    public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
             this.serializedStackedEntities.addAllLast(serializedStackedEntities.getAll());
         } else {
@@ -163,10 +163,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         PersistentDataUtils.applyDisabledAi(this.entity);
 
         DataUtils.clearStackedEntityData(oldEntity);
-        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createCompactNBT(oldEntity));
+        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createEntityDataStorage(oldEntity));
     }
 
-    public CompactNBT getStackedEntityNBT() {
+    public StackedEntityDataStorage getStackedEntityNBT() {
         return this.serializedStackedEntities;
     }
 
@@ -177,7 +177,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      *
      * @param serializedStackedEntities The nbt to overwrite with
      */
-    public void setStackedEntityNBT(CompactNBT serializedStackedEntities) {
+    public void setStackedEntityNBT(StackedEntityDataStorage serializedStackedEntities) {
         this.serializedStackedEntities = serializedStackedEntities;
         this.updateDisplay();
     }
@@ -196,7 +196,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (WrappedNBT<?> entityNBT : this.serializedStackedEntities.getAll()) {
+            for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getAll()) {
                 LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
                 if (entity == null)
                     continue;
@@ -319,7 +319,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         LivingEntity entity = nmsHandler.createEntityFromNBT(this.serializedStackedEntities.peek(), this.entity.getLocation(), false, this.entity.getType());
-        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createCompactNBT(entity));
+        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity));
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 

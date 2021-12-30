@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.object;
+package dev.rosewood.rosestacker.nms.spawner;
 
 /**
  * Allows fetching settings from the Plugin module

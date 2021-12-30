@@ -1,9 +1,9 @@
 package dev.rosewood.rosestacker.nms;
 
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
-import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
+import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import org.bukkit.Location;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -14,6 +14,10 @@ import org.bukkit.entity.Turtle;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Allows performing certain actions that are only possible through the use of NMS.
+ * For internal use only. Subject to change extremely frequently.
+ */
 public interface NMSHandler {
 
     /**
@@ -21,8 +25,10 @@ public interface NMSHandler {
      *
      * @param livingEntity to serialize
      * @return base64 string of the entity
+     * @deprecated To be changed to transformEntityType(LivingEntity, EntityType)
      */
-    WrappedNBT<?> getEntityAsNBT(LivingEntity livingEntity);
+    @Deprecated
+    StackedEntityDataEntry<?> getEntityAsNBT(LivingEntity livingEntity);
 
     /**
      * Deserializes and optionally forcefully spawns the entity at the given location
@@ -33,10 +39,11 @@ public interface NMSHandler {
      * @param entityType entity type to create and apply the serialized nbt over
      * @return the entity spawned from the NBT
      */
-    LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType entityType);
+    LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**
-     * Creates a LivingEntity instance where the actual entity has not been added to the world
+     * Creates a LivingEntity instance where the actual entity has not been added to the world.
+     * To be used in conjunction with {@link #spawnExistingEntity(LivingEntity, SpawnReason)}
      *
      * @param entityType The type of the entity to spawn
      * @param location The location the entity would have spawned at
@@ -46,22 +53,13 @@ public interface NMSHandler {
     LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason);
 
     /**
-     * Adds an unspawned entity to the world
+     * Adds an unspawned entity to the world.
+     * To be used in conjunction with {@link #createNewEntityUnspawned(EntityType, Location, SpawnReason)}
      *
      * @param entity The entity to add
      * @param spawnReason The reason the entity is spawning
      */
     void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason);
-
-    /**
-     * Spawns a LivingEntity at the given location with a custom SpawnReason
-     *
-     * @param entityType The type of entity to spawn
-     * @param location The location to spawn the entity at
-     * @param spawnReason The reason for the entity spawning
-     * @return The entity that was spawned
-     */
-    LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason);
 
     /**
      * Updates the name and visibility of an Entity's nametag for a Player
@@ -151,20 +149,20 @@ public interface NMSHandler {
     void setLastHurtBy(LivingEntity livingEntity, Player player);
 
     /**
-     * Creates a new CompactNBT instance for storing large amounts of entities of the same type in a small data footprint
+     * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint
      *
      * @param livingEntity The base entity
-     * @return a new CompactNBT instance
+     * @return a new StackedEntityDataStorage instance
      */
-    CompactNBT createCompactNBT(LivingEntity livingEntity);
+    StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity);
 
     /**
-     * Creates a new CompactNBT instance from existing serialized data
+     * Creates a new StackedEntityDataStorage instance from existing serialized data
      *
-     * @param data The CompactNBT data, should be acquired from {@link CompactNBT#serialize()}
-     * @return a new CompactNBT instance
+     * @param data The StackedEntityDataStorage data, should be acquired from {@link StackedEntityDataStorage#serialize()}
+     * @return a new StackedEntityDataStorage instance
      */
-    CompactNBT loadCompactNBT(byte[] data);
+    StackedEntityDataStorage deserializeEntityDataStorage(byte[] data);
 
     /**
      * Injects the custom stacked spawner logic into the tile entity of the given spawner

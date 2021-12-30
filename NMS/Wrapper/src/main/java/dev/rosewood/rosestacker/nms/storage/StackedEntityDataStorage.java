@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.object;
+package dev.rosewood.rosestacker.nms.storage;
 
 import java.util.List;
 import org.bukkit.entity.LivingEntity;
@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 /**
  * Used to store large amounts of entities of the same type in a small data footprint
  */
-public interface CompactNBT {
+public interface StackedEntityDataStorage {
 
     /**
      * Adds a new entry to the front
@@ -25,28 +25,28 @@ public interface CompactNBT {
     /**
      * Adds all given entries to the front
      *
-     * @param wrappedNbt The WrappedNBT entries to add
+     * @param stackedEntityDataEntry The WrappedNBT entries to add
      */
-    void addAllFirst(List<WrappedNBT<?>> wrappedNbt);
+    void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
      * Adds all given entries to the end
      *
-     * @param wrappedNbt The WrappedNBT entries to add
+     * @param stackedEntityDataEntry The WrappedNBT entries to add
      */
-    void addAllLast(List<WrappedNBT<?>> wrappedNbt);
+    void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
      * @return A WrappedNBT object for the entity at the front of the NBT list
      */
-    WrappedNBT<?> peek();
+    StackedEntityDataEntry<?> peek();
 
     /**
      * Gets and removes an entity from the nbt list
      *
      * @return A WrappedNBT object for the entity at the front of the NBT list
      */
-    WrappedNBT<?> pop();
+    StackedEntityDataEntry<?> pop();
 
     /**
      * @return the number of NBT entries
@@ -61,7 +61,7 @@ public interface CompactNBT {
     /**
      * @return a list of all uncompressed NBT entries
      */
-    List<WrappedNBT<?>> getAll();
+    List<StackedEntityDataEntry<?>> getAll();
 
     /**
      * @return all compressed NBT entries serialized into a savable format

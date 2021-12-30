@@ -5,7 +5,7 @@ import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
 import java.util.Set;
@@ -65,13 +65,13 @@ public abstract class ConversionHandler {
      * @param location The location of the main entity
      * @return A list of nbt data
      */
-    protected CompactNBT createEntityStackNBT(EntityType entityType, int amount, Location location) {
+    protected StackedEntityDataStorage createEntityStackNBT(EntityType entityType, int amount, Location location) {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        CompactNBT compactNBT = nmsHandler.createCompactNBT(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
+        StackedEntityDataStorage stackedEntityDataStorage = nmsHandler.createEntityDataStorage(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
         for (int i = 0; i < amount - 1; i++)
-            compactNBT.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
+            stackedEntityDataStorage.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
 
-        return compactNBT;
+        return stackedEntityDataStorage;
     }
 
 }

@@ -10,7 +10,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -425,7 +425,7 @@ public class EntityListener implements Listener {
         LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            WrappedNBT<?> serialized = nmsHandler.getEntityAsNBT(transformedEntity);
+            StackedEntityDataEntry<?> serialized = nmsHandler.getEntityAsNBT(transformedEntity);
             event.setCancelled(true);
 
             // Handle mooshroom shearing
@@ -451,7 +451,7 @@ public class EntityListener implements Listener {
                 if (newStack == null)
                     return;
 
-                for (WrappedNBT<?> serializedEntity : stackedEntity.getStackedEntityNBT().getAll()) {
+                for (StackedEntityDataEntry<?> serializedEntity : stackedEntity.getStackedEntityNBT().getAll()) {
                     LivingEntity entity = nmsHandler.createEntityFromNBT(serializedEntity, transformedEntity.getLocation(), false, transformedEntity.getType());
                     if (aiDisabled)
                         PersistentDataUtils.removeEntityAi(entity);
