@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.nms;
 
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import org.bukkit.Location;
@@ -168,9 +167,8 @@ public interface NMSHandler {
      * Injects the custom stacked spawner logic into the tile entity of the given spawner
      *
      * @param stackedSpawner The StackedSpawner instance to inject the custom stacked spawner logic into
-     * @param settingFetcher The SettingFetcher for getting settings from the Plugin module
      * @return A StackedSpawnerTile instance that was injected or null if the object given was not a valid StackedSpawner
      */
-    StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawner, SettingFetcher settingFetcher);
+    StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawner);
 
 }

@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_18_R1.spawner;
 
-import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -25,16 +25,14 @@ import org.bukkit.persistence.PersistentDataContainer;
 public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawnerTile {
 
     private final SpawnerBlockEntity blockEntity;
-    private final SettingFetcher settingFetcher;
     private final BlockPos blockPos;
     private StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
 
-    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner, SettingFetcher settingFetcher) {
+    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
         this.stackedSpawner = stackedSpawner;
-        this.settingFetcher = settingFetcher;
         Location location = stackedSpawner.getLocation();
         this.blockPos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         this.loadOld(old);
@@ -60,7 +58,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
-        if (this.settingFetcher.allowSpawnerRedstoneToggle()) {
+        if (Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean()) {
             if (this.redstoneTimeSinceLastCheck == 0) {
                 boolean hasSignal = level.hasNeighborSignal(this.blockPos);
                 if (this.redstoneDeactivated && !hasSignal) {
@@ -77,7 +75,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     return;
             }
 
-            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % this.settingFetcher.redstoneCheckFrequency();
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
         }
 
         // TODO: Remove this after the update is finished, this is just to let us know that we have successfully taken over the spawning logic

@@ -25,46 +25,46 @@ public interface StackedEntityDataStorage {
     /**
      * Adds all given entries to the front
      *
-     * @param stackedEntityDataEntry The WrappedNBT entries to add
+     * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
      */
     void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
      * Adds all given entries to the end
      *
-     * @param stackedEntityDataEntry The WrappedNBT entries to add
+     * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
      */
     void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
-     * @return A WrappedNBT object for the entity at the front of the NBT list
+     * @return A StackedEntityDataEntry object for the entity at the front of the list
      */
     StackedEntityDataEntry<?> peek();
 
     /**
-     * Gets and removes an entity from the nbt list
+     * Gets and removes an entity from the list
      *
-     * @return A WrappedNBT object for the entity at the front of the NBT list
+     * @return A StackedEntityDataEntry object for the entity at the front of the list
      */
     StackedEntityDataEntry<?> pop();
 
     /**
-     * @return the number of NBT entries
+     * @return the number of entries
      */
     int size();
 
     /**
-     * @return true if there are no NBT entries, false otherwise
+     * @return true if there are no entries, false otherwise
      */
     boolean isEmpty();
 
     /**
-     * @return a list of all uncompressed NBT entries
+     * @return a list of all uncompressed entries
      */
     List<StackedEntityDataEntry<?>> getAll();
 
     /**
-     * @return all compressed NBT entries serialized into a savable format
+     * @return all compressed entries serialized into a savable format
      */
     byte[] serialize();
 

@@ -45,7 +45,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         this.block = spawner;
         this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
-        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
+        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
         Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {

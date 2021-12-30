@@ -5,7 +5,6 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
 import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;
@@ -235,26 +234,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         }
     }
 
-    private final SettingFetcher settingFetcher = new SettingFetcher() {
-
-        @Override
-        public boolean allowSpawnerRedstoneToggle() {
-            return Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
-        }
-
-        @Override
-        public int redstoneCheckFrequency() {
-            return Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
-        }
-
-    };
-
     public ConfigurationManager(RosePlugin rosePlugin) {
         super(rosePlugin, Setting.class);
-    }
-
-    public SettingFetcher getSettingFetcher() {
-        return this.settingFetcher;
     }
 
     @Override

@@ -3,17 +3,16 @@ package dev.rosewood.rosestacker.nms.v1_17_R1;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.spawner.SettingFetcher;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
-import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.v1_17_R1.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SynchedEntityDataWrapper;
+import dev.rosewood.rosestacker.nms.v1_17_R1.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -389,7 +388,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
+    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj) {
         StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
         Block block = stackedSpawner.getBlock();
         ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
@@ -397,7 +396,7 @@ public class NMSHandlerImpl implements NMSHandler {
         if (blockEntity instanceof SpawnerBlockEntity) {
             SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
             if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
-                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner, settingFetcher);
+                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner);
                 unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
                 return stackedSpawnerTile;
             } else {
