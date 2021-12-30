@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -536,17 +537,35 @@ public class BlockListener implements Listener {
 
         // See if we can stack the spawner (if applicable) into one nearby
         int autoStackRange = Setting.SPAWNER_AUTO_STACK_RANGE.getInt();
-        if (autoStackRange > 0 && block.getType() == Material.SPAWNER) {
-            double closestDistance = autoStackRange * autoStackRange;
+        boolean autoStackChunk = Setting.SPAWNER_AUTO_STACK_CHUNK.getBoolean();
+        boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
+        if (useAutoStack && block.getType() == Material.SPAWNER) {
             StackedSpawner nearest = null;
             boolean anyNearby = false;
-            for (StackedSpawner spawner : new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values())) {
-                double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                if (distance < closestDistance && spawner.getSpawnerTile().getSpawnedType() == entityType) {
-                    anyNearby = true;
-                    if (spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                        closestDistance = distance;
-                        nearest = spawner;
+            List<StackedSpawner> spawners = new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());
+            if (!autoStackChunk) {
+                double closestDistance = autoStackRange * autoStackRange;
+                for (StackedSpawner spawner : spawners) {
+                    double distance = spawner.getLocation().distanceSquared(block.getLocation());
+                    if (distance < closestDistance) {
+                        boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
+                        anyNearby = Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
+                        if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                            closestDistance = distance;
+                            nearest = spawner;
+                        }
+                    }
+                }
+            } else {
+                Chunk chunk = block.getChunk();
+                for (StackedSpawner spawner : spawners) {
+                    if (chunk == spawner.getBlock().getChunk()) {
+                        boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
+                        anyNearby = Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
+                        if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                            nearest = spawner;
+                            break;
+                        }
                     }
                 }
             }
