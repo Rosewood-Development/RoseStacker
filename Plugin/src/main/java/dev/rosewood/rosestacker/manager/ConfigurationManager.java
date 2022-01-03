@@ -5,7 +5,6 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
 import java.util.Arrays;
 import java.util.Collections;
 import org.bukkit.Material;
@@ -19,10 +18,11 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ITEM_STACK_FREQUENCY("item-stack-frequency", 20, "How often should we try to stack nearby items?", "Values are in ticks, do not set lower than 1"),
         NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 30, "How often should we update stacked entity nametags?"),
         AUTOSAVE_FREQUENCY("autosave-frequency", 15, "How often should we autosave all loaded stack data?", "Value is measured in minutes, set to -1 to disable"),
-        LEGACY_DATA_MIGRATION("legacy-data-migration", true, "Should data from versions of RoseStacker older than v1.3.0 be updated to the new format?", "Disabling this will also disable any active stack plugin converters that are active", "Disabling this can provide a large performance boost, but it may be needed if your server is still updating data from an old RoseStacker version"),
+        LEGACY_DATA_MIGRATION("legacy-data-migration", true, "Should data from converted plugins still be actively converted?", "Disabling this can provide a performance boost, but it may be needed if your server is still converting data from an old stacker plugin"),
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),
+        ENTITY_USE_SIMPLE_STACKING("global-entity-settings.use-simple-stacking", false, "Should only data about the top entity in the stack be saved?", "This can cause massive performance improvements at the nearly complete loss of accuracy for mob drops", "Not recommended to use unless you are going to have massive amounts of mobs spawning from spawners"),
         ENTITY_INSTANT_STACK("global-entity-settings.instant-stack", true, "Should entities try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of entities being visible before stacking"),
         ENTITY_MIN_STACK_SIZE("global-entity-settings.min-stack-size", 2, "The minimum number of nearby entities required to form a stack", "Do not set this lower than 2"),
         ENTITY_MAX_STACK_SIZE("global-entity-settings.max-stack-size", 128, "The maximum number of entities that can be in a single stack"),
@@ -50,6 +50,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DONT_STACK_IF_LEASHED("global-entity-settings.dont-stack-if-leashed", true, "Should we stack entities if they are leashed?", "You will still be able to leash stacks, it will just prevent them from stacking into other stacks", "This can cause some weird effects if disabled"),
         ENTITY_DONT_STACK_IF_INVULNERABLE("global-entity-settings.dont-stack-if-invulnerable", true, "Should we stack entities if they are invulnerable?"),
         ENTITY_DONT_STACK_CUSTOM_NAMED("global-entity-settings.dont-stack-custom-named", false, "Should we stack entities with custom names?"),
+        ENTITY_DONT_STACK_IF_HAS_EQUIPMENT("global-entity-settings.dont-stack-if-has-equipment", false, "Should we stack entities that have equipment?"),
         ENTITY_DONT_STACK_IF_ACTIVE_RAIDER("global-entity-settings.dont-stack-if-active-raider", true, "Should we stack entities that are part of an active raid?", "This may cause issues when loading entities if disabled"),
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
@@ -104,6 +105,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISABLE_ATTACKING("global-spawner-settings.disable-attacking", false, "Should mobs spawned from spawners be prevented from attacking anything?"),
         SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS("global-spawner-settings.max-failed-spawn-attempts", 50, "How many random blocks should we check to spawn a mob before giving up?"),
         SPAWNER_DEACTIVATE_WHEN_POWERED("global-spawner-settings.deactivate-when-powered", false, "Should spawners turn off when powered by redstone?"),
+        SPAWNER_POWERED_CHECK_FREQUENCY("global-spawner-settings.powered-check-frequency", 10, "How many ticks should there be between redstone power checks?", "Lower values will cause faster spawner updates at the cost of performance", "Value is measured in ticks, do not go below 1"),
         SPAWNER_EXPLOSION_PROTECTION("global-spawner-settings.explosion-protection", true, "Should spawners be protected from explosions?"),
         SPAWNER_EXPLOSION_DECREASE_STACK_SIZE_ONLY("global-spawner-settings.explosion-decrease-stack-size-only", true, "If enabled, only the stack size will decrease from explosions, no items will be dropped"),
         SPAWNER_EXPLOSION_DESTROY_CHANCE("global-spawner-settings.explosion-destroy-chance", 10.0, "The percentage chance of spawners getting destroyed from an explosion (0-100)"),
@@ -121,7 +123,9 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SILK_TOUCH_GUARANTEE("global-spawner-settings.silk-touch-guarantee", true, "Should silk touch of level II or higher be guaranteed to pick up the spawner?"),
         SPAWNER_SILK_TOUCH_REQUIRE_PERMISSION("global-spawner-settings.silk-touch-require-permission", false, "Should the permission rosestacker.silktouch be required", "to be able to pick up spawners with silk touch?"),
         SPAWNER_SILK_TOUCH_PROTECT("global-spawner-settings.silk-touch-protect", false, "Should spawners be protected from being destroyed without silk touch?", "A message will be sent to the player explaining why it cannot be broken"),
-        SPAWNER_AUTO_STACK_RANGE("global-spawner-settings.auto-stack-range", -1, "How close should spawners have to be placed to auto stack together?", "A value of -1 will disable this setting"),
+        SPAWNER_AUTO_STACK_RANGE("global-spawner-settings.auto-stack-range", -1, "How close should spawners have to be placed to auto stack together?", "A value of -1 will disable this setting", "This value is measured in blocks"),
+        SPAWNER_AUTO_STACK_CHUNK("global-spawner-settings.auto-stack-chunk", false, "Should spawners in the same chunk auto stack together?", "This overrides the auto-stack-range setting"),
+        SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE("global-spawner-settings.auto-stack-prevent-multiple-in-range", false, "Should only one spawner block be allowed within the auto stack range?", "This will prevent placing spawners of other types within range of another spawner"),
         SPAWNER_AUTO_STACK_PARTICLES("global-spawner-settings.auto-stack-particles", true, "Should particles be displayed when auto stacking spawners together?", "Useful for letting the player know where their spawner just went"),
         SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT("global-spawner-settings.convert-require-same-amount", false, "Should the same number of spawn eggs as the spawner stack be required for conversion?"),
         SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER("global-spawner-settings.spawn-count-stack-size-multiplier", 4, "How many mobs should spawn per stacked spawner?", "Will use spawner tile value if set to -1"),
@@ -129,9 +133,9 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_SPAWN_DELAY_MINIMUM("global-spawner-settings.spawn-delay-minimum", 200, "The minimum number of ticks between spawn attempts", "Will use spawner tile value if set to -1"),
         SPAWNER_SPAWN_DELAY_MAXIMUM("global-spawner-settings.spawn-delay-maximum", 800, "The maximum number of ticks between spawn attempts", "Will use spawner tile value if set to -1"),
         SPAWNER_SPAWN_MAX_NEARBY_ENTITIES("global-spawner-settings.spawn-max-nearby-entities", 6, "If more than this number of entities are near the spawner, it will not spawn anything", "This only counts the individual mobs, and not the stack size", "Can be overridden for each spawner type using the max-nearby-entities:# spawn requirement"),
-        SPAWNER_SPAWN_ENTITY_SEARCH_RANGE("global-spawner-settings.spawn-entity-search-range", -1, "How far away from the spawner should we search for nearby entities when using max-nearby-entities?", "A value of -1 will make this setting use the same value as the spawn range"),
-        SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?", "Will use spawner tile value if set to -1"),
-        SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How far away can entities be spawned from the spawner?", "Will use spawner tile value if set to -1"),
+        SPAWNER_SPAWN_ENTITY_SEARCH_RANGE("global-spawner-settings.spawn-entity-search-range", -1, "How many blocks away from the spawner should we search for nearby entities when using max-nearby-entities?", "A value of -1 will make this setting use the same value as the spawn range"),
+        SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE("global-spawner-settings.spawn-player-activation-range", 16, "How close do players need to be to activate the spawner?", "Will use spawner tile value if set to -1", "This value is measured in blocks"),
+        SPAWNER_SPAWN_RANGE("global-spawner-settings.spawn-range", 4, "How many blocks away can entities be spawned from the spawner?", "Will use spawner tile value if set to -1"),
         SPAWNER_SPAWN_INTO_NEARBY_STACKS("global-spawner-settings.spawn-into-nearby-stacks", true, "Should mobs spawned from spawners spawn directly into nearby stacks?"),
         SPAWNER_SPAWN_ONLY_PLAYER_PLACED("global-spawner-settings.spawn-only-player-placed", false, "Should only spawners placed by players spawn mobs?", "Note that a spawner will only be detected if it was generated in the world after RoseStacker was installed"),
         SPAWNER_USE_VERTICAL_SPAWN_RANGE("global-spawner-settings.use-vertical-spawn-range", false, "Should the vertical spawn range use the horizontal spawn range?", "Entities normally only spawn one block above and below the spawner"),
@@ -230,21 +234,8 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         }
     }
 
-    private final SettingFetcher settingFetcher = new SettingFetcher() {
-
-        @Override
-        public boolean allowSpawnerRedstoneToggle() {
-            return Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean();
-        }
-
-    };
-
     public ConfigurationManager(RosePlugin rosePlugin) {
         super(rosePlugin, Setting.class);
-    }
-
-    public SettingFetcher getSettingFetcher() {
-        return this.settingFetcher;
     }
 
     @Override

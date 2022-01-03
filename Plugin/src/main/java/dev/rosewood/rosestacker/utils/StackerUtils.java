@@ -5,8 +5,8 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -183,22 +183,22 @@ public final class StackerUtils {
     }
 
     public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
-        List<WrappedNBT<?>> wrappedNBT = stackedEntity.getStackedEntityNBT().getAll();
-        List<LivingEntity> livingEntities = new ArrayList<>(wrappedNBT.size());
+        List<StackedEntityDataEntry<?>> stackedEntityDataEntry = stackedEntity.getStackedEntityNBT().getAll();
+        List<LivingEntity> livingEntities = new ArrayList<>(stackedEntityDataEntry.size());
         Location location = stackedEntity.getLocation();
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (WrappedNBT<?> nbt : wrappedNBT)
+        for (StackedEntityDataEntry<?> nbt : stackedEntityDataEntry)
             livingEntities.add(nmsHandler.createEntityFromNBT(nbt, location, false, stackedEntity.getEntity().getType()));
 
         return livingEntities;
     }
 
     public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
-        CompactNBT compactNBT = NMSAdapter.getHandler().createCompactNBT(stackedEntity.getEntity());
+        StackedEntityDataStorage stackedEntityDataStorage = NMSAdapter.getHandler().createEntityDataStorage(stackedEntity.getEntity());
         for (LivingEntity livingEntity : livingEntities)
-            compactNBT.addLast(livingEntity);
-        stackedEntity.setStackedEntityNBT(compactNBT);
+            stackedEntityDataStorage.addLast(livingEntity);
+        stackedEntity.setStackedEntityNBT(stackedEntityDataStorage);
     }
 
     /**

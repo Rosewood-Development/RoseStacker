@@ -3,20 +3,17 @@ package dev.rosewood.rosestacker.nms.v1_17_R1;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
-import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.CompactNBTImpl;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.SynchedEntityDataWrapper;
-import dev.rosewood.rosestacker.nms.v1_17_R1.object.WrappedNBTImpl;
+import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SynchedEntityDataWrapper;
+import dev.rosewood.rosestacker.nms.v1_17_R1.spawner.StackedSpawnerTileImpl;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,7 +27,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -112,11 +108,11 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public WrappedNBT<CompoundTag> getEntityAsNBT(LivingEntity livingEntity) {
+    public StackedEntityDataEntry<CompoundTag> getEntityAsNBT(LivingEntity livingEntity) {
         CompoundTag nbt = new CompoundTag();
         net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
         nmsEntity.save(nbt);
-        return new WrappedNBTImpl(nbt);
+        return new NBTStackedEntityDataEntry(nbt);
     }
 
     private void setTag(ListTag tag, int index, Tag value) {
@@ -128,7 +124,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public LivingEntity createEntityFromNBT(WrappedNBT<?> serialized, Location location, boolean addToWorld, EntityType entityType) {
+    public LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType) {
         try {
             CompoundTag nbt = (CompoundTag) serialized.get();
 
@@ -176,23 +172,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
                 return (LivingEntity) entity.getBukkitEntity();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    public LivingEntity createEntityFromNBT(byte[] serialized, Location location, EntityType entityType) {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-             ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
-
-            // Read entity type
-            dataInput.readUTF();
-
-            // Read NBT
-            return this.createEntityFromNBT(new WrappedNBTImpl(NbtIo.readCompressed(dataInput)), location, false, entityType);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -282,20 +261,6 @@ public class NMSHandlerImpl implements NMSHandler {
             throw new IllegalArgumentException("Entity is not in a loaded world");
 
         ((CraftWorld) world).getHandle().addEntity(((CraftEntity) entity).getHandle(), spawnReason);
-    }
-
-    @Override
-    public LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason) {
-        World world = location.getWorld();
-        if (world == null)
-            throw new IllegalArgumentException("Cannot spawn into null world");
-
-        Class<? extends org.bukkit.entity.Entity> entityClass = entityType.getEntityClass();
-        if (entityClass == null || !LivingEntity.class.isAssignableFrom(entityClass))
-            throw new IllegalArgumentException("EntityType must be of a LivingEntity");
-
-        CraftWorld craftWorld = (CraftWorld) world;
-        return (LivingEntity) craftWorld.spawn(location, entityClass, null, spawnReason);
     }
 
     @Override
@@ -413,17 +378,17 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public CompactNBT createCompactNBT(LivingEntity livingEntity) {
-        return new CompactNBTImpl(livingEntity);
+    public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity) {
+        return new NBTStackedEntityDataStorage(livingEntity);
     }
 
     @Override
-    public CompactNBT loadCompactNBT(byte[] data) {
-        return new CompactNBTImpl(data);
+    public StackedEntityDataStorage deserializeEntityDataStorage(byte[] data) {
+        return new NBTStackedEntityDataStorage(data);
     }
 
     @Override
-    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj, SettingFetcher settingFetcher) {
+    public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj) {
         StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
         Block block = stackedSpawner.getBlock();
         ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
@@ -431,7 +396,7 @@ public class NMSHandlerImpl implements NMSHandler {
         if (blockEntity instanceof SpawnerBlockEntity) {
             SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
             if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
-                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner, settingFetcher);
+                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner);
                 unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
                 return stackedSpawnerTile;
             } else {

@@ -32,6 +32,8 @@ import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Turtle;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -252,6 +254,21 @@ public abstract class EntityStackSettings extends StackSettings {
 
         if (Setting.ENTITY_DONT_STACK_IF_INVULNERABLE.getBoolean() && (entity1.isInvulnerable() || entity2.isInvulnerable()))
             return EntityStackComparisonResult.INVULNERABLE;
+
+        if (Setting.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.getBoolean()) {
+            EntityEquipment equipment1 = entity1.getEquipment();
+            EntityEquipment equipment2 = entity2.getEquipment();
+
+            if (equipment1 != null)
+                for (EquipmentSlot equipmentSlot : EquipmentSlot.values())
+                    if (equipment1.getItem(equipmentSlot).getType() != Material.AIR)
+                        return EntityStackComparisonResult.HAS_EQUIPMENT;
+
+            if (equipment2 != null)
+                for (EquipmentSlot equipmentSlot : EquipmentSlot.values())
+                    if (equipment2.getItem(equipmentSlot).getType() != Material.AIR)
+                        return EntityStackComparisonResult.HAS_EQUIPMENT;
+        }
 
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;

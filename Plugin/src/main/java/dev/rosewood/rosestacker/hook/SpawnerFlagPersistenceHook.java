@@ -22,7 +22,8 @@ public class SpawnerFlagPersistenceHook {
     public static boolean mcMMOEnabled() {
         if (mcMMOEnabled != null)
             return mcMMOEnabled;
-        return mcMMOEnabled = Bukkit.getPluginManager().getPlugin("mcMMO") != null;
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("mcMMO");
+        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
     }
 
     /**

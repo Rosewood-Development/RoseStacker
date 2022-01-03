@@ -18,6 +18,7 @@ public enum EntityStackComparisonResult {
     PART_OF_VEHICLE,
     LEASHED,
     INVULNERABLE,
+    HAS_EQUIPMENT,
     DIFFERENT_COLORS,
     SITTING,
     TAMED,

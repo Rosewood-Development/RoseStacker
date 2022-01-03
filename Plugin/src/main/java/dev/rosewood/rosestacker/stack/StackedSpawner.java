@@ -4,13 +4,12 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
+import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -45,7 +44,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         this.block = spawner;
         this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
-        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this, RoseStacker.getInstance().getManager(ConfigurationManager.class).getSettingFetcher());
+        this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
         Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {

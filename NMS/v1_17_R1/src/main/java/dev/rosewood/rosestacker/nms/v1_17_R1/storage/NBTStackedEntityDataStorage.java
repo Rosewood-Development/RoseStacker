@@ -1,12 +1,14 @@
-package dev.rosewood.rosestacker.nms.v1_18_R1.object;
+package dev.rosewood.rosestacker.nms.v1_17_R1.storage;
 
-import dev.rosewood.rosestacker.nms.object.CompactNBT;
-import dev.rosewood.rosestacker.nms.object.CompactNBTException;
-import dev.rosewood.rosestacker.nms.object.WrappedNBT;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,16 +18,32 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
+import net.minecraft.world.item.trading.MerchantOffers;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftAbstractVillager;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
-public class CompactNBTImpl implements CompactNBT {
+public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
+    private static final Field field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
     private final CompoundTag base;
     private final List<CompoundTag> data;
 
-    public CompactNBTImpl(LivingEntity livingEntity) {
+    public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new CompoundTag();
+
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
+                if (field_AbstractVillager_offers.get(villager) == null)
+                    field_AbstractVillager_offers.set(villager, new MerchantOffers());
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
         ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
@@ -33,7 +51,7 @@ public class CompactNBTImpl implements CompactNBT {
         this.data = Collections.synchronizedList(new LinkedList<>());
     }
 
-    public CompactNBTImpl(byte[] data) {
+    public NBTStackedEntityDataStorage(byte[] data) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -44,7 +62,7 @@ public class CompactNBTImpl implements CompactNBT {
                 tags.add(NbtIo.read(dataInput));
             this.data = Collections.synchronizedList(tags);
         } catch (Exception e) {
-            throw new CompactNBTException(e);
+            throw new StackedEntityDataIOException(e);
         }
     }
 
@@ -59,23 +77,23 @@ public class CompactNBTImpl implements CompactNBT {
     }
 
     @Override
-    public void addAllFirst(List<WrappedNBT<?>> wrappedNbt) {
-        wrappedNbt.forEach(x -> this.addAt(0, x));
+    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+        stackedEntityDataEntry.forEach(x -> this.addAt(0, x));
     }
 
     @Override
-    public void addAllLast(List<WrappedNBT<?>> wrappedNbt) {
-        wrappedNbt.forEach(x -> this.addAt(this.data.size(), x));
+    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+        stackedEntityDataEntry.forEach(x -> this.addAt(this.data.size(), x));
     }
 
     @Override
-    public WrappedNBTImpl peek() {
-        return new WrappedNBTImpl(this.rebuild(this.data.get(0)));
+    public NBTStackedEntityDataEntry peek() {
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
     }
 
     @Override
-    public WrappedNBTImpl pop() {
-        return new WrappedNBTImpl(this.rebuild(this.data.remove(0)));
+    public NBTStackedEntityDataEntry pop() {
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0)));
     }
 
     @Override
@@ -89,10 +107,10 @@ public class CompactNBTImpl implements CompactNBT {
     }
 
     @Override
-    public List<WrappedNBT<?>> getAll() {
-        List<WrappedNBT<?>> wrapped = new ArrayList<>(this.data.size());
+    public List<StackedEntityDataEntry<?>> getAll() {
+        List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(this.data.size());
         for (CompoundTag compoundTag : new ArrayList<>(this.data))
-            wrapped.add(new WrappedNBTImpl(this.rebuild(compoundTag)));
+            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)));
         return wrapped;
     }
 
@@ -109,7 +127,7 @@ public class CompactNBTImpl implements CompactNBT {
             dataOutput.close();
             return outputStream.toByteArray();
         } catch (Exception e) {
-            throw new CompactNBTException(e);
+            throw new StackedEntityDataIOException(e);
         }
     }
 
@@ -122,8 +140,8 @@ public class CompactNBTImpl implements CompactNBT {
         this.data.add(index, compoundTag);
     }
 
-    private void addAt(int index, WrappedNBT<?> wrappedNBT) {
-        CompoundTag compoundTag = (CompoundTag) wrappedNBT.get();
+    private void addAt(int index, StackedEntityDataEntry<?> stackedEntityDataEntry) {
+        CompoundTag compoundTag = (CompoundTag) stackedEntityDataEntry.get();
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);

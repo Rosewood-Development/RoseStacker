@@ -1,38 +1,37 @@
-package dev.rosewood.rosestacker.nms.v1_16_R3.object;
+package dev.rosewood.rosestacker.nms.v1_16_R2.spawner;
 
-import dev.rosewood.rosestacker.nms.object.SettingFetcher;
-import dev.rosewood.rosestacker.nms.object.StackedSpawnerTile;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.Arrays;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.Blocks;
-import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.MinecraftKey;
-import net.minecraft.server.v1_16_R3.MobSpawnerAbstract;
-import net.minecraft.server.v1_16_R3.MobSpawnerData;
-import net.minecraft.server.v1_16_R3.TileEntityMobSpawner;
-import net.minecraft.server.v1_16_R3.WeightedRandom;
-import net.minecraft.server.v1_16_R3.World;
+import net.minecraft.server.v1_16_R2.BlockPosition;
+import net.minecraft.server.v1_16_R2.Blocks;
+import net.minecraft.server.v1_16_R2.IBlockData;
+import net.minecraft.server.v1_16_R2.MinecraftKey;
+import net.minecraft.server.v1_16_R2.MobSpawnerAbstract;
+import net.minecraft.server.v1_16_R2.MobSpawnerData;
+import net.minecraft.server.v1_16_R2.TileEntityMobSpawner;
+import net.minecraft.server.v1_16_R2.WeightedRandom;
+import net.minecraft.server.v1_16_R2.World;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_16_R2.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;
 
 public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements StackedSpawnerTile {
 
     private final TileEntityMobSpawner blockEntity;
-    private final SettingFetcher settingFetcher;
     private final BlockPosition blockPos;
     private StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
+    private int redstoneTimeSinceLastCheck;
 
-    public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner, SettingFetcher settingFetcher) {
+    public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
         this.stackedSpawner = stackedSpawner;
-        this.settingFetcher = settingFetcher;
         Location location = stackedSpawner.getLocation();
         this.blockPos = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         this.loadOld(old);
@@ -51,20 +50,24 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
-        if (this.settingFetcher.allowSpawnerRedstoneToggle()) {
-            boolean hasSignal = level.isBlockIndirectlyPowered(this.blockPos);
-            if (this.redstoneDeactivated && !hasSignal) {
-                this.redstoneDeactivated = false;
-                this.requiredPlayerRange = stackSettings.getPlayerActivationRange();
-                this.updateTile();
-            } else if (!this.redstoneDeactivated && hasSignal) {
-                this.redstoneDeactivated = true;
-                this.requiredPlayerRange = 0;
-                this.updateTile();
+        if (Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean()) {
+            if (this.redstoneTimeSinceLastCheck == 0) {
+                boolean hasSignal = level.isBlockIndirectlyPowered(this.blockPos);
+                if (this.redstoneDeactivated && !hasSignal) {
+                    this.redstoneDeactivated = false;
+                    this.requiredPlayerRange = stackSettings.getPlayerActivationRange();
+                    this.updateTile();
+                } else if (!this.redstoneDeactivated && hasSignal) {
+                    this.redstoneDeactivated = true;
+                    this.requiredPlayerRange = 0;
+                    this.updateTile();
+                }
+
+                if (this.redstoneDeactivated)
+                    return;
             }
 
-            if (this.redstoneDeactivated)
-                return;
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
         }
 
         // Count down spawn timer unless we are ready to spawn
@@ -132,6 +135,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
             IBlockData var1 = this.a().getType(this.b());
             this.a().notify(this.blockPos, var1, var1, 4);
         }
+
     }
 
     private boolean isNearPlayer(World level, BlockPosition blockPos) {

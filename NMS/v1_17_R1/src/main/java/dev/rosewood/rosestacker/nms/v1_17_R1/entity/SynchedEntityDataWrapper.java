@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_17_R1.object;
+package dev.rosewood.rosestacker.nms.v1_17_R1.entity;
 
 import java.util.List;
 import net.minecraft.network.syncher.SynchedEntityData;
