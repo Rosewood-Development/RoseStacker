@@ -1,33 +1,52 @@
 package dev.rosewood.rosestacker.nms.v1_16_R2.storage;
 
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.server.v1_16_R2.EntityVillagerAbstract;
+import net.minecraft.server.v1_16_R2.MerchantRecipeList;
 import net.minecraft.server.v1_16_R2.NBTBase;
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagList;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
 public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
+    private static final Field field_AbstractVillager_offers = ReflectionUtils.getFieldByName(EntityVillagerAbstract.class, "trades");
     private final NBTTagCompound base;
     private final List<NBTTagCompound> data;
 
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new NBTTagCompound();
+
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                EntityVillagerAbstract villager = ((CraftAbstractVillager) livingEntity).getHandle();
+                if (field_AbstractVillager_offers.get(villager) == null)
+                    field_AbstractVillager_offers.set(villager, new MerchantRecipeList());
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
         ((CraftLivingEntity) livingEntity).getHandle().save(this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);

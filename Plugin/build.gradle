@@ -16,7 +16,7 @@ dependencies {
     compileOnly project(':NMS:Wrapper')
 
     // Referenced dependencies
-    compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.9'
@@ -51,13 +51,13 @@ dependencies {
     compileOnly 'io.lumine.xikage:mythicmobs:4.13.1'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
     compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
-    compileOnly 'com.bgsoftware:WildChestsAPI:latest'
+    compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'com.gmail.nossr50:mcmmo:2.1.198'
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.0.7'
+    api 'dev.rosewood:rosegarden:1.0.9'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
     api 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }

@@ -1,12 +1,14 @@
 package dev.rosewood.rosestacker.nms.v1_17_R1.storage;
 
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,16 +18,32 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.trading.MerchantOffers;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
 public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
+    private static final Field field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
     private final CompoundTag base;
     private final List<CompoundTag> data;
 
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new CompoundTag();
+
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
+                if (field_AbstractVillager_offers.get(villager) == null)
+                    field_AbstractVillager_offers.set(villager, new MerchantOffers());
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
         ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
