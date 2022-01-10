@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Player;
 
@@ -182,7 +183,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
 
         this.spawnerTile.setDelay(delay);
-        this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
+
+        BlockState state = this.block.getState();
+        if (state instanceof CreatureSpawner)
+            this.cachedCreatureSpawner = (CreatureSpawner) state;
     }
 
 }

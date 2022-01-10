@@ -29,6 +29,8 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
+    private boolean playersNearby;
+    private int playersTimeSinceLastCheck;
 
     public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -41,7 +43,11 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     @Override
     public void serverTick(ServerLevel level, BlockPos blockPos) {
         // Only tick the spawner if a player is nearby
-        if (!this.isNearPlayer(level, blockPos))
+        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % Setting.SPAWNER_PLAYER_CHECK_FREQUENCY.getInt();
+        if (this.playersTimeSinceLastCheck == 0)
+            this.playersNearby = this.isNearPlayer(level, blockPos);
+
+        if (!this.playersNearby)
             return;
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
