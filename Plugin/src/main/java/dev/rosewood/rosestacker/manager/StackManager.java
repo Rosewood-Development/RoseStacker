@@ -364,7 +364,7 @@ public class StackManager extends Manager implements StackingLogic {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null) {
             stackingThread.loadChunkEntities(chunk, entities);
-            if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
+            if (Setting.LEGACY_DATA_MIGRATION.getBoolean() && this.conversionManager.hasConversions())
                 this.pendingLoadChunks.put(chunk, System.nanoTime());
         }
     }

@@ -109,7 +109,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private void updateTile() {
         Level level = this.blockEntity.getLevel();
         if (level != null) {
-            this.blockEntity.setChanged();
+            level.blockEntityChanged(this.blockPos);
             level.sendBlockUpdated(this.blockPos, this.blockEntity.getBlockState(), this.blockEntity.getBlockState(), 3);
         }
     }

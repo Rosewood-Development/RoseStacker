@@ -113,7 +113,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private void updateTile() {
         World level = this.a();
         if (level != null) {
-            this.blockEntity.update();
+            level.b(this.blockPos, this.blockEntity);
             IBlockData var1 = this.a().getType(this.b());
             this.a().notify(this.blockPos, var1, var1, 3);
         }
