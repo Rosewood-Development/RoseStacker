@@ -259,13 +259,24 @@ public final class ItemUtils {
             } catch (Exception ignored) { }
         }
 
-        // Then check if the spawner was created by a Purpur server
+        // Try formats from other plugins/servers
+
+        // Purpur servers
         entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "Purpur.mob_type");
+
+        // EpicSpawners Pre-v7
+        if (entityTypeName.isEmpty())
+            entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "type").toUpperCase().replace(' ', '_');
+
+        // EpicSpawners Post-v7
+        if (entityTypeName.isEmpty())
+            entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "data");
+
         if (!entityTypeName.isEmpty()) {
             try {
                 NamespacedKey entityTypeKey = NamespacedKey.fromString(entityTypeName);
                 for (EntityType entityType : EntityType.values())
-                    if (entityType != EntityType.UNKNOWN && entityType.getKey().equals(entityTypeKey))
+                    if (entityType != EntityType.UNKNOWN && entityType.getKey().equals(entityTypeKey) || entityTypeName.equalsIgnoreCase(entityType.name()))
                         return EntityType.valueOf(entityTypeName);
             } catch (Exception ignored) { }
         }
