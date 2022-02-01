@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.spawner.spawning;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
+import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -192,7 +193,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
+                        WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity);
                 } else {
