@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.hook;
 
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.util.compat.layers.persistentdata.MobMetaFlagType;
+import com.gmail.nossr50.metadata.MobMetaFlagType;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
@@ -51,7 +51,7 @@ public class SpawnerFlagPersistenceHook {
      */
     public static void flagSpawnerSpawned(LivingEntity entity) {
         if (mcMMOEnabled())
-            mcMMO.getCompatibilityManager().getPersistentDataLayer().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
@@ -73,7 +73,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (mcMMOEnabled())
-            mcMMO.getCompatibilityManager().getPersistentDataLayer().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
