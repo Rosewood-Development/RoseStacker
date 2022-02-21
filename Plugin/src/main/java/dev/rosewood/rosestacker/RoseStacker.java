@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.database.DataMigration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;

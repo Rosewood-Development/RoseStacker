@@ -42,7 +42,7 @@ public interface NMSHandler {
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world.
-     * To be used in conjunction with {@link #spawnExistingEntity(LivingEntity, SpawnReason)}
+     * To be used in conjunction with {@link #spawnExistingEntity(LivingEntity, SpawnReason, boolean)}
      *
      * @param entityType The type of the entity to spawn
      * @param location The location the entity would have spawned at
@@ -57,8 +57,21 @@ public interface NMSHandler {
      *
      * @param entity The entity to add
      * @param spawnReason The reason the entity is spawning
+     * @param bypassSpawnEvent Should an EntitySpawnEvent be called for this entity?
      */
-    void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason);
+    void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason, boolean bypassSpawnEvent);
+
+    /**
+     * Spawns an entity with a certain SpawnReason
+     *
+     * @param entityType The type of entity to spawn
+     * @param spawnReason The reason the entity is spawning
+     */
+    default LivingEntity spawnEntityWithReason(EntityType entityType, Location location, SpawnReason spawnReason, boolean bypassSpawnEvent) {
+        LivingEntity entity = this.createNewEntityUnspawned(entityType, location, spawnReason);
+        this.spawnExistingEntity(entity, spawnReason, bypassSpawnEvent);
+        return entity;
+    }
 
     /**
      * Updates the name and visibility of an Entity's nametag for a Player
