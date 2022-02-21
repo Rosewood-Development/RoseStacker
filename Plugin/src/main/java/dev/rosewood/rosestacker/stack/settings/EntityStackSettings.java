@@ -49,6 +49,7 @@ public abstract class EntityStackSettings extends StackSettings {
     private final int maxStackSize;
     private final Boolean killEntireStackOnDeath;
     private final double mergeRadius;
+    private final Boolean onlyStackFromSpawners;
 
     // Settings that apply to multiple entities through interfaces
     private boolean dontStackIfDifferentColor;
@@ -100,6 +101,7 @@ public abstract class EntityStackSettings extends StackSettings {
         this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
         this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
         this.mergeRadius = this.settingsConfiguration.getDouble("merge-radius");
+        this.onlyStackFromSpawners = this.settingsConfiguration.getDefaultedBoolean("only-stack-from-spawners");
 
         if (this.isEntityColorable())
             this.dontStackIfDifferentColor = this.settingsConfiguration.getBoolean("dont-stack-if-different-color");
@@ -143,6 +145,7 @@ public abstract class EntityStackSettings extends StackSettings {
         this.setIfNotExists("max-stack-size", -1);
         this.setIfNotExists("kill-entire-stack-on-death", "default");
         this.setIfNotExists("merge-radius", -1);
+        this.setIfNotExists("only-stack-from-spawners", "default");
 
         if (this.isEntityColorable())
             this.setIfNotExists("dont-stack-if-different-color", false);
@@ -241,7 +244,7 @@ public abstract class EntityStackSettings extends StackSettings {
                 return EntityStackComparisonResult.IN_WATER;
         }
 
-        if (!comparingForUnstack && Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean() &&
+        if (!comparingForUnstack && this.shouldOnlyStackFromSpawners() &&
                 (!PersistentDataUtils.isSpawnedFromSpawner(entity1) || !PersistentDataUtils.isSpawnedFromSpawner(entity2)))
             return EntityStackComparisonResult.NOT_SPAWNED_FROM_SPAWNER;
 
@@ -546,6 +549,12 @@ public abstract class EntityStackSettings extends StackSettings {
         if (this.mergeRadius != -1)
             return this.mergeRadius;
         return Setting.ENTITY_MERGE_RADIUS.getDouble();
+    }
+
+    public boolean shouldOnlyStackFromSpawners() {
+        if (this.onlyStackFromSpawners != null)
+            return this.onlyStackFromSpawners;
+        return Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean();
     }
 
     protected abstract void setDefaultsInternal();
