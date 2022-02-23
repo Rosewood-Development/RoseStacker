@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.hook;
 
-import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.util.compat.layers.persistentdata.MobMetaFlagType;
+import dev.rosewood.rosegarden.utils.RoseGardenUtils;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
@@ -13,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 public class SpawnerFlagPersistenceHook {
 
     private static Boolean mcMMOEnabled;
+    private static McMMOHook mcMMOHookHandler;
     private static Boolean jobsEnabled;
     private static Boolean roseLootEnabled;
 
@@ -23,7 +23,10 @@ public class SpawnerFlagPersistenceHook {
         if (mcMMOEnabled != null)
             return mcMMOEnabled;
         Plugin plugin = Bukkit.getPluginManager().getPlugin("mcMMO");
-        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
+        mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
+        if (mcMMOEnabled)
+            mcMMOHookHandler = RoseGardenUtils.isUpdateAvailable("2.1.210", plugin.getDescription().getVersion()) ? new OldMcMMOHook() : new NewMcMMOHook();
+        return mcMMOEnabled;
     }
 
     /**
@@ -51,7 +54,7 @@ public class SpawnerFlagPersistenceHook {
      */
     public static void flagSpawnerSpawned(LivingEntity entity) {
         if (mcMMOEnabled())
-            mcMMO.getCompatibilityManager().getPersistentDataLayer().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            mcMMOHookHandler.flagSpawnerMetadata(entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
@@ -73,7 +76,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (mcMMOEnabled())
-            mcMMO.getCompatibilityManager().getPersistentDataLayer().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            mcMMOHookHandler.flagSpawnerMetadata(entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");

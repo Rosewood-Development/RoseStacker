@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.database.DataMigration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
@@ -57,7 +56,7 @@ public class RoseStacker extends RosePlugin {
     }
 
     public RoseStacker() {
-        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class);
+        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, null);
 
         instance = this;
     }
@@ -148,16 +147,6 @@ public class RoseStacker extends RosePlugin {
                 ConversionManager.class,
                 EntityCacheManager.class,
                 StackManager.class
-        );
-    }
-
-    @Override
-    public List<Class<? extends DataMigration>> getDataMigrations() {
-        return Arrays.asList(
-                _1_Create_Tables_Stacks.class,
-                _2_Create_Tables_Convert_Stacks.class,
-                _3_Create_Tables_Translation_Locales.class,
-                _4_Alter_Spawner_Table_Player_Placed.class
         );
     }
 

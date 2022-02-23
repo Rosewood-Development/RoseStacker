@@ -254,13 +254,17 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason) {
+    public void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason, boolean bypassSpawnEvent) {
         Location location = entity.getLocation();
         World world = location.getWorld();
         if (world == null)
             throw new IllegalArgumentException("Entity is not in a loaded world");
 
-        ((CraftWorld) world).getHandle().addEntity(((CraftEntity) entity).getHandle(), spawnReason);
+        if (bypassSpawnEvent) {
+            ((CraftWorld) world).getHandle().entityManager.addNewEntity(((CraftEntity) entity).getHandle());
+        } else {
+            ((CraftWorld) world).addEntityToWorld(((CraftEntity) entity).getHandle(), spawnReason);
+        }
     }
 
     @Override

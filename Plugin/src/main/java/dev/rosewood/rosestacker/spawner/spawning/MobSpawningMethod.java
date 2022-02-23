@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.spawner.spawning;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
+import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -192,7 +193,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
+                        WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity);
                 } else {
@@ -214,7 +215,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     if (spawnerSpawnEvent.isCancelled())
                         continue;
 
-                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     stackManager.addEntityStack(stackedEntity);
                 }
@@ -232,6 +233,7 @@ public class MobSpawningMethod implements SpawningMethod {
             successfulSpawns = Math.min(spawnAmount, possibleLocations.size());
 
             Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+                NMSHandler nmsHandler = NMSAdapter.getHandler();
                 for (int i = 0; i < spawnAmount; i++) {
                     if (possibleLocations.isEmpty())
                         break;
@@ -241,7 +243,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     if (world == null)
                         continue;
 
-                    LivingEntity entity = (LivingEntity) world.spawnEntity(location, this.entityType);
+                    LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
                     SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 

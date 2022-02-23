@@ -623,7 +623,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 for (StackedEntity stackedEntity : stackedEntities) {
                     LivingEntity entity = stackedEntity.getEntity();
                     this.entityCacheManager.preCacheEntity(entity);
-                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), spawnReason);
+                    nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), spawnReason, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     this.addEntityStack(stackedEntity);
                     stackedEntity.updateDisplay();

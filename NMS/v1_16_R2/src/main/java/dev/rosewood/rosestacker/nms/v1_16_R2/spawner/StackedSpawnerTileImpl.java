@@ -28,6 +28,8 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
+    private boolean playersNearby;
+    private int playersTimeSinceLastCheck;
 
     public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -44,7 +46,11 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
             return;
 
         // Only tick the spawner if a player is nearby
-        if (!this.isNearPlayer(level, this.blockPos))
+        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % Setting.SPAWNER_PLAYER_CHECK_FREQUENCY.getInt();
+        if (this.playersTimeSinceLastCheck == 0)
+            this.playersNearby = this.isNearPlayer(level, this.blockPos);
+
+        if (!this.playersNearby)
             return;
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
@@ -107,7 +113,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private void updateTile() {
         World level = this.a();
         if (level != null) {
-            this.blockEntity.update();
+            level.b(this.blockPos, this.blockEntity);
             IBlockData var1 = this.a().getType(this.b());
             this.a().notify(this.blockPos, var1, var1, 3);
         }

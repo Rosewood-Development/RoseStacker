@@ -159,6 +159,9 @@ public class BlockListener implements Listener {
                 return;
 
             StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            if (stackedBlock == null)
+                return;
+
             if (stackedBlock.isLocked()) {
                 event.setCancelled(true);
                 return;

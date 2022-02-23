@@ -21,7 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.trading.MerchantOffers;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
-import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
@@ -34,7 +34,7 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         this.base = new CompoundTag();
 
         // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
-        if (livingEntity instanceof AbstractVillager) {
+        if (livingEntity.getType() == EntityType.VILLAGER) {
             try {
                 net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
                 if (field_AbstractVillager_offers.get(villager) == null)

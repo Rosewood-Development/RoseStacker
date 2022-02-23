@@ -278,13 +278,22 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason) {
+    public void spawnExistingEntity(LivingEntity entity, SpawnReason spawnReason, boolean bypassSpawnEvent) {
         Location location = entity.getLocation();
         World world = location.getWorld();
         if (world == null)
             throw new IllegalArgumentException("Entity is not in a loaded world");
 
-        ((CraftWorld) world).getHandle().addEntity(((CraftEntity) entity).getHandle(), spawnReason);
+        if (bypassSpawnEvent) {
+            IChunkAccess ichunkaccess = ((CraftWorld) world).getHandle().getChunkAt(MathHelper.floor(entity.getLocation().getX() / 16.0D), MathHelper.floor(entity.getLocation().getZ() / 16.0D), ChunkStatus.FULL, false);
+            if (!(ichunkaccess instanceof Chunk))
+                return;
+
+            ichunkaccess.a(((CraftEntity) entity).getHandle());
+            ((CraftWorld) world).getHandle().addEntityChunk(((CraftEntity) entity).getHandle());
+        } else {
+            ((CraftWorld) world).addEntity(((CraftEntity) entity).getHandle(), spawnReason);
+        }
     }
 
     @Override
