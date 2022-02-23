@@ -1,10 +1,15 @@
 package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.database.DataMigration;
 import dev.rosewood.rosegarden.database.SQLiteConnector;
 import dev.rosewood.rosegarden.manager.AbstractDataManager;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.conversion.ConverterType;
+import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
+import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
+import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
+import dev.rosewood.rosestacker.database.migrations._4_Alter_Spawner_Table_Player_Placed;
 import dev.rosewood.rosestacker.stack.StackType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -181,6 +187,16 @@ public class DataManager extends AbstractDataManager {
                 statement.executeBatch();
             }
         });
+    }
+
+    @Override
+    public List<Class<? extends DataMigration>> getDataMigrations() {
+        return Arrays.asList(
+                _1_Create_Tables_Stacks.class,
+                _2_Create_Tables_Convert_Stacks.class,
+                _3_Create_Tables_Translation_Locales.class,
+                _4_Alter_Spawner_Table_Player_Placed.class
+        );
     }
 
     private static class StackedBlockData {

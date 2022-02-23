@@ -14,6 +14,9 @@ compileJava {
 dependencies {
     // Other modules
     compileOnly project(':NMS:Wrapper')
+    compileOnly project(':Hook:mcMMO-Wrapper')
+    compileOnly project(':Hook:mcMMO-New')
+    compileOnly project(':Hook:mcMMO-Old')
 
     // Referenced dependencies
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
@@ -53,11 +56,10 @@ dependencies {
     compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
-    compileOnly 'com.gmail.nossr50:mcmmo:2.1.209'
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.0.9'
+    api 'dev.rosewood:rosegarden:1.1.0.4-SNAPSHOT'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
     api 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }

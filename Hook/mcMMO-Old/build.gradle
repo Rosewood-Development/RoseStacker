@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly project(':Hook:mcMMO-Wrapper')
+    compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
+    compileOnly 'com.gmail.nossr50:mcmmo:2.1.198'
+}
