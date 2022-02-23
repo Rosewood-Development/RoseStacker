@@ -1,11 +1,9 @@
 package dev.rosewood.rosestacker.hologram;
 
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import eu.decentsoftware.holograms.api.DecentHolograms;
-import eu.decentsoftware.holograms.api.DecentHologramsAPI;
+import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
-import eu.decentsoftware.holograms.api.holograms.HologramLine;
-import eu.decentsoftware.holograms.api.holograms.HologramPage;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,11 +12,9 @@ import org.bukkit.entity.Entity;
 
 public class DecentHologramsHandler implements HologramHandler {
 
-    private final DecentHolograms decentHolograms;
     private final Map<Location, Hologram> holograms;
 
     public DecentHologramsHandler() {
-        this.decentHolograms = DecentHologramsAPI.get();
         this.holograms = new HashMap<>();
     }
 
@@ -27,24 +23,20 @@ public class DecentHologramsHandler implements HologramHandler {
         String key = StackerUtils.locationAsKey(location);
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
-            hologram = new Hologram(key, location.clone().add(0, 1, 0), false);
-            HologramPage page = hologram.getPage(0);
-            page.addLine(new HologramLine(page, location, text));
-            this.decentHolograms.getHologramManager().registerHologram(hologram);
+            hologram = DHAPI.createHologram(key, location.clone().add(0, 1, 0), false, Collections.singletonList(text));
             this.holograms.put(location, hologram);
         } else {
-            HologramLine line = hologram.getPage(0).getLine(0);
-            line.setContent(text);
-            line.update();
+            DHAPI.setHologramLine(hologram, 0, text);
         }
     }
 
     @Override
     public void deleteHologram(Location location) {
-        String key = StackerUtils.locationAsKey(location);
-        this.holograms.remove(location);
-        if (this.decentHolograms.getHologramManager().containsHologram(key))
-            this.decentHolograms.getHologramManager().removeHologram(key);
+        Hologram hologram = this.holograms.get(location);
+        if (hologram != null) {
+            hologram.destroy();
+            this.holograms.remove(location);
+        }
     }
 
     @Override
