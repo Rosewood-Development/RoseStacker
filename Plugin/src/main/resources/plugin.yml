@@ -52,6 +52,7 @@ permissions:
       rosestacker.stacktool.give: true
       rosestacker.silktouch: true
       rosestacker.spawnerconvert: true
+      rosestacker.killentirestack: false
   rosestacker.reload:
     description: Allows using the reload command
     default: op
@@ -82,3 +83,6 @@ permissions:
   rosestacker.spawnerconvert:
     description: Allows converting spawners with mob spawn eggs
     default: op
+  rosestacker.killentirestack:
+    description: Allows killing an entire stack of mobs at once
+    default: false
