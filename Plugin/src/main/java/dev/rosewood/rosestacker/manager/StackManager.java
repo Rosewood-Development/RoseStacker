@@ -353,6 +353,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
+    public StackedItem dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally) {
+        World world = location.getWorld();
+        if (world == null)
+            return null;
+
+        StackingThread stackingThread = this.getStackingThread(world);
+        if (stackingThread == null)
+            return null;
+
+        return stackingThread.dropItemStack(itemStack, amount, location, dropNaturally);
+    }
+
+    @Override
     public void loadChunkBlocks(Chunk chunk) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
