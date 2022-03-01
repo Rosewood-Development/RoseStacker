@@ -161,6 +161,15 @@ public interface NMSHandler {
     void setLastHurtBy(LivingEntity livingEntity, Player player);
 
     /**
+     * Checks if a LivingEntity can see an Entity
+     *
+     * @param entity1 The LivingEntity
+     * @param entity2 The other Entity
+     * @return true if the LivingEntity can see the Entity, false otherwise
+     */
+    boolean hasLineOfSight(LivingEntity entity1, Entity entity2);
+
+    /**
      * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint
      *
      * @param livingEntity The base entity

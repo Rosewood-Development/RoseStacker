@@ -45,6 +45,7 @@ import net.minecraft.server.v1_16_R2.IChunkAccess;
 import net.minecraft.server.v1_16_R2.IRegistry;
 import net.minecraft.server.v1_16_R2.MathHelper;
 import net.minecraft.server.v1_16_R2.MobSpawnerAbstract;
+import net.minecraft.server.v1_16_R2.MovingObjectPosition;
 import net.minecraft.server.v1_16_R2.NBTBase;
 import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagDouble;
@@ -54,8 +55,10 @@ import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_16_R2.PathfinderGoalFloat;
 import net.minecraft.server.v1_16_R2.PathfinderGoalSelector;
 import net.minecraft.server.v1_16_R2.PathfinderGoalWrapped;
+import net.minecraft.server.v1_16_R2.RayTrace;
 import net.minecraft.server.v1_16_R2.TileEntity;
 import net.minecraft.server.v1_16_R2.TileEntityMobSpawner;
+import net.minecraft.server.v1_16_R2.Vec3D;
 import net.minecraft.server.v1_16_R2.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -416,6 +419,16 @@ public class NMSHandlerImpl implements NMSHandler {
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().killer = ((CraftPlayer) player).getHandle();
+    }
+
+    @Override
+    public boolean hasLineOfSight(LivingEntity entity1, org.bukkit.entity.Entity entity2) {
+        EntityLiving nmsEntity1 = ((CraftLivingEntity) entity1).getHandle();
+        Entity nmsEntity2 = ((CraftEntity) entity2).getHandle();
+
+        Vec3D vec3d = new Vec3D(nmsEntity1.locX(), nmsEntity1.getHeadY(), nmsEntity1.locZ());
+        Vec3D vec3d1 = new Vec3D(nmsEntity2.locX(), nmsEntity2.getHeadY(), nmsEntity2.locZ());
+        return nmsEntity1.world.rayTrace(new RayTrace(vec3d, vec3d1, RayTrace.BlockCollisionOption.VISUAL, RayTrace.FluidCollisionOption.NONE, nmsEntity1)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
     }
 
     @Override

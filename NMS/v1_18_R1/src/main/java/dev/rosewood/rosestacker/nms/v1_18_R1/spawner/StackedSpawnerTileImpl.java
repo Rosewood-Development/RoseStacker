@@ -50,17 +50,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         if (!this.playersNearby)
             return;
 
-//        if (!this.nextSpawnData.getEntityToSpawn().getString("id").equals("minecraft:item")) {
-//            CompoundTag tag = new CompoundTag();
-//            tag.putString("id", "minecraft:item");
-//            CompoundTag item = new CompoundTag();
-//            item.putString("id", "minecraft:diamond");
-//            item.putByte("Count", (byte) 1);
-//            tag.put("Item", item);
-//            this.nextSpawnData = new SpawnData(tag, Optional.empty());
-//            this.updateTile();
-//        }
-
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
@@ -84,9 +73,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
             this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
         }
 
-        // TODO: Remove this after the update is finished, this is just to let us know that we have successfully taken over the spawning logic
-        //this.stackedSpawner.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, this.stackedSpawner.getLocation().clone().add(level.getRandom().nextDouble(), level.getRandom().nextDouble(), level.getRandom().nextDouble()), 1, 0, 0, 0, 0);
-
         // Count down spawn timer unless we are ready to spawn
         if (this.spawnDelay > 0) {
             this.spawnDelay--;
@@ -107,8 +93,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
             }
         }
-
-//        new ItemSpawningMethod(Material.DIAMOND).spawn(this.stackedSpawner);
 
         // Randomize spawn potentials
         this.spawnPotentials.getRandom(level.getRandom()).ifPresent(x -> this.nextSpawnData = x.getData());
