@@ -400,7 +400,7 @@ public final class RoseStackerAPI {
     }
 
     /**
-     * Drops a StackedItem at the given Location with a specified ItemStack and amount
+     * Drops a single StackedItem at the given Location with a specified ItemStack and amount
      *
      * @param itemStack The ItemStack to drop
      * @param amount The amount of the item to drop
