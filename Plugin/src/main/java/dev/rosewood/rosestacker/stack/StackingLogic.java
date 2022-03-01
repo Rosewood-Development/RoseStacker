@@ -251,6 +251,17 @@ public interface StackingLogic {
     void preStackItems(Collection<ItemStack> items, Location location);
 
     /**
+     * Drops a StackedItem at the given Location with a specified ItemStack and amount
+     *
+     * @param itemStack The ItemStack to drop
+     * @param amount The amount of the item to drop
+     * @param location The Location to drop the item at
+     * @param dropNaturally true to drop naturally, false otherwise
+     * @return The newly created StackedItem, may be null if item stacking is disabled
+     */
+    StackedItem dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally);
+
+    /**
      * Loads stacks for blocks and spawners for a chunk
      *
      * @param chunk The chunk to load data in

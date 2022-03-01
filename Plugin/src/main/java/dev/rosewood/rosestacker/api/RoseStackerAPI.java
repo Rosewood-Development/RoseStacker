@@ -399,6 +399,23 @@ public final class RoseStackerAPI {
         this.stackManager.preStackItems(items, location);
     }
 
+    /**
+     * Drops a single StackedItem at the given Location with a specified ItemStack and amount
+     *
+     * @param itemStack The ItemStack to drop
+     * @param amount The amount of the item to drop
+     * @param location The Location to drop the item at
+     * @param dropNaturally true to drop naturally, false otherwise
+     * @return The newly created StackedItem, may be null if item stacking is disabled
+     */
+    @Nullable
+    public StackedItem dropItemStack(@NotNull ItemStack itemStack, int amount, @NotNull Location location, boolean dropNaturally) {
+        Objects.requireNonNull(itemStack);
+        Objects.requireNonNull(location);
+
+        return this.stackManager.dropItemStack(itemStack, amount, location, dropNaturally);
+    }
+
     //endregion
 
     //region Stack Settings

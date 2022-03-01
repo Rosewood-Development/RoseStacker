@@ -1,13 +1,8 @@
 package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.database.DataMigration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
-import dev.rosewood.rosestacker.database.migrations._1_Create_Tables_Stacks;
-import dev.rosewood.rosestacker.database.migrations._2_Create_Tables_Convert_Stacks;
-import dev.rosewood.rosestacker.database.migrations._3_Create_Tables_Translation_Locales;
-import dev.rosewood.rosestacker.database.migrations._4_Alter_Spawner_Table_Player_Placed;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.ViaVersionHook;

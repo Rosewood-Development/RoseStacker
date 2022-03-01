@@ -676,6 +676,29 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
+    public StackedItem dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally) {
+        if (location.getWorld() == null)
+            return null;
+
+        this.stackManager.setEntityStackingTemporarilyDisabled(true);
+
+        Item item;
+        if (dropNaturally) {
+            item = location.getWorld().dropItemNaturally(location, itemStack);
+        } else {
+            item = location.getWorld().dropItem(location, itemStack);
+        }
+
+        StackedItem stackedItem = this.createItemStack(item, false);
+        if (stackedItem != null)
+            stackedItem.setStackSize(amount);
+
+        this.stackManager.setEntityStackingTemporarilyDisabled(false);
+
+        return stackedItem;
+    }
+
+    @Override
     public void loadChunkBlocks(Chunk chunk) {
         if (!chunk.isLoaded())
             return;
