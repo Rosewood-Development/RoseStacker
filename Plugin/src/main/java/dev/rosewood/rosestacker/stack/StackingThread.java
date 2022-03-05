@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.event.EntityStackEvent;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import dev.rosewood.rosestacker.event.ItemStackClearEvent;
 import dev.rosewood.rosestacker.event.ItemStackEvent;
+import dev.rosewood.rosestacker.event.PreDropStackedItemsEvent;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -658,31 +659,57 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (location.getWorld() == null)
             return;
 
-        // Filter out itemstacks of air in case they somehow got in here, can't drop that
-        items = new ArrayList<>(items);
-        items.removeIf(x -> x == null || x.getType() == Material.AIR);
-
-        if (!this.stackManager.isItemStackingEnabled()) {
-            for (ItemStack item : items)
-                location.getWorld().dropItemNaturally(location, item);
-            return;
-        }
-
-        this.stackManager.setEntityStackingTemporarilyDisabled(true);
-
-        Set<StackedItem> stackedItems = new HashSet<>();
+        // Merge items and store their amounts
+        Map<ItemStack, Integer> itemStackAmounts = new HashMap<>();
         for (ItemStack itemStack : items) {
-            Optional<StackedItem> matchingItem = stackedItems.stream().filter(x ->
-                    x.getItem().getItemStack().isSimilar(itemStack) && x.getStackSize() + itemStack.getAmount() <= x.getStackSettings().getMaxStackSize()).findFirst();
-            if (matchingItem.isPresent()) {
-                matchingItem.get().increaseStackSize(itemStack.getAmount(), false);
+            if (itemStack == null || itemStack.getType() == Material.AIR)
+                continue;
+
+            Optional<Map.Entry<ItemStack, Integer>> similar = itemStackAmounts.entrySet().stream().filter(x -> x.getKey().isSimilar(itemStack)).findFirst();
+            if (similar.isPresent()) {
+                similar.get().setValue(similar.get().getValue() + itemStack.getAmount());
             } else {
-                Item item = location.getWorld().dropItemNaturally(location, itemStack);
-                stackedItems.add(new StackedItem(item.getItemStack().getAmount(), item));
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(1);
+                itemStackAmounts.put(clone, itemStack.getAmount());
             }
         }
 
-        for (StackedItem stackedItem : stackedItems) {
+        // Fire the event to allow other plugins to manipulate the items before we stack and drop them
+        PreDropStackedItemsEvent event = new PreDropStackedItemsEvent(itemStackAmounts, location);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
+        if (itemStackAmounts.isEmpty())
+            return;
+
+        // If stacking is disabled, drop the items separated by their max stack size
+        if (!this.stackManager.isItemStackingEnabled()) {
+            for (Map.Entry<ItemStack, Integer> entry : itemStackAmounts.entrySet()) {
+                ItemStack itemStack = entry.getKey();
+                int amount = entry.getValue();
+                while (amount > 0) {
+                    int maxStackSize = itemStack.getMaxStackSize();
+                    int stackSize = Math.min(amount, maxStackSize);
+                    amount -= stackSize;
+                    ItemStack toDrop = itemStack.clone();
+                    toDrop.setAmount(stackSize);
+                    location.getWorld().dropItemNaturally(location, toDrop);
+                }
+            }
+            return;
+        }
+
+        // Drop all the items stacked with the correct amounts
+        this.stackManager.setEntityStackingTemporarilyDisabled(true);
+
+        for (Map.Entry<ItemStack, Integer> entry : itemStackAmounts.entrySet()) {
+            if (entry.getValue() <= 0)
+                continue;
+
+            Item item = location.getWorld().dropItemNaturally(location, entry.getKey());
+            StackedItem stackedItem = new StackedItem(entry.getValue(), item);
             this.addItemStack(stackedItem);
             stackedItem.updateDisplay();
         }
