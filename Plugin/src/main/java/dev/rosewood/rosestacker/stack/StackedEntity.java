@@ -234,7 +234,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean isAnimal = thisEntity instanceof Animals;
             boolean isSlime = thisEntity instanceof Slime;
             boolean isAccurateSlime = isSlime && ((SlimeStackSettings) this.stackSettings).isAccurateDropsWithKillEntireStackOnDeath();
-            EntityType entityType = thisEntity.getType();
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
                 entity.setFireTicks(thisEntity.getFireTicks());

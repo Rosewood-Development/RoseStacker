@@ -47,9 +47,12 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.BaseSpawner;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -379,6 +382,16 @@ public class NMSHandlerImpl implements NMSHandler {
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().lastHurtByPlayer = ((CraftPlayer) player).getHandle();
+    }
+
+    @Override
+    public boolean hasLineOfSight(LivingEntity entity1, org.bukkit.entity.Entity entity2) {
+        net.minecraft.world.entity.LivingEntity nmsEntity1 = ((CraftLivingEntity) entity1).getHandle();
+        net.minecraft.world.entity.Entity nmsEntity2 = ((CraftEntity) entity2).getHandle();
+
+        Vec3 vec3d = new Vec3(nmsEntity1.getX(), nmsEntity1.getEyeY(), nmsEntity1.getZ());
+        Vec3 vec3d1 = new Vec3(nmsEntity2.getX(), nmsEntity2.getEyeY(), nmsEntity2.getZ());
+        return nmsEntity1.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
     }
 
     @Override
