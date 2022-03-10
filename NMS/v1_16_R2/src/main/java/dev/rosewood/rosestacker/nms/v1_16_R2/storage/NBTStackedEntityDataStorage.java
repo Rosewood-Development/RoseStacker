@@ -24,7 +24,7 @@ import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import net.minecraft.server.v1_16_R2.NBTTagList;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
 public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
@@ -36,18 +36,7 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new NBTTagCompound();
 
-        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
-        if (livingEntity.getType() == EntityType.VILLAGER) {
-            try {
-                EntityVillagerAbstract villager = ((CraftAbstractVillager) livingEntity).getHandle();
-                if (field_AbstractVillager_offers.get(villager) == null)
-                    field_AbstractVillager_offers.set(villager, new MerchantRecipeList());
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        ((CraftLivingEntity) livingEntity).getHandle().save(this.base);
+        this.saveToTag(livingEntity, this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
 
@@ -140,7 +129,7 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
     private void addAt(int index, LivingEntity livingEntity) {
         NBTTagCompound compoundTag = new NBTTagCompound();
-        ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
+        this.saveToTag(livingEntity, compoundTag);
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);
@@ -170,6 +159,27 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         merged.a(compoundTag);
         this.fillAttributeUuids(merged);
         return merged;
+    }
+
+    private void saveToTag(LivingEntity livingEntity, NBTTagCompound compoundTag) {
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        boolean stripOffers = false;
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                EntityVillagerAbstract villager = ((CraftAbstractVillager) livingEntity).getHandle();
+                if (field_AbstractVillager_offers.get(villager) == null) {
+                    field_AbstractVillager_offers.set(villager, new MerchantRecipeList());
+                    stripOffers = true;
+                }
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
+
+        if (stripOffers)
+            compoundTag.remove("Offers");
     }
 
     private void stripUnneeded(NBTTagCompound compoundTag) {

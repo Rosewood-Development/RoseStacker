@@ -18,6 +18,7 @@ public class VillagerStackSettings extends EntityStackSettings {
     private final boolean dontStackIfDifferentProfession;
     private final boolean dontStackIfDifferentType;
     private final boolean dontStackIfDifferentLevel;
+    private final boolean dontStackIfHasJob;
 
     public VillagerStackSettings(CommentedFileConfiguration entitySettingsFileConfiguration, JsonObject jsonObject) {
         super(entitySettingsFileConfiguration, jsonObject);
@@ -26,6 +27,7 @@ public class VillagerStackSettings extends EntityStackSettings {
         this.dontStackIfDifferentProfession = this.settingsConfiguration.getBoolean("dont-stack-if-different-profession");
         this.dontStackIfDifferentType = this.settingsConfiguration.getBoolean("dont-stack-if-different-type");
         this.dontStackIfDifferentLevel = this.settingsConfiguration.getBoolean("dont-stack-if-different-level");
+        this.dontStackIfHasJob = this.settingsConfiguration.getBoolean("dont-stack-if-has-job");
     }
 
     @Override
@@ -45,6 +47,9 @@ public class VillagerStackSettings extends EntityStackSettings {
         if (this.dontStackIfDifferentLevel && villager1.getVillagerLevel() != villager2.getVillagerLevel())
             return EntityStackComparisonResult.DIFFERENT_LEVELS;
 
+        if (this.dontStackIfHasJob && (villager1.getProfession() != Villager.Profession.NONE || villager2.getProfession() != Villager.Profession.NONE))
+            return EntityStackComparisonResult.HAS_JOB;
+
         return EntityStackComparisonResult.CAN_STACK;
     }
 
@@ -53,6 +58,7 @@ public class VillagerStackSettings extends EntityStackSettings {
         this.setIfNotExists("dont-stack-if-different-profession", false);
         this.setIfNotExists("dont-stack-if-different-type", false);
         this.setIfNotExists("dont-stack-if-different-level", false);
+        this.setIfNotExists("dont-stack-if-has-job", false);
     }
 
     @Override

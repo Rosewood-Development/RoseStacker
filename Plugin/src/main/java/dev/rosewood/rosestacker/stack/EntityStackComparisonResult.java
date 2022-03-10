@@ -63,6 +63,7 @@ public enum EntityStackComparisonResult {
     PROFESSIONED,
     DIFFERENT_PROFESSIONS,
     DIFFERENT_LEVELS,
+    HAS_JOB,
     PART_OF_ACTIVE_RAID,
     BRAVO_SIX_GOING_DARK,
     SCREAMING,

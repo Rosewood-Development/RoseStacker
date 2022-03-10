@@ -21,7 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.trading.MerchantOffers;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
 public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
@@ -33,18 +33,7 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         this.base = new CompoundTag();
 
-        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
-        if (livingEntity.getType() == EntityType.VILLAGER) {
-            try {
-                net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
-                if (field_AbstractVillager_offers.get(villager) == null)
-                    field_AbstractVillager_offers.set(villager, new MerchantOffers());
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(this.base);
+        this.saveToTag(livingEntity, this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
 
@@ -133,7 +122,7 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
     private void addAt(int index, LivingEntity livingEntity) {
         CompoundTag compoundTag = new CompoundTag();
-        ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(compoundTag);
+        this.saveToTag(livingEntity, compoundTag);
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);
@@ -163,6 +152,27 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         merged.merge(compoundTag);
         this.fillAttributeUuids(merged);
         return merged;
+    }
+
+    private void saveToTag(LivingEntity livingEntity, CompoundTag compoundTag) {
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        boolean stripOffers = false;
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
+                if (field_AbstractVillager_offers.get(villager) == null) {
+                    field_AbstractVillager_offers.set(villager, new MerchantOffers());
+                    stripOffers = true;
+                }
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(compoundTag);
+
+        if (stripOffers)
+            compoundTag.remove("Offers");
     }
 
     private void stripUnneeded(CompoundTag compoundTag) {
