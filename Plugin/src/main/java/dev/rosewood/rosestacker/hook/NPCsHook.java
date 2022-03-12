@@ -4,6 +4,7 @@ import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
@@ -19,6 +20,7 @@ public class NPCsHook {
     private static Boolean eliteMobsEnabled;
     private static Boolean bossEnabled;
     private static Boolean proCosmeticsEnabled;
+    private static Boolean infernalMobsEnabled;
 
     /**
      * @return true if Citizens is enabled, false otherwise
@@ -80,11 +82,24 @@ public class NPCsHook {
         return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
     }
 
+    /**
+     * @return true if ProCosmetics is enabled, false otherwise
+     */
     public static boolean proCosmeticsEnabled() {
         if (proCosmeticsEnabled != null)
             return proCosmeticsEnabled;
 
         return proCosmeticsEnabled = Bukkit.getPluginManager().isPluginEnabled("ProCosmetics");
+    }
+
+    /**
+     * @return true if InfernalMobs is enabled, false otherwise
+     */
+    public static boolean infernalMobsEnabled() {
+        if (infernalMobsEnabled != null)
+            return infernalMobsEnabled;
+
+        return infernalMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("InfernalMobs");
     }
 
     /**
@@ -97,7 +112,8 @@ public class NPCsHook {
                 || epicBossesEnabled()
                 || eliteMobsEnabled()
                 || bossEnabled()
-                || proCosmeticsEnabled();
+                || proCosmeticsEnabled()
+                || infernalMobsEnabled();
     }
 
     /**
@@ -129,6 +145,11 @@ public class NPCsHook {
 
         if (!npc && proCosmeticsEnabled())
             npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
+
+        if (!npc && infernalMobsEnabled()) {
+            infernal_mobs plugin = ((infernal_mobs) Bukkit.getPluginManager().getPlugin("InfernalMobs"));
+            npc = plugin != null && plugin.idSearch(entity.getUniqueId()) >= 0;
+        }
 
         return npc;
     }

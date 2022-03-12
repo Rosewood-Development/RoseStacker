@@ -54,6 +54,7 @@ dependencies {
     compileOnly 'io.lumine.xikage:mythicmobs:4.13.1'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
     compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
+    compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
