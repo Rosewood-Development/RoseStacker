@@ -622,8 +622,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             Set<StackedEntity> stackedEntities = new HashSet<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
+            boolean removeAi = Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean();
             for (int i = 0; i < amount; i++) {
                 LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location, spawnReason);
+                if (removeAi)
+                    PersistentDataUtils.removeEntityAi(entity);
+
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
                         stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
@@ -640,6 +644,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     LivingEntity entity = stackedEntity.getEntity();
                     this.entityCacheManager.preCacheEntity(entity);
                     nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), spawnReason, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
+                    if (removeAi)
+                        PersistentDataUtils.removeEntityAi(entity);
                     entity.setVelocity(Vector.getRandom().multiply(0.01));
                     this.addEntityStack(stackedEntity);
                     stackedEntity.updateDisplay();
@@ -822,7 +828,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             stackedEntities.forEach(DataUtils::writeStackedEntity);
 
             if (clearStored)
-                stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedItems::remove);
+                stackedEntities.stream().map(StackedEntity::getEntity).map(Entity::getUniqueId).forEach(this.stackedEntities::remove);
         }
 
         if (this.stackManager.isItemStackingEnabled()) {

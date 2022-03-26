@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.Arrays;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -20,9 +21,11 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 public class WorldListener implements Listener {
 
+    private final RosePlugin rosePlugin;
     private final StackManager stackManager;
 
     public WorldListener(RosePlugin rosePlugin) {
+        this.rosePlugin = rosePlugin;
         this.stackManager = rosePlugin.getManager(StackManager.class);
     }
 
@@ -84,7 +87,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        this.stackManager.processNametags();
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, this.stackManager::processNametags);
     }
 
 }
