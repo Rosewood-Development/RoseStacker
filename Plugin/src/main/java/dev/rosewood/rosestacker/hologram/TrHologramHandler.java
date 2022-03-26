@@ -6,7 +6,6 @@ import java.util.Map;
 import me.arasple.mc.trhologram.api.TrHologramAPI;
 import me.arasple.mc.trhologram.module.display.Hologram;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 
 public class TrHologramHandler implements HologramHandler {
 
@@ -41,11 +40,6 @@ public class TrHologramHandler implements HologramHandler {
     @Override
     public void deleteAllHolograms() {
         new HashSet<>(this.holograms.keySet()).forEach(this::deleteHologram);
-    }
-
-    @Override
-    public boolean isHologram(Entity entity) {
-        return false; // TrHologram appears to use packets and therefore does not use entities
     }
 
     @Override

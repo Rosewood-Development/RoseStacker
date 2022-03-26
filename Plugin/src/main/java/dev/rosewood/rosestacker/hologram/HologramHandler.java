@@ -26,14 +26,6 @@ public interface HologramHandler {
     void deleteAllHolograms();
 
     /**
-     * Checks if the given Entity is part of a hologram
-     *
-     * @param entity The Entity to check
-     * @return true if the Entity is a hologram, otherwise false
-     */
-    boolean isHologram(Entity entity);
-
-    /**
      * @return true if this hologram handler plugin is enabled, false otherwise
      */
     boolean isEnabled();

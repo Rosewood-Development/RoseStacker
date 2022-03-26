@@ -68,27 +68,6 @@ public class HologramsHologramHandler implements HologramHandler {
     }
 
     @Override
-    public boolean isHologram(Entity entity) {
-        HologramEntity hologramEntity = this.hologramEntityController.getHologramEntity(entity);
-        if (hologramEntity == null)
-            return false;
-
-        HologramLine hologramLine = hologramEntity.getHologramLine();
-        if (hologramLine == null)
-            return false;
-
-        Hologram hologram = hologramLine.getHologram();
-        if (hologram == null)
-            return false;
-
-        String id = hologram.getId();
-        if (id == null)
-            return false;
-
-        return this.holograms.stream().anyMatch(id::equals);
-    }
-
-    @Override
     public boolean isEnabled() {
         return true;
     }

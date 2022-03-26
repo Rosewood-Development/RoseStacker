@@ -46,15 +46,6 @@ public class GHoloHologramHandler implements HologramHandler {
     }
 
     @Override
-    public boolean isHologram(Entity entity) {
-        return this.locations.stream().map(x -> this.api.getHolo(StackerUtils.locationAsKey(x)))
-                .filter(Objects::nonNull)
-                .map(Holo::getUUIDs)
-                .flatMap(List::stream)
-                .anyMatch(x -> x.equals(entity.getUniqueId()));
-    }
-
-    @Override
     public boolean isEnabled() {
         return true;
     }

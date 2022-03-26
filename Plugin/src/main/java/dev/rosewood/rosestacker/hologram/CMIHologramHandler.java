@@ -53,11 +53,6 @@ public class CMIHologramHandler implements HologramHandler {
     }
 
     @Override
-    public boolean isHologram(Entity entity) {
-        return false; // CMI Holograms appear to use packets and therefore do not use entities
-    }
-
-    @Override
     public boolean isEnabled() {
         return CMIModule.holograms.isEnabled();
     }

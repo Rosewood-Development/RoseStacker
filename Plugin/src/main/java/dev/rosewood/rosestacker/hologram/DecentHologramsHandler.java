@@ -45,11 +45,6 @@ public class DecentHologramsHandler implements HologramHandler {
     }
 
     @Override
-    public boolean isHologram(Entity entity) {
-        return false; // Packet based, no entities registered
-    }
-
-    @Override
     public boolean isEnabled() {
         return true;
     }

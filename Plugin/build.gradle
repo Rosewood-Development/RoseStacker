@@ -28,7 +28,7 @@ dependencies {
     compileOnly 'com.viaversion:viaversion:4.0.0-21w18a'
 
     // Hologram plugins
-    compileOnly 'com.gmail.filoghost:holographicdisplays:2.4.3'
+    compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:3.0.0'
     compileOnly 'com.sainttx:holograms:2.13'
     compileOnly 'me.gholo:gholo:3.1.0.0'
     compileOnly 'eu.decentsoftware:holograms:2.2.7'

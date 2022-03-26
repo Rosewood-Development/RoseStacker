@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 
 public class HologramManager extends Manager {
 
@@ -100,18 +99,6 @@ public class HologramManager extends Manager {
     public void deleteAllHolograms() {
         if (this.hologramHandler != null)
             this.hologramHandler.deleteAllHolograms();
-    }
-
-    /**
-     * Checks if the given Entity is part of a hologram
-     *
-     * @param entity The Entity to check
-     * @return true if the Entity is a hologram, otherwise false
-     */
-    public boolean isHologram(Entity entity) {
-        if (this.hologramHandler != null)
-            return this.hologramHandler.isHologram(entity);
-        return false;
     }
 
 }
