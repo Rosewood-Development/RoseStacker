@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.4.5'
+    version = '1.4.6'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -20,6 +20,7 @@ allprojects {
         maven { url = 'https://repo.codemc.org/repository/maven-public' }
         maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.viaversion.com/' }
         maven { url = 'https://jitpack.io' }
@@ -48,9 +49,11 @@ dependencies {
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
-    implementation project(':Hook:mcMMO-Wrapper')
+    implementation project(':Hook:Hook-Wrapper')
     implementation project(':Hook:mcMMO-New')
     implementation project(':Hook:mcMMO-Old')
+    implementation project(':Hook:MythicMobs-New')
+    implementation project(':Hook:MythicMobs-Old')
 }
 
 shadowJar {

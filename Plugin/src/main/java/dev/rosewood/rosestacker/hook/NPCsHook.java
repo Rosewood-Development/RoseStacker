@@ -5,7 +5,6 @@ import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
-import io.lumine.xikage.mythicmobs.MythicMobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -13,9 +12,11 @@ import org.mineacademy.boss.api.BossAPI;
 
 public class NPCsHook {
 
+    private static MythicMobsHook mythicMobsHook;
+    private static Boolean mythicMobsEnabled;
+
     private static Boolean citizensEnabled;
     private static Boolean shopkeepersEnabled;
-    private static Boolean mythicMobsEnabled;
     private static Boolean epicBossesEnabled;
     private static Boolean eliteMobsEnabled;
     private static Boolean bossEnabled;
@@ -49,7 +50,18 @@ public class NPCsHook {
         if (mythicMobsEnabled != null)
             return mythicMobsEnabled;
 
-        return mythicMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("MythicMobs");
+        mythicMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("MythicMobs");
+
+        if (mythicMobsEnabled) {
+            try {
+                Class.forName("io.lumine.mythic.bukkit.MythicBukkit");
+                mythicMobsHook = new NewMythicMobsHook();
+            } catch (ReflectiveOperationException ignored) {
+                mythicMobsHook = new OldMythicMobsHook();
+            }
+        }
+
+        return mythicMobsEnabled;
     }
 
     /**
@@ -131,8 +143,8 @@ public class NPCsHook {
         if (!npc && shopkeepersEnabled() && ShopkeepersAPI.isEnabled())
             npc = ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity);
 
-        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean())
-            npc = MythicMobs.inst().getAPIHelper().isMythicMob(entity);
+        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean() && mythicMobsHook != null)
+            npc = mythicMobsHook.isMythicMob(entity);
 
         if (!npc && epicBossesEnabled())
             npc = EpicBosses.getInstance().getBossEntityManager().getActiveBossHolder(entity) != null;

@@ -14,12 +14,14 @@ compileJava {
 dependencies {
     // Other modules
     compileOnly project(':NMS:Wrapper')
-    compileOnly project(':Hook:mcMMO-Wrapper')
+    compileOnly project(':Hook:Hook-Wrapper')
     compileOnly project(':Hook:mcMMO-New')
     compileOnly project(':Hook:mcMMO-Old')
+    compileOnly project(':Hook:MythicMobs-New')
+    compileOnly project(':Hook:MythicMobs-Old')
 
     // Referenced dependencies
-    compileOnly 'org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT'
+    compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.9'
@@ -51,7 +53,6 @@ dependencies {
     compileOnly 'net.brcdev:shopgui:1.36.0'
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
-    compileOnly 'io.lumine.xikage:mythicmobs:4.13.1'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
     compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
