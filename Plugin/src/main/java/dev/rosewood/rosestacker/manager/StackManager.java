@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -508,7 +509,19 @@ public class StackManager extends Manager implements StackingLogic {
         if (fromThread == null || toThread == null)
             return;
 
+        DataUtils.writeStackedEntity(stackedEntity);
         fromThread.transferExistingEntityStack(entityUUID, stackedEntity, toThread);
+    }
+
+    public void changeStackingThread(UUID entityUUID, StackedItem stackedItem, World from, World to) {
+        StackingThread fromThread = this.getStackingThread(from);
+        StackingThread toThread = this.getStackingThread(to);
+
+        if (fromThread == null || toThread == null)
+            return;
+
+        DataUtils.writeStackedItem(stackedItem);
+        fromThread.transferExistingEntityStack(entityUUID, stackedItem, toThread);
     }
 
     /**

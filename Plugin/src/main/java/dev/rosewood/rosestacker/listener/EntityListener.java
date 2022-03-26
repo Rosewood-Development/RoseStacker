@@ -193,10 +193,8 @@ public class EntityListener implements Listener {
             LivingEntity livingEntity = (LivingEntity) entity;
             StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null) {
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
-                    this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
-                    stackedEntity.updateDisplay();
-                });
+                this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
+                stackedEntity.updateDisplay();
             }
         } else if (entity instanceof Item) {
             if (!this.stackManager.isItemStackingEnabled())
@@ -204,8 +202,10 @@ public class EntityListener implements Listener {
 
             Item item = (Item) entity;
             StackedItem stackedItem = this.stackManager.getStackedItem(item);
-            if (stackedItem != null)
-                event.setCancelled(true);
+            if (stackedItem != null) {
+                this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld());
+                stackedItem.updateDisplay();
+            }
         }
     }
 
