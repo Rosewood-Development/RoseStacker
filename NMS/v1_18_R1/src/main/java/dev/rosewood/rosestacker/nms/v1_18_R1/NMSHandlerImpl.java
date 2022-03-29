@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.nms.v1_18_R1;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
@@ -10,6 +11,7 @@ import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SynchedEntityDataWrapper;
+import dev.rosewood.rosestacker.nms.v1_18_R1.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R1.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R1.storage.NBTStackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_18_R1.storage.NBTStackedEntityDataStorage;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -86,6 +89,7 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
+    private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
 
     private static Unsafe unsafe;
     private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
@@ -99,6 +103,7 @@ public class NMSHandlerImpl implements NMSHandler {
             field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
+            entityCounter = (AtomicInteger) ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, AtomicInteger.class).get(null);
 
             Field field_SpawnerBlockEntity_spawner = ReflectionUtils.getFieldByPositionAndType(SpawnerBlockEntity.class, 0, BaseSpawner.class);
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
@@ -385,13 +390,11 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public boolean hasLineOfSight(LivingEntity entity1, org.bukkit.entity.Entity entity2) {
+    public boolean hasLineOfSight(LivingEntity entity1, Location location) {
         net.minecraft.world.entity.LivingEntity nmsEntity1 = ((CraftLivingEntity) entity1).getHandle();
-        net.minecraft.world.entity.Entity nmsEntity2 = ((CraftEntity) entity2).getHandle();
-
         Vec3 vec3d = new Vec3(nmsEntity1.getX(), nmsEntity1.getEyeY(), nmsEntity1.getZ());
-        Vec3 vec3d1 = new Vec3(nmsEntity2.getX(), nmsEntity2.getEyeY(), nmsEntity2.getZ());
-        return nmsEntity1.level.clip(new ClipContext(vec3d, vec3d1, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
+        Vec3 target = new Vec3(location.getX(), location.getY(), location.getZ());
+        return nmsEntity1.level.clip(new ClipContext(vec3d, target, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
     }
 
     @Override
@@ -423,6 +426,11 @@ public class NMSHandlerImpl implements NMSHandler {
             }
         }
         return null;
+    }
+
+    @Override
+    public Hologram createHologram(Location location, String text) {
+        return new HologramImpl(entityCounter.incrementAndGet(), location, text);
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {

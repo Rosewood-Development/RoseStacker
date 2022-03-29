@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.nms;
 
+import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
@@ -161,13 +162,30 @@ public interface NMSHandler {
     void setLastHurtBy(LivingEntity livingEntity, Player player);
 
     /**
-     * Checks if a LivingEntity can see an Entity
+     * Checks if a LivingEntity can see a specific Location point
      *
      * @param entity1 The LivingEntity
-     * @param entity2 The other Entity
+     * @param location The Location point
+     * @return true if the LivingEntity can see the Location point, false otherwise
+     */
+    boolean hasLineOfSight(LivingEntity entity1, Location location);
+
+    /**
+     * Checks if a LivingEntity can see a specific Entity
+     *
+     * @param entity1 The LivingEntity
+     * @param entity2 The Entity
      * @return true if the LivingEntity can see the Entity, false otherwise
      */
-    boolean hasLineOfSight(LivingEntity entity1, Entity entity2);
+    default boolean hasLineOfSight(LivingEntity entity1, Entity entity2) {
+        Location location;
+        if (entity2 instanceof LivingEntity) {
+            location = ((LivingEntity) entity2).getEyeLocation();
+        } else {
+            location = entity2.getLocation().add(0, entity2.getHeight() * 0.85, 0);
+        }
+        return this.hasLineOfSight(entity1, location);
+    }
 
     /**
      * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint
@@ -192,5 +210,14 @@ public interface NMSHandler {
      * @return A StackedSpawnerTile instance that was injected or null if the object given was not a valid StackedSpawner
      */
     StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawner);
+
+    /**
+     * Creates a hologram at the given location with the given text
+     *
+     * @param location The location to create the hologram at
+     * @param text The text to display on the hologram
+     * @return The hologram created
+     */
+    Hologram createHologram(Location location, String text);
 
 }

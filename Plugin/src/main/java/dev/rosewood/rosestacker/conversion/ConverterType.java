@@ -44,14 +44,10 @@ public enum ConverterType {
      * @return The ConverterType, or null if not found
      */
     public static ConverterType get(String name) {
-        if (name.equalsIgnoreCase("ULTIMATESTACKER_ENTITY")) { // legacy compatibility with pre-1.1.4 versions
-            return ConverterType.ULTIMATESTACKER;
-        } else {
-            try {
-                return ConverterType.valueOf(name.toUpperCase());
-            } catch (Exception e) {
-                return null;
-            }
+        try {
+            return ConverterType.valueOf(name.toUpperCase());
+        } catch (Exception e) {
+            return null;
         }
     }
 

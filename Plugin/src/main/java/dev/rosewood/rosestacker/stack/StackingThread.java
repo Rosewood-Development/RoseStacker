@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
+import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -68,6 +69,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final EntityCacheManager entityCacheManager;
+    private final HologramManager hologramManager;
     private final World targetWorld;
 
     private final BukkitTask entityStackTask, itemStackTask, nametagTask;
@@ -79,14 +81,15 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private boolean entityStackSwitch;
     private int cleanupTimer;
 
-    boolean dynamicEntityTags, dynamicItemTags, dynamicBlockTags;
-    double entityDynamicViewRangeSqrd, itemDynamicViewRangeSqrd, blockSpawnerDynamicViewRangeSqrd;
-    boolean entityDynamicWallDetection, itemDynamicWallDetection, blockDynamicWallDetection;
+    boolean dynamicEntityTags, dynamicItemTags;
+    double entityDynamicViewRangeSqrd, itemDynamicViewRangeSqrd;
+    boolean entityDynamicWallDetection, itemDynamicWallDetection;
 
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
         this.stackManager = stackManager;
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
+        this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
         this.targetWorld = targetWorld;
 
         long entityStackDelay = (long) Math.max(1, Setting.STACK_FREQUENCY.getLong() / 2.0);
@@ -102,19 +105,15 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         this.dynamicEntityTags = Setting.ENTITY_DISPLAY_TAGS.getBoolean() && Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
         this.dynamicItemTags = Setting.ITEM_DISPLAY_TAGS.getBoolean() && Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
-        this.dynamicBlockTags = Setting.BLOCK_DISPLAY_TAGS.getBoolean() && Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_ENABLED.getBoolean();
 
         double entityDynamicViewRange = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE.getDouble();
         double itemDynamicViewRange = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE.getDouble();
-        double blockSpawnerDynamicViewRange = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
 
         this.entityDynamicViewRangeSqrd = entityDynamicViewRange * entityDynamicViewRange;
         this.itemDynamicViewRangeSqrd = itemDynamicViewRange * itemDynamicViewRange;
-        this.blockSpawnerDynamicViewRangeSqrd = blockSpawnerDynamicViewRange * blockSpawnerDynamicViewRange;
 
         this.entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         this.itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
-        this.blockDynamicWallDetection = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
         // Disable AI for all existing stacks in the target world
         this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
@@ -204,7 +203,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     public void processNametags() {
-        if (!this.dynamicEntityTags && !this.dynamicItemTags && !this.dynamicBlockTags)
+        if (!this.dynamicEntityTags && !this.dynamicItemTags)
             return;
 
         List<Player> players = this.targetWorld.getPlayers();
@@ -258,10 +257,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 if (this.dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
                     visible = distanceSqrd < this.itemDynamicViewRangeSqrd;
                     if (this.itemDynamicWallDetection)
-                        visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (this.dynamicBlockTags && entity.getType() == EntityType.ARMOR_STAND) {
-                    visible = distanceSqrd < this.blockSpawnerDynamicViewRangeSqrd;
-                    if (this.blockDynamicWallDetection)
                         visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
                 } else if (this.dynamicEntityTags) {
                      visible = distanceSqrd < this.entityDynamicViewRangeSqrd;
@@ -806,11 +801,17 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (stackChunkData == null)
             return;
 
-        if (this.stackManager.isSpawnerStackingEnabled())
+        if (this.stackManager.isSpawnerStackingEnabled()) {
             DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
+            if (clearStored)
+                stackChunkData.getSpawners().values().stream().map(StackedSpawner::getHologramLocation).forEach(this.hologramManager::deleteHologram);
+        }
 
-        if (this.stackManager.isBlockStackingEnabled())
+        if (this.stackManager.isBlockStackingEnabled()) {
             DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
+            if (clearStored)
+                stackChunkData.getBlocks().values().stream().map(StackedBlock::getHologramLocation).forEach(this.hologramManager::deleteHologram);
+        }
 
         if (clearStored)
             this.stackChunkData.remove(chunk);
@@ -1038,56 +1039,6 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     private void setRemoved(Entity entity) {
         entity.setMetadata(REMOVED_METADATA, new FixedMetadataValue(this.rosePlugin, true));
-    }
-
-    /**
-     * Used to add a StackedEntity loaded from the database
-     *
-     * @param stackedEntity to load
-     */
-    public void putStackedEntity(StackedEntity stackedEntity) {
-        this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
-    }
-
-    /**
-     * Used to add a StackedItem loaded from the database
-     *
-     * @param stackedItem to load
-     */
-    public void putStackedItem(StackedItem stackedItem) {
-        this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
-    }
-
-    /**
-     * Used to add a StackedBlock loaded from the database
-     *
-     * @param stackedBlock to load
-     */
-    public void putStackedBlock(StackedBlock stackedBlock) {
-        Block block = stackedBlock.getBlock();
-        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
-        if (stackChunkData == null) {
-            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            this.stackChunkData.put(block.getChunk(), stackChunkData);
-        }
-
-        stackChunkData.addBlock(stackedBlock);
-    }
-
-    /**
-     * Used to add a StackedSpawner loaded from the database
-     *
-     * @param stackedSpawner to load
-     */
-    public void putStackedSpawner(StackedSpawner stackedSpawner) {
-        Block block = stackedSpawner.getBlock();
-        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
-        if (stackChunkData == null) {
-            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            this.stackChunkData.put(block.getChunk(), stackChunkData);
-        }
-
-        stackChunkData.addSpawner(stackedSpawner);
     }
 
     /**

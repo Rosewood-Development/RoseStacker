@@ -2,74 +2,95 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.hologram.CMIHologramHandler;
-import dev.rosewood.rosestacker.hologram.DecentHologramsHandler;
-import dev.rosewood.rosestacker.hologram.GHoloHologramHandler;
-import dev.rosewood.rosestacker.hologram.HologramHandler;
-import dev.rosewood.rosestacker.hologram.HologramsHologramHandler;
-import dev.rosewood.rosestacker.hologram.HolographicDisplaysHologramHandler;
-import dev.rosewood.rosestacker.hologram.TrHologramHandler;
-import java.util.LinkedHashMap;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.hologram.Hologram;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitTask;
 
-public class HologramManager extends Manager {
 
-    private final Map<String, Class<? extends HologramHandler>> hologramHandlers;
-    private HologramHandler hologramHandler;
+public class HologramManager extends Manager implements Listener {
+
+    private final Map<Location, Hologram> holograms;
+    private final NMSHandler nmsHandler;
+    private BukkitTask watcherTask;
+    private double renderDistanceSqrd;
+    private boolean hideThroughWalls;
 
     public HologramManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
-        this.hologramHandlers = new LinkedHashMap<String, Class<? extends HologramHandler>>() {{
-            this.put("HolographicDisplays", HolographicDisplaysHologramHandler.class);
-            this.put("Holograms", HologramsHologramHandler.class);
-            this.put("GHolo", GHoloHologramHandler.class);
-            this.put("DecentHolograms", DecentHologramsHandler.class);
-            this.put("CMI", CMIHologramHandler.class);
-            this.put("TrHologram", TrHologramHandler.class);
-        }};
+        this.holograms = new ConcurrentHashMap<>();
+        this.nmsHandler = NMSAdapter.getHandler();
+
+        Bukkit.getPluginManager().registerEvents(this, this.rosePlugin);
     }
 
     @Override
     public void reload() {
-        if (!this.attemptLoad()) {
-            Bukkit.getScheduler().runTaskLater(this.rosePlugin, () -> {
-                if (!this.attemptLoad()) {
-                    String validPlugins = String.join(", ", this.hologramHandlers.keySet());
-                    this.rosePlugin.getLogger().warning("No Hologram Handler plugin was detected. " +
-                            "If you want stack tags to be displayed above stacked spawners or blocks, " +
-                            "please install one of the following plugins: [" + validPlugins + "]");
-                }
-            }, 1);
-        }
+        this.watcherTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateWatchers, 0L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
+        this.renderDistanceSqrd = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble() * Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
+        this.hideThroughWalls = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
     }
 
     @Override
     public void disable() {
-        if (this.hologramHandler != null) {
-            this.hologramHandler.deleteAllHolograms();
-            this.hologramHandler = null;
+        if (this.watcherTask != null) {
+            this.watcherTask.cancel();
+            this.watcherTask = null;
+        }
+
+        this.holograms.values().forEach(Hologram::delete);
+        this.holograms.clear();
+    }
+
+    private void updateWatchers() {
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+        for (Player player : players)
+            for (Hologram hologram : this.holograms.values())
+                this.updateWatcher(player, hologram);
+    }
+
+    private void updateWatcher(Player player, Hologram hologram) {
+        if (this.isPlayerInRange(player, hologram.getLocation())) {
+            hologram.addWatcher(player);
+            if (this.hideThroughWalls)
+                hologram.setVisibility(player, this.nmsHandler.hasLineOfSight(player, hologram.getDisplayLocation()));
+        } else {
+            hologram.removeWatcher(player);
         }
     }
 
-    private boolean attemptLoad() {
-        for (Map.Entry<String, Class<? extends HologramHandler>> handler : this.hologramHandlers.entrySet()) {
-            if (Bukkit.getPluginManager().isPluginEnabled(handler.getKey())) {
-                try {
-                    this.hologramHandler = handler.getValue().getConstructor().newInstance();
-                    if (!this.hologramHandler.isEnabled())
-                        continue;
+    private boolean isPlayerInRange(Player player, Location location) {
+        return player.getWorld().equals(location.getWorld()) && player.getLocation().distanceSquared(location) <= this.renderDistanceSqrd;
+    }
 
-                    this.rosePlugin.getLogger().info(String.format("%s is being used as the Hologram Handler.", handler.getKey()));
-                    return true;
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        return false;
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            Player player = event.getPlayer();
+            for (Hologram hologram : this.holograms.values())
+                this.updateWatcher(player, hologram);
+        });
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            Player player = event.getPlayer();
+            for (Hologram hologram : this.holograms.values())
+                hologram.removeWatcher(player);
+        });
     }
 
     /**
@@ -79,8 +100,14 @@ public class HologramManager extends Manager {
      * @param text The text for the hologram
      */
     public void createOrUpdateHologram(Location location, String text) {
-        if (this.hologramHandler != null)
-            this.hologramHandler.createOrUpdateHologram(location, text);
+        Hologram hologram = this.holograms.get(location);
+        if (hologram == null) {
+            hologram = this.nmsHandler.createHologram(location, text);
+            Bukkit.getOnlinePlayers().forEach(hologram::addWatcher);
+            this.holograms.put(location, hologram);
+        } else {
+            hologram.setText(text);
+        }
     }
 
     /**
@@ -89,16 +116,11 @@ public class HologramManager extends Manager {
      * @param location The location of the hologram
      */
     public void deleteHologram(Location location) {
-        if (this.hologramHandler != null)
-            this.hologramHandler.deleteHologram(location);
-    }
-
-    /**
-     * Deletes all holograms
-     */
-    public void deleteAllHolograms() {
-        if (this.hologramHandler != null)
-            this.hologramHandler.deleteAllHolograms();
+        Hologram hologram = this.holograms.get(location);
+        if (hologram != null) {
+            hologram.delete();
+            this.holograms.remove(location);
+        }
     }
 
 }

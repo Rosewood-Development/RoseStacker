@@ -157,7 +157,6 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         DYNAMIC_TAG_SETTINGS("dynamic-tag-settings", null, "Settings that apply to the tags above stacks", "These settings require their respective display-tags settings to be set to true to function", "These settings run at the same frequency as the stack-frequency setting", "If you are seeing impacts to server performance, consider disabling these settings"),
         ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED("dynamic-tag-settings.entity-dynamic-tag-view-range-enabled", true, "Should entity tags be hidden when the player is a certain distance away?", "Note: This overrides global-entity-settings.display-tags-hover if enabled"),
         ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED("dynamic-tag-settings.item-dynamic-tag-view-range-enabled", true, "Should item tags be hidden when the player is a certain distance away?"),
-        BLOCK_DYNAMIC_TAG_VIEW_RANGE_ENABLED("dynamic-tag-settings.block-dynamic-tag-view-range-enabled", true, "Should block/spawner tags be hidden when the player is a certain distance away?"),
         ENTITY_DYNAMIC_TAG_VIEW_RANGE("dynamic-tag-settings.entity-dynamic-tag-view-range", 32, "How far away should a player be able to see entity tags?"),
         ITEM_DYNAMIC_TAG_VIEW_RANGE("dynamic-tag-settings.item-dynamic-tag-view-range", 32, "How far away should a player be able to see item tags?"),
         BLOCK_DYNAMIC_TAG_VIEW_RANGE("dynamic-tag-settings.block-dynamic-tag-view-range", 32, "How far away should a player be able to see block/spawner tags?"),

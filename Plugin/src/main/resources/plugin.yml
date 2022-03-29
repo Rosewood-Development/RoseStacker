@@ -6,14 +6,7 @@ main: dev.rosewood.rosestacker.RoseStacker
 api-version: '1.13'
 loadbefore: [ShopGUIPlus]
 softdepend:
-  - HolographicDisplays
-  - Holograms
-  - GHolo
-  - DecentHolograms
-  - CMI
-  - CMILib
   - Vault
-  - TrHologram
   - UltimateStacker
   - EpicSpawners
   - WildStacker

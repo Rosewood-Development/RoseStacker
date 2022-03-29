@@ -90,7 +90,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
-        Location location = this.block.getLocation().clone().add(0.5, 0.75, 0.5);
+        Location location = this.getHologramLocation();
 
         if (this.size <= 1) {
             hologramManager.deleteHologram(location);
@@ -101,6 +101,10 @@ public class StackedBlock extends Stack<BlockStackSettings> {
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayString);
+    }
+
+    public Location getHologramLocation() {
+        return this.block.getLocation().add(0.5, 0.75, 0.5);
     }
 
     @Override

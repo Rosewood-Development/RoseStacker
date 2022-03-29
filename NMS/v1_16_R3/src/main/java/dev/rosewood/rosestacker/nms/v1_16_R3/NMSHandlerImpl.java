@@ -3,12 +3,15 @@ package dev.rosewood.rosestacker.nms.v1_16_R3;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
+import dev.rosewood.rosestacker.nms.v1_16_R3.entity.DataWatcherWrapper;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_16_R3.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataStorage;
@@ -21,12 +24,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.Chunk;
 import net.minecraft.server.v1_16_R3.ChunkStatus;
 import net.minecraft.server.v1_16_R3.ControllerMove;
 import net.minecraft.server.v1_16_R3.DataWatcher;
-import net.minecraft.server.v1_16_R3.DataWatcher.Item;
 import net.minecraft.server.v1_16_R3.DataWatcherObject;
 import net.minecraft.server.v1_16_R3.DataWatcherRegistry;
 import net.minecraft.server.v1_16_R3.Entity;
@@ -84,9 +87,6 @@ import sun.misc.Unsafe;
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
 
-    private static Field field_PacketPlayOutEntityMetadata_a; // Field to set the entity ID for the packet, normally private
-    private static Field field_PacketPlayOutEntityMetadata_b; // Field to set the datawatcher changes for the packet, normally private
-
     private static Method method_WorldServer_registerEntity; // Method to register an entity into a world
 
     private static DataWatcherObject<Boolean> value_EntityCreeper_d; // DataWatcherObject that determines if a creeper is ignited, normally private
@@ -96,15 +96,13 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
+    private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
 
     private static Unsafe unsafe;
     private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
 
     static {
         try {
-            field_PacketPlayOutEntityMetadata_a = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "a");
-            field_PacketPlayOutEntityMetadata_b = ReflectionUtils.getFieldByName(PacketPlayOutEntityMetadata.class, "b");
-
             method_WorldServer_registerEntity = ReflectionUtils.getMethodByName(WorldServer.class, "registerEntity", Entity.class);
 
             Field field_EntityCreeper_d = ReflectionUtils.getFieldByName(EntityCreeper.class, "d");
@@ -116,6 +114,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
+            entityCounter = (AtomicInteger) ReflectionUtils.getFieldByName(Entity.class, "entityCount").get(null);
 
             Field field_SpawnerBlockEntity_spawner = ReflectionUtils.getFieldByPositionAndType(TileEntityMobSpawner.class, 0, MobSpawnerAbstract.class);
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
@@ -302,15 +301,12 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void updateEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, String customName, boolean customNameVisible) {
         try {
-            List<Item<?>> dataWatchers = new ArrayList<>();
+            List<DataWatcher.Item<?>> dataWatchers = new ArrayList<>();
             Optional<IChatBaseComponent> nameComponent = Optional.ofNullable(CraftChatMessage.fromStringOrNull(customName));
             dataWatchers.add(new DataWatcher.Item<>(DataWatcherRegistry.f.a(2), nameComponent));
             dataWatchers.add(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible));
 
-            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
-            field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
-            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, dataWatchers);
-
+            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata(entity.getEntityId(), new DataWatcherWrapper(dataWatchers), false);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {
             e.printStackTrace();
@@ -320,10 +316,8 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void updateEntityNameTagVisibilityForPlayer(Player player, org.bukkit.entity.Entity entity, boolean customNameVisible) {
         try {
-            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata();
-            field_PacketPlayOutEntityMetadata_a.set(packetPlayOutEntityMetadata, entity.getEntityId());
-            field_PacketPlayOutEntityMetadata_b.set(packetPlayOutEntityMetadata, Lists.newArrayList(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible)));
-
+            List<DataWatcher.Item<?>> dataItems = Lists.newArrayList(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible));
+            PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata(entity.getEntityId(), new DataWatcherWrapper(dataItems), false);
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {
             e.printStackTrace();
@@ -422,13 +416,11 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public boolean hasLineOfSight(LivingEntity entity1, org.bukkit.entity.Entity entity2) {
+    public boolean hasLineOfSight(LivingEntity entity1, Location location) {
         EntityLiving nmsEntity1 = ((CraftLivingEntity) entity1).getHandle();
-        Entity nmsEntity2 = ((CraftEntity) entity2).getHandle();
-
         Vec3D vec3d = new Vec3D(nmsEntity1.locX(), nmsEntity1.getHeadY(), nmsEntity1.locZ());
-        Vec3D vec3d1 = new Vec3D(nmsEntity2.locX(), nmsEntity2.getHeadY(), nmsEntity2.locZ());
-        return nmsEntity1.world.rayTrace(new RayTrace(vec3d, vec3d1, RayTrace.BlockCollisionOption.VISUAL, RayTrace.FluidCollisionOption.NONE, nmsEntity1)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
+        Vec3D target = new Vec3D(location.getX(), location.getY(), location.getZ());
+        return nmsEntity1.world.rayTrace(new RayTrace(vec3d, target, RayTrace.BlockCollisionOption.VISUAL, RayTrace.FluidCollisionOption.NONE, nmsEntity1)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
     }
 
     @Override
@@ -460,6 +452,11 @@ public class NMSHandlerImpl implements NMSHandler {
             }
         }
         return null;
+    }
+
+    @Override
+    public Hologram createHologram(Location location, String text) {
+        return new HologramImpl(entityCounter.incrementAndGet(), location, text);
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

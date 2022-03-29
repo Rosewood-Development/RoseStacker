@@ -136,7 +136,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
 
-        Location location = this.block.getLocation().add(0.5, 0.75, 0.5);
+        Location location = this.getHologramLocation();
 
         int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
         if (this.size <= sizeForHologram) {
@@ -154,6 +154,10 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         }
 
         hologramManager.createOrUpdateHologram(location, displayString);
+    }
+
+    public Location getHologramLocation() {
+        return this.block.getLocation().add(0.5, 0.75, 0.5);
     }
 
     @Override
