@@ -23,11 +23,9 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
@@ -497,19 +495,12 @@ public class EntityListener implements Listener {
         this.stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerShearSheep(PlayerShearEntityEvent event) {
-        ItemStack tool = event.getPlayer().getInventory().getItem(event.getHand()).clone();
-        if (tool.getType() != Material.SHEARS || !handleSheepShear(this.rosePlugin, tool, event.getEntity()))
-            return;
-
-        event.setCancelled(true);
-
-        if (event.getPlayer().getGameMode() != GameMode.CREATIVE)
-            event.getPlayer().getInventory().setItem(event.getHand(), tool);
+        handleSheepShear(this.rosePlugin, event.getEntity());
     }
 
-    public static boolean handleSheepShear(RosePlugin rosePlugin, ItemStack shears, Entity entity) {
+    public static boolean handleSheepShear(RosePlugin rosePlugin, Entity entity) {
         if (entity.getType() != EntityType.SHEEP)
             return false;
 
@@ -529,12 +520,7 @@ public class EntityListener implements Listener {
         if (!sheepStackSettings.shouldShearAllSheepInStack())
             return false;
 
-        ItemUtils.damageTool(shears);
-
-        ItemStack baseSheepWool = new ItemStack(ItemUtils.getWoolMaterial(sheepEntity.getColor()), getWoolDropAmount());
-        sheepEntity.setSheared(true);
-        List<ItemStack> drops = new ArrayList<>(Collections.singletonList(baseSheepWool));
-
+        List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             try {
