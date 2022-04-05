@@ -159,7 +159,7 @@ public final class StackerUtils {
         return Arrays.stream(Material.values())
                 .filter(Material::isBlock)
                 .filter(Material::isSolid)
-                .filter(x -> !x.isInteractable() || x == Material.TNT)
+                .filter(x -> !x.isInteractable() || x == Material.TNT || x.name().endsWith("REDSTONE_ORE"))
                 .filter(x -> !x.hasGravity())
                 .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
                 .filter(x -> !Tag.SLABS.isTagged(x))
