@@ -70,15 +70,6 @@ public class StackManager extends Manager implements StackingLogic {
         this.processingChunks = false;
         this.processingChunksTime = System.currentTimeMillis();
 
-        // Load all existing stacks
-        for (StackingThread stackingThread : this.stackingThreads.values()) {
-            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
-                stackingThread.loadChunkBlocks(chunk);
-                stackingThread.loadChunkEntities(chunk, Arrays.asList(chunk.getEntities()));
-                this.pendingLoadChunks.put(chunk, System.nanoTime());
-            }
-        }
-
         // Kick off autosave task if enabled
         long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
         if (autosaveFrequency > 0) {

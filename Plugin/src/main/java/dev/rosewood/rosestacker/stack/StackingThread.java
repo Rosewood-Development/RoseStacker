@@ -26,6 +26,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,6 +115,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         this.entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         this.itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+
+        // Load chunk data for all stacks in the world
+        for (Chunk chunk : this.targetWorld.getLoadedChunks()) {
+            this.loadChunkEntities(chunk, Arrays.asList(chunk.getEntities()));
+            this.loadChunkBlocks(chunk);
+        }
 
         // Disable AI for all existing stacks in the target world
         this.targetWorld.getLivingEntities().forEach(PersistentDataUtils::applyDisabledAi);
@@ -762,6 +769,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     @Override
     public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
+        if (entities.isEmpty())
+            return;
+
         if (this.stackManager.isEntityStackingEnabled()) {
             for (Entity entity : entities) {
                 if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
