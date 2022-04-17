@@ -41,6 +41,7 @@ import org.bukkit.entity.Golem;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
 import org.bukkit.entity.NPC;
@@ -211,8 +212,8 @@ public class EntityListener implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         // Prevent guardians with disabled AI from spiking their attacker
         if (event.getEntity().getType() == EntityType.PLAYER
-                && event.getDamager() instanceof Guardian
-                && PersistentDataUtils.isAiDisabled((Guardian) event.getDamager())) {
+                && (event.getDamager() instanceof Guardian || event.getDamager() instanceof MagmaCube)
+                && PersistentDataUtils.isAiDisabled((LivingEntity) event.getDamager())) {
             event.setCancelled(true);
         }
 

@@ -272,6 +272,10 @@ public final class ItemUtils {
         if (entityTypeName.isEmpty())
             entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "data");
 
+        // MineableSpawners
+        if (entityTypeName.isEmpty())
+            entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "ms_mob");
+
         if (!entityTypeName.isEmpty()) {
             try {
                 NamespacedKey entityTypeKey = NamespacedKey.fromString(entityTypeName);
