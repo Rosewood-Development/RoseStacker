@@ -46,6 +46,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -796,6 +797,35 @@ public class BlockListener implements Listener {
         // We will handle dropping experience ourselves for when spawners actually break
         if (event.getBlock().getType() == Material.SPAWNER)
             event.setExpToDrop(0);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityMultiblockCreation(CreatureSpawnEvent event) {
+        switch (event.getSpawnReason()) {
+            case BUILD_IRONGOLEM:
+            case BUILD_SNOWMAN:
+            case BUILD_WITHER:
+                break;
+            default:
+                return;
+        }
+
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getEntity().getWorld()) || !stackManager.isBlockStackingEnabled())
+            return;
+
+        // Do not allow the entity to be spawned if there is a stacked block too close to the entity location
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    Block block = event.getEntity().getLocation().add(x, y, z).getBlock();
+                    if (stackManager.isBlockStacked(block)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private boolean isBlockOrSpawnerStack(StackManager stackManager, Block block) {
