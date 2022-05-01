@@ -33,7 +33,7 @@ public class SlimeStackSettings extends EntityStackSettings {
 
     @Override
     protected void setDefaultsInternal() {
-        this.setIfNotExists("dont-stack-if-different-size", false);
+        this.setIfNotExists("dont-stack-if-different-size", true);
         this.setIfNotExists("accurate-drops-with-kill-entire-stack-on-death", true);
     }
 
