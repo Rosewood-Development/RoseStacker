@@ -36,7 +36,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
 import org.bukkit.util.Vector;
 
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
@@ -109,10 +108,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.updateDisplay();
         };
 
-        // VillagerAcquireTradeEvent and EnderDragonChangePhaseEvents are called when reading the entity NBT data.
+        // EnderDragonChangePhaseEvents is called when reading the entity NBT data.
         // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
-        // We switch over to a non-async thread specifically for the entities of these events because of this.
-        if (!Bukkit.isPrimaryThread() && (entity instanceof Merchant || entity instanceof EnderDragon)) {
+        // We switch over to a non-async thread specifically for ender dragons because of this.
+        if (!Bukkit.isPrimaryThread() && entity instanceof EnderDragon) {
             Bukkit.getScheduler().runTask(RoseStacker.getInstance(), task);
         } else {
             task.run();
