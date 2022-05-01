@@ -514,12 +514,17 @@ public class EntityListener implements Listener {
 
         Sheep sheepEntity = (Sheep) entity;
         StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
-        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
+        if (stackedEntity == null)
             return false;
 
         SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
-        if (!sheepStackSettings.shouldShearAllSheepInStack())
+        if (!sheepStackSettings.shouldShearAllSheepInStack()) {
+            Bukkit.getScheduler().runTask(rosePlugin, () -> {
+                if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
+                    stackManager.splitEntityStack(stackedEntity);
+            });
             return false;
+        }
 
         List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);

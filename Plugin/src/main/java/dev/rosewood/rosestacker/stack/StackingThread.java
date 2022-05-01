@@ -489,6 +489,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         StackedEntity newlySplit = stackedEntity.decreaseStackSize();
         this.stackedEntities.put(newlySplit.getEntity().getUniqueId(), newlySplit);
+        this.tryStackEntity(newlySplit);
         return newlySplit;
     }
 

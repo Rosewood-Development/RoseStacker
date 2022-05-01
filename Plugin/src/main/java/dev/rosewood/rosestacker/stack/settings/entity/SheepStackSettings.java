@@ -11,6 +11,7 @@ import org.bukkit.entity.Sheep;
 public class SheepStackSettings extends EntityStackSettings {
 
     private final boolean dontStackIfSheared;
+    private final boolean dontStackIfDifferentShearState;
     private final boolean shearAllSheepInStack;
     private final int percentageOfWoolToRegrowPerGrassEaten;
 
@@ -18,6 +19,7 @@ public class SheepStackSettings extends EntityStackSettings {
         super(entitySettingsFileConfiguration, jsonObject);
 
         this.dontStackIfSheared = this.settingsConfiguration.getBoolean("dont-stack-if-sheared");
+        this.dontStackIfDifferentShearState = this.settingsConfiguration.getBoolean("dont-stack-if-different-shear-state");
         this.shearAllSheepInStack =  this.settingsConfiguration.getBoolean("shear-all-sheep-in-stack");
         this.percentageOfWoolToRegrowPerGrassEaten = this.settingsConfiguration.getInt("percentage-of-wool-to-regrow-per-grass-eaten");
     }
@@ -30,12 +32,16 @@ public class SheepStackSettings extends EntityStackSettings {
         if (this.dontStackIfSheared && (sheep1.isSheared() || sheep2.isSheared()))
             return EntityStackComparisonResult.SHEARED;
 
+        if (this.dontStackIfDifferentShearState && (sheep1.isSheared() != sheep2.isSheared()))
+            return EntityStackComparisonResult.SHEARED_STATE_DIFFERENT;
+
         return EntityStackComparisonResult.CAN_STACK;
     }
 
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-sheared", false);
+        this.setIfNotExists("dont-stack-if-different-shear-state", false);
         this.setIfNotExists("shear-all-sheep-in-stack", true);
         this.setIfNotExists("percentage-of-wool-to-regrow-per-grass-eaten", 25);
     }

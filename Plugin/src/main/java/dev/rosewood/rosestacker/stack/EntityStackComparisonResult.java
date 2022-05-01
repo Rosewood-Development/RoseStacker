@@ -54,6 +54,7 @@ public enum EntityStackComparisonResult {
     UNABLE_TO_HUNT,
     DIFFERENT_INFLATIONS,
     SHEARED,
+    SHEARED_STATE_DIFFERENT,
     NO_PUMPKIN,
     SHIVERING,
     DIFFERENT_BODY_COLORS,
