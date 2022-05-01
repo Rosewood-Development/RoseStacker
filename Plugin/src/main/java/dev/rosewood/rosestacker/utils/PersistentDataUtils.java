@@ -115,6 +115,9 @@ public final class PersistentDataUtils {
     }
 
     public static boolean isAiDisabled(LivingEntity entity) {
+        if (Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean())
+            return true;
+
         RosePlugin rosePlugin = RoseStacker.getInstance();
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME), PersistentDataType.INTEGER);
     }
