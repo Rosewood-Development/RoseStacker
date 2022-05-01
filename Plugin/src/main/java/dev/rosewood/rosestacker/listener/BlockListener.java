@@ -513,6 +513,10 @@ public class BlockListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
+        // Block is transforming from one type to another, ignore this to prevent potential duplication
+        if (event.getBlockReplacedState().getType().isSolid())
+            return;
+
         if (block.getType() == Material.SPAWNER) {
             if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(((CreatureSpawner) block.getState()).getSpawnedType()))
                 return;
@@ -553,7 +557,7 @@ public class BlockListener implements Listener {
                     double distance = spawner.getLocation().distanceSquared(block.getLocation());
                     if (distance < closestDistance) {
                         boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
-                        anyNearby = Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
+                        anyNearby |= Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
                         if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
                             closestDistance = distance;
                             nearest = spawner;
@@ -565,7 +569,7 @@ public class BlockListener implements Listener {
                 for (StackedSpawner spawner : spawners) {
                     if (chunk == spawner.getBlock().getChunk()) {
                         boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
-                        anyNearby = Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
+                        anyNearby |= Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
                         if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
                             nearest = spawner;
                             break;
@@ -578,7 +582,7 @@ public class BlockListener implements Listener {
                 against = nearest.getBlock();
                 isAdditiveStack = true;
                 isDistanceStack = true;
-            } else if (anyNearby) {
+            } else if (anyNearby && Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean()) {
                 event.setCancelled(true);
                 return;
             }

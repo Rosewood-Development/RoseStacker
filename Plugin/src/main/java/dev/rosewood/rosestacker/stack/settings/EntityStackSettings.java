@@ -590,13 +590,16 @@ public abstract class EntityStackSettings extends StackSettings {
             Animals unstackedAnimals = (Animals) unstacked;
 
             // The age determines how long the animal has to wait before it can breed again
-            // Aging counts down until it reaches 0, at which it still stop and is capable of breeding
+            // Aging counts down until it reaches 0, at which it will stop and is capable of breeding
             stackedAnimals.setAge(unstackedAnimals.getAge());
         }
 
         SpawnerFlagPersistenceHook.setPersistence(stacked);
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
+
+        if (Setting.ENTITY_KILL_TRANSFER_FIRE.getBoolean())
+            stacked.setFireTicks(unstacked.getFireTicks());
     }
 
     /**
