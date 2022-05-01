@@ -159,23 +159,28 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
     private void saveToTag(LivingEntity livingEntity, NBTTagCompound compoundTag) {
         // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
-        boolean stripOffers = false;
         if (livingEntity instanceof AbstractVillager) {
             try {
                 EntityVillagerAbstract villager = ((CraftAbstractVillager) livingEntity).getHandle();
-                if (field_AbstractVillager_offers.get(villager) == null) {
+
+                // Set the trades to empty if they are null to prevent trades from generating during the saveWithoutId call
+                boolean bypassTrades = field_AbstractVillager_offers.get(villager) == null;
+                if (bypassTrades)
                     field_AbstractVillager_offers.set(villager, new MerchantRecipeList());
-                    stripOffers = true;
+
+                ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
+
+                // Restore the offers back to null and make sure nothing is written to the NBT
+                if (bypassTrades) {
+                    field_AbstractVillager_offers.set(villager, null);
+                    compoundTag.remove("Offers");
                 }
             } catch (ReflectiveOperationException e) {
                 e.printStackTrace();
             }
+        } else {
+            ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
         }
-
-        ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
-
-        if (stripOffers)
-            compoundTag.remove("Offers");
     }
 
     private void stripUnneeded(NBTTagCompound compoundTag) {
