@@ -87,14 +87,18 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         this.updateTile();
 
         // Execute spawning method
-        if (this.spawnData != null) {
-            MinecraftKey resourceLocation = MinecraftKey.a(this.spawnData.getEntity().getString("id"));
-            if (resourceLocation != null) {
-                NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
-                EntityType entityType = this.fromKey(namespacedKey);
-                if (entityType != null)
-                    new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
+        try {
+            if (this.spawnData != null) {
+                MinecraftKey resourceLocation = MinecraftKey.a(this.spawnData.getEntity().getString("id"));
+                if (resourceLocation != null) {
+                    NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
+                    EntityType entityType = this.fromKey(namespacedKey);
+                    if (entityType != null)
+                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // Randomize spawn potentials
