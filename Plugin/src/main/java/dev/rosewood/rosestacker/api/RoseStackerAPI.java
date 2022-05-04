@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.api;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -69,6 +71,13 @@ public final class RoseStackerAPI {
     @NotNull
     public String getVersion() {
         return this.roseStacker.getDescription().getVersion();
+    }
+
+    /**
+     * @return true if {@link EntityStackMultipleDeathEvent} is called
+     */
+    public boolean isEntityStackMultipleDeathEventCalled() {
+        return !Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
     }
 
     //region Stack Manager

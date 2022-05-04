@@ -9,6 +9,10 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Only called when trigger-death-event-for-entire-stack-kill is enabled in the config.
+ * Called once per entity in the stack, may or may not be called async.
+ */
 public class AsyncEntityDeathEvent extends EntityDeathEvent {
 
     private static Field asyncField;

@@ -1,9 +1,10 @@
 package dev.rosewood.rosestacker.stack;
 
-import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
+import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -22,7 +23,10 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -218,21 +222,28 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
-        if (existingLoot != null)
-            loot.addAll(existingLoot);
 
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
         boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
-        boolean multiplyCustomLoot = Setting.ENTITY_MULTIPLY_CUSTOM_LOOT.getBoolean();
-
         Runnable mainTask = () -> {
-            boolean callEvents = Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
-            int totalExp = droppedExp;
+            boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
+            int totalExp = 0;
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean isAnimal = thisEntity instanceof Animals;
+            boolean isWither = thisEntity.getType() == EntityType.WITHER;
             boolean isSlime = thisEntity instanceof Slime;
             boolean isAccurateSlime = isSlime && ((SlimeStackSettings) this.stackSettings).isAccurateDropsWithKillEntireStackOnDeath();
+
+            Map<LivingEntity, EntityStackMultipleDeathEvent.EntityDrops> entityDrops = new LinkedHashMap<>(internalEntities.size());
+            if (callEvents) {
+                if (existingLoot != null)
+                    loot.addAll(existingLoot);
+                totalExp += droppedExp;
+            } else {
+                entityDrops.put(thisEntity, new EntityStackMultipleDeathEvent.EntityDrops(new ArrayList<>(existingLoot), droppedExp));
+            }
+
             for (LivingEntity entity : internalEntities) {
                 // Propagate fire ticks and last damage cause
                 entity.setFireTicks(thisEntity.getFireTicks());
@@ -259,23 +270,29 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 int desiredExp = isBaby ? 0 : droppedExp;
                 for (int i = 0; i < iterations; i++) {
                     Collection<ItemStack> entityLoot = isBaby ? Collections.emptyList() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
-                    if (callEvents && !multiplyCustomLoot) {
+                    if (callEvents) {
                         EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
                         Bukkit.getPluginManager().callEvent(deathEvent);
                         totalExp += deathEvent.getDroppedExp();
                         loot.addAll(deathEvent.getDrops());
+                        // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
+                        if (isWither)
+                            loot.add(new ItemStack(Material.NETHER_STAR));
                     } else {
-                        loot.addAll(entityLoot);
-                        totalExp += desiredExp;
+                        List<ItemStack> entityLootList = new ArrayList<>(entityLoot);
+                        if (isWither)
+                            entityLootList.add(new ItemStack(Material.NETHER_STAR));
+                        entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
                     }
                 }
             }
 
-            if (multiplyCustomLoot) {
-                EntityDeathEvent deathEvent = new EntityDeathEvent(thisEntity, new ArrayList<>(), 0);
-                for (int i = 0, k = this.getStackSize() - 1; i < k; i++)
-                    loot.addAll(deathEvent.getDrops());
-                totalExp += deathEvent.getDroppedExp() * (this.getStackSize() - 1);
+            // Call the EntityStackMultipleDeathEvent if enabled
+            if (!callEvents) {
+                EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops);
+                Bukkit.getPluginManager().callEvent(event);
+                loot.addAll(event.getEntityDrops().values().stream().flatMap(x -> x.getDrops().stream()).collect(Collectors.toList()));
+                totalExp = event.getEntityDrops().values().stream().mapToInt(EntityStackMultipleDeathEvent.EntityDrops::getExperience).sum();
             }
 
             int finalTotalExp = totalExp;
@@ -284,10 +301,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
                     StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, finalTotalExp / 2);
             };
-
-            // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
-            if (this.entity.getType() == EntityType.WITHER)
-                loot.addAll(GuiUtil.getMaterialAmountAsItemStacks(Material.NETHER_STAR, internalEntities.size()));
 
             if (async) {
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
