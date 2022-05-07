@@ -22,7 +22,6 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),
-        //ENTITY_USE_SIMPLE_STACKING("global-entity-settings.use-simple-stacking", false, "Should only data about the top entity in the stack be saved?", "This can cause massive performance improvements at the nearly complete loss of accuracy for mob drops", "Not recommended to use unless you are going to have massive amounts of mobs spawning from spawners"),
         ENTITY_INSTANT_STACK("global-entity-settings.instant-stack", true, "Should entities try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of entities being visible before stacking"),
         ENTITY_MIN_STACK_SIZE("global-entity-settings.min-stack-size", 2, "The minimum number of nearby entities required to form a stack", "Do not set this lower than 2"),
         ENTITY_MAX_STACK_SIZE("global-entity-settings.max-stack-size", 128, "The maximum number of entities that can be in a single stack"),
@@ -76,6 +75,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         BLOCK_STACKING_ENABLED("global-block-settings.stacking-enabled", true, "Should block stacking be enabled at all?"),
         BLOCK_MAX_STACK_SIZE("global-block-settings.max-stack-size", 2048, "The maximum number of blocks that can be in a single stack"),
         BLOCK_DISPLAY_TAGS("global-block-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
+        BLOCK_DISPLAY_TAGS_HEIGHT_OFFSET("global-block-settings.display-tags-height-offset", 0.75, "The height offset of the hologram relative to the stacked block"),
         BLOCK_EXPLOSION_PROTECTION("global-block-settings.explosion-protection", true, "Should stacked blocks be protected from explosions?"),
         BLOCK_EXPLOSION_DECREASE_STACK_SIZE_ONLY("global-block-settings.explosion-decrease-stack-size-only", true, "If enabled, only the stack size will decrease from explosions, no items will be dropped"),
         BLOCK_EXPLOSION_DESTROY_CHANCE("global-block-settings.explosion-destroy-chance", 10.0, "The percentage chance of blocks getting destroyed from an explosion (0-100)"),
@@ -93,6 +93,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         SPAWNER_DISPLAY_TAGS("global-spawner-settings.display-tags", true, "Should tags be displayed above stacks to show their amount and type?"),
         SPAWNER_DISPLAY_TAGS_SINGLE("global-spawner-settings.display-tags-single", false, "Should tags be displayed if the stack only has one spawner?"),
         SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT("global-spawner-settings.display-tags-single-amount", false, "Should stacks of size one show the amount on their tags if enabled?"),
+        SPAWNER_DISPLAY_TAGS_HEIGHT_OFFSET("global-spawner-settings.display-tags-height-offset", 0.75, "The height offset of the hologram relative to the spawner"),
         SPAWNER_DISABLE_MOB_AI("global-spawner-settings.disable-mob-ai", false, "Should mob AI be disabled for mobs spawned by spawners?"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS("global-spawner-settings.disable-mob-ai-options", null, "Options to apply to mobs with disabled AI"),
         SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS("global-spawner-settings.disable-mob-ai-options.remove-goals", true, "Should mob goals be removed? This includes movement and targeting"),

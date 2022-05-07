@@ -26,6 +26,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
@@ -72,12 +73,16 @@ public class BlockListener implements Listener {
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
             return;
 
-        // Check for igniting stacked TNT
+        // Check for interacting with certain stacked blocks
         ItemStack item = event.getItem();
-        if (item != null && stackManager.isBlockStackingEnabled() && block.getType() == Material.TNT &&
-                stackManager.isBlockStacked(block) && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
-            event.setUseInteractedBlock(Event.Result.DENY);
-            return;
+        if (stackManager.isBlockStackingEnabled() && stackManager.isBlockStacked(block)) {
+            if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                return;
+            } else if (block.getType().isInteractable() && (!event.getPlayer().isSneaking() || item == null) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                return;
+            }
         }
 
         if (event.getPlayer().isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -93,7 +98,7 @@ public class BlockListener implements Listener {
             if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
                 if (stackedSpawner == null)
-                    stackManager.createSpawnerStack(block, 1, false); // Doesn't exist, need it to in order to open the GUI
+                    stackedSpawner = stackManager.createSpawnerStack(block, 1, false); // Doesn't exist, need it to in order to open the GUI
 
                 if (stackedSpawner != null) {
                     stackedSpawner.openGui(event.getPlayer());
@@ -599,7 +604,7 @@ public class BlockListener implements Listener {
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
 
-        if (isAdditiveStack && (!player.isSneaking() || isDistanceStack)) {
+        if (isAdditiveStack && (!player.isSneaking() || against.getType().isInteractable() || isDistanceStack)) {
             if (block.getType() == Material.SPAWNER) {
                 if (!stackManager.isSpawnerTypeStackable(entityType))
                     return;
@@ -689,6 +694,14 @@ public class BlockListener implements Listener {
                     if (stackedBlock.getStackSize() + stackAmount > stackedBlock.getStackSettings().getMaxStackSize()) {
                         event.setCancelled(true);
                         return;
+                    }
+
+                    // If stacking beacons, remove the effects
+                    if (against.getType() == Material.BEACON) {
+                        Beacon beacon = (Beacon) against.getState();
+                        beacon.setPrimaryEffect(null);
+                        beacon.setSecondaryEffect(null);
+                        beacon.update();
                     }
                 }
 

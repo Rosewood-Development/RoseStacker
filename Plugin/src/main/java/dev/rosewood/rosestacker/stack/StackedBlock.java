@@ -104,7 +104,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     }
 
     public Location getHologramLocation() {
-        return this.block.getLocation().add(0.5, 0.75, 0.5);
+        return this.block.getLocation().add(0.5, Setting.BLOCK_DISPLAY_TAGS_HEIGHT_OFFSET.getDouble(), 0.5);
     }
 
     @Override
