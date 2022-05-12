@@ -232,7 +232,8 @@ public abstract class EntityStackSettings extends StackSettings {
         if (PersistentDataUtils.isUnstackable(entity1) || PersistentDataUtils.isUnstackable(entity2))
             return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
-        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null))
+        if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
+                && entity1.getType() != EntityType.SNOWMAN) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
             return EntityStackComparisonResult.CUSTOM_NAMED;
 
         if (!comparingForUnstack && !ignorePositions && !this.getEntityTypeData().isSwimmingMob() && !this.getEntityTypeData().isFlyingMob()) {

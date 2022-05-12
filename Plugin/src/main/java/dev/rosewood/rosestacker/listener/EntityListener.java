@@ -409,6 +409,8 @@ public class EntityListener implements Listener {
         if (event.getEntity() instanceof Slime) {
             if (PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity()))
                 event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(PersistentDataUtils::removeEntityAi);
+            if (PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity()))
+                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(PersistentDataUtils::tagSpawnedFromSpawner);
             return;
         }
 
