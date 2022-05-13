@@ -18,6 +18,9 @@ public class WorldGuardFlagHook {
      * UNCHECKED! Call {@link WorldGuardHook#registerFlag}
      */
     public static void registerFlag() {
+        if (!ConfigurationManager.Setting.MISC_WORLDGUARD_REGION.getBoolean())
+            return;
+
         flag = new StateFlag("rosestacker", true);
         WorldGuard.getInstance().getFlagRegistry().register(flag);
     }
