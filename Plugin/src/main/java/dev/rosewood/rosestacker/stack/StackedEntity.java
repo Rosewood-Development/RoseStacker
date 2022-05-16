@@ -38,6 +38,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -232,6 +233,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean isAnimal = thisEntity instanceof Animals;
             boolean isWither = thisEntity.getType() == EntityType.WITHER;
+            boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent
+                    && (((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER
+                    || ((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER_SKULL);
             boolean isSlime = thisEntity instanceof Slime;
             boolean isAccurateSlime = isSlime && ((SlimeStackSettings) this.stackSettings).isAccurateDropsWithKillEntireStackOnDeath();
 
@@ -278,10 +282,14 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                         // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
                         if (isWither)
                             loot.add(new ItemStack(Material.NETHER_STAR));
+                        if (killedByWither)
+                            loot.add(new ItemStack(Material.WITHER_ROSE));
                     } else {
                         List<ItemStack> entityLootList = new ArrayList<>(entityLoot);
                         if (isWither)
                             entityLootList.add(new ItemStack(Material.NETHER_STAR));
+                        if (killedByWither)
+                            entityLootList.add(new ItemStack(Material.WITHER_ROSE));
                         entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
                     }
                 }
