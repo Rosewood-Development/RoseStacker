@@ -103,8 +103,9 @@ public class HologramManager extends Manager implements Listener {
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
             hologram = this.nmsHandler.createHologram(location, text);
-            Bukkit.getOnlinePlayers().forEach(hologram::addWatcher);
             this.holograms.put(location, hologram);
+            for (Player player : Bukkit.getOnlinePlayers())
+                this.updateWatcher(player, hologram);
         } else {
             hologram.setText(text);
         }
