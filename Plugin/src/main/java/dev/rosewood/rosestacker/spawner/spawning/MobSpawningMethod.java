@@ -174,11 +174,12 @@ public class MobSpawningMethod implements SpawningMethod {
             List<StackedEntity> newStacks = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
 
+            Location previousLocation = null;
             for (int i = 0; i < spawnAmount; i++) {
-                if (possibleLocations.isEmpty())
+                Location location = possibleLocations.isEmpty() ? previousLocation : possibleLocations.get(this.random.nextInt(possibleLocations.size()));
+                if (location == null)
                     break;
 
-                Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
                 LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
                 SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
@@ -193,15 +194,19 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 StackedEntity newStack = new StackedEntity(entity);
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
+                        WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findAny();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity);
                 } else {
+                    if (possibleLocations.isEmpty())
+                        break;
+
                     stackedEntities.add(newStack);
                     newStacks.add(newStack);
                     possibleLocations.remove(location);
                 }
 
+                previousLocation = location;
                 successfulSpawns++;
             }
 
