@@ -20,7 +20,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -63,7 +62,9 @@ public final class StackerUtils {
      * @return the reformatted string
      */
     public static String formatName(String name) {
-        return WordUtils.capitalizeFully(name.toLowerCase().replace('_', ' '));
+        return Arrays.stream(name.replace('_', ' ').split("\\s+"))
+                .map(x -> x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
     }
 
     /**

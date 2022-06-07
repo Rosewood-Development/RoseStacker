@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.4.8'
+    version = '1.4.9'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -49,6 +49,7 @@ dependencies {
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_19_R1', configuration: 'remapped')
     implementation project(':Hook:Hook-Wrapper')
     implementation project(':Hook:mcMMO-New')
     implementation project(':Hook:mcMMO-Old')

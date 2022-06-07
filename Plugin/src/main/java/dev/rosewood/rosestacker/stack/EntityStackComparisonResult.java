@@ -68,5 +68,7 @@ public enum EntityStackComparisonResult {
     PART_OF_ACTIVE_RAID,
     BRAVO_SIX_GOING_DARK,
     SCREAMING,
-    PLAYING_DEAD
+    DIFFERENT_HORNS,
+    PLAYING_DEAD,
+    HOLDING_ITEMS
 }

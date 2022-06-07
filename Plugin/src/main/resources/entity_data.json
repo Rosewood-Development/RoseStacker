@@ -1,4 +1,12 @@
 {
+  "ALLAY": {
+    "is_swimming_mob": false,
+    "is_flying_mob": true,
+    "spawn_egg_material": "ALLAY_SPAWN_EGG",
+    "default_spawn_requirements": [],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjI0YjMyYWUwNjY2M2I4NjczNTk1NDMyNTU4NWViNDA4YWMwMzg5Y2E0MGM1MTc3MDFlZDFlNjVhOTJlNjNmZSJ9fX0=",
+    "breeding_materials": []
+  },
   "AXOLOTL": {
     "is_swimming_mob": true,
     "is_flying_mob": false,
@@ -230,6 +238,19 @@
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRhMDM0NzQzNjQzNGViMTNkNTM3YjllYjZiNDViNmVmNGM1YTc4Zjg2ZTkxODYzZWY2MWQyYjhhNTNiODIifX19",
     "breeding_materials": [
       "SWEET_BERRIES"
+    ]
+  },
+  "FROG": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "FROG_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "block:grass_block,mud,mangrove_roots,muddy_mangrove_roots",
+      "lightness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTdlYmNlZjQ2ODNjZGI3MTYzZTk2OWU0ZTIyNjlmMzY3M2E1ZDVlNmI3OGUwNmZhZWU0NWJjZjdjNDljMzk3In19fQ==",
+    "breeding_materials": [
+      "SLIME_BALL"
     ]
   },
   "GHAST": {
@@ -664,6 +685,16 @@
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMThhOWFkZjc4MGVjN2RkNDYyNWM5YzA3NzkwNTJlNmExNWE0NTE4NjY2MjM1MTFlNGM4MmU5NjU1NzE0YjNjMSJ9fX0=",
     "breeding_materials": []
   },
+  "TADPOLE": {
+    "is_swimming_mob": true,
+    "is_flying_mob": false,
+    "spawn_egg_material": "TADPOLE_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "fluid:water"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTg3MDM1ZjUzNTIzMzRjMmNiYTZhYzRjNjVjMmI5MDU5NzM5ZDZkMGU4MzljMWRkOThkNzVkMmU3Nzk1Nzg0NyJ9fX0=",
+    "breeding_materials": []
+  },
   "TRADER_LLAMA": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
@@ -739,6 +770,15 @@
       "on-ground"
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzc5YTgyMjkwZDdhYmUxZWZhYWJiYzcwNzEwZmYyZWMwMmRkMzRhZGUzODZiYzAwYzkzMGM0NjFjZjkzMiJ9fX0=",
+    "breeding_materials": []
+  },
+  "WARDEN": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "default_spawn_requirements": [
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTRhZmIzMDc5NDQzM2YzMmM5N2IwMmMxZDIyODMyNzMzM2YyNTlmNTZjNjhjMDIwMjdiMmExNmRmYjRhYTY2ZCJ9fX0=",
     "breeding_materials": []
   },
   "WITCH": {
