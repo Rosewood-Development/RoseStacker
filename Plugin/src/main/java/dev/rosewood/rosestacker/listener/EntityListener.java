@@ -375,15 +375,25 @@ public class EntityListener implements Listener {
             return;
         }
 
-        // Decrease stack size by 1
-        stackedEntity.updateDisplay();
-        stackedEntity.decreaseStackSize();
-        stackedEntity.getEntity().setVelocity(new Vector());
+        Vector previousVelocity = entity.getVelocity().clone();
+        Runnable task = () -> {
+            // Decrease stack size by 1
+            stackedEntity.updateDisplay();
+            stackedEntity.decreaseStackSize();
+            stackedEntity.getEntity().setVelocity(new Vector());
 
-        if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean()) {
-            stackedEntity.getEntity().setVelocity(entity.getVelocity());
-            entity.setVelocity(new Vector());
+            if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
+                stackedEntity.getEntity().setVelocity(previousVelocity);
+        };
+
+        if (Setting.ENTITY_KILL_DELAY_NEXT_SPAWN.getBoolean()) {
+            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+        } else {
+            task.run();
         }
+
+        if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
+            entity.setVelocity(new Vector());
 
         if (!Setting.ENTITY_DISPLAY_CORPSE.getBoolean())
             event.getEntity().remove();
