@@ -122,7 +122,9 @@ public class EntityListener implements Listener {
         Runnable task = () -> {
             PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
             this.entityCacheManager.preCacheEntity(entity);
-            this.stackManager.createEntityStack(entity, true);
+
+            // Try to immediately stack everything except bees due to some hive nonsense
+            this.stackManager.createEntityStack(entity, event.getEntityType() != EntityType.BEE);
 
             PersistentDataUtils.applyDisabledAi(entity);
         };
