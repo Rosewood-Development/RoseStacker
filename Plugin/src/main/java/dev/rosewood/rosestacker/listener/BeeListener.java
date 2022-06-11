@@ -43,8 +43,7 @@ public class BeeListener implements Listener {
             return;
         }
 
-        Bukkit.getScheduler().runTaskLater(this.rosePlugin, stackedEntity::decreaseStackSize, 2);
-        DataUtils.clearStackedEntityData(beeEntity);
+        stackedEntity.decreaseStackSize();
     }
 
 }

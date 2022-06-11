@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -219,5 +220,16 @@ public interface NMSHandler {
      * @return The hologram created
      */
     Hologram createHologram(Location location, String text);
+
+    /**
+     * 1.19 uses a new RandomSource system which causes a server crash when accessed async.
+     * Try to hijack this RandomSource and inject our own into the world which allows "thread-safe" access.
+     * This is likely a very bad idea, sorry to whoever is reading this.
+     *
+     * @param world The World to hijack the RandomSource of
+     */
+    default void hijackRandomSource(World world) {
+
+    }
 
 }

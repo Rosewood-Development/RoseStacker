@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +39,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -51,9 +53,12 @@ import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.ThreadSafeLegacyRandomSource;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
@@ -81,6 +86,7 @@ import sun.misc.Unsafe;
 @SuppressWarnings("unchecked")
 public class NMSHandlerImpl implements NMSHandler {
 
+    private static boolean hijackedAnyRandomSources = false;
     private static EntityDataAccessor<Boolean> value_Creeper_DATA_IS_IGNITED; // DataWatcherObject that determines if a creeper is ignited, normally private
 
     private static Field field_GoalSelector_availableGoals; // Field to get the available pathing goals of a mob, normally private
@@ -93,6 +99,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Unsafe unsafe;
     private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
+    private static long field_Level_random_offset; // Field offset for modifying LevelAccess's random field
+    private static Field field_LegacyRandomSource_seed; // Field to get the seed of a LegacyRandomSource, normally private
 
     static {
         try {
@@ -106,10 +114,13 @@ public class NMSHandlerImpl implements NMSHandler {
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, AtomicInteger.class).get(null);
 
             Field field_SpawnerBlockEntity_spawner = ReflectionUtils.getFieldByPositionAndType(SpawnerBlockEntity.class, 0, BaseSpawner.class);
+            Field field_Level_random = ReflectionUtils.getFieldByPositionAndType(Level.class, 0, RandomSource.class);
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
+            field_Level_random_offset = unsafe.objectFieldOffset(field_Level_random);
+            field_LegacyRandomSource_seed = ReflectionUtils.getFieldByPositionAndType(LegacyRandomSource.class, 0, AtomicLong.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -431,6 +442,27 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public Hologram createHologram(Location location, String text) {
         return new HologramImpl(entityCounter.incrementAndGet(), location, text);
+    }
+
+    @Override
+    public void hijackRandomSource(World world) {
+        ServerLevel level = ((CraftWorld) world).getHandle();
+        if (!(level.random instanceof LegacyRandomSource))
+            return;
+
+        if (!hijackedAnyRandomSources) {
+            hijackedAnyRandomSources = true;
+            Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info("Hijacking world RandomSources to allow async mob creation...");
+        }
+
+        try {
+            LegacyRandomSource originalRandomSource = (LegacyRandomSource) level.random;
+            AtomicLong seed = (AtomicLong) field_LegacyRandomSource_seed.get(originalRandomSource);
+            RandomSource hijackedRandomSource = new ThreadSafeLegacyRandomSource(seed.get());
+            unsafe.putObject(level, field_Level_random_offset, hijackedRandomSource);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {

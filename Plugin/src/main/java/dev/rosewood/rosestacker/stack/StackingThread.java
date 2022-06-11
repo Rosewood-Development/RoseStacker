@@ -116,6 +116,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.entityDynamicWallDetection = Setting.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
         this.itemDynamicWallDetection = Setting.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
 
+        NMSAdapter.getHandler().hijackRandomSource(targetWorld);
+
         // Load chunk data for all stacks in the world
         for (Chunk chunk : this.targetWorld.getLoadedChunks()) {
             this.loadChunkEntities(chunk, Arrays.asList(chunk.getEntities()));

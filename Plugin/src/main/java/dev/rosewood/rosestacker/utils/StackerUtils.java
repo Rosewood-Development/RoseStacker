@@ -41,8 +41,8 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public final class StackerUtils {
 
     public static final String MIN_SUPPORTED_VERSION = "1.16.3";
-    public static final String MAX_SUPPORTED_VERSION = "1.18.2";
-    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.18.2";
+    public static final String MAX_SUPPORTED_VERSION = "1.19";
+    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.19";
 
     public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
 

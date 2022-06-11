@@ -123,8 +123,8 @@ public class EntityListener implements Listener {
             PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
             this.entityCacheManager.preCacheEntity(entity);
 
-            // Try to immediately stack everything except bees due to some hive nonsense
-            this.stackManager.createEntityStack(entity, event.getEntityType() != EntityType.BEE);
+            // Try to immediately stack everything except bees from hives due to them duplicating
+            this.stackManager.createEntityStack(entity, !event.getSpawnReason().name().equals("BEEHIVE"));
 
             PersistentDataUtils.applyDisabledAi(entity);
         };
