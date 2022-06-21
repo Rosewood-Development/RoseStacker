@@ -3,8 +3,6 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.utils.DataUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;

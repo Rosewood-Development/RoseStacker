@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_18_R1;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -18,6 +19,7 @@ import dev.rosewood.rosestacker.nms.v1_18_R1.storage.NBTStackedEntityDataStorage
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -42,10 +44,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.control.JumpControl;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
@@ -84,7 +91,10 @@ public class NMSHandlerImpl implements NMSHandler {
     private static EntityDataAccessor<Boolean> value_Creeper_DATA_IS_IGNITED; // DataWatcherObject that determines if a creeper is ignited, normally private
 
     private static Field field_GoalSelector_availableGoals; // Field to get the available pathing goals of a mob, normally private
-    private static Field field_Mob_moveControl; // Field to set the move controller of a mob, normally protected
+    private static Field field_Mob_lookControl; // Field to get the look controller of a mob, normally protected
+    private static Field field_Mob_moveControl; // Field to get the move controller of a mob, normally protected
+    private static Field field_Mob_jumpControl; // Field to get the jump controller of a mob, normally protected
+    private static Field field_LivingEntity_brain; // Field to get the brain of a living entity, normally protected
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
 
@@ -99,7 +109,11 @@ public class NMSHandlerImpl implements NMSHandler {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
             value_Creeper_DATA_IS_IGNITED = (EntityDataAccessor<Boolean>) field_Creeper_DATA_IS_IGNITED.get(null);
             field_GoalSelector_availableGoals = ReflectionUtils.getFieldByPositionAndType(GoalSelector.class, 0, Set.class);
+            field_Mob_lookControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, LookControl.class);
             field_Mob_moveControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, MoveControl.class);
+            field_Mob_jumpControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, JumpControl.class);
+            field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
+
             field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
@@ -341,13 +355,27 @@ public class NMSHandlerImpl implements NMSHandler {
             // Forget any existing targets
             mob.setTarget(null);
 
-            // Remove the move controller and replace it with a dummy one
-            MoveControl dummyMoveController = new MoveControl(mob) {
-                @Override
+            // Remove controllers
+            field_Mob_lookControl.set(mob, new LookControl(mob) {
                 public void tick() { }
-            };
-
-            field_Mob_moveControl.set(mob, dummyMoveController);
+            });
+            field_Mob_moveControl.set(mob, new MoveControl(mob) {
+                public void tick() { }
+            });
+            if (mob instanceof Rabbit) {
+                field_Mob_jumpControl.set(mob, new Rabbit.RabbitJumpControl((Rabbit) mob) {
+                    public void tick() { }
+                    public boolean canJump() { return false; }
+                    public boolean wantJump() { return false; }
+                });
+            } else {
+                field_Mob_jumpControl.set(mob, new JumpControl(mob) {
+                    public void tick() { }
+                });
+            }
+            field_LivingEntity_brain.set(mob, new Brain(Collections.emptyList(), Collections.emptyList(), ImmutableList.of(), () -> Brain.codec(Collections.emptyList(), Collections.emptyList())) {
+                public Optional<?> getMemory(MemoryModuleType var0) { return Optional.empty(); }
+            });
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
         }

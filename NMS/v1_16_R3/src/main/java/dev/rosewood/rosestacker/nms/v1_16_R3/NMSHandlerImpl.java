@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_16_R3;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -19,15 +20,19 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.minecraft.server.v1_16_R3.BehaviorController;
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.Chunk;
 import net.minecraft.server.v1_16_R3.ChunkStatus;
+import net.minecraft.server.v1_16_R3.ControllerJump;
+import net.minecraft.server.v1_16_R3.ControllerLook;
 import net.minecraft.server.v1_16_R3.ControllerMove;
 import net.minecraft.server.v1_16_R3.DataWatcher;
 import net.minecraft.server.v1_16_R3.DataWatcherObject;
@@ -37,6 +42,7 @@ import net.minecraft.server.v1_16_R3.EntityCreeper;
 import net.minecraft.server.v1_16_R3.EntityHuman;
 import net.minecraft.server.v1_16_R3.EntityInsentient;
 import net.minecraft.server.v1_16_R3.EntityLiving;
+import net.minecraft.server.v1_16_R3.EntityRabbit;
 import net.minecraft.server.v1_16_R3.EntitySpider;
 import net.minecraft.server.v1_16_R3.EntityStrider;
 import net.minecraft.server.v1_16_R3.EntityTypes;
@@ -93,7 +99,10 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_EntityCreeper_fuseTicks; // Field to set the remaining fuse ticks of a creeper, normally private
 
     private static Field field_PathfinderGoalSelector_d; // Field to get a PathfinderGoalSelector of an insentient entity, normally private
-    private static Field field_EntityInsentient_moveController; // Field to set the move controller of an insentient entity, normally protected
+    private static Field field_EntityInsentient_lookController; // Field to get the look controller of an insentient entity, normally protected
+    private static Field field_EntityInsentient_moveController; // Field to get the move controller of an insentient entity, normally protected
+    private static Field field_EntityInsentient_jumpController; // Field to get the jump controller of an insentient entity, normally protected
+    private static Field field_EntityLiving_behaviorController; // Field to get the behavior controller of a living entity, normally protected
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
     private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
@@ -110,7 +119,10 @@ public class NMSHandlerImpl implements NMSHandler {
             field_EntityCreeper_fuseTicks = ReflectionUtils.getFieldByName(EntityCreeper.class, "fuseTicks");
 
             field_PathfinderGoalSelector_d = ReflectionUtils.getFieldByName(PathfinderGoalSelector.class, "d");
+            field_EntityInsentient_lookController = ReflectionUtils.getFieldByName(EntityInsentient.class, "lookController");
             field_EntityInsentient_moveController = ReflectionUtils.getFieldByName(EntityInsentient.class, "moveController");
+            field_EntityInsentient_jumpController = ReflectionUtils.getFieldByName(EntityInsentient.class, "bi");
+            field_EntityLiving_behaviorController = ReflectionUtils.getFieldByName(EntityLiving.class, "bg");
 
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
@@ -367,13 +379,19 @@ public class NMSHandlerImpl implements NMSHandler {
             // Forget any existing targets
             insentient.setGoalTarget(null);
 
-            // Remove the move controller and replace it with a dummy one
-            ControllerMove dummyMoveController = new ControllerMove(insentient) {
-                @Override
+            // Remove controllers
+            field_EntityInsentient_lookController.set(insentient, new ControllerLook(insentient) {
                 public void a() { }
-            };
-
-            field_EntityInsentient_moveController.set(insentient, dummyMoveController);
+            });
+            field_EntityInsentient_moveController.set(insentient, new ControllerMove(insentient) {
+                public void a() { }
+            });
+            if (!(insentient instanceof EntityRabbit)) {
+                field_EntityInsentient_jumpController.set(insentient, new ControllerJump(insentient) {
+                    public void b() { }
+                });
+            }
+            field_EntityLiving_behaviorController.set(insentient, new BehaviorController(Collections.emptyList(), Collections.emptyList(), ImmutableList.of(), () -> BehaviorController.b(Collections.emptyList(), Collections.emptyList())));
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
         }
