@@ -397,7 +397,7 @@ public class EntityListener implements Listener {
             entity.setVelocity(new Vector());
 
         if (!Setting.ENTITY_DISPLAY_CORPSE.getBoolean())
-            event.getEntity().remove();
+            entity.remove();
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

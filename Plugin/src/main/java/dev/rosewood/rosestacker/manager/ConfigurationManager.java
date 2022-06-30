@@ -71,6 +71,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ITEM_DISPLAY_CUSTOM_NAMES_COLOR("global-item-settings.display-custom-names-color", true, "Should the color of custom names be shown on their tags?"),
         ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS("global-item-settings.display-custom-names-always", true, "Should items with a custom name always display their tags?", "This mirrors vanilla behavior"),
         ITEM_RESET_DESPAWN_TIMER_ON_MERGE("global-item-settings.reset-despawn-timer-on-merge", true, "Should the item despawn timer be reset when an item is merged into it?"),
+        ITEM_MERGE_INTO_NEWEST("global-item-settings.merge-into-newest", false, "Should items be merged into the newest stack?"),
 
         GLOBAL_BLOCK_SETTINGS("global-block-settings", null, "Global block settings", "Changed values in block_settings.yml will override these values"),
         BLOCK_STACKING_ENABLED("global-block-settings.stacking-enabled", true, "Should block stacking be enabled at all?"),

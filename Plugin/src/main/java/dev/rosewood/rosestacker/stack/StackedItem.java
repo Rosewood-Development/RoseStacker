@@ -129,6 +129,9 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         if (this == stack2)
             return 0;
 
+        if (Setting.ITEM_MERGE_INTO_NEWEST.getBoolean())
+            return entity1.getTicksLived() < entity2.getTicksLived() ? 1 : -1;
+
         if (this.getStackSize() == stack2.getStackSize())
             return entity1.getTicksLived() > entity2.getTicksLived() ? 2 : -2;
 
