@@ -95,7 +95,8 @@ public class BlockListener implements Listener {
                 }
             }
 
-            if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean()) {
+            boolean isNotSneakOverriding = !Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() || item == null || item.getType() != Material.SPAWNER;
+            if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean() && isNotSneakOverriding) {
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
                 if (stackedSpawner == null)
                     stackedSpawner = stackManager.createSpawnerStack(block, 1, false); // Doesn't exist, need it to in order to open the GUI
@@ -604,7 +605,7 @@ public class BlockListener implements Listener {
         if (isAdditiveStack && against.getType() == Material.SPAWNER)
             isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
 
-        if (isAdditiveStack && (!player.isSneaking() || against.getType().isInteractable() || isDistanceStack)) {
+        if (isAdditiveStack && ((!player.isSneaking() || (Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && placedItem.getType() == Material.SPAWNER)) || against.getType().isInteractable() || isDistanceStack)) {
             if (block.getType() == Material.SPAWNER) {
                 if (!stackManager.isSpawnerTypeStackable(entityType))
                     return;
@@ -612,7 +613,19 @@ public class BlockListener implements Listener {
                 // Handle spawner stacking
                 StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
 
-                if (stackedSpawner != null && stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                int itemsToTake;
+                if (stackedSpawner != null && Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && player.isSneaking()) {
+                    itemsToTake = 0;
+                    int availableItems = placedItem.getAmount();
+                    for (int i = 0; i < availableItems; i++)
+                        if (stackedSpawner.getStackSize() + stackAmount * (itemsToTake + 1) <= stackedSpawner.getStackSettings().getMaxStackSize())
+                            itemsToTake++;
+                    stackAmount *= itemsToTake;
+                } else {
+                    itemsToTake = 1;
+                }
+
+                if (itemsToTake <= 0) {
                     event.setCancelled(true);
                     return;
                 }
@@ -656,6 +669,9 @@ public class BlockListener implements Listener {
                         player.spawnParticle(Particle.END_ROD, startLoc, 0, angle.getX(), angle.getY(), angle.getZ(), length);
                     }
                 }
+
+                // Take an item from the player's hand
+                ItemUtils.takeItems(itemsToTake, player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
             } else {
                 if (!stackManager.isBlockTypeStackable(against))
                     return;
@@ -706,6 +722,9 @@ public class BlockListener implements Listener {
                 }
 
                 stackedBlock.increaseStackSize(stackAmount);
+
+                // Take an item from the player's hand
+                ItemUtils.takeItems(1, player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
             }
 
             event.setCancelled(true);
@@ -769,10 +788,10 @@ public class BlockListener implements Listener {
 
                 stackManager.createBlockStack(block, stackAmount);
             }
-        }
 
-        // Take an item from the player's hand
-        ItemUtils.takeOneItem(player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
+            // Take an item from the player's hand
+            ItemUtils.takeItems(1, player, isOffHand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

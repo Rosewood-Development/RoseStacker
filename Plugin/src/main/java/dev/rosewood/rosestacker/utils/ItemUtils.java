@@ -52,12 +52,12 @@ public final class ItemUtils {
         return Material.matchMaterial(dyeColor.name() + "_WOOL");
     }
 
-    public static void takeOneItem(Player player, EquipmentSlot handType) {
+    public static void takeItems(int amount, Player player, EquipmentSlot handType) {
         if (player.getGameMode() == GameMode.CREATIVE)
             return;
 
         ItemStack itemStack = handType == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
-        int newAmount = itemStack.getAmount() - 1;
+        int newAmount = itemStack.getAmount() - amount;
         if (newAmount <= 0) {
             if (handType == EquipmentSlot.HAND) {
                 player.getInventory().setItemInMainHand(null);
