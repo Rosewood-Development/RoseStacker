@@ -622,6 +622,10 @@ public class BlockListener implements Listener {
                             itemsToTake++;
                     stackAmount *= itemsToTake;
                 } else {
+                    if (stackedSpawner != null && stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                        event.setCancelled(true);
+                        return;
+                    }
                     itemsToTake = 1;
                 }
 
