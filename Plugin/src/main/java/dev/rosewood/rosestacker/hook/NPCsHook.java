@@ -9,6 +9,7 @@ import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.mineacademy.boss.api.BossAPI;
+import simplepets.brainsynder.api.plugin.SimplePets;
 
 public class NPCsHook {
 
@@ -22,6 +23,7 @@ public class NPCsHook {
     private static Boolean bossEnabled;
     private static Boolean proCosmeticsEnabled;
     private static Boolean infernalMobsEnabled;
+    private static Boolean simplePetsEnabled;
 
     /**
      * @return true if Citizens is enabled, false otherwise
@@ -114,6 +116,13 @@ public class NPCsHook {
         return infernalMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("InfernalMobs");
     }
 
+    public static boolean simplePetsEnabled() {
+        if (simplePetsEnabled != null)
+            return simplePetsEnabled;
+
+        return simplePetsEnabled = Bukkit.getPluginManager().isPluginEnabled("SimplePets");
+    }
+
     /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
@@ -125,7 +134,8 @@ public class NPCsHook {
                 || eliteMobsEnabled()
                 || bossEnabled()
                 || proCosmeticsEnabled()
-                || infernalMobsEnabled();
+                || infernalMobsEnabled()
+                || simplePetsEnabled();
     }
 
     /**
@@ -162,6 +172,9 @@ public class NPCsHook {
             infernal_mobs plugin = ((infernal_mobs) Bukkit.getPluginManager().getPlugin("InfernalMobs"));
             npc = plugin != null && plugin.idSearch(entity.getUniqueId()) >= 0;
         }
+
+        if (!npc && simplePetsEnabled())
+            npc = SimplePets.isPetEntity(entity);
 
         return npc;
     }
