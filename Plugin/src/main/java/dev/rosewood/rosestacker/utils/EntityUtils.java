@@ -117,7 +117,7 @@ public final class EntityUtils {
      * @return A List of Blocks the Entity intersects with
      */
     public static List<Block> getIntersectingBlocks(EntityType entityType, Location location) {
-        BoundingBox bounds = getBoundingBox(entityType, location);
+        BoundingBox bounds = getBoundingBox(entityType, location).expand(-0.1);;
         List<Block> blocks = new ArrayList<>();
         World world = location.getWorld();
         if (world == null)

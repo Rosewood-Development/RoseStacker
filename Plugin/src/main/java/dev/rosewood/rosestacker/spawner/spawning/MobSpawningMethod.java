@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -90,37 +91,45 @@ public class MobSpawningMethod implements SpawningMethod {
 
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             Set<Location> spawnLocations = new HashSet<>();
+            Set<Location> invalidLocations = new HashSet<>();
             int spawnRange = spawnerTile.getSpawnRange();
-            for (int i = 0; i < spawnAmount; i++) {
-                int attempts = 0;
-                while (attempts < Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt()) {
-                    int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int yOffset = !Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+            int attempts = 0;
+            int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt() * spawnRange * spawnRange;
+            while (attempts <= maxFailedSpawnAttempts) {
+                int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                int yOffset = !Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
-                    Location spawnLocation = stackedSpawner.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
-                    Block target = stackedSpawner.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
-
-                    boolean invalid = false;
-                    for (ConditionTag conditionTag : perSpawnConditions) {
-                        if (!conditionTag.check(stackedSpawner, target)) {
-                            invalid = true;
-                        } else {
-                            invalidSpawnConditions.remove(conditionTag);
-                        }
-                    }
-
-                    if (invalid) {
-                        attempts++;
-                        continue;
-                    }
-
-                    if (!passedSpawnerChecks)
-                        break;
-
-                    spawnLocations.add(spawnLocation);
-                    break;
+                Location spawnLocation = stackedSpawner.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
+                if (invalidLocations.contains(spawnLocation)) {
+                    // Decrease max failed spawn attempts if the location is invalid to avoid spinning forever
+                    maxFailedSpawnAttempts--;
+                    continue;
                 }
+
+                Block target = stackedSpawner.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
+
+                boolean invalid = false;
+                for (ConditionTag conditionTag : perSpawnConditions) {
+                    if (!conditionTag.check(stackedSpawner, target)) {
+                        invalid = true;
+                    } else {
+                        invalidSpawnConditions.remove(conditionTag);
+                    }
+                }
+
+                if (invalid) {
+                    invalidLocations.add(spawnLocation);
+                    attempts++;
+                    continue;
+                }
+
+                if (!passedSpawnerChecks)
+                    break;
+
+                spawnLocations.add(spawnLocation);
+                if (spawnLocations.size() >= spawnAmount)
+                    break;
             }
 
             EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
