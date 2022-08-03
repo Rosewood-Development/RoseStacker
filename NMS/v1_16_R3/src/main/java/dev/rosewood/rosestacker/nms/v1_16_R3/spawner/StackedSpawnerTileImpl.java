@@ -148,6 +148,8 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     }
 
     private boolean isNearPlayer(World level, BlockPosition blockPos) {
+        if (this.requiredPlayerRange < 0)
+            return true;
         return level.isPlayerNearby((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, Math.max(this.stackedSpawner.getStackSettings().getPlayerActivationRange(), 0.1));
     }
 
