@@ -8,7 +8,7 @@ import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.mineacademy.boss.api.BossAPI;
+//import org.mineacademy.boss.api.BossAPI;
 import simplepets.brainsynder.api.plugin.SimplePets;
 
 public class NPCsHook {
@@ -20,7 +20,7 @@ public class NPCsHook {
     private static Boolean shopkeepersEnabled;
     private static Boolean epicBossesEnabled;
     private static Boolean eliteMobsEnabled;
-    private static Boolean bossEnabled;
+    //private static Boolean bossEnabled;
     private static Boolean proCosmeticsEnabled;
     private static Boolean infernalMobsEnabled;
     private static Boolean simplePetsEnabled;
@@ -86,15 +86,15 @@ public class NPCsHook {
         return eliteMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("EliteMobs");
     }
 
-    /**
-     * @return true if Boss is enabled, false otherwise
-     */
-    public static boolean bossEnabled() {
-        if (bossEnabled != null)
-            return bossEnabled;
-
-        return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
-    }
+//    /**
+//     * @return true if Boss is enabled, false otherwise
+//     */
+//    public static boolean bossEnabled() {
+//        if (bossEnabled != null)
+//            return bossEnabled;
+//
+//        return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
+//    }
 
     /**
      * @return true if ProCosmetics is enabled, false otherwise
@@ -132,7 +132,7 @@ public class NPCsHook {
                 || mythicMobsEnabled()
                 || epicBossesEnabled()
                 || eliteMobsEnabled()
-                || bossEnabled()
+//                || bossEnabled()
                 || proCosmeticsEnabled()
                 || infernalMobsEnabled()
                 || simplePetsEnabled();
@@ -162,8 +162,8 @@ public class NPCsHook {
         if (!npc && eliteMobsEnabled())
             npc = EntityTracker.isEliteMob(entity) && EntityTracker.isNPCEntity(entity);
 
-        if (!npc && bossEnabled())
-            npc = BossAPI.isBoss(entity);
+//        if (!npc && bossEnabled())
+//            npc = BossAPI.isBoss(entity);
 
         if (!npc && proCosmeticsEnabled())
             npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
