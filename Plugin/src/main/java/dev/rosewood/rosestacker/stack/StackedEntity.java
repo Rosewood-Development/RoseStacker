@@ -36,6 +36,7 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -267,7 +268,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                         }
                         iterations = totalSlimes;
                     }
-                    slime.setSize(1);
+                    slime.setSize(slime.getType() == EntityType.SLIME ? 1 : 2); // Slimes require size 1 to drop items, magma cubes require > size 1
                 }
 
                 boolean isBaby = isAnimal && !((Animals) entity).isAdult();
@@ -293,6 +294,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                         entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
                     }
                 }
+
+                // Prevent magma cubes from splitting
+                if (isSlime && entity.getType() == EntityType.MAGMA_CUBE)
+                    ((MagmaCube) entity).setSize(1);
             }
 
             // Call the EntityStackMultipleDeathEvent if enabled
