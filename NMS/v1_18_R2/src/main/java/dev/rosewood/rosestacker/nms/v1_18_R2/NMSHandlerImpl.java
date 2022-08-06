@@ -440,20 +440,27 @@ public class NMSHandlerImpl implements NMSHandler {
         StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
         Block block = stackedSpawner.getBlock();
         ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
-        BlockEntity blockEntity = level.getBlockEntity(new BlockPos(block.getX(), block.getY(), block.getZ()));
-        if (blockEntity instanceof SpawnerBlockEntity) {
-            SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
-            if (!(spawnerBlockEntity.getSpawner() instanceof StackedSpawnerTileImpl)) {
-                StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner);
-                unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
-                return stackedSpawnerTile;
-            } else {
-                StackedSpawnerTileImpl spawnerTile = (StackedSpawnerTileImpl) spawnerBlockEntity.getSpawner();
-                spawnerTile.updateStackedSpawner(stackedSpawner);
-                return spawnerTile;
+        BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (!(blockEntity instanceof SpawnerBlockEntity))
+            return null;
+
+        SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
+        BaseSpawner baseSpawner = spawnerBlockEntity.getSpawner();
+
+        if (!baseSpawner.getClass().isAnonymousClass() && !(baseSpawner instanceof StackedSpawnerTile)) {
+            // Check if it's been overridden by SuperiorSkyblock to get the internal BaseSpawner instance instead
+            try {
+                Field field = ReflectionUtils.getFieldByPositionAndType(baseSpawner.getClass(), 0, BaseSpawner.class);
+                baseSpawner = (BaseSpawner) field.get(baseSpawner);
+            } catch (IllegalStateException | ReflectiveOperationException ignored) {
+                // If not, ignore and try to overwrite with our own anyway
             }
         }
-        return null;
+
+        StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(baseSpawner, spawnerBlockEntity, stackedSpawner);
+        unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
+        return stackedSpawnerTile;
     }
 
     @Override

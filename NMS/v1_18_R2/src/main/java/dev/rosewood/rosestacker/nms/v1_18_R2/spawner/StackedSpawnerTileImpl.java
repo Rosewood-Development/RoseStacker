@@ -26,7 +26,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
     private final SpawnerBlockEntity blockEntity;
     private final BlockPos blockPos;
-    private StackedSpawner stackedSpawner;
+    private final StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
@@ -49,17 +49,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
         if (!this.playersNearby)
             return;
-
-//        if (!this.nextSpawnData.getEntityToSpawn().getString("id").equals("minecraft:item")) {
-//            CompoundTag tag = new CompoundTag();
-//            tag.putString("id", "minecraft:item");
-//            CompoundTag item = new CompoundTag();
-//            item.putString("id", "minecraft:diamond");
-//            item.putByte("Count", (byte) 1);
-//            tag.put("Item", item);
-//            this.nextSpawnData = new SpawnData(tag, Optional.empty());
-//            this.updateTile();
-//        }
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
@@ -165,10 +154,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         this.requiredPlayerRange = baseSpawner.requiredPlayerRange;
         this.spawnRange = baseSpawner.spawnRange;
         this.updateTile();
-    }
-
-    public void updateStackedSpawner(StackedSpawner stackedSpawner) {
-        this.stackedSpawner = stackedSpawner;
     }
 
     @Override

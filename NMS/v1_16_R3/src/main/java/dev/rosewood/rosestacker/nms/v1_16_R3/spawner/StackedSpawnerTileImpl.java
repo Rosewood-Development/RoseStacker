@@ -25,7 +25,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
 
     private final TileEntityMobSpawner blockEntity;
     private final BlockPosition blockPos;
-    private StackedSpawner stackedSpawner;
+    private final StackedSpawner stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
@@ -165,10 +165,6 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         this.requiredPlayerRange = baseSpawner.requiredPlayerRange;
         this.spawnRange = baseSpawner.spawnRange;
         this.updateTile();
-    }
-
-    public void updateStackedSpawner(StackedSpawner stackedSpawner) {
-        this.stackedSpawner = stackedSpawner;
     }
 
     @Override
