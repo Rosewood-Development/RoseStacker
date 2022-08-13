@@ -1,13 +1,13 @@
 package dev.rosewood.rosestacker.hook;
 
-import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.utils.ItemUtils;
-import net.brcdev.shopgui.spawner.external.provider.ExternalSpawnerProvider;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
-public class RoseStackerSpawnerProvider implements ExternalSpawnerProvider {
+import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.utils.ItemUtils;
+import net.brcdev.shopgui.spawner.external.provider.ExternalSpawnerProvider;
 
+public class RoseStackerSpawnerProvider implements ExternalSpawnerProvider {
     private final RosePlugin rosePlugin;
 
     public RoseStackerSpawnerProvider(RosePlugin rosePlugin) {
@@ -28,5 +28,4 @@ public class RoseStackerSpawnerProvider implements ExternalSpawnerProvider {
     public EntityType getSpawnerEntityType(ItemStack itemStack) {
         return ItemUtils.getStackedItemEntityType(itemStack);
     }
-
 }

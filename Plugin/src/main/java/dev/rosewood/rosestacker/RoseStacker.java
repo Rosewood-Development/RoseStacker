@@ -1,5 +1,11 @@
 package dev.rosewood.rosestacker;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
+
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
@@ -31,10 +37,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Arrays;
-import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.PluginManager;
 
 /**
  * @author Esophose
@@ -100,10 +102,8 @@ public class RoseStacker extends RosePlugin {
             new RoseStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus
-        Bukkit.getScheduler().runTask(this, () -> {
-            if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
-                ShopGuiPlusHook.setupSpawners(this);
-        });
+        if(Bukkit.getPluginManager().getPlugin("ShopGUIPlus") != null)
+            pluginManager.registerEvents(new ShopGuiPlusHook(this), this);
 
         // Try to hook with Clearlag
         if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
