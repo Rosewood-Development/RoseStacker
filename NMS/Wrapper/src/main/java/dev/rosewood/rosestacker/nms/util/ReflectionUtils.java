@@ -14,11 +14,6 @@ import org.bukkit.plugin.Plugin;
  */
 public final class ReflectionUtils {
 
-    private static final Plugin plugin;
-    static {
-        plugin = Bukkit.getPluginManager().getPlugin("RoseStacker");
-    }
-
     private ReflectionUtils() {
 
     }
@@ -38,8 +33,7 @@ public final class ReflectionUtils {
             field.setAccessible(true);
             return field;
         } catch (ReflectiveOperationException e) {
-            plugin.getLogger().severe("Failed to find field [" + clazz.getName() + ";" + name + "]");
-            throw new IllegalStateException("Failed to get field reflectively");
+            throw new IllegalStateException("Failed to get field reflectively: [" + clazz.getName() + ";" + name + "]");
         }
     }
 
@@ -61,8 +55,7 @@ public final class ReflectionUtils {
             }
         }
 
-        plugin.getLogger().severe("Failed to find field [" + clazz.getName() + ";" + type.getName() + ";" + index + "]");
-        throw new IllegalStateException("Failed to get field reflectively");
+        throw new IllegalStateException("Failed to get field reflectively: [" + clazz.getName() + ";" + type.getName() + ";" + index + "]");
     }
 
     /**
@@ -81,8 +74,7 @@ public final class ReflectionUtils {
             method.setAccessible(true);
             return method;
         } catch (ReflectiveOperationException e) {
-            plugin.getLogger().severe("Failed to find method [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
-            throw new IllegalStateException("Failed to get method reflectively");
+            throw new IllegalStateException("Failed to get method reflectively: [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
         }
     }
 
@@ -112,8 +104,7 @@ public final class ReflectionUtils {
             }
         }
 
-        plugin.getLogger().severe("Failed to find method [" + clazz.getName() + ";" + index + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
-        throw new IllegalStateException("Failed to get method reflectively");
+        throw new IllegalStateException("Failed to get method reflectively: [" + clazz.getName() + ";" + index + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
     }
 
     /**
@@ -130,8 +121,7 @@ public final class ReflectionUtils {
             constructor.setAccessible(true);
             return constructor;
         } catch (ReflectiveOperationException e) {
-            plugin.getLogger().severe("Failed to find constructor [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
-            throw new IllegalStateException("Failed to get constructor reflectively");
+            throw new IllegalStateException("Failed to get constructor reflectively: [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
         }
     }
 
