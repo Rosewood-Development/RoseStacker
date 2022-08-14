@@ -304,8 +304,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (!callEvents) {
                 EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops);
                 Bukkit.getPluginManager().callEvent(event);
-                loot.addAll(event.getEntityDrops().values().stream().flatMap(x -> x.getDrops().stream()).collect(Collectors.toList()));
-                totalExp = event.getEntityDrops().values().stream().mapToInt(EntityStackMultipleDeathEvent.EntityDrops::getExperience).sum();
+                for (EntityStackMultipleDeathEvent.EntityDrops value : event.getEntityDrops().values()) {
+                    loot.addAll(value.getDrops());
+                    totalExp += value.getExperience();
+                }
             }
 
             int finalTotalExp = totalExp;
