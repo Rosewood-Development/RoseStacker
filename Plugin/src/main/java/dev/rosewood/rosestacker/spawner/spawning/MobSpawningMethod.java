@@ -205,7 +205,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
                         WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findAny();
                 if (matchingEntity.isPresent()) {
-                    matchingEntity.get().increaseStackSize(entity);
+                    matchingEntity.get().increaseStackSize(entity, false);
                 } else {
                     if (possibleLocations.isEmpty())
                         break;
