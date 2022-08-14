@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -41,6 +40,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.util.Vector;
 
 public class MobSpawningMethod implements SpawningMethod {
@@ -194,6 +194,12 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 if (ageable)
                     ((Ageable) entity).setAdult();
+
+                if (Setting.SPAWNER_REMOVE_EQUIPMENT.getBoolean()) {
+                    EntityEquipment equipment = entity.getEquipment();
+                    if (equipment != null)
+                        equipment.clear();
+                }
 
                 if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || stackedSpawner.isPlacedByPlayer())) || Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean())
                     PersistentDataUtils.removeEntityAi(entity);

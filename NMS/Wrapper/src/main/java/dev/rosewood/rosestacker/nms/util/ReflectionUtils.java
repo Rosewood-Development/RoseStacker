@@ -5,8 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 /**
  * A util class to aid in reflection.
