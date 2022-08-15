@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
+import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
@@ -18,6 +19,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
@@ -203,15 +205,27 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getAll()) {
-                LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
-                if (entity == null)
-                    continue;
-                internalEntities.add(entity);
-            }
 
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> this.dropPartialStackLoot(internalEntities, existingLoot, droppedExp));
+            int threshold = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_THRESHOLD.getInt();
+            int approximationAmount = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_AMOUNT.getInt();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            if (Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
+                for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getTop(approximationAmount)) {
+                    LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
+                    if (entity == null)
+                        continue;
+                    internalEntities.add(entity);
+                }
+                this.dropPartialStackLoot(internalEntities, this.getStackSize() / (double) approximationAmount, existingLoot, droppedExp);
+            } else {
+                for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getAll()) {
+                    LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
+                    if (entity == null)
+                        continue;
+                    internalEntities.add(entity);
+                }
+                this.dropPartialStackLoot(internalEntities, 1, existingLoot, droppedExp);
+            }
         });
     }
 
@@ -220,10 +234,11 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * Does not include loot for the current entity (except for nether stars for withers).
      *
      * @param internalEntities The entities which should be part of this stack
+     * @param multiplier The multiplier for the loot drops
      * @param existingLoot The loot from this.entity, nullable
      * @param droppedExp The exp dropped from this.entity
      */
-    public void dropPartialStackLoot(List<LivingEntity> internalEntities, Collection<ItemStack> existingLoot, int droppedExp) {
+    public void dropPartialStackLoot(List<LivingEntity> internalEntities, double multiplier, Collection<ItemStack> existingLoot, int droppedExp) {
         // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
         Collection<ItemStack> loot = new ArrayList<>();
@@ -313,22 +328,34 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 }
             }
 
-            int finalTotalExp = totalExp;
+            // Multiply loot
+            Collection<ItemStack> finalEntityLoot;
+            if (multiplier != 1) {
+                finalEntityLoot = new ArrayList<>();
+                for (ItemStack itemStack : loot)
+                    finalEntityLoot.addAll(ItemUtils.getMultipliedItemStack(itemStack, multiplier));
+            } else {
+                finalEntityLoot = loot;
+            }
+
+            int finalTotalExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
             Runnable finishTask = () -> {
-                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(loot, thisEntity.getLocation());
+                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(finalEntityLoot, thisEntity.getLocation());
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
                     StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, finalTotalExp / 2);
             };
 
-            if (async) {
+            if (!Bukkit.isPrimaryThread()) {
                 Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
             } else {
                 finishTask.run();
             }
         };
 
-        if (async) {
+        if (async && Bukkit.isPrimaryThread()) {
             Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), mainTask);
+        } else if (!async && !Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), mainTask);
         } else {
             mainTask.run();
         }
@@ -478,6 +505,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.dropStackLoot(new ArrayList<>(), experience);
             } else {
                 this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
+                event.getDrops().clear();
             }
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {

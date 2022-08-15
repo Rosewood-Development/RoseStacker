@@ -104,13 +104,29 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
     }
 
     @Override
-    public byte[] serialize() {
+    public List<StackedEntityDataEntry<?>> getTop(int count) {
+        if (count > this.data.size())
+            count = this.data.size();
+
+        List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(count);
+        for (int i = 0; i < count; i++)
+            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.get(i))));
+        return wrapped;
+    }
+
+    @Override
+    public byte[] serialize(int maxAmount) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(outputStream)) {
 
+            int targetAmount = Math.min(maxAmount, this.data.size());
+            List<CompoundTag> tagsToSave = new ArrayList<>(targetAmount);
+            for (int i = 0; i < targetAmount; i++)
+                tagsToSave.add(this.data.get(i));
+
             NbtIo.write(this.base, dataOutput);
-            dataOutput.writeInt(this.data.size());
-            for (CompoundTag compoundTag : new ArrayList<>(this.data))
+            dataOutput.writeInt(tagsToSave.size());
+            for (CompoundTag compoundTag : tagsToSave)
                 NbtIo.write(compoundTag, dataOutput);
 
             dataOutput.close();

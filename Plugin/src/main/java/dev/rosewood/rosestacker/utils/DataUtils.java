@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -68,11 +69,15 @@ public final class DataUtils {
         PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
         byte[] data = null;
 
+        int maxSaveAmount = ConfigurationManager.Setting.ENTITY_SAVE_MAX_STACK_SIZE.getInt();
+        if (maxSaveAmount <= 0)
+            maxSaveAmount = Integer.MAX_VALUE;
+
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream dataOutput = new ObjectOutputStream(new GZIPOutputStream(outputStream))) {
 
             dataOutput.writeInt(ENTITY_DATA_VERSION);
-            byte[] nbt = stackedEntity.getStackedEntityNBT().serialize();
+            byte[] nbt = stackedEntity.getStackedEntityNBT().serialize(maxSaveAmount - 1);
             dataOutput.writeInt(nbt.length);
             dataOutput.write(nbt);
 

@@ -64,8 +64,26 @@ public interface StackedEntityDataStorage {
     List<StackedEntityDataEntry<?>> getAll();
 
     /**
+     * Gets a list of a number of uncompressed entries from the top of the stack
+     *
+     * @param count the number of entries to get
+     * @return a list of a number of uncompressed entries
+     */
+    List<StackedEntityDataEntry<?>> getTop(int count);
+
+    /**
+     * Serializes the stored entity data into a byte array
+     *
+     * @param maxAmount The max amount of entities to store
+     * @return the compressed entries serialized into a savable format
+     */
+    byte[] serialize(int maxAmount);
+
+    /**
      * @return all compressed entries serialized into a savable format
      */
-    byte[] serialize();
+    default byte[] serialize() {
+        return this.serialize(Integer.MAX_VALUE);
+    }
 
 }

@@ -278,7 +278,7 @@ public class EntityListener implements Listener {
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
             internalEntities.removeIf(killedEntities::contains);
-            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), EntityUtils.getApproximateExperience(stackedEntity.getStackSettings().getEntityType().getEntityClass()));
+            stackedEntity.dropPartialStackLoot(killedEntities, 1, new ArrayList<>(), EntityUtils.getApproximateExperience(stackedEntity.getStackSettings().getEntityType().getEntityClass()));
 
             Player killer = entity.getKiller();
             if (killer != null && killedEntities.size() - 1 > 0)
@@ -427,8 +427,9 @@ public class EntityListener implements Listener {
                     LivingEntity entity = nmsHandler.createEntityFromNBT(serializedEntity, transformedEntity.getLocation(), false, transformedEntity.getType());
                     if (aiDisabled)
                         PersistentDataUtils.removeEntityAi(entity);
-                    newStack.increaseStackSize(entity);
+                    newStack.increaseStackSize(entity, false);
                 }
+                newStack.updateDisplay();
             });
         } else {
             // Make sure disabled AI gets transferred

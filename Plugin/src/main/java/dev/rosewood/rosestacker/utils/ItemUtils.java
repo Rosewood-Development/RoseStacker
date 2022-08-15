@@ -17,6 +17,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -340,6 +341,28 @@ public final class ItemUtils {
 
     public static boolean isStackingTool(ItemStack item) {
         return getStackingTool().isSimilar(item);
+    }
+
+    public static List<ItemStack> getMultipliedItemStack(ItemStack itemStack, double multiplier) {
+        int amount = (int) Math.round(itemStack.getAmount() * multiplier);
+        if (amount == 0)
+            return Collections.emptyList();
+
+        List<ItemStack> items = new ArrayList<>();
+        while (amount > 0) {
+            if (amount > itemStack.getMaxStackSize()) {
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(itemStack.getMaxStackSize());
+                items.add(clone);
+                amount -= itemStack.getMaxStackSize();
+            } else {
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(amount);
+                items.add(clone);
+                amount = 0;
+            }
+        }
+        return items;
     }
 
     public static void clearCache() {

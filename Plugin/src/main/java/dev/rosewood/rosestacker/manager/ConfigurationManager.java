@@ -43,6 +43,10 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", Collections.singletonList(EntityDamageEvent.DamageCause.MAGIC.name()), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html", "Note: This setting is not recommended as it can be intensive for larger stack sizes"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
+        ENTITY_ACCURATE_LOOT_OPTIONS("global-entity-settings.loot-approximation-options", null),
+        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_ENABLED("global-entity-settings.accurate-loot-options.approximation-enabled", false, "Should loot be approximated to reduce lag for killing large stack sizes at once?"),
+        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_THRESHOLD("global-entity-settings.accurate-loot-options.approximation-threshold", 1024, "The threshold at which loot drops will be approximated"),
+        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_AMOUNT("global-entity-settings.accurate-loot-options.approximation-amount", 128, "The number of times the entity loot tables will be run"),
         ENTITY_STACK_TO_BOTTOM("global-entity-settings.stack-to-bottom", false, "Should newly stacked entities be put on the bottom of the stack?"),
         ENTITY_REQUIRE_LINE_OF_SIGHT("global-entity-settings.require-line-of-sight", true, "Do entities need to be able to see each other to be able to stack?", "Setting this to true will prevent entities from stacking through walls"),
         ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, etc"),
@@ -59,6 +63,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DEATH_EVENT_RUN_ASYNC("global-entity-settings.death-event-trigger-async", true, "Should the entity loot be calculated asynchronously?", "If you try enabling this and you get errors that say something like '<SomeEvent> may only be triggered synchronously'", "and has RoseStacker in the stacktrace, you should keep this as false.", "Set this as true for optimal performance if you are not having issues."),
         ENTITY_INSTANT_KILL_DISABLED_AI("global-entity-settings.instant-kill-disabled-ai", false, "Should entities with disabled AI be killed instantly when receiving damage from a player?"),
         ENTITY_DISABLE_ALL_MOB_AI("global-entity-settings.disable-all-mob-ai", false, "Should the AI of all mobs on the server be disabled?", "The parts of the AI that are disabled can be further customized in the global-spawner-settings.disable-mob-ai-options section"),
+        ENTITY_SAVE_MAX_STACK_SIZE("global-entity-settings.save-max-stack-size", -1, "The maximum amount of entities that will be stored when entities are saved to chunk data", "Useful for when you have a very high max stack size, set to -1 to disable"),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
