@@ -12,11 +12,18 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.Blaze;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
@@ -52,6 +59,27 @@ public final class EntityUtils {
         }
 
         return Collections.emptySet();
+    }
+
+    /**
+     * Gets the approximate amount of experience that an entity of a certain type would drop.
+     * This is only an incredibly rough estimate and isn't 1:1 with vanilla.
+     *
+     * @param type The entity type
+     * @return The amount of experience that the entity would probably drop
+     */
+    public static int getApproximateExperience(Class<? extends Entity> type) {
+        if (type == null || NPC.class.isAssignableFrom(type) || Golem.class.isAssignableFrom(type) || type == Bat.class) {
+            return 0;
+        } else if (Animals.class.isAssignableFrom(type)) {
+            return StackerUtils.randomInRange(1, 3);
+        } else if (type == Wither.class) {
+            return 50;
+        } else if (type == Blaze.class || Guardian.class.isAssignableFrom(type)) {
+            return 10;
+        } else {
+            return 5;
+        }
     }
 
     /**

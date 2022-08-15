@@ -26,23 +26,26 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
@@ -434,6 +437,71 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return entity1.getTicksLived() > entity2.getTicksLived() ? 2 : -2;
 
         return this.getStackSize() > stack2.getStackSize() ? 1 : -1;
+    }
+
+    /**
+     * Checks if the entity stack should die at once
+     *
+     * @param overrideKiller The player that is causing the entity to die, nullable
+     * @return true if the whole stack should die, otherwise false
+     */
+    public boolean isEntireStackKilledOnDeath(@Nullable Player overrideKiller) {
+        EntityDamageEvent lastDamageCause = this.entity.getLastDamageCause();
+        if (overrideKiller == null)
+            overrideKiller = this.entity.getKiller();
+
+        return this.stackSettings.shouldKillEntireStackOnDeath()
+                || (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.getBoolean() && PersistentDataUtils.isAiDisabled(this.entity))
+                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))
+                || (overrideKiller != null && overrideKiller.hasPermission("rosestacker.killentirestack"));
+    }
+
+    /**
+     * @return true if the whole stack should die at once, otherwise false
+     */
+    public boolean isEntireStackKilledOnDeath() {
+        return this.isEntireStackKilledOnDeath(null);
+    }
+
+    /**
+     * Kills the entire entity stack and drops its loot
+     *
+     * @param event The event that caused the entity to die, nullable
+     */
+    public void killEntireStack(@Nullable EntityDeathEvent event) {
+        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
+        if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+            if (this.entity instanceof Slime)
+                ((Slime) this.entity).setSize(1);
+
+            if (event == null) {
+                this.dropStackLoot(new ArrayList<>(), experience);
+            } else {
+                this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
+            }
+        } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
+            if (event == null) {
+                this.entity.getWorld().spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
+            } else {
+                event.setDroppedExp(experience * this.getStackSize());
+            }
+        }
+
+        Player killer = this.entity.getKiller();
+        if (killer != null && this.getStackSize() - 1 > 0)
+            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
+
+        RoseStacker.getInstance().getManager(StackManager.class).removeEntityStack(this);
+
+        if (!this.entity.isDead())
+            this.entity.remove();
+    }
+
+    /**
+     * Kills the entire entity stack and drops its loot
+     */
+    public void killEntireStack() {
+        this.killEntireStack(null);
     }
 
 }

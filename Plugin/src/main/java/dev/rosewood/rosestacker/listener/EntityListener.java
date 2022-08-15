@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.MushroomCowStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -277,24 +278,7 @@ public class EntityListener implements Listener {
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
             internalEntities.removeIf(killedEntities::contains);
-
-            // Pick a random amount of exp to drop based on the entity type
-            // This is only an incredibly rough estimate and isn't 1:1 with vanilla
-            int experience;
-            Class<? extends Entity> type = stackedEntity.getStackSettings().getEntityType().getEntityClass();
-            if (type == null || NPC.class.isAssignableFrom(type) || Golem.class.isAssignableFrom(type) || type == Bat.class) {
-                experience = 0;
-            } else if (Animals.class.isAssignableFrom(type)) {
-                experience = StackerUtils.randomInRange(1, 3);
-            } else if (type == Wither.class) {
-                experience = 50;
-            } else if (type == Blaze.class || Guardian.class.isAssignableFrom(type)) {
-                experience = 10;
-            } else {
-                experience = 5;
-            }
-
-            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
+            stackedEntity.dropPartialStackLoot(killedEntities, new ArrayList<>(), EntityUtils.getApproximateExperience(stackedEntity.getStackSettings().getEntityType().getEntityClass()));
 
             Player killer = entity.getKiller();
             if (killer != null && killedEntities.size() - 1 > 0)
@@ -320,16 +304,16 @@ public class EntityListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity))
             return;
 
-        this.handleEntityDeath(event, (LivingEntity) event.getEntity(), false);
+        this.handleEntityDeath(null, (LivingEntity) event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
         if (!(event instanceof AsyncEntityDeathEvent))
-            this.handleEntityDeath(event, event.getEntity(), true);
+            this.handleEntityDeath(event, event.getEntity());
     }
 
-    private void handleEntityDeath(EntityEvent event, LivingEntity entity, boolean useLastDamageCause) {
+    private void handleEntityDeath(EntityDeathEvent event, LivingEntity entity) {
         if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
@@ -346,33 +330,8 @@ public class EntityListener implements Listener {
         }
 
         // Should we kill the entire stack at once?
-        EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
-        if (useLastDamageCause && (stackedEntity.getStackSettings().shouldKillEntireStackOnDeath()
-                || (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.getBoolean() && PersistentDataUtils.isAiDisabled(entity))
-                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))
-                || (entity.getKiller() != null && entity.getKiller().hasPermission("rosestacker.killentirestack")))) {
-
-            if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
-                if (entity instanceof Slime)
-                    ((Slime) entity).setSize(1);
-
-                if (event instanceof EntityDeathEvent) {
-                    EntityDeathEvent deathEvent = (EntityDeathEvent) event;
-                    stackedEntity.dropStackLoot(new ArrayList<>(deathEvent.getDrops()), deathEvent.getDroppedExp());
-                    deathEvent.getDrops().clear();
-                } else {
-                    stackedEntity.dropStackLoot(null, 0);
-                }
-            } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && event instanceof EntityDeathEvent) {
-                EntityDeathEvent deathEvent = (EntityDeathEvent) event;
-                deathEvent.setDroppedExp(deathEvent.getDroppedExp() * stackedEntity.getStackSize());
-            }
-
-            Player killer = entity.getKiller();
-            if (killer != null && stackedEntity.getStackSize() - 1 > 0)
-                killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), stackedEntity.getStackSize() - 1);
-
-            this.stackManager.removeEntityStack(stackedEntity);
+        if (event != null && stackedEntity.isEntireStackKilledOnDeath()) {
+            stackedEntity.killEntireStack(event);
             return;
         }
 
