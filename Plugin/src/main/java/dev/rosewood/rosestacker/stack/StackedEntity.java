@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.stack;
 
-import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;

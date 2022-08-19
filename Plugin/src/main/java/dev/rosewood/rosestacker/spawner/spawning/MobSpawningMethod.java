@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -89,7 +90,11 @@ public class MobSpawningMethod implements SpawningMethod {
         EntityCacheManager entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runAsync(() -> {
+            // Make sure the chunk is still loaded
+            if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 16, stackedSpawner.getLocation().getBlockZ() >> 16))
+                return;
+
             Set<Location> spawnLocations = new HashSet<>();
             Set<Location> invalidLocations = new HashSet<>();
             int spawnRange = spawnerTile.getSpawnRange();
@@ -160,7 +165,7 @@ public class MobSpawningMethod implements SpawningMethod {
             } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+                ThreadUtils.runSync(() -> {
                     if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });
@@ -182,6 +187,8 @@ public class MobSpawningMethod implements SpawningMethod {
         if (stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled() && Setting.SPAWNER_SPAWN_INTO_NEARBY_STACKS.getBoolean()) {
             List<StackedEntity> newStacks = new ArrayList<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
+
+            List<StackedEntity> updatedStacks = new ArrayList<>();
 
             Location previousLocation = null;
             for (int i = 0; i < spawnAmount; i++) {
@@ -212,6 +219,7 @@ public class MobSpawningMethod implements SpawningMethod {
                         WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findAny();
                 if (matchingEntity.isPresent()) {
                     matchingEntity.get().increaseStackSize(entity, false);
+                    updatedStacks.add(matchingEntity.get());
                 } else {
                     if (possibleLocations.isEmpty())
                         break;
@@ -225,7 +233,9 @@ public class MobSpawningMethod implements SpawningMethod {
                 successfulSpawns++;
             }
 
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+            updatedStacks.forEach(StackedEntity::updateDisplay);
+
+            ThreadUtils.runSync(() -> {
                 stackManager.setEntityStackingTemporarilyDisabled(true);
                 for (StackedEntity stackedEntity : newStacks) {
                     LivingEntity entity = stackedEntity.getEntity();
@@ -252,7 +262,7 @@ public class MobSpawningMethod implements SpawningMethod {
         } else {
             successfulSpawns = Math.min(spawnAmount, possibleLocations.size());
 
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+            ThreadUtils.runSync(() -> {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 for (int i = 0; i < spawnAmount; i++) {
                     if (possibleLocations.isEmpty())
