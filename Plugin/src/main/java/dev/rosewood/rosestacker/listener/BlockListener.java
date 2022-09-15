@@ -297,7 +297,8 @@ public class BlockListener implements Listener {
                     return false;
                 }
 
-                StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 15 * destroyAmount);
+                if (Setting.SPAWNER_DROP_EXPERIENCE_WHEN_DESTROYED.getBoolean())
+                    StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 15 * destroyAmount);
             }
         }
 
