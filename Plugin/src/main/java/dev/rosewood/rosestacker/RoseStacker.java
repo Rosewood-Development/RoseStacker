@@ -81,10 +81,7 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new BreedingListener(this), this);
         pluginManager.registerEvents(new BlockShearListener(this), this);
         pluginManager.registerEvents(new RaidListener(), this);
-
-        // Bees are only in 1.15+
-        if (NMSUtil.getVersionNumber() >= 15)
-            pluginManager.registerEvents(new BeeListener(this), this);
+        pluginManager.registerEvents(new BeeListener(this), this);
 
         if (NMSUtil.getVersionNumber() >= 17) {
             try {
