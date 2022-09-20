@@ -10,7 +10,10 @@ import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Piglin;
+import org.bukkit.entity.PiglinAbstract;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -110,6 +113,14 @@ public final class PersistentDataUtils {
                 AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
                 if (knockbackAttribute != null)
                     knockbackAttribute.setBaseValue(Double.MAX_VALUE);
+            }
+
+            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ZOMBIFICATION.getBoolean()) {
+                if (entity instanceof PiglinAbstract) {
+                    ((PiglinAbstract) entity).setImmuneToZombification(true);
+                } else if (entity instanceof Hoglin) {
+                    ((Hoglin) entity).setImmuneToZombification(true);
+                }
             }
         }
     }
