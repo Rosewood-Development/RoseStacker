@@ -35,13 +35,11 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.util.Vector;
 
 public class MobSpawningMethod implements SpawningMethod {
@@ -181,8 +179,6 @@ public class MobSpawningMethod implements SpawningMethod {
         if (this.entityType.getEntityClass() == null)
             return 0;
 
-        boolean ageable = Ageable.class.isAssignableFrom(this.entityType.getEntityClass());
-
         int successfulSpawns = 0;
         if (stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled() && Setting.SPAWNER_SPAWN_INTO_NEARBY_STACKS.getBoolean()) {
             List<StackedEntity> newStacks = new ArrayList<>();
@@ -199,18 +195,8 @@ public class MobSpawningMethod implements SpawningMethod {
                 LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
                 SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
-                if (ageable)
-                    ((Ageable) entity).setAdult();
-
-                if (Setting.SPAWNER_REMOVE_EQUIPMENT.getBoolean()) {
-                    EntityEquipment equipment = entity.getEquipment();
-                    if (equipment != null)
-                        equipment.clear();
-                }
-
                 if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || stackedSpawner.isPlacedByPlayer())) || Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean())
                     PersistentDataUtils.removeEntityAi(entity);
-                PersistentDataUtils.tagSpawnedFromSpawner(entity);
 
                 entityStackSettings.applySpawnerSpawnedProperties(entity);
 
@@ -275,7 +261,6 @@ public class MobSpawningMethod implements SpawningMethod {
 
                     LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
-                    SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
                     SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                     Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);

@@ -28,6 +28,7 @@ import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
@@ -609,11 +610,20 @@ public abstract class EntityStackSettings extends StackSettings {
      * @param entity The entity being spawned
      */
     public void applySpawnerSpawnedProperties(LivingEntity entity) {
-        if (this.isEntityRaider() && Setting.SPAWNER_NERF_PATROL_LEADERS.getBoolean()) {
-            Raider raider = (Raider) entity;
+        SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
+        PersistentDataUtils.tagSpawnedFromSpawner(entity);
 
-            raider.setPatrolLeader(false);
+        if (this.isEntityRaider() && Setting.SPAWNER_NERF_PATROL_LEADERS.getBoolean())
+            ((Raider) entity).setPatrolLeader(false);
+
+        if (Setting.SPAWNER_REMOVE_EQUIPMENT.getBoolean()) {
+            EntityEquipment equipment = entity.getEquipment();
+            if (equipment != null)
+                equipment.clear();
         }
+
+        if (this.isEntityAgeable())
+            ((Ageable) entity).setBaby();
     }
 
     /**
