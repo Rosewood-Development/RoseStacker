@@ -623,7 +623,7 @@ public abstract class EntityStackSettings extends StackSettings {
         }
 
         if (this.isEntityAgeable())
-            ((Ageable) entity).setBaby();
+            ((Ageable) entity).setAdult();
     }
 
     /**
