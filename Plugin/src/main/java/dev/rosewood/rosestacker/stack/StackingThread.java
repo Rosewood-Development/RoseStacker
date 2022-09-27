@@ -179,10 +179,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     if (this.isRemoved(entity))
                         continue;
 
-                    if (entity instanceof LivingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER) {
-                        LivingEntity livingEntity = (LivingEntity) entity;
-                        if (!this.isEntityStacked(livingEntity))
-                            this.createEntityStack(livingEntity, false);
+                    if (entity instanceof LivingEntity livingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER && !this.isEntityStacked(livingEntity)) {
+                        this.createEntityStack(livingEntity, false);
                     } else if (itemStackingEnabled && entity.getType() == EntityType.DROPPED_ITEM) {
                         Item item = (Item) entity;
                         if (!this.isItemStacked(item))
@@ -231,11 +229,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 .map(StackedEntity::getEntity)
                 .filter(Objects::nonNull)
                 .filter(x -> validEntities.contains(x.getType()))
-                .collect(Collectors.toList()));
+                .toList());
         entities.addAll(this.stackedItems.values().stream()
                 .filter(x -> x.getStackSize() > 1 || displaySingleItemTags)
                 .map(StackedItem::getItem)
-                .collect(Collectors.toList()));
+                .toList());
 
         for (Player player : players) {
             if (player.getWorld() != this.targetWorld)
@@ -273,8 +271,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                          visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
                  } else continue;
 
-                if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity) {
-                    LivingEntity livingEntity = (LivingEntity) entity;
+                if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity livingEntity) {
                     StackedEntity stackedEntity = this.getStackedEntity(livingEntity);
                     if (stackedEntity != null)
                         nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
@@ -777,10 +774,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.stackManager.isEntityStackingEnabled()) {
             for (Entity entity : entities) {
-                if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
+                if (!(entity instanceof LivingEntity livingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
                     continue;
 
-                LivingEntity livingEntity = (LivingEntity) entity;
                 livingEntity.removeMetadata(REMOVED_METADATA, this.rosePlugin);
                 StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity);
                 if (stackedEntity != null) {
@@ -837,7 +833,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
                     .map(x -> this.stackedEntities.get(x.getUniqueId()))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
             stackedEntities.forEach(DataUtils::writeStackedEntity);
 
@@ -850,7 +846,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
                     .map(x -> this.stackedItems.get(x.getUniqueId()))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
             stackedItems.forEach(DataUtils::writeStackedItem);
 

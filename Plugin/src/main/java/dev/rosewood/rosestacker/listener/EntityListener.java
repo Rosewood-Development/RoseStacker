@@ -31,20 +31,15 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Bat;
-import org.bukkit.entity.Blaze;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Golem;
 import org.bukkit.entity.Guardian;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.MushroomCow.Variant;
-import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
@@ -61,7 +56,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
-import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -139,14 +133,13 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpawnerSpawn(SpawnerSpawnEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof LivingEntity entity))
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
         SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
@@ -187,21 +180,19 @@ public class EntityListener implements Listener {
             return;
 
         Entity entity = event.getEntity();
-        if (entity instanceof LivingEntity) {
+        if (entity instanceof LivingEntity livingEntity) {
             if (!this.stackManager.isEntityStackingEnabled())
                 return;
 
-            LivingEntity livingEntity = (LivingEntity) entity;
             StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null) {
                 this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
                 stackedEntity.updateDisplay();
             }
-        } else if (entity instanceof Item) {
+        } else if (entity instanceof Item item) {
             if (!this.stackManager.isItemStackingEnabled())
                 return;
 
-            Item item = (Item) entity;
             StackedItem stackedItem = this.stackManager.getStackedItem(item);
             if (stackedItem != null) {
                 this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld());
@@ -219,21 +210,15 @@ public class EntityListener implements Listener {
             event.setCancelled(true);
         }
 
-        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity().getType() == EntityType.PLAYER)
+        if (!(event.getEntity() instanceof LivingEntity entity) || event.getEntity().getType() == EntityType.PLAYER)
             return;
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
         if (!Setting.ENTITY_INSTANT_KILL_DISABLED_AI.getBoolean() || this.stackManager.isWorldDisabled(entity.getWorld()) || !PersistentDataUtils.isAiDisabled(entity))
             return;
 
         Entity damager = event.getDamager();
-        if (damager instanceof Projectile) {
-            Projectile projectile = (Projectile) damager;
-            if (!(projectile.getShooter() instanceof Player))
-                return;
-        } else if (!(damager instanceof Player)) {
+        if ((damager instanceof Projectile projectile && !(projectile.getShooter() instanceof Player)) || !(damager instanceof Player))
             return;
-        }
 
         AttributeInstance attributeInstance = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (attributeInstance != null) {
@@ -245,10 +230,9 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity().getType() == EntityType.ARMOR_STAND || event.getEntity().getType() == EntityType.PLAYER)
+        if (!(event.getEntity() instanceof LivingEntity entity) || event.getEntity().getType() == EntityType.ARMOR_STAND || event.getEntity().getType() == EntityType.PLAYER)
             return;
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
         if (this.stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
@@ -385,7 +369,7 @@ public class EntityListener implements Listener {
         }
 
         if (!(event.getEntity() instanceof LivingEntity)
-                || !(event.getTransformedEntity() instanceof LivingEntity)
+                || !(event.getTransformedEntity() instanceof LivingEntity transformedEntity)
                 || event.getEntity().getType() == event.getTransformedEntity().getType()
                 || !this.stackManager.isEntityStacked((LivingEntity) event.getEntity()))
             return;
@@ -394,7 +378,6 @@ public class EntityListener implements Listener {
         if (stackedEntity.getStackSize() == 1)
             return;
 
-        LivingEntity transformedEntity = (LivingEntity) event.getTransformedEntity();
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             StackedEntityDataEntry<?> serialized = nmsHandler.getEntityAsNBT(transformedEntity);

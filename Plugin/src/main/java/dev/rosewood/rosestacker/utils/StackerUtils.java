@@ -206,16 +206,10 @@ public final class StackerUtils {
                 || material.name().endsWith("WALL"))
             return true;
 
-        switch (material) {
-            case CHEST:
-            case ENDER_CHEST:
-            case TRAPPED_CHEST:
-            case GLASS:
-            case GLASS_PANE:
-                return true;
-            default:
-                return material.isOccluding();
-        }
+        return switch (material) {
+            case CHEST, ENDER_CHEST, TRAPPED_CHEST, GLASS, GLASS_PANE -> true;
+            default -> material.isOccluding();
+        };
     }
 
     /**
@@ -225,14 +219,10 @@ public final class StackerUtils {
      * @return true if the Material is a type of air
      */
     public static boolean isAir(Material material) {
-        switch (material) {
-            case AIR:
-            case CAVE_AIR:
-            case VOID_AIR:
-                return true;
-            default:
-                return false;
-        }
+        return switch (material) {
+            case AIR, CAVE_AIR, VOID_AIR -> true;
+            default -> false;
+        };
     }
 
     public static String formatNumber(long points) {

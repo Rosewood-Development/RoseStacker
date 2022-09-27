@@ -22,12 +22,11 @@ public class RoseStackerPlaceholderExpansion extends PlaceholderExpansion {
 
         LocaleManager localeManager = this.plugin.getManager(LocaleManager.class);
 
-        switch (placeholder) {
-            case "spawner_silktouch_chance":
-                return localeManager.getLocaleMessage("silktouch-chance-placeholder", StringPlaceholders.single("chance", Math.round(StackerUtils.getSilkTouchChanceRaw(player))));
-        }
-
-        return null;
+        return switch (placeholder) {
+            case "spawner_silktouch_chance" ->
+                    localeManager.getLocaleMessage("silktouch-chance-placeholder", StringPlaceholders.single("chance", Math.round(StackerUtils.getSilkTouchChanceRaw(player))));
+            default -> null;
+        };
     }
 
     @Override

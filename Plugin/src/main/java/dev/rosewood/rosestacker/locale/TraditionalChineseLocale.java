@@ -24,7 +24,7 @@ public class TraditionalChineseLocale implements Locale {
 
     @Override
     public Map<String, Object> getDefaultLocaleValues() {
-        return new LinkedHashMap<String, Object>() {{
+        return new LinkedHashMap<>() {{
             this.put("#0", "插件訊息前缀");
             this.put("prefix", "&7[<g:#8A2387:#E94057:#F27121>RoseStacker&7] ");
 

@@ -260,8 +260,7 @@ public class NMSHandlerImpl implements NMSHandler {
         }
 
         newEntity.moveTo(blockPos.getX() + 0.5D, blockPos.getY(), blockPos.getZ() + 0.5D, Mth.wrapDegrees(world.random.nextFloat() * 360.0F), 0.0F);
-        if (newEntity instanceof Mob) {
-            Mob mob = (Mob) newEntity;
+        if (newEntity instanceof Mob mob) {
             mob.yHeadRot = mob.getYRot();
             mob.yBodyRot = mob.getYRot();
 
@@ -453,10 +452,9 @@ public class NMSHandlerImpl implements NMSHandler {
         ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
         BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        if (!(blockEntity instanceof SpawnerBlockEntity))
+        if (!(blockEntity instanceof SpawnerBlockEntity spawnerBlockEntity))
             return null;
 
-        SpawnerBlockEntity spawnerBlockEntity = (SpawnerBlockEntity) blockEntity;
         BaseSpawner baseSpawner = spawnerBlockEntity.getSpawner();
 
         if (!baseSpawner.getClass().isAnonymousClass() && !(baseSpawner instanceof StackedSpawnerTile)) {
@@ -501,25 +499,19 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {
-        switch (mobSpawnType) {
-            case SPAWN_EGG:
-                return SpawnReason.SPAWNER_EGG;
-            case SPAWNER:
-                return SpawnReason.SPAWNER;
-            default:
-                return SpawnReason.CUSTOM;
-        }
+        return switch (mobSpawnType) {
+            case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;
+            case SPAWNER -> SpawnReason.SPAWNER;
+            default -> SpawnReason.CUSTOM;
+        };
     }
 
     private MobSpawnType toNmsSpawnReason(SpawnReason spawnReason) {
-        switch (spawnReason) {
-            case SPAWNER_EGG:
-                return MobSpawnType.SPAWN_EGG;
-            case SPAWNER:
-                return MobSpawnType.SPAWNER;
-            default:
-                return MobSpawnType.COMMAND;
-        }
+        return switch (spawnReason) {
+            case SPAWNER_EGG -> MobSpawnType.SPAWN_EGG;
+            case SPAWNER -> MobSpawnType.SPAWNER;
+            default -> MobSpawnType.COMMAND;
+        };
     }
 
 }

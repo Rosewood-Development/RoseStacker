@@ -27,14 +27,12 @@ import org.bukkit.inventory.PlayerInventory;
 
 public class ItemListener implements Listener {
 
-    private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final StackSettingManager stackSettingManager;
 
     public ItemListener(RosePlugin rosePlugin) {
-        this.rosePlugin = rosePlugin;
-        this.stackManager = this.rosePlugin.getManager(StackManager.class);
-        this.stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
+        this.stackManager = rosePlugin.getManager(StackManager.class);
+        this.stackSettingManager = rosePlugin.getManager(StackSettingManager.class);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -73,11 +71,9 @@ public class ItemListener implements Listener {
             return;
 
         Inventory inventory;
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
+        if (event.getEntity() instanceof Player player) {
             inventory = player.getInventory();
-        } else if (event.getEntity() instanceof Villager) {
-            Villager villager = (Villager) event.getEntity();
+        } else if (event.getEntity() instanceof Villager villager) {
             inventory = villager.getInventory();
         } else if (event.getEntityType() == EntityType.DOLPHIN) {
             // Only stop the dolphin from picking up the item if it's larger than a normal item would be, otherwise
@@ -182,8 +178,7 @@ public class ItemListener implements Listener {
         int inventorySpace = 0;
 
         // Check player offhand slot first
-        if (inventory instanceof PlayerInventory) {
-            PlayerInventory playerInventory = (PlayerInventory) inventory;
+        if (inventory instanceof PlayerInventory playerInventory) {
             ItemStack offhandStack = playerInventory.getItemInOffHand();
             if (offhandStack.isSimilar(target))
                 inventorySpace += Math.max(maxStackSize - offhandStack.getAmount(), 0);
@@ -213,8 +208,7 @@ public class ItemListener implements Listener {
         List<ItemStack> toAdd = new ArrayList<>();
 
         // Prioritize the offhand slot
-        if (inventory instanceof PlayerInventory) {
-            PlayerInventory playerInventory = (PlayerInventory) inventory;
+        if (inventory instanceof PlayerInventory playerInventory) {
             ItemStack itemStack = playerInventory.getItemInOffHand();
             if (itemStack.isSimilar(target)) {
                 int available = Math.max(target.getMaxStackSize() - itemStack.getAmount(), 0);

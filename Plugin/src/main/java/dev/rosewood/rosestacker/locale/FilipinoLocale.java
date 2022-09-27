@@ -24,7 +24,7 @@ public class FilipinoLocale implements Locale {
 
     @Override
     public Map<String, Object> getDefaultLocaleValues() {
-        return new LinkedHashMap<String, Object>() {{
+        return new LinkedHashMap<>() {{
             this.put("#0", "Plugin Message Prefix");
             this.put("prefix", "&7[<g:#8A2387:#E94057:#F27121>RoseStacker&7] ");
 

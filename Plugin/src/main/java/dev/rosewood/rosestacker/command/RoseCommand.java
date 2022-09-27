@@ -88,19 +88,19 @@ public class RoseCommand extends BaseCommand {
 
         int amount;
         switch (clearallType) {
-            case ENTITY:
+            case ENTITY -> {
                 amount = stackManager.removeAllEntityStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-entities", StringPlaceholders.single("amount", amount));
-                break;
-            case ITEM:
+            }
+            case ITEM -> {
                 amount = stackManager.removeAllItemStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-items", StringPlaceholders.single("amount", amount));
-                break;
-            case ALL:
+            }
+            case ALL -> {
                 int entities = stackManager.removeAllEntityStacks();
                 int items = stackManager.removeAllItemStacks();
                 localeManager.sendMessage(sender, "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", entities).addPlaceholder("itemAmount", items).build());
-                break;
+            }
         }
     }
 

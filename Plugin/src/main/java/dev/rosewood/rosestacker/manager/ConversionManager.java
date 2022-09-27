@@ -32,11 +32,11 @@ public class ConversionManager extends Manager implements Listener {
 
     public static final String FILE_NAME = "convert-lock.yml";
 
-    private Map<StackPlugin, StackPluginConverter> converters;
-    private Set<ConversionHandler> conversionHandlers;
+    private final Map<StackPlugin, StackPluginConverter> converters;
+    private final Set<ConversionHandler> conversionHandlers;
     private CommentedFileConfiguration convertLockConfig;
 
-    private DataManager dataManager;
+    private final DataManager dataManager;
 
     public ConversionManager(RosePlugin rosePlugin) {
         super(rosePlugin);

@@ -61,7 +61,7 @@ public class MobSpawningMethod implements SpawningMethod {
         List<ConditionTag> spawnRequirements = new ArrayList<>(stackSettings.getSpawnRequirements());
 
         // Check general spawner conditions
-        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
+        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).toList();
         spawnRequirements.removeAll(perSpawnConditions);
 
         Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());

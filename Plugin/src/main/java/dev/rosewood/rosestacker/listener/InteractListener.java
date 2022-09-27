@@ -106,7 +106,7 @@ public class InteractListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
-        if (!(event.getRightClicked() instanceof LivingEntity))
+        if (!(event.getRightClicked() instanceof LivingEntity entity))
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
@@ -116,7 +116,6 @@ public class InteractListener implements Listener {
         if (!stackManager.isEntityStackingEnabled())
             return;
 
-        LivingEntity entity = (LivingEntity) event.getRightClicked();
         StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity == null)
             return;
@@ -128,17 +127,11 @@ public class InteractListener implements Listener {
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
-                case COD:
-                case SALMON:
-                case PUFFERFISH:
-                case TROPICAL_FISH:
-                case AXOLOTL:
-                    break;
-                default: return;
+                case COD, SALMON, PUFFERFISH, TROPICAL_FISH, AXOLOTL -> {
+                    if (stackedEntity.getStackSize() != 1)
+                        Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
+                }
             }
-
-            if (stackedEntity.getStackSize() != 1)
-                Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
             return;
         }
 

@@ -45,8 +45,7 @@ public final class EntityUtils {
      * @return The loot
      */
     public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation) {
-        if (entity instanceof Lootable) {
-            Lootable lootable = (Lootable) entity;
+        if (entity instanceof Lootable lootable) {
             if (lootable.getLootTable() == null)
                 return Collections.emptySet();
 

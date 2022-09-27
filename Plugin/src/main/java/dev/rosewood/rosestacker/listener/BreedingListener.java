@@ -31,10 +31,9 @@ public class BreedingListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBreed(PlayerInteractEntityEvent event) {
         Entity entity = event.getRightClicked();
-        if (!Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean() || !(entity instanceof Animals))
+        if (!Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean() || !(entity instanceof Animals animal))
             return;
 
-        Animals animal = (Animals) entity;
         if (!animal.canBreed())
             return;
 
@@ -49,7 +48,7 @@ public class BreedingListener implements Listener {
         Player player = event.getPlayer();
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         ItemStack breedingItem = player.getInventory().getItem(event.getHand());
-        if (!stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
+        if (breedingItem == null || !stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
             return;
 
         if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {

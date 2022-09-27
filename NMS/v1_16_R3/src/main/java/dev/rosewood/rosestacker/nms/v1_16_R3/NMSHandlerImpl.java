@@ -261,8 +261,7 @@ public class NMSHandlerImpl implements NMSHandler {
             }
 
             newEntity.setPositionRotation(blockposition.getX() + 0.5D, blockposition.getY(), blockposition.getZ() + 0.5D, MathHelper.g(worldserver.random.nextFloat() * 360.0F), 0.0F);
-            if (newEntity instanceof EntityInsentient) {
-                EntityInsentient entityinsentient = (EntityInsentient)newEntity;
+            if (newEntity instanceof EntityInsentient entityinsentient) {
                 entityinsentient.aC = entityinsentient.yaw;
                 entityinsentient.aA = entityinsentient.yaw;
 
@@ -458,10 +457,9 @@ public class NMSHandlerImpl implements NMSHandler {
         WorldServer level = ((CraftWorld) block.getWorld()).getHandle();
         BlockPosition blockPos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         TileEntity blockEntity = level.getTileEntity(blockPos);
-        if (!(blockEntity instanceof TileEntityMobSpawner))
+        if (!(blockEntity instanceof TileEntityMobSpawner spawnerBlockEntity))
             return null;
 
-        TileEntityMobSpawner spawnerBlockEntity = (TileEntityMobSpawner) blockEntity;
         MobSpawnerAbstract baseSpawner = spawnerBlockEntity.getSpawner();
 
         if (!baseSpawner.getClass().isAnonymousClass() && !(baseSpawner instanceof StackedSpawnerTile)) {
@@ -485,25 +483,19 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {
-        switch (mobSpawnType) {
-            case SPAWN_EGG:
-                return SpawnReason.SPAWNER_EGG;
-            case SPAWNER:
-                return SpawnReason.SPAWNER;
-            default:
-                return SpawnReason.CUSTOM;
-        }
+        return switch (mobSpawnType) {
+            case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;
+            case SPAWNER -> SpawnReason.SPAWNER;
+            default -> SpawnReason.CUSTOM;
+        };
     }
 
     private EnumMobSpawn toNmsSpawnReason(SpawnReason spawnReason) {
-        switch (spawnReason) {
-            case SPAWNER_EGG:
-                return EnumMobSpawn.SPAWN_EGG;
-            case SPAWNER:
-                return EnumMobSpawn.SPAWNER;
-            default:
-                return EnumMobSpawn.COMMAND;
-        }
+        return switch (spawnReason) {
+            case SPAWNER_EGG -> EnumMobSpawn.SPAWN_EGG;
+            case SPAWNER -> EnumMobSpawn.SPAWNER;
+            default -> EnumMobSpawn.COMMAND;
+        };
     }
 
 }

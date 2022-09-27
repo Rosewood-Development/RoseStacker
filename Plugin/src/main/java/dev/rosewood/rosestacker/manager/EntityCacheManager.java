@@ -176,10 +176,9 @@ public class EntityCacheManager extends Manager {
             if (this == o)
                 return true;
 
-            if (!(o instanceof ChunkLocation))
+            if (!(o instanceof ChunkLocation other))
                 return false;
 
-            ChunkLocation other = (ChunkLocation) o;
             return this.x == other.x && this.z == other.z && this.world.equals(other.world);
         }
 

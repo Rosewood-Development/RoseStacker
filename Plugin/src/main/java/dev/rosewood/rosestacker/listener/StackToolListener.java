@@ -62,7 +62,7 @@ public class StackToolListener implements Listener {
     public void onRightClick(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!(event.getRightClicked() instanceof LivingEntity)
+        if (!(event.getRightClicked() instanceof LivingEntity entity)
                 || event.getHand() != EquipmentSlot.HAND
                 || !ItemUtils.isStackingTool(tool))
             return;
@@ -74,7 +74,6 @@ public class StackToolListener implements Listener {
             return;
         }
 
-        LivingEntity entity = (LivingEntity) event.getRightClicked();
         StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
             this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
@@ -103,17 +102,16 @@ public class StackToolListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLeftClickEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player))
+        if (!(event.getDamager() instanceof Player player))
             return;
 
-        Player player = (Player) event.getDamager();
         ItemStack tool = player.getInventory().getItemInMainHand();
         if (!ItemUtils.isStackingTool(tool))
             return;
 
         event.setCancelled(true);
 
-        if (!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof LivingEntity entity))
             return;
 
         if (!player.hasPermission("rosestacker.stacktool")) {
@@ -121,7 +119,6 @@ public class StackToolListener implements Listener {
             return;
         }
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
         StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
             this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");

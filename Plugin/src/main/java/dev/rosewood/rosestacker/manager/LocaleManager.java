@@ -158,14 +158,7 @@ public class LocaleManager extends AbstractLocaleManager {
             Map<Material, String> materialValues = new EnumMap<>(Material.class);
             Map<EntityType, String> entityValues = new EnumMap<>(EntityType.class);
 
-            String version;
-            if (NMSUtil.getVersionNumber() >= 16) {
-                version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
-            } else {
-                version = "1.15.2";
-            }
-
-            String fileLink = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + version + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
+            String fileLink = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/" + StackerUtils.MAX_SUPPORTED_LOCALE_VERSION + "/assets/minecraft/lang/" + locale.toLowerCase() + ".json";
 
             Result result;
             try {
