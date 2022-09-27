@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.stack;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
@@ -38,8 +40,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -66,6 +72,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final static int CLEANUP_TIMER_TARGET = 10;
     private final static String REMOVED_METADATA = "RS_removed";
     private final static String NEW_METADATA = "RS_new";
+
+    private final static Cache<UUID, Boolean> REMOVED_ENTITIES = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.SECONDS).build();
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
@@ -1043,11 +1051,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private boolean isRemoved(Entity entity) {
-        return entity == null || (!entity.isValid() && !entity.hasMetadata(NEW_METADATA)) || entity.hasMetadata(REMOVED_METADATA);
+        return entity == null || (!entity.isValid() && !entity.hasMetadata(NEW_METADATA)) || REMOVED_ENTITIES.getIfPresent(entity.getUniqueId()) != null;
     }
 
     private void setRemoved(Entity entity) {
-        entity.setMetadata(REMOVED_METADATA, new FixedMetadataValue(this.rosePlugin, true));
+        REMOVED_ENTITIES.put(entity.getUniqueId(), true);
     }
 
     /**
