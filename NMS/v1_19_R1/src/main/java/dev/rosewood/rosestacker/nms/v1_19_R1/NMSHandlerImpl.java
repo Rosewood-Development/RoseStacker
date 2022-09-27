@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_19_R1;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
@@ -18,7 +19,9 @@ import dev.rosewood.rosestacker.nms.v1_19_R1.storage.NBTStackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_19_R1.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -103,6 +106,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_LivingEntity_brain; // Field to get the brain of a living entity, normally protected
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
+    private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's new chunk system
+    private static Method method_EntityLookup_addNewEntity; // Method to add a new entity which is part of paper's new chunk system
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
     private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
@@ -122,7 +127,15 @@ public class NMSHandlerImpl implements NMSHandler {
             field_Mob_jumpControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, JumpControl.class);
             field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
 
-            field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
+            try {
+                // Handle Paper's new chunk system
+                field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
+            } catch (IllegalStateException e) {
+                field_ServerLevel_entityManager = null;
+                sendInfoConsoleMessage("Paper's new chunk system detected, using it to spawn entities");
+                field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(ServerLevel.class, "entityLookup");
+            }
+
             if (NMSAdapter.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, AtomicInteger.class).get(null);
@@ -198,8 +211,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 entity.load(nbt);
 
                 if (addToWorld) {
-                    PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
-                    entityManager.addNewEntity(entity);
+                    this.addEntityToWorld(world, entity);
                     entity.invulnerableTime = 0;
                 }
 
@@ -293,7 +305,11 @@ public class NMSHandlerImpl implements NMSHandler {
             throw new IllegalArgumentException("Entity is not in a loaded world");
 
         if (bypassSpawnEvent) {
-            ((CraftWorld) world).getHandle().entityManager.addNewEntity(((CraftEntity) entity).getHandle());
+            try {
+                this.addEntityToWorld(((CraftWorld) world).getHandle(), ((CraftEntity) entity).getHandle());
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
         } else {
             ((CraftWorld) world).addEntityToWorld(((CraftEntity) entity).getHandle(), spawnReason);
         }
@@ -485,7 +501,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
         if (!hijackedAnyRandomSources) {
             hijackedAnyRandomSources = true;
-            Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info("Hijacking world RandomSources to allow async mob creation...");
+            sendInfoConsoleMessage("Hijacking world RandomSources to allow async mob creation...");
         }
 
         try {
@@ -495,6 +511,20 @@ public class NMSHandlerImpl implements NMSHandler {
             unsafe.putObject(level, field_Level_random_offset, hijackedRandomSource);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
+        if (field_ServerLevel_entityManager != null) {
+            PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
+            entityManager.addNewEntity(entity);
+        } else if (field_ServerLevel_entityLookup != null) {
+            Object entityLookup = field_ServerLevel_entityLookup.get(world);
+            if (method_EntityLookup_addNewEntity == null)
+                method_EntityLookup_addNewEntity = ReflectionUtils.getMethodByPositionAndTypes(entityLookup.getClass(), 0, Entity.class);
+            method_EntityLookup_addNewEntity.invoke(entityLookup, entity);
+        } else {
+            throw new IllegalStateException("Unable to spawn entities due to missing methods");
         }
     }
 
@@ -512,6 +542,10 @@ public class NMSHandlerImpl implements NMSHandler {
             case SPAWNER -> MobSpawnType.SPAWNER;
             default -> MobSpawnType.COMMAND;
         };
+    }
+
+    private static void sendInfoConsoleMessage(String message) {
+        Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info(message);
     }
 
 }
