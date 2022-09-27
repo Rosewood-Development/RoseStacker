@@ -12,7 +12,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Piglin;
 import org.bukkit.entity.PiglinAbstract;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.persistence.PersistentDataContainer;
