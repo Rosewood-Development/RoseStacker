@@ -519,7 +519,7 @@ public class NMSHandlerImpl implements NMSHandler {
         } else if (field_ServerLevel_entityLookup != null) {
             Object entityLookup = field_ServerLevel_entityLookup.get(world);
             if (method_EntityLookup_addNewEntity == null)
-                method_EntityLookup_addNewEntity = ReflectionUtils.getMethodByPositionAndTypes(entityLookup.getClass(), 0, Entity.class);
+                method_EntityLookup_addNewEntity = ReflectionUtils.getMethodByName(entityLookup.getClass(), "addNewEntity", Entity.class);
             method_EntityLookup_addNewEntity.invoke(entityLookup, entity);
         } else {
             throw new IllegalStateException("Unable to spawn entities due to missing methods");
