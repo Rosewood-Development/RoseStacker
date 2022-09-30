@@ -438,19 +438,7 @@ public class NMSHandlerImpl implements NMSHandler {
         if (!(blockEntity instanceof SpawnerBlockEntity spawnerBlockEntity))
             return null;
 
-        BaseSpawner baseSpawner = spawnerBlockEntity.getSpawner();
-
-        if (!baseSpawner.getClass().isAnonymousClass() && !(baseSpawner instanceof StackedSpawnerTile)) {
-            // Check if it's been overridden by SuperiorSkyblock to get the internal BaseSpawner instance instead
-            try {
-                Field field = ReflectionUtils.getFieldByPositionAndType(baseSpawner.getClass(), 0, BaseSpawner.class);
-                baseSpawner = (BaseSpawner) field.get(baseSpawner);
-            } catch (IllegalStateException | ReflectiveOperationException ignored) {
-                // If not, ignore and try to overwrite with our own anyway
-            }
-        }
-
-        StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(baseSpawner, spawnerBlockEntity, stackedSpawner);
+        StackedSpawnerTile stackedSpawnerTile = new StackedSpawnerTileImpl(spawnerBlockEntity.getSpawner(), spawnerBlockEntity, stackedSpawner);
         unsafe.putObject(spawnerBlockEntity, field_SpawnerBlockEntity_spawner_offset, stackedSpawnerTile);
         return stackedSpawnerTile;
     }
