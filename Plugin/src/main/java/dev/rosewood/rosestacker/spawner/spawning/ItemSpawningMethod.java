@@ -35,7 +35,7 @@ public class ItemSpawningMethod implements SpawningMethod {
     }
 
     @Override
-    public void spawn(StackedSpawner stackedSpawner) {
+    public void spawn(StackedSpawner stackedSpawner, boolean onlyCheckConditions) {
         StackedSpawnerTile spawnerTile = stackedSpawner.getSpawnerTile();
         SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
 

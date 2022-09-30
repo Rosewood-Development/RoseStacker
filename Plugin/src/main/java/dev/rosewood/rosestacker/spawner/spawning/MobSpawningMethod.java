@@ -53,7 +53,7 @@ public class MobSpawningMethod implements SpawningMethod {
     }
 
     @Override
-    public void spawn(StackedSpawner stackedSpawner) {
+    public void spawn(StackedSpawner stackedSpawner, boolean onlyCheckConditions) {
         StackedSpawnerTile spawnerTile = stackedSpawner.getSpawnerTile();
         SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
 
@@ -145,7 +145,12 @@ public class MobSpawningMethod implements SpawningMethod {
                     nearbyStackedEntities.add(stackedEntity);
             }
 
-            int successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, spawnAmount, spawnLocations, nearbyStackedEntities, stackManager);
+            int successfulSpawns;
+            if (!onlyCheckConditions) {
+                successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, spawnAmount, spawnLocations, nearbyStackedEntities, stackManager);
+            } else {
+                successfulSpawns = spawnAmount > 0 && !spawnLocations.isEmpty() ? 1 : 0;
+            }
 
             stackedSpawner.getLastInvalidConditions().clear();
             if (successfulSpawns <= 0) {
@@ -158,9 +163,11 @@ public class MobSpawningMethod implements SpawningMethod {
                     stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
                 }
 
-                // Spawn particles indicating the spawn did not occur
-                stackedSpawner.getWorld().spawnParticle(Particle.SMOKE_NORMAL, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-            } else {
+                if (!onlyCheckConditions) {
+                    // Spawn particles indicating the spawn did not occur
+                    stackedSpawner.getWorld().spawnParticle(Particle.SMOKE_NORMAL, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                }
+            } else if (!onlyCheckConditions) {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                 ThreadUtils.runSync(() -> {

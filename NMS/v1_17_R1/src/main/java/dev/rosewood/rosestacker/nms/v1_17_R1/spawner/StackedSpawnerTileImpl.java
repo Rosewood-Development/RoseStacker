@@ -31,6 +31,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
+    private boolean checkedInitialConditions;
 
     public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -49,6 +50,11 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
         if (!this.playersNearby)
             return;
+
+        if (!this.checkedInitialConditions) {
+            this.checkedInitialConditions = true;
+            this.trySpawns(true);
+        }
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
@@ -84,6 +90,13 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         this.updateTile();
 
         // Execute spawning method
+        this.trySpawns(false);
+
+        // Randomize spawn potentials
+        this.spawnPotentials.getRandom(level.getRandom()).ifPresent(x -> this.nextSpawnData = x);
+    }
+
+    private void trySpawns(boolean onlyCheckConditions) {
         try {
             if (this.nextSpawnData != null) {
                 ResourceLocation resourceLocation = ResourceLocation.tryParse(this.nextSpawnData.getTag().getString("id"));
@@ -91,15 +104,12 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
                     EntityType entityType = this.fromKey(namespacedKey);
                     if (entityType != null)
-                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
+                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner, onlyCheckConditions);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Randomize spawn potentials
-        this.spawnPotentials.getRandom(level.getRandom()).ifPresent(x -> this.nextSpawnData = x);
     }
 
     private EntityType fromKey(NamespacedKey namespacedKey) {

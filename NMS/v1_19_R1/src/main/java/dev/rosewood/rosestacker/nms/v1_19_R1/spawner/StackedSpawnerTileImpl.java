@@ -31,6 +31,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
+    private boolean checkedInitialConditions;
 
     public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -49,6 +50,11 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
         if (!this.playersNearby)
             return;
+
+        if (!this.checkedInitialConditions) {
+            this.checkedInitialConditions = true;
+            this.trySpawns(true);
+        }
 
 //        if (!this.nextSpawnData.getEntityToSpawn().getString("id").equals("minecraft:item")) {
 //            CompoundTag tag = new CompoundTag();
@@ -98,6 +104,15 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         this.updateTile();
 
         // Execute spawning method
+        this.trySpawns(false);
+
+//        new ItemSpawningMethod(Material.DIAMOND).spawn(this.stackedSpawner);
+
+        // Randomize spawn potentials
+        this.spawnPotentials.getRandom(level.getRandom()).ifPresent(x -> this.nextSpawnData = x.getData());
+    }
+
+    private void trySpawns(boolean onlyCheckConditions) {
         try {
             if (this.nextSpawnData != null) {
                 ResourceLocation resourceLocation = ResourceLocation.tryParse(this.nextSpawnData.getEntityToSpawn().getString("id"));
@@ -105,17 +120,12 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
                     EntityType entityType = this.fromKey(namespacedKey);
                     if (entityType != null)
-                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
+                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner, onlyCheckConditions);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        new ItemSpawningMethod(Material.DIAMOND).spawn(this.stackedSpawner);
-
-        // Randomize spawn potentials
-        this.spawnPotentials.getRandom(level.getRandom()).ifPresent(x -> this.nextSpawnData = x.getData());
     }
 
     private EntityType fromKey(NamespacedKey namespacedKey) {

@@ -30,6 +30,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
+    private boolean checkedInitialConditions;
 
     public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -52,6 +53,11 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
 
         if (!this.playersNearby)
             return;
+
+        if (!this.checkedInitialConditions) {
+            this.checkedInitialConditions = true;
+            this.trySpawns(true);
+        }
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
@@ -87,6 +93,14 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         this.updateTile();
 
         // Execute spawning method
+        this.trySpawns(false);
+
+        // Randomize spawn potentials
+        if (!this.mobs.isEmpty())
+            this.setSpawnData(WeightedRandom.a(this.a().random, this.mobs));
+    }
+
+    private void trySpawns(boolean onlyCheckConditions) {
         try {
             if (this.spawnData != null) {
                 MinecraftKey resourceLocation = MinecraftKey.a(this.spawnData.getEntity().getString("id"));
@@ -94,16 +108,12 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
                     NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
                     EntityType entityType = this.fromKey(namespacedKey);
                     if (entityType != null)
-                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner);
+                        new MobSpawningMethod(entityType).spawn(this.stackedSpawner, onlyCheckConditions);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Randomize spawn potentials
-        if (!this.mobs.isEmpty())
-            this.setSpawnData(WeightedRandom.a(this.a().random, this.mobs));
     }
 
     private EntityType fromKey(NamespacedKey namespacedKey) {
