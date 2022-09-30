@@ -90,7 +90,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         ThreadUtils.runAsync(() -> {
             // Make sure the chunk is still loaded
-            if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 16, stackedSpawner.getLocation().getBlockZ() >> 16))
+            if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 4, stackedSpawner.getLocation().getBlockZ() >> 4))
                 return;
 
             Set<Location> spawnLocations = new HashSet<>();

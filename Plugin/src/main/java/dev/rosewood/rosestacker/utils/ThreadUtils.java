@@ -13,12 +13,12 @@ public final class ThreadUtils {
     }
 
     public static void runAsync(Runnable runnable) {
-        //if (rosePlugin.isEnabled())
+        if (rosePlugin.isEnabled())
             Bukkit.getScheduler().runTaskAsynchronously(rosePlugin, runnable);
     }
 
     public static void runSync(Runnable runnable) {
-        //if (rosePlugin.isEnabled())
+        if (rosePlugin.isEnabled())
             Bukkit.getScheduler().runTask(rosePlugin, runnable);
     }
 
