@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EnglishLocale implements Locale {
@@ -122,12 +121,12 @@ public class EnglishLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cDestroy Stack", "&eDestroys the stack and drops the items"));
+            this.put("gui-stacked-block-page-back", List.of("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cDestroy Stack", "&eDestroys the stack and drops the items"));
             this.put("gui-stacked-block-destroy-title", "Destroy Block Stack?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirm", "&eYes, destroy the stack"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cCancel", "&eNo, go back to previous screen"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aConfirm", "&eYes, destroy the stack"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cCancel", "&eNo, go back to previous screen"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Viewing %name%");

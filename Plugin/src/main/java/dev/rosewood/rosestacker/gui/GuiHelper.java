@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.gui;
 
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
 
@@ -42,7 +41,7 @@ import org.bukkit.Material;
          */
         public List<String> getLore() {
             if (this.message.size() == 1)
-                return Collections.emptyList();
+                return List.of();
             return this.message.subList(1, this.message.size());
         }
 

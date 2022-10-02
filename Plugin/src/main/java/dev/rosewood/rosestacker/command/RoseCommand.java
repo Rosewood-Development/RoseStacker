@@ -26,6 +26,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -278,7 +279,7 @@ public class RoseCommand extends BaseCommand {
         private void giveDuplicates(Player player, ItemStack item, int amount) {
             ItemStack[] items = new ItemStack[amount];
             Arrays.fill(items, item);
-            ItemUtils.dropItemsToPlayer(player, Arrays.asList(items));
+            ItemUtils.dropItemsToPlayer(player, List.of(items));
         }
 
     }

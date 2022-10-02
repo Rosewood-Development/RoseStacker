@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.spawner.spawning;
 
+import com.google.common.base.Stopwatch;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
@@ -147,7 +148,9 @@ public class MobSpawningMethod implements SpawningMethod {
 
             int successfulSpawns;
             if (!onlyCheckConditions) {
+                Stopwatch stopwatch = Stopwatch.createStarted();
                 successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, spawnAmount, spawnLocations, nearbyStackedEntities, stackManager);
+                Bukkit.broadcastMessage("Spawned in " + stopwatch.elapsed().toMillis() + "ms");
             } else {
                 successfulSpawns = spawnAmount > 0 && !spawnLocations.isEmpty() ? 1 : 0;
             }

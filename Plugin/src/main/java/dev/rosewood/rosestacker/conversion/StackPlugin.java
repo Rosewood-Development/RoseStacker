@@ -8,7 +8,6 @@ import dev.rosewood.rosestacker.conversion.converter.StackPluginConverter;
 import dev.rosewood.rosestacker.conversion.converter.UltimateStackerPluginConverter;
 import dev.rosewood.rosestacker.conversion.converter.WildStackerPluginConverter;
 import dev.rosewood.rosestacker.stack.StackType;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public enum StackPlugin {
 
     StackPlugin(Class<? extends StackPluginConverter> conveterClass, StackType... stackTypes) {
         this.converterClass = conveterClass;
-        this.stackTypes = Arrays.asList(stackTypes);
+        this.stackTypes = List.of(stackTypes);
     }
 
     /**

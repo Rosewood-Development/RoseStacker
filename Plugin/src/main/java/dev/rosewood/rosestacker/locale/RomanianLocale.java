@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RomanianLocale implements Locale {
@@ -121,12 +120,12 @@ public class RomanianLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Se editeaza %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&ePagina precedenta (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&ePagina urmatoare (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cDistrugere Stack", "&eDistruge stack-ul si dropeaza obiectele"));
+            this.put("gui-stacked-block-page-back", List.of("&ePagina precedenta (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&ePagina urmatoare (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cDistrugere Stack", "&eDistruge stack-ul si dropeaza obiectele"));
             this.put("gui-stacked-block-destroy-title", "Distrugi block-urile?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirma", "&eDa, distruge stack-ul"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cAnuleaza", "&eNu, intoarce-te la ecranul precedent"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aConfirma", "&eDa, distruge stack-ul"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cAnuleaza", "&eNu, intoarce-te la ecranul precedent"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Se vizualizeaza %name%");

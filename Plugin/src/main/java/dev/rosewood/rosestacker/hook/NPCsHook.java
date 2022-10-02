@@ -8,7 +8,6 @@ import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-//import org.mineacademy.boss.api.BossAPI;
 import simplepets.brainsynder.api.plugin.SimplePets;
 
 public class NPCsHook {

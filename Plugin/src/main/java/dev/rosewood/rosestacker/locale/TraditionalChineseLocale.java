@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TraditionalChineseLocale implements Locale {
@@ -122,12 +121,12 @@ public class TraditionalChineseLocale implements Locale {
 
             this.put("#11", "方塊堆疊介面");
             this.put("gui-stacked-block-title", "正在編輯 %name% 的堆疊");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&e上一頁 (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&e下一頁 (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&c解除堆疊狀態", "&e解除堆疊狀態並掉落物品。"));
+            this.put("gui-stacked-block-page-back", List.of("&e上一頁 (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&e下一頁 (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&c解除堆疊狀態", "&e解除堆疊狀態並掉落物品。"));
             this.put("gui-stacked-block-destroy-title", "確定要解除堆疊狀態?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&a確定", "&e是，請解除堆疊狀態"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&c取消", "&e否，返回上一頁"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&a確定", "&e是，請解除堆疊狀態"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&c取消", "&e否，返回上一頁"));
 
             this.put("#12", "生怪磚堆疊介面");
             this.put("gui-stacked-spawner-title", "正在查看 %name%");

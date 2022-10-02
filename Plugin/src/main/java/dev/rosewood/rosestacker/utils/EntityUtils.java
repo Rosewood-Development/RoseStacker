@@ -3,11 +3,11 @@ package dev.rosewood.rosestacker.utils;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -47,7 +47,7 @@ public final class EntityUtils {
     public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation) {
         if (entity instanceof Lootable lootable) {
             if (lootable.getLootTable() == null)
-                return Collections.emptySet();
+                return Set.of();
 
             LootContext lootContext = new LootContext.Builder(lootedLocation)
                     .lootedEntity(entity)
@@ -57,7 +57,7 @@ public final class EntityUtils {
             return lootable.getLootTable().populateLoot(RANDOM, lootContext);
         }
 
-        return Collections.emptySet();
+        return Set.of();
     }
 
     /**

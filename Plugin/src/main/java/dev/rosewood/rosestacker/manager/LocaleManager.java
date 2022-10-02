@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class LocaleManager extends AbstractLocaleManager {
 
     @Override
     public List<Locale> getLocales() {
-        return Arrays.asList(
+        return List.of(
                 new DutchLocale(),
                 new EnglishLocale(),
                 new FilipinoLocale(),
@@ -105,7 +104,7 @@ public class LocaleManager extends AbstractLocaleManager {
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
         return this.locale.getStringList(messageKey).stream()
                 .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void fetchMinecraftTranslationLocales() {

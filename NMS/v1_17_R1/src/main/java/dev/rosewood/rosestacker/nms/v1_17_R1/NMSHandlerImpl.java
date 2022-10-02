@@ -8,18 +8,16 @@ import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SynchedEntityDataWrapper;
 import dev.rosewood.rosestacker.nms.v1_17_R1.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.spawner.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataEntry;
-import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -131,10 +129,11 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedEntityDataEntry<CompoundTag> getEntityAsNBT(LivingEntity livingEntity) {
-        CompoundTag nbt = new CompoundTag();
-        net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
-        nmsEntity.save(nbt);
-        return new NBTStackedEntityDataEntry(nbt);
+//        CompoundTag nbt = new CompoundTag();
+//        net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+//        nmsEntity.save(nbt);
+//        return new NBTStackedEntityDataEntry(nbt);
+        return null;
     }
 
     private void setTag(ListTag tag, int index, Tag value) {
@@ -366,7 +365,7 @@ public class NMSHandlerImpl implements NMSHandler {
                     public void tick() { }
                 });
             }
-            field_LivingEntity_brain.set(mob, new Brain(Collections.emptyList(), Collections.emptyList(), ImmutableList.of(), () -> Brain.codec(Collections.emptyList(), Collections.emptyList())) {
+            field_LivingEntity_brain.set(mob, new Brain(List.of(), List.of(), ImmutableList.of(), () -> Brain.codec(List.of(), List.of())) {
                 public Optional<?> getMemory(MemoryModuleType var0) { return Optional.empty(); }
             });
         } catch (ReflectiveOperationException ex) {
@@ -419,13 +418,15 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity) {
-        return new NBTStackedEntityDataStorage(livingEntity);
+    public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
+        //return new NBTStackedEntityDataStorage(livingEntity);
+        return null;
     }
 
     @Override
-    public StackedEntityDataStorage deserializeEntityDataStorage(byte[] data) {
-        return new NBTStackedEntityDataStorage(data);
+    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
+        //return new NBTStackedEntityDataStorage(data);
+        return null;
     }
 
     @Override

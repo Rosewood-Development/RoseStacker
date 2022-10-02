@@ -17,7 +17,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -191,7 +190,7 @@ public class DataManager extends AbstractDataManager {
 
     @Override
     public List<Class<? extends DataMigration>> getDataMigrations() {
-        return Arrays.asList(
+        return List.of(
                 _1_Create_Tables_Stacks.class,
                 _2_Create_Tables_Convert_Stacks.class,
                 _3_Create_Tables_Translation_Locales.class,

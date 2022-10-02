@@ -20,10 +20,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -73,8 +70,8 @@ public class StackedSpawnerGui {
                 .addButtonAt(13, GuiFactory.createButton())
                 .addButtonAt(15, GuiFactory.createButton());
 
-        List<Integer> fillerSlots = IntStream.range(0, GuiSize.ROWS_THREE.getNumSlots()).boxed().collect(Collectors.toList());
-        fillerSlots.removeAll(Arrays.asList(4, 7, 8, 9, 11, 13, 15, 17, 18, 19));
+        List<Integer> fillerSlots = new ArrayList<>(IntStream.range(0, GuiSize.ROWS_THREE.getNumSlots()).boxed().toList());
+        fillerSlots.removeAll(List.of(4, 7, 8, 9, 11, 13, 15, 17, 18, 19));
 
         Material filler = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_MATERIAL.getString());
         Material corner = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_CORNER_MATERIAL.getString());
@@ -98,13 +95,13 @@ public class StackedSpawnerGui {
         ItemStack cornerItem = fillerItem.clone();
         cornerItem.setType(corner);
 
-        for (int slot : Arrays.asList(8, 18))
+        for (int slot : List.of(8, 18))
             mainScreen.addItemStackAt(slot, cornerItem);
 
         ItemStack accentItem = fillerItem.clone();
         accentItem.setType(accent);
 
-        for (int slot : Arrays.asList(7, 9, 17, 19))
+        for (int slot : List.of(7, 9, 17, 19))
             mainScreen.addItemStackAt(slot, accentItem);
 
         ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(stackSettings.getEntityType())
@@ -164,7 +161,7 @@ public class StackedSpawnerGui {
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
                 .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getSpawnerTile().getDelay() + 1)))
-                .setLoreSupplier(() -> Collections.singletonList(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
+                .setLoreSupplier(() -> List.of(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
         ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
                 .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))
@@ -178,7 +175,7 @@ public class StackedSpawnerGui {
                 .setLoreSupplier(() -> {
                     List<Class<? extends ConditionTag>> invalidConditions = this.stackedSpawner.getLastInvalidConditions();
                     if (invalidConditions.isEmpty())
-                        return Collections.singletonList(this.getString("entities-can-spawn"));
+                        return List.of(this.getString("entities-can-spawn"));
 
                     List<GuiString> lore = new ArrayList<>();
                     lore.add(this.getString("conditions-preventing-spawns"));

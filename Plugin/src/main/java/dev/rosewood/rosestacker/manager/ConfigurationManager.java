@@ -5,15 +5,17 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 import org.bukkit.Material;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class ConfigurationManager extends AbstractConfigurationManager {
 
     public enum Setting implements RoseSetting {
-        DISABLED_WORLDS("disabled-worlds", Collections.singletonList("disabled_world_name"), "A list of worlds that the plugin is disabled in"),
+        DISABLED_WORLDS("disabled-worlds", List.of("disabled_world_name"), "A list of worlds that the plugin is disabled in"),
         STACK_FREQUENCY("stack-frequency", 100, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "If you are having issues with TPS, increase this value", "Values are in ticks, do not set lower than 1"),
         ITEM_STACK_FREQUENCY("item-stack-frequency", 20, "How often should we try to stack nearby items?", "Values are in ticks, do not set lower than 1"),
         NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 30, "How often should we update stacked entity nametags?"),
@@ -22,6 +24,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),
+        ENTITY_DATA_STORAGE_TYPE("global-entity-settings.data-storage-type", StackedEntityDataStorageType.NBT.name(), Stream.concat(Arrays.stream(new String[] { "What type of data storage should be used for stacked entities?", "Valid Values:" }), Arrays.stream(StackedEntityDataStorageType.values()).map(x -> "  " + x.name() + " - " + x.getDescription())).toArray(String[]::new)),
         ENTITY_INSTANT_STACK("global-entity-settings.instant-stack", true, "Should entities try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of entities being visible before stacking"),
         ENTITY_MIN_STACK_SIZE("global-entity-settings.min-stack-size", 2, "The minimum number of nearby entities required to form a stack", "Do not set this lower than 2"),
         ENTITY_MAX_STACK_SIZE("global-entity-settings.max-stack-size", 128, "The maximum number of entities that can be in a single stack"),
@@ -34,13 +37,13 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DISPLAY_TAGS_HOVER("global-entity-settings.display-tags-hover", false, "Do stacks need to be hovered over for their tags to be visible?"),
         ENTITY_DISPLAY_TAGS_CUSTOM_NAME("global-entity-settings.display-tags-custom-name", true, "Should the entity custom name be visible with the stack size?"),
         ENTITY_KILL_ENTIRE_STACK_ON_DEATH("global-entity-settings.kill-entire-stack-on-death", false, "Should the entire stack of entities always be killed when the main entity dies?"),
-        ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", Collections.singletonList("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
+        ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", List.of("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
         ENTITY_KILL_TRANSFER_FIRE("global-entity-settings.kill-transfer-fire", true, "Should fire be transferred to the next entity in the stack?"),
         ENTITY_KILL_DELAY_NEXT_SPAWN("global-entity-settings.kill-delay-next-spawn", false, "Should the next entity in the stack be delayed from spawning by one tick after the previous mob dies?", "Enabling this can prevent the newly spawned entity from taking the same damage as the previous one.", "May result in not being able to kill the entities as fast"),
         ENTITY_DISPLAY_CORPSE("global-entity-settings.display-corpse", true, "Should a corpse appear when a mob in the stack dies?", "This is the red death animation that appears when a mob dies"),
         ENTITY_CUMULATIVE_BREEDING("global-entity-settings.cumulative-breeding", true, "Should all animals in a stack be bred together with as much food as they can?", "Please note that this setting is not perfect, it is here to make breeding more simple for players", "For best baby animal support, set dont-stack-if-baby to true for each breedable entity type in entity_settings.yml"),
-        ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", Collections.singletonList(EntityDamageEvent.DamageCause.MAGIC.name()), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html", "Note: This setting is not recommended as it can be intensive for larger stack sizes"),
+        ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", List.of(EntityDamageEvent.DamageCause.MAGIC.name()), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html", "Note: This setting is not recommended as it can be intensive for larger stack sizes"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_ACCURATE_LOOT_OPTIONS("global-entity-settings.loot-approximation-options", null),
@@ -179,7 +182,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         STACK_TOOL_SETTINGS("stack-tool-settings", null, "Settings that apply to the item given from '/rs stacktool'"),
         STACK_TOOL_MATERIAL("stack-tool-settings.material", Material.STICK.name(), "The material of the stacking tool"),
         STACK_TOOL_NAME("stack-tool-settings.name", "<g:#ed3737:#ffaf3e>Stacking Tool", "The name to display on the stacking tool"),
-        STACK_TOOL_LORE("stack-tool-settings.lore", Arrays.asList(
+        STACK_TOOL_LORE("stack-tool-settings.lore", List.of(
                 "&bLeft Click:",
                 "&7- &eSelect two mobs to test if they can stack together.",
                 "&bShift Left Click:",

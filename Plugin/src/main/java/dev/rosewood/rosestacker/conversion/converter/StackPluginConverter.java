@@ -6,8 +6,8 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.conversion.ConverterType;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.stack.StackType;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
@@ -29,7 +29,7 @@ public abstract class StackPluginConverter {
         this.rosePlugin = rosePlugin;
         this.plugin = Bukkit.getPluginManager().getPlugin(pluginName);
         this.stackPlugin = stackPlugin;
-        this.converterTypes = new HashSet<>(Arrays.asList(converterTypes));
+        this.converterTypes = new HashSet<>(List.of(converterTypes));
     }
 
     /**

@@ -17,7 +17,6 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ageable;
@@ -92,7 +91,7 @@ public abstract class EntityStackSettings extends StackSettings {
         List<String> defaultSpawnRequirements = gson.fromJson(entityTypeDataObject.get("default_spawn_requirements").getAsJsonArray(), stringListType);
         String skullTexture = entityTypeDataObject.get("skull_texture").getAsString();
         List<String> breedingMaterialsStrings = gson.fromJson(entityTypeDataObject.get("breeding_materials").getAsJsonArray(), stringListType);
-        List<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toList());
+        List<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).toList();
         this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");

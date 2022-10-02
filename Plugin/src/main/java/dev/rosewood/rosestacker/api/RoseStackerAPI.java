@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -622,7 +621,7 @@ public final class RoseStackerAPI {
 
         return this.stackManager.getStackedEntities().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -637,7 +636,7 @@ public final class RoseStackerAPI {
 
         return this.stackManager.getStackedItems().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -652,7 +651,7 @@ public final class RoseStackerAPI {
 
         return this.stackManager.getStackedBlocks().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -667,7 +666,7 @@ public final class RoseStackerAPI {
 
         return this.stackManager.getStackedSpawners().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     //endregion

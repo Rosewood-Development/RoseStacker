@@ -8,19 +8,17 @@ import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.DataWatcherWrapper;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.spawner.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataEntry;
-import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -140,10 +138,11 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedEntityDataEntry<?> getEntityAsNBT(LivingEntity livingEntity) {
-        NBTTagCompound nbt = new NBTTagCompound();
-        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
-        nmsEntity.save(nbt);
-        return new NBTStackedEntityDataEntry(nbt);
+//        NBTTagCompound nbt = new NBTTagCompound();
+//        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+//        nmsEntity.save(nbt);
+//        return new NBTStackedEntityDataEntry(nbt);
+        return null;
     }
 
     private void setTag(NBTTagList tag, int index, NBTBase value) {
@@ -390,7 +389,7 @@ public class NMSHandlerImpl implements NMSHandler {
                     public void b() { }
                 });
             }
-            field_EntityLiving_behaviorController.set(insentient, new BehaviorController(Collections.emptyList(), Collections.emptyList(), ImmutableList.of(), () -> BehaviorController.b(Collections.emptyList(), Collections.emptyList())));
+            field_EntityLiving_behaviorController.set(insentient, new BehaviorController(List.of(), List.of(), ImmutableList.of(), () -> BehaviorController.b(List.of(), List.of())));
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
         }
@@ -441,13 +440,15 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity) {
-        return new NBTStackedEntityDataStorage(livingEntity);
+    public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
+        //return new NBTStackedEntityDataStorage(livingEntity);
+        return null;
     }
 
     @Override
-    public StackedEntityDataStorage deserializeEntityDataStorage(byte[] data) {
-        return new NBTStackedEntityDataStorage(data);
+    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
+        //return new NBTStackedEntityDataStorage(data);
+        return null;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.conversion.handler;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.conversion.ConversionData;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -67,7 +68,7 @@ public abstract class ConversionHandler {
      */
     protected StackedEntityDataStorage createEntityStackNBT(EntityType entityType, int amount, Location location) {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        StackedEntityDataStorage stackedEntityDataStorage = nmsHandler.createEntityDataStorage(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
+        StackedEntityDataStorage stackedEntityDataStorage = nmsHandler.createEntityDataStorage(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM), RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType());
         for (int i = 0; i < amount - 1; i++)
             stackedEntityDataStorage.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
 

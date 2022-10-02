@@ -31,7 +31,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -131,7 +130,7 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     protected List<Class<? extends Manager>> getManagerLoadPriority() {
-        return Arrays.asList(
+        return List.of(
                 HologramManager.class,
                 StackSettingManager.class,
                 DataManager.class,

@@ -12,7 +12,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
@@ -23,7 +22,6 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
 
     private LivingEntity entity;
-    private StackedEntityDataStorage serializedStackedEntities;
+    private StackedEntityDataStorage stackedEntityDataStorage;
     private int npcCheckCounter;
 
     private String displayName;
@@ -59,9 +57,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(LivingEntity entity, StackedEntityDataStorage serializedStackedEntities) {
+    public StackedEntity(LivingEntity entity, StackedEntityDataStorage stackedEntityDataStorage) {
         this.entity = entity;
-        this.serializedStackedEntities = serializedStackedEntities;
+        this.stackedEntityDataStorage = stackedEntityDataStorage;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
 
         this.displayName = null;
@@ -74,7 +72,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public StackedEntity(LivingEntity entity) {
-        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity));
+        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
     }
 
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
@@ -99,6 +97,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
 
         this.entity = entity;
+        this.stackedEntityDataStorage.updateEntity(entity);
         this.updateDisplay();
     }
 
@@ -109,9 +108,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
             if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-                this.serializedStackedEntities.addLast(entity);
+                this.stackedEntityDataStorage.addLast(entity);
             } else {
-                this.serializedStackedEntities.addFirst(entity);
+                this.stackedEntityDataStorage.addFirst(entity);
             }
 
             if (updateDisplay)
@@ -130,9 +129,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-            this.serializedStackedEntities.addAllLast(serializedStackedEntities.getAll());
+            this.stackedEntityDataStorage.addAllLast(serializedStackedEntities.getAll());
         } else {
-            this.serializedStackedEntities.addAllFirst(serializedStackedEntities.getAll());
+            this.stackedEntityDataStorage.addAllFirst(serializedStackedEntities.getAll());
         }
         this.updateDisplay();
     }
@@ -143,51 +142,70 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @return The new StackedEntity of size 1 that was just created
      */
     public StackedEntity decreaseStackSize() {
-        if (this.serializedStackedEntities.isEmpty())
+        if (this.stackedEntityDataStorage.isEmpty())
             throw new IllegalStateException();
 
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
         LivingEntity oldEntity = this.entity;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.serializedStackedEntities.pop(), oldEntity.getLocation(), true, oldEntity.getType());
+        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.stackedEntityDataStorage.pop(), oldEntity.getLocation(), true, oldEntity.getType());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
 
         // Attempt to prevent adult entities from going into walls when a baby entity gets unstacked
-        if (oldEntity instanceof Ageable) {
-            Ageable ageable1 = (Ageable) oldEntity;
-            Ageable ageable2 = (Ageable) this.entity;
-            if (!ageable1.isAdult() && ageable2.isAdult()) {
-                Location centered = ageable1.getLocation();
-                centered.setX(centered.getBlockX() + 0.5);
-                centered.setZ(centered.getBlockZ() + 0.5);
-                ageable2.teleport(centered);
-            }
+        if (oldEntity instanceof Ageable ageable1 && this.entity instanceof Ageable ageable2 && !ageable1.isAdult() && ageable2.isAdult()) {
+            Location centered = ageable1.getLocation();
+            centered.setX(centered.getBlockX() + 0.5);
+            centered.setZ(centered.getBlockZ() + 0.5);
+            ageable2.teleport(centered);
         }
 
+        this.stackedEntityDataStorage.updateEntity(this.entity);
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
         DataUtils.clearStackedEntityData(oldEntity);
-        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createEntityDataStorage(oldEntity));
-    }
-
-    public StackedEntityDataStorage getStackedEntityNBT() {
-        return this.serializedStackedEntities;
+        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createEntityDataStorage(oldEntity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
     }
 
     /**
-     * Warning! This should not be used outside of the plugin.
-     * This method overwrites the serialized nbt and NOTHING ELSE.
+     * @deprecated Use {@link #getDataStorage()} instead
+     */
+    @Deprecated(forRemoval = true)
+    public StackedEntityDataStorage getStackedEntityNBT() {
+        return this.getDataStorage();
+    }
+
+    public StackedEntityDataStorage getDataStorage() {
+        return this.stackedEntityDataStorage;
+    }
+
+    /**
+     * Warning! This method should not be used outside this plugin.
+     * This method overwrites the data storage and NOTHING ELSE.
      * If the stack size were to change, there would be no way of detecting it, you have been warned!
      *
-     * @param serializedStackedEntities The nbt to overwrite with
+     * @param stackedEntityDataStorage The data storage to overwrite with
+     * @deprecated Use {@link #setDataStorage(StackedEntityDataStorage)} instead
      */
-    public void setStackedEntityNBT(StackedEntityDataStorage serializedStackedEntities) {
-        this.serializedStackedEntities = serializedStackedEntities;
+    @Deprecated(forRemoval = true)
+    public void setStackedEntityNBT(StackedEntityDataStorage stackedEntityDataStorage) {
+        this.setDataStorage(stackedEntityDataStorage);
+    }
+
+    /**
+     * Warning! This method should not be used outside this plugin.
+     * This method overwrites the data storage and NOTHING ELSE.
+     * If the stack size were to change, there would be no way of detecting it, you have been warned!
+     *
+     * @param stackedEntityDataStorage The data storage to overwrite with
+     */
+    public void setDataStorage(StackedEntityDataStorage stackedEntityDataStorage) {
+        stackedEntityDataStorage.updateEntity(this.entity);
+        this.stackedEntityDataStorage = stackedEntityDataStorage;
         this.updateDisplay();
     }
 
@@ -199,30 +217,16 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
-        // Cache the current entity just in case it somehow changes while we are processing the loot
-        LivingEntity thisEntity = this.entity;
-
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
 
             int threshold = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_THRESHOLD.getInt();
             int approximationAmount = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_AMOUNT.getInt();
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
             if (Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
-                for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getTop(approximationAmount)) {
-                    LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
-                    if (entity == null)
-                        continue;
-                    internalEntities.add(entity);
-                }
+                this.stackedEntityDataStorage.forEachCapped(approximationAmount, internalEntities::add);
                 this.dropPartialStackLoot(internalEntities, this.getStackSize() / (double) approximationAmount, existingLoot, droppedExp);
             } else {
-                for (StackedEntityDataEntry<?> entityNBT : this.serializedStackedEntities.getAll()) {
-                    LivingEntity entity = nmsHandler.createEntityFromNBT(entityNBT, thisEntity.getLocation(), false, thisEntity.getType());
-                    if (entity == null)
-                        continue;
-                    internalEntities.add(entity);
-                }
+                this.stackedEntityDataStorage.forEach(internalEntities::add);
                 this.dropPartialStackLoot(internalEntities, 1, existingLoot, droppedExp);
             }
         });
@@ -291,7 +295,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 boolean isBaby = isAnimal && !((Animals) entity).isAdult();
                 int desiredExp = isBaby ? 0 : droppedExp;
                 for (int i = 0; i < iterations; i++) {
-                    Collection<ItemStack> entityLoot = isBaby ? Collections.emptyList() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
+                    Collection<ItemStack> entityLoot = isBaby ? List.of() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
                     if (callEvents) {
                         EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
                         Bukkit.getPluginManager().callEvent(deathEvent);
@@ -364,7 +368,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @return true if this entity should stay stacked, otherwise false
      */
     public boolean shouldStayStacked() {
-        if (this.entity == null || this.serializedStackedEntities.isEmpty())
+        if (this.entity == null || this.stackedEntityDataStorage.isEmpty())
             return true;
 
         // Ender dragons call an EnderDragonChangePhaseEvent upon entity construction
@@ -373,14 +377,14 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return true;
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        LivingEntity entity = nmsHandler.createEntityFromNBT(this.serializedStackedEntities.peek(), this.entity.getLocation(), false, this.entity.getType());
-        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity));
+        LivingEntity entity = nmsHandler.createEntityFromNBT(this.stackedEntityDataStorage.peek(), this.entity.getLocation(), false, this.entity.getType());
+        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 
     @Override
     public int getStackSize() {
-        return this.serializedStackedEntities.size() + 1;
+        return this.stackedEntityDataStorage.size() + 1;
     }
 
     @Override

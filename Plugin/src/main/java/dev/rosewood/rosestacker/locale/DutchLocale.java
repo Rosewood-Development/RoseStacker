@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DutchLocale implements Locale {
@@ -121,12 +120,12 @@ public class DutchLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Wijzigen van %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&eVorige pagina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eVolgende pagina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cStack slopen", "&eDit sloopt de stack en laat de items vallen"));
+            this.put("gui-stacked-block-page-back", List.of("&eVorige pagina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eVolgende pagina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cStack slopen", "&eDit sloopt de stack en laat de items vallen"));
             this.put("gui-stacked-block-destroy-title", "Block stack slopen?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aBevestigen", "&eJaa, sloop de stack"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cAnnuleer", "&eNee, keer terug naar het vorige scherm"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aBevestigen", "&eJaa, sloop de stack"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cAnnuleer", "&eNee, keer terug naar het vorige scherm"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Bekijken van %name%");

@@ -43,7 +43,7 @@ public class ItemSpawningMethod implements SpawningMethod {
         List<ConditionTag> spawnRequirements = new ArrayList<>();
 
         // Check general spawner conditions // TODO
-        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
+        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).toList();
         spawnRequirements.removeAll(perSpawnConditions);
 
         Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());

@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HungarianLocale implements Locale {
@@ -122,12 +121,12 @@ public class HungarianLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "%name% Stack Szerkesztése");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&eElőző Oldal (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eKövetkező Oldal (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cStack Törlése", "&eTörli a stacket és kidobja a tárgyakat"));
+            this.put("gui-stacked-block-page-back", List.of("&eElőző Oldal (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eKövetkező Oldal (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cStack Törlése", "&eTörli a stacket és kidobja a tárgyakat"));
             this.put("gui-stacked-block-destroy-title", "Blokk Stack Törlése?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aElfogad", "&eIgen, törlöm a stacket"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cMégse", "&eNem, vissza az előző képernyőre"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aElfogad", "&eIgen, törlöm a stacket"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cMégse", "&eNem, vissza az előző képernyőre"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "%name% Átnézés");

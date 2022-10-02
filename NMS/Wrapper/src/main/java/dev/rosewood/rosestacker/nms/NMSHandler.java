@@ -4,6 +4,7 @@ import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Creeper;
@@ -40,6 +41,7 @@ public interface NMSHandler {
      * @param entityType entity type to create and apply the serialized nbt over
      * @return the entity spawned from the NBT
      */
+    @Deprecated
     LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**
@@ -192,17 +194,20 @@ public interface NMSHandler {
      * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint
      *
      * @param livingEntity The base entity
+     * @param storageType The type of storage to create
      * @return a new StackedEntityDataStorage instance
      */
-    StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity);
+    StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType);
 
     /**
      * Creates a new StackedEntityDataStorage instance from existing serialized data
      *
+     * @param livingEntity The base entity
      * @param data The StackedEntityDataStorage data, should be acquired from {@link StackedEntityDataStorage#serialize()}
+     * @param storageType The type of storage to deserialize
      * @return a new StackedEntityDataStorage instance
      */
-    StackedEntityDataStorage deserializeEntityDataStorage(byte[] data);
+    StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType);
 
     /**
      * Injects the custom stacked spawner logic into the tile entity of the given spawner

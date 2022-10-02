@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FilipinoLocale implements Locale {
@@ -122,12 +121,12 @@ public class FilipinoLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "pag-edit ng %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&eNakaraang pahina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eSusunod na pahina (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cWasakin ang Stack", "&eWinawasak ang stack at nahuhulog ang mga item"));
+            this.put("gui-stacked-block-page-back", List.of("&eNakaraang pahina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eSusunod na pahina (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cWasakin ang Stack", "&eWinawasak ang stack at nahuhulog ang mga item"));
             this.put("gui-stacked-block-destroy-title", "Wasakin ang Block Stack?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aKumpirmahin", "&eOo, sirain ang stack"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cKanselahin", "&eHindi, bumalik sa nakaraang screen"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aKumpirmahin", "&eOo, sirain ang stack"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cKanselahin", "&eHindi, bumalik sa nakaraang screen"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Pagtingin %name%");
