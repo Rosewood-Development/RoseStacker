@@ -23,7 +23,10 @@ import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -48,6 +51,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityCombustByBlockEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -70,6 +74,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
+
+    private static final Set<SpawnReason> DELAYED_SPAWN_REASONS = EnumSet.of(
+            SpawnReason.BEEHIVE,
+            SpawnReason.BUILD_IRONGOLEM,
+            SpawnReason.BUILD_SNOWMAN,
+            SpawnReason.BUILD_WITHER
+    );
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
@@ -116,8 +127,8 @@ public class EntityListener implements Listener {
             PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
             this.entityCacheManager.preCacheEntity(entity);
 
-            // Try to immediately stack everything except bees from hives due to them duplicating
-            this.stackManager.createEntityStack(entity, !event.getSpawnReason().name().equals("BEEHIVE"));
+            // Try to immediately stack everything except bees from hives and built entities due to them duplicating
+            this.stackManager.createEntityStack(entity, !DELAYED_SPAWN_REASONS.contains(event.getSpawnReason()));
 
             PersistentDataUtils.applyDisabledAi(entity);
         };

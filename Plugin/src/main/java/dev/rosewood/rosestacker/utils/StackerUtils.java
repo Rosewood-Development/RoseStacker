@@ -181,7 +181,7 @@ public final class StackerUtils {
             return true;
 
         return switch (material) {
-            case CHEST, ENDER_CHEST, TRAPPED_CHEST, GLASS, GLASS_PANE -> true;
+            case CHEST, ENDER_CHEST, TRAPPED_CHEST, GLASS, GLASS_PANE, ICE -> true;
             default -> material.isOccluding();
         };
     }
