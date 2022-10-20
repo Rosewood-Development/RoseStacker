@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -109,8 +110,9 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
             count = this.data.size();
 
         List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(count);
+        Iterator<CompoundTag> iterator = this.data.iterator();
         for (int i = 0; i < count; i++)
-            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.get(i))));
+            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(iterator.next())));
         return wrapped;
     }
 
@@ -121,8 +123,9 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
 
             int targetAmount = Math.min(maxAmount, this.data.size());
             List<CompoundTag> tagsToSave = new ArrayList<>(targetAmount);
+            Iterator<CompoundTag> iterator = this.data.iterator();
             for (int i = 0; i < targetAmount; i++)
-                tagsToSave.add(this.data.get(i));
+                tagsToSave.add(iterator.next());
 
             NbtIo.write(this.base, dataOutput);
             dataOutput.writeInt(tagsToSave.size());
