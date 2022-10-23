@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -111,8 +112,9 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
             int targetAmount = Math.min(maxAmount, this.data.size());
             List<CompoundTag> tagsToSave = new ArrayList<>(targetAmount);
+            Iterator<CompoundTag> iterator = this.data.iterator();
             for (int i = 0; i < targetAmount; i++)
-                tagsToSave.add(this.data.get(i));
+                tagsToSave.add(iterator.next());
 
             NbtIo.write(this.base, dataOutput);
             dataOutput.writeInt(tagsToSave.size());
@@ -141,8 +143,9 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         if (thisEntity == null)
             return;
 
+        Iterator<CompoundTag> iterator = this.data.iterator();
         for (int i = 0; i < count; i++) {
-            CompoundTag compoundTag = this.data.get(i);
+            CompoundTag compoundTag = iterator.next();
             LivingEntity entity = nmsHandler.createEntityFromNBT(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)), thisEntity.getLocation(), false, thisEntity.getType());
             consumer.accept(entity);
         }
