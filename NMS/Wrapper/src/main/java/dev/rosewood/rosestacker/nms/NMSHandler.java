@@ -29,7 +29,7 @@ public interface NMSHandler {
      * @return base64 string of the entity
      * @deprecated To be changed to transformEntityType(LivingEntity, EntityType)
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     StackedEntityDataEntry<?> getEntityAsNBT(LivingEntity livingEntity);
 
     /**
@@ -41,7 +41,7 @@ public interface NMSHandler {
      * @param entityType entity type to create and apply the serialized nbt over
      * @return the entity spawned from the NBT
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**

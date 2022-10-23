@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public enum StackedEntityDataStorageType {
 
-    NBT(0, "Store all NBT data for internal entities"),
-    SIMPLE(1, "Store only the stack size and clone the main entity");
+    NBT(0, "Store all NBT data for internal entities, memory and performance intensive but highly accurate"),
+    SIMPLE(1, "Store only the stack size and clone the main entity, memory efficient and extremely fast but less accurate");
 
     private final int id;
     private final String description;
