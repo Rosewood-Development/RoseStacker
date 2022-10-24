@@ -37,6 +37,13 @@ public class EnglishLocale implements Locale {
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display-single", "&7%name%");
 
+            this.put("#1.1", "Hologram Display Tags");
+            this.put("#1.2", "Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%");
+            this.put("#1.3", "Multiple lines are supported");
+            this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-single", List.of("&7%name%"));
+
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
             this.put("base-command-help", "&eUse &b/rs help &efor command information.");
@@ -190,7 +197,7 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "Must be placed by a player");
 
             this.put("#14", "Given Stack Item Lore");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());

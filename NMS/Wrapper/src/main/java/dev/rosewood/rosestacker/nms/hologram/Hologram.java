@@ -1,24 +1,34 @@
 package dev.rosewood.rosestacker.nms.hologram;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public abstract class Hologram {
 
-    protected final int entityId;
+    private static final double LINE_OFFSET = 0.3;
+
+    protected final List<HologramLine> hologramLines;
     protected final Map<Player, Boolean> watchers;
     protected final Location location;
-    protected String text;
 
-    public Hologram(int entityId, Location location, String text) {
-        this.entityId = entityId;
+    public Hologram(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
         this.location = location;
-        this.text = text;
         this.watchers = Collections.synchronizedMap(new WeakHashMap<>());
+        this.hologramLines = new ArrayList<>();
+        for (int i = 0; i < text.size(); i++) {
+            double offset = (text.size() - i - 1) * LINE_OFFSET;
+            Location lineLocation = location.clone().add(0, offset, 0);
+            this.hologramLines.add(new HologramLine(entityIdSupplier.get(), lineLocation, text.get(i)));
+        }
     }
 
     /**
@@ -31,7 +41,7 @@ public abstract class Hologram {
         if (!this.watchers.containsKey(player)) {
             this.watchers.put(player, visible);
             this.create(player);
-            this.update(player);
+            this.update(List.of(player), true);
         }
     }
 
@@ -80,8 +90,8 @@ public abstract class Hologram {
     /**
      * @return the text of this hologram
      */
-    public String getText() {
-        return this.text;
+    public List<String> getText() {
+        return this.hologramLines.stream().map(HologramLine::getText).collect(Collectors.toList());
     }
 
     /**
@@ -97,7 +107,7 @@ public abstract class Hologram {
 
         if (alreadyVisible ^ visible) {
             this.watchers.put(player, visible);
-            this.update(player);
+            this.update(List.of(player), true);
         }
     }
 
@@ -113,10 +123,16 @@ public abstract class Hologram {
      * Sets the hologram text and updates it to all watchers
      *
      * @param text The text to set
+     * @throws IllegalArgumentException if the text is a different length than the existing text
      */
-    public void setText(String text) {
-        this.text = text;
-        this.watchers.keySet().forEach(this::update);
+    public void setText(List<String> text) {
+        if (text.size() != this.hologramLines.size())
+            throw new IllegalArgumentException("Text must be the same length as the existing text");
+
+        for (int i = 0; i < text.size(); i++)
+            this.hologramLines.get(i).setText(text.get(i));
+
+        this.update(this.watchers.keySet(), false);
     }
 
     /**
@@ -127,11 +143,12 @@ public abstract class Hologram {
     protected abstract void create(Player player);
 
     /**
-     * Sends the metadata packet for this hologram to the specified player
+     * Sends the metadata packet for this hologram to the specified players if the line needs to be updated
      *
-     * @param player The player to send the packet to
+     * @param players The players to send the packet to
+     * @param force true to force the packet to be sent, false otherwise
      */
-    protected abstract void update(Player player);
+    protected abstract void update(Collection<Player> players, boolean force);
 
     /**
      * Deletes the hologram entity for the given player

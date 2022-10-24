@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -80,31 +81,22 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     /**
-     * Gets a gui locale message with the given placeholders applied
-     *
-     * @param messageKey The key of the message to get
-     * @param stringPlaceholders The placeholders to apply
-     * @return The locale message with the given placeholders applied
-     */
-    public List<String> getGuiLocaleMessage(String messageKey, StringPlaceholders stringPlaceholders) {
-        List<String> message = this.locale.getStringList(messageKey);
-        if (message.isEmpty())
-            message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
-        message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
-        return message;
-    }
-
-    /**
-     * Gets a list of locale messages with the given placeholders applied, will return an empty list for no messages
+     * Gets a list or single locale message with the given placeholders applied, will return an empty list for no messages
      *
      * @param messageKey The key of the message to get
      * @param stringPlaceholders The placeholders to apply
      * @return The locale message with the given placeholders applied
      */
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
-        return this.locale.getStringList(messageKey).stream()
-                .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
-                .toList();
+        if (this.locale.isList(messageKey)) {
+            List<String> message = this.locale.getStringList(messageKey);
+            if (message.isEmpty())
+                message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
+            message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
+            return message;
+        } else {
+            return new ArrayList<>(Collections.singletonList(this.getLocaleMessage(messageKey, stringPlaceholders)));
+        }
     }
 
     public void fetchMinecraftTranslationLocales() {

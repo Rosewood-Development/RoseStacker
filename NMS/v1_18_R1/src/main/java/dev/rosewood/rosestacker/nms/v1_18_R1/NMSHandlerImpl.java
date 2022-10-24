@@ -451,8 +451,8 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public Hologram createHologram(Location location, String text) {
-        return new HologramImpl(entityCounter.incrementAndGet(), location, text);
+    public Hologram createHologram(Location location, List<String> text) {
+        return new HologramImpl(text, location, entityCounter::getAndIncrement);
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {

@@ -76,7 +76,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final HologramManager hologramManager;
     private final World targetWorld;
 
-    private final BukkitTask entityStackTask, itemStackTask, nametagTask;
+    private final BukkitTask entityStackTask, itemStackTask, nametagTask, hologramTask;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -100,6 +100,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.entityStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackEntities, 5L, entityStackDelay);
         this.itemStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackItems, 5L, Setting.ITEM_STACK_FREQUENCY.getLong());
         this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
+        this.hologramTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateHolograms, 5L, Setting.HOLOGRAM_UPDATE_FREQUENCY.getLong());
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
@@ -297,6 +298,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
     }
 
+    private void updateHolograms() {
+        this.stackChunkData.values().stream().flatMap(x -> x.getSpawners().values().stream()).forEach(StackedSpawner::updateDisplay);
+    }
+
     @Override
     public void close() {
         // Cancel tasks
@@ -308,6 +313,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.nametagTask != null)
             this.nametagTask.cancel();
+
+        if (this.hologramTask != null)
+            this.hologramTask.cancel();
     }
 
     @Override

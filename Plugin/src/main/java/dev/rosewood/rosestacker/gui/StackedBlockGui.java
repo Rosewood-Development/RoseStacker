@@ -100,11 +100,11 @@ public class StackedBlockGui {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         BlockStackSettings stackSettings = this.stackedBlock.getStackSettings();
 
-        GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-back", StringPlaceholders.empty()));
-        GuiStringHelper destroyString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy", StringPlaceholders.empty()));
-        GuiStringHelper pageForwardString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-forward", StringPlaceholders.empty()));
-        GuiStringHelper confirmDestroyString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy-confirm", StringPlaceholders.empty()));
-        GuiStringHelper confirmCancelString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy-cancel", StringPlaceholders.empty()));
+        GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-page-back", StringPlaceholders.empty()));
+        GuiStringHelper destroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy", StringPlaceholders.empty()));
+        GuiStringHelper pageForwardString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-page-forward", StringPlaceholders.empty()));
+        GuiStringHelper confirmDestroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-confirm", StringPlaceholders.empty()));
+        GuiStringHelper confirmCancelString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-cancel", StringPlaceholders.empty()));
 
         List<ItemStack> stackItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
         int pages = (int) Math.ceil((double) stackItems.size() / paginatedSlots.size()) + 1;

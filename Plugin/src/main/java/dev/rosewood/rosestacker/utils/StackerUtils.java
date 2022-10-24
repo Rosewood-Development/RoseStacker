@@ -199,8 +199,26 @@ public final class StackerUtils {
         };
     }
 
-    public static String formatNumber(long points) {
-        return formatter.format(points);
+    /**
+     * Formats a number to a string with a number grouping separator
+     *
+     * @param value The numerical value to format
+     * @return The formatted string
+     */
+    public static String formatNumber(long value) {
+        return formatter.format(value);
+    }
+
+    public static String formatTicksAsTime(long value) {
+        long seconds = value / 20;
+        long minutes = seconds / 60;
+
+        if (minutes > 0) {
+            seconds -= minutes * 60;
+            return String.format("%dm %ds", minutes, seconds);
+        } else {
+            return String.format("%ds", seconds);
+        }
     }
 
     /**

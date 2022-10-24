@@ -190,7 +190,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "必须由玩家放置");
 
             this.put("#14", "给予物品描述(lore)");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());

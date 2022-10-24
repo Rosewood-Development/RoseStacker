@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Creeper;
@@ -224,7 +225,7 @@ public interface NMSHandler {
      * @param text The text to display on the hologram
      * @return The hologram created
      */
-    Hologram createHologram(Location location, String text);
+    Hologram createHologram(Location location, List<String> text);
 
     /**
      * 1.19 uses a new RandomSource system which causes a server crash when accessed async.
