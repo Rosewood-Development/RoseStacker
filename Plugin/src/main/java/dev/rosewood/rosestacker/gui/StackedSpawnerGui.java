@@ -160,7 +160,7 @@ public class StackedSpawnerGui {
                 }));
         mainScreen.addButtonAt(13, GuiFactory.createButton()
                 .setIcon(spawner)
-                .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", this.stackedSpawner.getSpawnerTile().getDelay() + 1)))
+                .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.single("time", StackerUtils.formatNumber(this.stackedSpawner.getSpawnerTile().getDelay() + 1))))
                 .setLoreSupplier(() -> List.of(this.getString("total-spawns", StringPlaceholders.single("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
         ));
         mainScreen.addButtonAt(15, GuiFactory.createButton()
