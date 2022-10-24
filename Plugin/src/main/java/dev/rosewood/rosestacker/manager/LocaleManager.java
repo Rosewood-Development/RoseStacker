@@ -63,29 +63,11 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     /**
-     * @return a map of acf-core messages and their values
-     */
-    public Map<String, String> getAcfCoreMessages() {
-        return this.locale.getKeys(false).stream()
-                .filter(x -> x.startsWith("acf-core"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-core-", "").replaceAll("-", "_"), this.locale::getString));
-    }
-
-    /**
-     * @return a map of acf-core minecraft messages and their values
-     */
-    public Map<String, String> getAcfMinecraftMessages() {
-        return this.locale.getKeys(false).stream()
-                .filter(x -> x.startsWith("acf-minecraft"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-minecraft-", "").replaceAll("-", "_"), this.locale::getString));
-    }
-
-    /**
      * Gets a list or single locale message with the given placeholders applied, will return an empty list for no messages
      *
      * @param messageKey The key of the message to get
      * @param stringPlaceholders The placeholders to apply
-     * @return The locale message with the given placeholders applied
+     * @return The locale messages with the given placeholders applied
      */
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
         if (this.locale.isList(messageKey)) {

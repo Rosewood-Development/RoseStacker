@@ -50,7 +50,7 @@ public class RoseStacker extends RosePlugin {
     }
 
     public RoseStacker() {
-        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, null);
+        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, CommandManager.class);
 
         instance = this;
     }

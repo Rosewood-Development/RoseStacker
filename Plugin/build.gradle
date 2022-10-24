@@ -54,7 +54,6 @@ dependencies {
     // Dependencies that will be shaded into the jar
     api 'dev.rosewood:rosegarden:1.1.0.42-SNAPSHOT'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
-    api 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
 }
 
 processResources {

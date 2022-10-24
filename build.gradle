@@ -20,7 +20,6 @@ allprojects {
         maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://repo.md-5.net/content/repositories/public/' }
         maven { url = 'https://repo.codemc.org/repository/maven-public' }
-        maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
@@ -63,10 +62,6 @@ shadowJar {
 
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
     relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
-    relocate('co.aikar.commands', 'dev.rosewood.rosestacker.lib.acf.commands')
-    relocate('co.aikar.locales', 'dev.rosewood.rosestacker.lib.acf.locales')
-
-    exclude 'acf-*.properties'
 }
 
 build.dependsOn shadowJar
