@@ -8,7 +8,6 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosegarden.manager.AbstractLocaleManager;
 import dev.rosewood.rosegarden.utils.HexUtils;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.locale.DutchLocale;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
@@ -33,7 +32,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -72,8 +70,6 @@ public class LocaleManager extends AbstractLocaleManager {
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
         if (this.locale.isList(messageKey)) {
             List<String> message = this.locale.getStringList(messageKey);
-            if (message.isEmpty())
-                message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
             message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
             return message;
         } else {
@@ -83,15 +79,9 @@ public class LocaleManager extends AbstractLocaleManager {
 
     public void fetchMinecraftTranslationLocales() {
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            String version;
-            if (NMSUtil.getVersionNumber() >= 16) {
-                version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
-            } else {
-                version = "1.15.2";
-            }
-
             DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
+            String version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
             List<String> locales = dataManager.getTranslationLocales(version);
             if (!locales.isEmpty()) {
                 this.translationLocales = locales;

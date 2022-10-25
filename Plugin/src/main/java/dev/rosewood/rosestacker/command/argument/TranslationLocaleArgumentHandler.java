@@ -6,12 +6,8 @@ import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.command.type.TranslationLocale;
-import dev.rosewood.rosestacker.conversion.StackPlugin;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TranslationLocaleArgumentHandler extends RoseCommandArgumentHandler<TranslationLocale> {
 

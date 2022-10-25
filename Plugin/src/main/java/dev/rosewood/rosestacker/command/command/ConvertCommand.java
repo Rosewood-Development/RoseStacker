@@ -9,7 +9,6 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import java.util.List;
 
 public class ConvertCommand extends RoseCommand {
 

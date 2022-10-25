@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.command.type;
 
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class StackedSpawnerType {

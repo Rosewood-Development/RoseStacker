@@ -46,18 +46,19 @@ public class GermanLocale implements Locale {
 
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
-            this.put("base-command-help", "&eNutze &b/rs help &efür Befehl-Informationen.");
+            this.put("base-command-help", "&eNutze &b/%cmd% help &efür Befehl-Informationen.");
 
             this.put("#3", "Help Command");
-            this.put("command-help-description", "&8 - &d/rs help &7- Zeigt das Hilfe-Menü an... du bist angekommen!");
+            this.put("command-help-description", "Zeigt das Hilfe-Menü an... du bist angekommen!");
             this.put("command-help-title", "&eVerfügbare Befehle:");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
 
             this.put("#4", "Reload Command");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- Läd das Plugin neu");
+            this.put("command-reload-description", "Läd das Plugin neu");
             this.put("command-reload-reloaded", "&ePlugin Daten, Konfiguration, und Sprachdateien wurden neugeladen.");
 
             this.put("#5", "Give Command");
-            this.put("command-give-description", "&8 - &d/rs give &7- Gibt vor-gestackte Gegenstände");
+            this.put("command-give-description", "Gibt vor-gestackte Gegenstände");
             this.put("command-give-usage", "&cNutzen: &e/rs give <block|spawner|entity> <Spieler> <typ> [stackGröße] [anzahl]");
             this.put("command-give-given", "&eHat &b%player% &e[%display%&e] gegeben.");
             this.put("command-give-given-multiple", "&eHat &b%player% &e%amount%x [%display%&e] gegeben.");
@@ -65,13 +66,13 @@ public class GermanLocale implements Locale {
             this.put("command-give-too-large", "&cDie anzahl die du angegeben hast überschreitet die Maximale Stack Anzahl für diesen Typen.");
 
             this.put("#6", "Clearall Command");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- Entfernt alle von einem Stacktypen");
+            this.put("command-clearall-description", "Entfernt alle von einem Stacktypen");
             this.put("command-clearall-killed-entities", "&b%amount% &eEntity stacks wurden entfernt.");
             this.put("command-clearall-killed-items", "&b%amount% &eGegenstand stacks wurden entfernt.");
             this.put("command-clearall-killed-all", "&b%entityAmount% &eEntity stacks und &b%itemAmount% &eItem Stacks wurden entfernt.");
 
             this.put("#7", "Stats Command");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- Zeige Statistiken über das Plugin an");
+            this.put("command-stats-description", "Zeige Statistiken über das Plugin an");
             this.put("command-stats-header", "&aZurzeitige Plugin Statistiken:");
             this.put("command-stats-threads", "&b%amount% &eAktive Stacking Threads.");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &eGeladene Entity stacks, insgesamt &b%total% &eEntities.");
@@ -80,13 +81,13 @@ public class GermanLocale implements Locale {
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eGeladene Spawner-Stacks, insgesamt &b%total% &eSpawner.");
 
             this.put("#8", "Convert Command");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- Daten von anderem Plugin Konvertieren");
+            this.put("command-convert-description", "Daten von anderem Plugin Konvertieren");
             this.put("command-convert-converted", "&eDaten von &b%plugin% &ezu RoseStacker Konvertiert. Das Konvertierte Plugin wurde Deaktiviert. Stelle sicher das Konvertierte Plugin vom Plugins Ordner zu Entfernen.");
             this.put("command-convert-failed", "&cFehler beim Konvertieren von &b%plugin%&c, Plugin ist nicht aktiv.");
             this.put("command-convert-aborted", "&cKonvertierung des Plugins &b%plugin%&c abgebrochen. Du hast schon von einem anderen Stack-Plugin Konvertiert.");
 
             this.put("#9", "Translate Command");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- Übersetzt die Stack-Namen");
+            this.put("command-translate-description", "Übersetzt die Stack-Namen");
             this.put("command-translate-loading", "&eHerunterladen und anwenden der Übersetzungs-Daten, dies kann einen Moment dauern.");
             this.put("command-translate-failure", "&cNicht im Stande die Stack-Namen zu Übersetzen. Es gab ein problem deine Daten zu erhalten. Bitte versuche es später erneut.");
             this.put("command-translate-invalid-locale", "&cUnable to translate the stack names. The locale that du specified is invalid.");
@@ -96,9 +97,10 @@ public class GermanLocale implements Locale {
             this.put("command-translate-success", "&aErfolgreich Stack-Namen Übersetzt");
 
             this.put("#10", "Stacking Tool Command");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Gibt einem Spieler das Stacktool");
+            this.put("command-stacktool-description", "Gibt einem Spieler das Stacktool");
             this.put("command-stacktool-given", "&eDir wurde das Stacktool gegeben.");
             this.put("command-stacktool-given-other", "&b%player% &aHat das Stacktool erhalten.");
+            this.put("command-stacktool-no-console", "&cDu kannst der Konsole kein Stacking-Tool geben.");
             this.put("command-stacktool-no-permission", "&cDu hast nicht die Berechtigungen das Stacktool zu nutzen.");
             this.put("command-stacktool-invalid-entity", "&cEntity gehört keinem Stack an, ist es ein Benutzerdefiniertes Mob?");
             this.put("command-stacktool-marked-unstackable", "&b%type% &eWurde als &cUnstackbar &egekennzeichnet.");
@@ -202,28 +204,28 @@ public class GermanLocale implements Locale {
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core Messages");
-            this.put("acf-core-permission-denied", "&cDafür hast du nicht die benötigten Berechtigungen!");
-            this.put("acf-core-permission-denied-parameter", "&cDu hast keine Berechtigungen dafür!");
-            this.put("acf-core-error-generic-logged", "&cEin Fehler ist aufgetreten, bitte beim Ersteller des Plugins melden.");
-            this.put("acf-core-error-performing-command", "&cEin Fehler ist beim ausführen dieses Befehls aufgekommen.");
-            this.put("acf-core-unknown-command", "&cUnbekannter befehl. Nutze &b/rs&c für Befehle.");
-            this.put("acf-core-invalid-syntax", "&cKorrekte nutzung: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&cFehler: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&cFehler: Das gegebene argumet ist ungültig.");
-            this.put("acf-core-must-be-a-number", "&cFehler: &b{num}&c muss eine Nummer sein.");
-            this.put("acf-core-must-be-min-length", "&cFehler: Muss mindestens &b{min}&c Zeichen lang sein.");
-            this.put("acf-core-must-be-max-length", "&cFehler: Kann maximal &b{max}&c Zeichen lang sein.");
-            this.put("acf-core-please-specify-at-most", "&cFehler: Bitte maximal einen Wert von &b{max} auswählen&c.");
-            this.put("acf-core-please-specify-at-least", "&cFehler: Bitte mindestens einen Wert von &b{min} auswählen&c.");
-            this.put("acf-core-not-allowed-on-console", "&cNur Spieler können diesen Befehl ausführen.");
-            this.put("acf-core-could-not-find-player", "&cFehler: Ich konnte keinen Spieler mit dem Namen finden: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&cFehler: Keinen Befehl gefunden: &b{search}&c.");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&cDafür hast du nicht die benötigten Berechtigungen!");
+            this.put("only-player", "&cDieser Befehl kann nur vom einem Spieler ausgeführt werden.");
+            this.put("unknown-command", "&cUnbekannter Befehl, nutze &b/%cmd% help &cfür mehr Informationen.");
+            this.put("unknown-command-error", "&cEin unbekannter Fehler is aufgetreten; die Details wurden in der Konsole ausgegeben. Bitte an einen Administrator wenden.");
+            this.put("invalid-subcommand", "&cUngültiger Unterbefehl.");
+            this.put("invalid-argument", "&cUngültiges Argument: %message%.");
+            this.put("invalid-argument-null", "&cUngültiges Argument: %name% war null.");
+            this.put("missing-arguments", "&cFehlende Argumente, &b%amount% &cbenötigt.");
+            this.put("missing-arguments-extra", "&cFehlende Argumente, &b%amount%+ &cbenötigt.");
 
-            this.put("#17", "ACF-Minecraft Messages");
-            this.put("acf-minecraft-no-player-found-server", "&cFehler: Ich konnte keinen Spieler mit dem Namen finden: &b{search}");
-            this.put("acf-minecraft-is-not-a-valid-name", "&cFehler: &b{name} &cist kein Valider Spielername");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% Typ [%input%] existiert nicht");
+            this.put("argument-handler-enum-list", "%enum% Typ [%input%] existiert nicht. Gültige Typen sind: %types%");
+            this.put("argument-handler-string", "String kann nicht leer sein");
+            this.put("argument-handler-integer", "Integer [%input%] muss eine ganze Zahl zwischen -2^31 und 2^31-1 inklusiv sein");
+            this.put("argument-handler-player", "Keinen Spieler online mit dem Namen [%input%] gefunden");
+            this.put("argument-handler-stackplugin", "Kein Plugin mit dem Namen [%input%] gefunden");
+            this.put("argument-handler-material", "Kein Material mit dem Namen [%input%] gefunden");
+            this.put("argument-handler-stackamount", "Die größe vom Stack [%input%] ist nicht gültig. Die Zahl muss größer als 0 sein");
+            this.put("argument-handler-stacktype", "Der Stack Typ [%input%] ist nicht gültig");
+            this.put("argument-handler-translationlocale", "Die Übersetzung [%input%] ist nicht gültig");
 
             this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cAuf deinem Server gibt es Plugins die dafür bekannt sind probleme mit RoseStacker aufzubringen. " +

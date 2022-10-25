@@ -46,18 +46,19 @@ public class HungarianLocale implements Locale {
 
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
-            this.put("base-command-help", "&eHasználd a &b/rs help &eparancsot segítségért.");
+            this.put("base-command-help", "&eHasználd a &b/%cmd% help &eparancsot segítségért.");
 
             this.put("#3", "Help Command");
-            this.put("command-help-description", "&8 - &d/rs help &7- Előhozza a segítségeket... Ahova megérkeztél");
+            this.put("command-help-description", "Előhozza a segítségeket... Ahova megérkeztél");
             this.put("command-help-title", "&eElérhető Parancsok:");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
 
             this.put("#4", "Reload Command");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- Újratölti a plugint");
+            this.put("command-reload-description", "Újratölti a plugint");
             this.put("command-reload-reloaded", "&ePlugin adatok, konfiguráció, és a fordítások újratöltődnek.");
 
             this.put("#5", "Give Command");
-            this.put("command-give-description", "&8 - &d/rs give &7- Ad előre stackelt tárgyakat");
+            this.put("command-give-description", "Ad előre stackelt tárgyakat");
             this.put("command-give-usage", "&cHasználat: &e/rs give <blokk|spawner|entitás> <játékos> <típus> [stackMéret] [mennyiség]");
             this.put("command-give-given", "&eAdtál &b%player% &e[%display%&e].");
             this.put("command-give-given-multiple", "&eAdtál &b%player%-nak/nek &e%amount%x [%display%&e].");
@@ -65,13 +66,13 @@ public class HungarianLocale implements Locale {
             this.put("command-give-too-large", "&cA mennyiség amit megadtál nagyobb mint a maximum stack méret ennél a típusnál.");
 
             this.put("#6", "Clearall Command");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- Törli az összes stack típust");
+            this.put("command-clearall-description", "Törli az összes stack típust");
             this.put("command-clearall-killed-entities", "&eTörölve &b%amount% &eentitás stack.");
             this.put("command-clearall-killed-items", "&eTörölve &b%amount% &etárgy stack.");
             this.put("command-clearall-killed-all", "&eTörölve &b%entityAmount% &eentitás stack és &b%itemAmount% &etárgy stack.");
 
             this.put("#7", "Stats Command");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- Kiír statisztikákat a pluginról");
+            this.put("command-stats-description", "Kiír statisztikákat a pluginról");
             this.put("command-stats-header", "&aJelenlegi Plugin Statisztika:");
             this.put("command-stats-threads", "&b%amount% &eaktív stackelés szál.");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &ebetöltött entitás stack, összesen &b%total% &eentitás.");
@@ -80,13 +81,13 @@ public class HungarianLocale implements Locale {
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ebetöltött spawner stack, összesen &b%total% &espawner.");
 
             this.put("#8", "Convert Command");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- Adatokat konvertál másik stackelő pluginból");
+            this.put("command-convert-description", "Adatokat konvertál másik stackelő pluginból");
             this.put("command-convert-converted", "&eAdatok konvertálva &b%plugin%-ból/ből &ea RoseStackerbe. Az át konvertált plugin kikapcsolva. Legyél biztos abban hogy eltávolítod a régi stackelő plugint a plugins mappából.");
             this.put("command-convert-failed", "&cSikertelen konvertálás &b%plugin%-ból/ből&c, a plugin nincs betöltve.");
             this.put("command-convert-aborted", "&cAdatok konvertálása a &b%plugin%-ból/ből &cmegszakítva. Már konvertáltál egy másik stackelő plugint.");
 
             this.put("#9", "Translate Command");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- Lefordítja a stack neveket");
+            this.put("command-translate-description", "Lefordítja a stack neveket");
             this.put("command-translate-loading", "&eFordítás adatok letöltése és alkalmazása, ez eltarthat egy darabig.");
             this.put("command-translate-failure", "&cNem lehet lefordítani a stack neveket. Problémák akadtak a helyi adatokkal. Kérlek próbáld újra később.");
             this.put("command-translate-invalid-locale", "&cNem lehet lefordítani a stack neveket. A nyelv amit megadtál nem érvényes.");
@@ -96,9 +97,10 @@ public class HungarianLocale implements Locale {
             this.put("command-translate-success", "&aSikeresen lefordítva a stackek nevei.");
 
             this.put("#10", "Stacking Tool Command");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Ad a játékosnak egy stackelő eszközt");
+            this.put("command-stacktool-description", "Ad a játékosnak egy stackelő eszközt");
             this.put("command-stacktool-given", "&eMegkaptad a stackelő eszközt.");
             this.put("command-stacktool-given-other", "&b%player% &amegkapta a stackelő eszközt.");
+            this.put("command-stacktool-no-console", "&cNem tudod a konzolnak adni a stackelő eszközt.");
             this.put("command-stacktool-no-permission", "&cNincs jogod használni a stackelő eszközt.");
             this.put("command-stacktool-invalid-entity", "&cAz entitás nem része egy stacknek se, talán egyedi szörny?");
             this.put("command-stacktool-marked-unstackable", "&eA &b%type% &emegjelölve &cnem stackelhető &eként.");
@@ -202,28 +204,28 @@ public class HungarianLocale implements Locale {
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core Messages");
-            this.put("acf-core-permission-denied", "&cNincs jogod ehhez!");
-            this.put("acf-core-permission-denied-parameter", "&cNincs jogod hogy ezt csináld!");
-            this.put("acf-core-error-generic-logged", "&cHiba történt. Kérlek jelezd a plugin készítőnek.");
-            this.put("acf-core-error-performing-command", "&cHiba történt a parancs végrehajtása során.");
-            this.put("acf-core-unknown-command", "&cIsmeretlen Parancs. Használd &b/rs&c a parancsokhoz.");
-            this.put("acf-core-invalid-syntax", "&cHasználat: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&cHiba: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&cHiba: Érvénytelen érték lett megadva.");
-            this.put("acf-core-must-be-a-number", "&cHiba: &b{num}&c számnak kell lennie.");
-            this.put("acf-core-must-be-min-length", "&cHiba: Legalább minimum &b{min}&c hosszúnak kell lennie.");
-            this.put("acf-core-must-be-max-length", "&cHiba: Legfeljebb maximum &b{max}&c hosszúnak kell lennie.");
-            this.put("acf-core-please-specify-at-most", "&cHiba: Kérlek add meg a maximumot &b{max}&c.");
-            this.put("acf-core-please-specify-at-least", "&cHiba: Kérlek add meg a minimumot &b{min}&c.");
-            this.put("acf-core-not-allowed-on-console", "&cCsak játékos használhatja ezt a parancsot.");
-            this.put("acf-core-could-not-find-player", "&cHiba: Nem található játékos ilyen névvel: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&cHiba: Nem található ilyen parancs &b{search}&c.");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&cNincs jogod ehhez!");
+            this.put("only-player", "&cEzt a parancsot csak játékosok tudják használni.");
+            this.put("unknown-command", "&cIsmeretlen parancs, használd a &b/%cmd% help &cparancsot további információért.");
+            this.put("unknown-command-error", "&cEgy ismeretlen hiba történt; a részletek a konzolba lettek írva. Kérlek lépj kapcsolatba a szerver adminisztrátorral!");
+            this.put("invalid-subcommand", "&cHelytelen alparancs.");
+            this.put("invalid-argument", "&cHelyetlen változó: %message%.");
+            this.put("invalid-argument-null", "&cHelytelen változó: %name% hiányzik.");
+            this.put("missing-arguments", "&cHiányos változók, &b%amount% &cszükséges.");
+            this.put("missing-arguments-extra", "&cHiányos változók, &b%amount%+ &cszükséges.");
 
-            this.put("#17", "ACF-Minecraft Messages");
-            this.put("acf-minecraft-no-player-found-server", "&cHiba: Nem található játékos ilyen névvel: &b{search}");
-            this.put("acf-minecraft-is-not-a-valid-name", "&cHiba: &b{name} &cnem érvényes játékos név.");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% típus [%input%] nem létezik");
+            this.put("argument-handler-enum-list", "%enum% típus [%input%] nem létezik. Létező típusok: %types%");
+            this.put("argument-handler-string", "A szöveg nem lehet üres");
+            this.put("argument-handler-integer", "A számnak [%input%] teljes számnak kell lennie -2^31 és 2^31-1 között!");
+            this.put("argument-handler-player", "Ilyen felhasználónévvel [%input%], online játékost nincs");
+            this.put("argument-handler-stackplugin", "Ilyen névvel [%input%], nincs plugin");
+            this.put("argument-handler-material", "Ilyen névvel [%input%] nincs ismert anyag");
+            this.put("argument-handler-stackamount", "A stack méret [%input%] nem érvényes, 0-nál nagyobb számnak kell lennie");
+            this.put("argument-handler-stacktype", "Stack méret [%input%] nem érvényes");
+            this.put("argument-handler-translationlocale", "A fordítási szín [%input%] nem érvényes");
 
             this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cOlyan pluginok vannak a szervereden amikről tudjuk hogy konfliktusba fognak kerülni a RoseStackerel. " +
