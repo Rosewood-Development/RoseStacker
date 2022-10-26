@@ -230,6 +230,7 @@ public class MobSpawningMethod implements SpawningMethod {
                             matchingEntity.get().increaseStackSize(amountToIncrease, false);
                             updatedStacks.add(matchingEntity.get());
                             i -= amountToIncrease;
+                            successfulSpawns += amountToIncrease;
                         } else {
                             if (possibleLocations.isEmpty())
                                 break;
@@ -238,10 +239,10 @@ public class MobSpawningMethod implements SpawningMethod {
                             stackedEntities.add(newStack);
                             newStacks.add(newStack);
                             possibleLocations.remove(location);
+                            successfulSpawns++;
                         }
 
                         previousLocation = location;
-                        successfulSpawns++;
                     }
                 }
             }
