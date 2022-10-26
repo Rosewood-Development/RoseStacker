@@ -9,6 +9,7 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.Stack;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 
 public class StatsCommand extends RoseCommand {
 
@@ -34,11 +35,11 @@ public class StatsCommand extends RoseCommand {
         int spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToInt(Stack::getStackSize).sum();
 
         localeManager.sendMessage(context.getSender(), "command-stats-header");
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-threads", StringPlaceholders.single("amount", threadAmount));
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).addPlaceholder("total", entityAmount).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).addPlaceholder("total", itemAmount).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).addPlaceholder("total", blockAmount).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).addPlaceholder("total", spawnerAmount).build());
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-threads", StringPlaceholders.single("amount", StackerUtils.formatNumber(threadAmount)));
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).addPlaceholder("total", StackerUtils.formatNumber(entityAmount)).build());
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).addPlaceholder("total", StackerUtils.formatNumber(itemAmount)).build());
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).addPlaceholder("total", StackerUtils.formatNumber(blockAmount)).build());
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).addPlaceholder("total", StackerUtils.formatNumber(spawnerAmount)).build());
     }
 
     @Override

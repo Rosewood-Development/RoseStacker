@@ -76,7 +76,7 @@ public class HologramImpl extends Hologram {
                 List<DataWatcher.Item<?>> allDataItems = new ArrayList<>(dataItems);
                 allDataItems.add(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), visible));
 
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityMetadata(line.getEntityId(), new DataWatcherWrapper(dataItems), false));
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityMetadata(line.getEntityId(), new DataWatcherWrapper(allDataItems), false));
             }
         }
     }

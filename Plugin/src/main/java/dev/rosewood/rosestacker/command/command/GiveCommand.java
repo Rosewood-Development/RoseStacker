@@ -22,6 +22,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -92,11 +93,11 @@ public class GiveCommand extends RoseCommand {
             ItemStack item = ItemUtils.getBlockAsStackedItemStack(material.get(), stackSize.get());
             giveDuplicates(target, item, amount);
 
-            String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", stackSize.get())
+            String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
                     .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", target.getName())
-                    .addPlaceholder("amount", amount)
+                    .addPlaceholder("amount", StackerUtils.formatNumber(amount))
                     .addPlaceholder("display", displayString)
                     .build();
 
@@ -142,15 +143,15 @@ public class GiveCommand extends RoseCommand {
 
             String displayString;
             if (stackSize.get() == 1) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", stackSize.get())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", stackSize.get())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             }
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", target.getName())
-                    .addPlaceholder("amount", amount)
+                    .addPlaceholder("amount", StackerUtils.formatNumber(amount))
                     .addPlaceholder("display", displayString)
                     .build();
 
@@ -199,11 +200,11 @@ public class GiveCommand extends RoseCommand {
 
             giveDuplicates(target, item, amount);
 
-            String displayString = localeManager.getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", stackSize.get())
+            String displayString = localeManager.getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
                     .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", target.getName())
-                    .addPlaceholder("amount", amount)
+                    .addPlaceholder("amount", StackerUtils.formatNumber(amount))
                     .addPlaceholder("display", displayString)
                     .build();
 

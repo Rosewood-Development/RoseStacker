@@ -110,10 +110,10 @@ public class StackedSpawnerGui {
         if (skullMeta != null) {
             String displayString;
             if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
                         .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.stackedSpawner.getStackSize())
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
                         .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
             }
             skullMeta.setDisplayName(displayString);
@@ -138,14 +138,14 @@ public class StackedSpawnerGui {
 
                     if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
                         if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
-                            lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", this.stackedSpawner.getStackSize())));
-                            lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
+                            lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))));
+                            lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
                         } else {
-                            lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
+                            lore.add(this.getString("spawn-amount", StringPlaceholders.single("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
                         }
                     } else {
                         lore.add(this.getString("min-spawn-amount", StringPlaceholders.single("amount", 1)));
-                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", spawnerTile.getSpawnCount())));
+                        lore.add(this.getString("max-spawn-amount", StringPlaceholders.single("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
                     }
 
                     lore.add(GuiFactory.createString());

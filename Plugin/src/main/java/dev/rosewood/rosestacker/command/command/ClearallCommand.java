@@ -8,6 +8,7 @@ import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 
 public class ClearallCommand extends RoseCommand {
 
@@ -22,19 +23,19 @@ public class ClearallCommand extends RoseCommand {
 
         int amount;
         switch (type) {
-            case ENTITY:
+            case ENTITY -> {
                 amount = stackManager.removeAllEntityStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.single("amount", amount));
-                break;
-            case ITEM:
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.single("amount", StackerUtils.formatNumber(amount)));
+            }
+            case ITEM -> {
                 amount = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.single("amount", amount));
-                break;
-            case ALL:
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.single("amount", StackerUtils.formatNumber(amount)));
+            }
+            case ALL -> {
                 int entities = stackManager.removeAllEntityStacks();
                 int items = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", entities).addPlaceholder("itemAmount", items).build());
-                break;
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", StackerUtils.formatNumber(entities)).addPlaceholder("itemAmount", StackerUtils.formatNumber(items)).build());
+            }
         }
     }
 

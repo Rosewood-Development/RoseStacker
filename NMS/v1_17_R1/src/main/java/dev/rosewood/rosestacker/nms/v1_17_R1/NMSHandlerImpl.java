@@ -15,6 +15,9 @@ import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SynchedEntityDataWrapper;
 import dev.rosewood.rosestacker.nms.v1_17_R1.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_17_R1.spawner.StackedSpawnerTileImpl;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.NBTStackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.v1_17_R1.storage.SimpleStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -54,6 +57,7 @@ import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -66,6 +70,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
@@ -74,6 +79,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftTurtle;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftNamespacedKey;
+import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -102,6 +108,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Unsafe unsafe;
     private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
 
+    private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -122,6 +130,8 @@ public class NMSHandlerImpl implements NMSHandler {
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
+
+            field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -129,11 +139,10 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedEntityDataEntry<CompoundTag> getEntityAsNBT(LivingEntity livingEntity) {
-//        CompoundTag nbt = new CompoundTag();
-//        net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
-//        nmsEntity.save(nbt);
-//        return new NBTStackedEntityDataEntry(nbt);
-        return null;
+        CompoundTag nbt = new CompoundTag();
+        net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
+        nmsEntity.save(nbt);
+        return new NBTStackedEntityDataEntry(nbt);
     }
 
     private void setTag(ListTag tag, int index, Tag value) {
@@ -417,16 +426,18 @@ public class NMSHandlerImpl implements NMSHandler {
         return nmsEntity1.level.clip(new ClipContext(vec3d, target, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
     }
 
-    @Override
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
-        //return new NBTStackedEntityDataStorage(livingEntity);
-        return null;
+        return switch (storageType) {
+            case NBT -> new NBTStackedEntityDataStorage(livingEntity);
+            case SIMPLE -> new SimpleStackedEntityDataStorage(livingEntity);
+        };
     }
 
-    @Override
     public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
-        //return new NBTStackedEntityDataStorage(data);
-        return null;
+        return switch (storageType) {
+            case NBT -> new NBTStackedEntityDataStorage(livingEntity, data);
+            case SIMPLE -> new SimpleStackedEntityDataStorage(livingEntity, data);
+        };
     }
 
     @Override
@@ -463,6 +474,32 @@ public class NMSHandlerImpl implements NMSHandler {
             case SPAWNER -> MobSpawnType.SPAWNER;
             default -> MobSpawnType.COMMAND;
         };
+    }
+
+    public void saveEntityToTag(LivingEntity livingEntity, CompoundTag compoundTag) {
+        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
+        if (livingEntity instanceof AbstractVillager) {
+            try {
+                net.minecraft.world.entity.npc.AbstractVillager villager = ((CraftAbstractVillager) livingEntity).getHandle();
+
+                // Set the trades to empty if they are null to prevent trades from generating during the saveWithoutId call
+                boolean bypassTrades = field_AbstractVillager_offers.get(villager) == null;
+                if (bypassTrades)
+                    field_AbstractVillager_offers.set(villager, new MerchantOffers());
+
+                ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(compoundTag);
+
+                // Restore the offers back to null and make sure nothing is written to the NBT
+                if (bypassTrades) {
+                    field_AbstractVillager_offers.set(villager, null);
+                    compoundTag.remove("Offers");
+                }
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        } else {
+            ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(compoundTag);
+        }
     }
 
 }

@@ -23,12 +23,11 @@ public class StackToolCommand extends RoseCommand {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         if (target == null) {
-            if (!(context.getSender() instanceof Player)) {
+            if (!(context.getSender() instanceof Player player)) {
                 localeManager.sendMessage(context.getSender(), "command-stacktool-no-console");
                 return;
             }
 
-            Player player = (Player) context.getSender();
             player.getInventory().addItem(ItemUtils.getStackingTool());
             RoseStacker.getInstance().getManager(LocaleManager.class).sendMessage(player, "command-stacktool-given");
         } else {
