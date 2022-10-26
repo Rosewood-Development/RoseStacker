@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bukkit.Material;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.enchantments.Enchantment;
 
 public class ConfigurationManager extends AbstractConfigurationManager {
 
@@ -39,6 +39,11 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DISPLAY_TAGS_CUSTOM_NAME("global-entity-settings.display-tags-custom-name", true, "Should the entity custom name be visible with the stack size?"),
         ENTITY_KILL_ENTIRE_STACK_ON_DEATH("global-entity-settings.kill-entire-stack-on-death", false, "Should the entire stack of entities always be killed when the main entity dies?"),
         ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", List.of("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
+        ENTITY_MULTIKILL_OPTIONS("global-entity-settings.multikill-options", null, "Allows killing multiple mobs at once, does not work with kill-entire-stack-on-death settings"),
+        ENTITY_MULTIKILL_ENABLED("global-entity-settings.multikill-options.multikill-enabled", false, "Should multikill be enabled?"),
+        ENTITY_MULTIKILL_AMOUNT("global-entity-settings.multikill-options.multikill-amount", 5, "The amount of mobs in the stack to kill at a time", "If using the multikill enchantment, this will be the number of mobs killed per enchantment level"),
+        ENTITY_MULTIKILL_ENCHANTMENT_ENABLED("global-entity-settings.multikill-options.multikill-enchantment-enabled", false, "Should an enchantment on the tool be required to be able to use the multikill features?"),
+        ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", Enchantment.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
         ENTITY_KILL_TRANSFER_FIRE("global-entity-settings.kill-transfer-fire", true, "Should fire be transferred to the next entity in the stack?"),
         ENTITY_KILL_DELAY_NEXT_SPAWN("global-entity-settings.kill-delay-next-spawn", false, "Should the next entity in the stack be delayed from spawning by one tick after the previous mob dies?", "Enabling this can prevent the newly spawned entity from taking the same damage as the previous one.", "May result in not being able to kill the entities as fast"),
@@ -47,10 +52,10 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_SHARE_DAMAGE_CONDITIONS("global-entity-settings.share-damage-conditions", List.of(), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html", "Note: This setting is not recommended as it can be intensive for larger stack sizes"),
         ENTITY_DROP_ACCURATE_ITEMS("global-entity-settings.drop-accurate-items", true, "Should items be dropped for all entities when an entire stack is killed at once?"),
         ENTITY_DROP_ACCURATE_EXP("global-entity-settings.drop-accurate-exp", true, "Should exp be dropped for all entities when an entire stack is killed at once?"),
-        ENTITY_ACCURATE_LOOT_OPTIONS("global-entity-settings.loot-approximation-options", null, "Allows approximating loot for killing an entire stack of entities at once", "Can greatly reduce lag and improve performance at the cost of some loot accuracy"),
-        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_ENABLED("global-entity-settings.loot-approximation-options.approximation-enabled", true, "Should loot be approximated to reduce lag for killing large stack sizes at once?"),
-        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_THRESHOLD("global-entity-settings.loot-approximation-options.approximation-threshold", 2048, "The threshold at which loot drops will be approximated"),
-        ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_AMOUNT("global-entity-settings.loot-approximation-options.approximation-amount", 256, "The number of times the entity loot tables will be run"),
+        ENTITY_LOOT_APPROXIMATION_OPTIONS("global-entity-settings.loot-approximation-options", null, "Allows approximating loot for killing an entire stack of entities at once", "Can greatly reduce lag and improve performance at the cost of some loot accuracy"),
+        ENTITY_LOOT_APPROXIMATION_ENABLED("global-entity-settings.loot-approximation-options.approximation-enabled", true, "Should loot be approximated to reduce lag for killing large stack sizes at once?"),
+        ENTITY_LOOT_APPROXIMATION_THRESHOLD("global-entity-settings.loot-approximation-options.approximation-threshold", 2048, "The threshold at which loot drops will be approximated"),
+        ENTITY_LOOT_APPROXIMATION_AMOUNT("global-entity-settings.loot-approximation-options.approximation-amount", 256, "The number of times the entity loot tables will be run"),
         ENTITY_STACK_TO_BOTTOM("global-entity-settings.stack-to-bottom", false, "Should newly stacked entities be put on the bottom of the stack?"),
         ENTITY_REQUIRE_LINE_OF_SIGHT("global-entity-settings.require-line-of-sight", true, "Do entities need to be able to see each other to be able to stack?", "Setting this to true will prevent entities from stacking through walls"),
         ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, etc"),

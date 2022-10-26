@@ -94,6 +94,16 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
+    public List<StackedEntityDataEntry<?>> pop(int amount) {
+        amount = Math.min(amount, this.data.size());
+
+        List<StackedEntityDataEntry<?>> popped = new ArrayList<>(amount);
+        for (int i = 0; i < amount; i++)
+            popped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0))));
+        return popped;
+    }
+
+    @Override
     public int size() {
         return this.data.size();
     }

@@ -80,6 +80,15 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
+    public List<StackedEntityDataEntry<?>> pop(int amount) {
+        amount = Math.min(amount, this.size);
+        this.size -= amount;
+        StackedEntityDataEntry<?>[] popped = new StackedEntityDataEntry[amount];
+        Arrays.fill(popped, this.copy());
+        return List.of(popped);
+    }
+
+    @Override
     public int size() {
         return this.size;
     }

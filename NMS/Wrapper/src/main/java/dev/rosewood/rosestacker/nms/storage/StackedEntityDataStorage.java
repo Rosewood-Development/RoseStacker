@@ -91,6 +91,14 @@ public abstract class StackedEntityDataStorage {
     public abstract StackedEntityDataEntry<?> pop();
 
     /**
+     * Gets and removes an entity from the list
+     *
+     * @param amount The amount of entities to remove
+     * @return A List of StackedEntityDataEntry objects for the entities at the front of the list
+     */
+    public abstract List<StackedEntityDataEntry<?>> pop(int amount);
+
+    /**
      * @return the number of entries
      */
     public abstract int size();

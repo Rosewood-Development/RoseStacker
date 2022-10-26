@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
@@ -232,9 +233,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
 
-            int threshold = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_THRESHOLD.getInt();
-            int approximationAmount = Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_AMOUNT.getInt();
-            if (Setting.ENTITY_ACCURATE_LOOT_OPTIONS_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
+            int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
+            int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
+            if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
                 this.stackedEntityDataStorage.forEachCapped(approximationAmount, internalEntities::add);
                 this.dropPartialStackLoot(internalEntities, this.getStackSize() / (double) approximationAmount, existingLoot, droppedExp);
             } else {
@@ -545,6 +546,43 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public void killEntireStack() {
         this.killEntireStack(null);
+    }
+
+    public void killPartialStack(@Nullable EntityDeathEvent event, int amount) {
+        if (amount == 1) {
+            this.decreaseStackSize();
+            return;
+        }
+
+        List<StackedEntityDataEntry<?>> removed = this.stackedEntityDataStorage.pop(amount - 1);
+        List<LivingEntity> entities = new ArrayList<>(removed.size());
+        for (StackedEntityDataEntry<?> entry : removed)
+            entities.add(NMSAdapter.getHandler().createEntityFromNBT(entry, this.entity.getLocation(), false, this.entity.getType()));
+
+        this.decreaseStackSize();
+
+        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
+        if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+            if (this.entity instanceof Slime)
+                ((Slime) this.entity).setSize(1);
+
+            if (event == null) {
+                this.dropPartialStackLoot(entities, 1, new ArrayList<>(), experience);
+            } else {
+                this.dropPartialStackLoot(entities, 1, new ArrayList<>(event.getDrops()), experience);
+                event.getDrops().clear();
+            }
+        } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
+            if (event == null) {
+                this.entity.getWorld().spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
+            } else {
+                event.setDroppedExp(experience * this.getStackSize());
+            }
+        }
+
+        Player killer = this.entity.getKiller();
+        if (killer != null && this.getStackSize() - 1 > 0)
+            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
     }
 
 }

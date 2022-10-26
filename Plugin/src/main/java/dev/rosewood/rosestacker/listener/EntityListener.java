@@ -29,9 +29,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -326,9 +328,30 @@ public class EntityListener implements Listener {
 
         Vector previousVelocity = entity.getVelocity().clone();
         Runnable task = () -> {
-            // Decrease stack size by 1
-            stackedEntity.updateDisplay();
-            stackedEntity.decreaseStackSize();
+            // Should we kill multiple entities?
+            if (Setting.ENTITY_MULTIKILL_ENABLED.getBoolean()) {
+                int multikillAmount = Setting.ENTITY_MULTIKILL_AMOUNT.getInt();
+                int killAmount = 1;
+                if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
+                    Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
+                    if (requiredEnchantment == null) {
+                        // Only decrease stack size by 1 and print a warning to the console
+                        RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
+                    } else if (event != null && event.getEntity().getKiller() != null) {
+                        Player killer = event.getEntity().getKiller();
+                        int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
+                        if (enchantmentLevel > 0)
+                            killAmount = multikillAmount * enchantmentLevel;
+                    }
+                } else {
+                    killAmount = multikillAmount;
+                }
+                stackedEntity.killPartialStack(event, killAmount);
+            } else {
+                // Decrease stack size by 1
+                stackedEntity.decreaseStackSize();
+            }
+
             stackedEntity.getEntity().setVelocity(new Vector());
 
             if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
