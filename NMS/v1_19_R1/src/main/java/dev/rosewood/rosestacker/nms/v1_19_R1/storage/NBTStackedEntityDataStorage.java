@@ -78,6 +78,12 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
+    public void addClones(int amount) {
+        for (int i = 0; i < amount; i++)
+            this.data.add(this.base.copy());
+    }
+
+    @Override
     public NBTStackedEntityDataEntry peek() {
         return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
     }

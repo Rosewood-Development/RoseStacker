@@ -127,6 +127,18 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
     }
 
+    /**
+     * Increases the stack size by a certain amount, clones the main entity
+     *
+     * @param updateDisplay Whether to update the entity's nametag or not
+     */
+    public void increaseStackSize(int amount, boolean updateDisplay) {
+        this.stackedEntityDataStorage.addClones(amount);
+
+        if (updateDisplay)
+            this.updateDisplay();
+    }
+
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
         if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
             this.stackedEntityDataStorage.addAllLast(serializedStackedEntities.getAll());

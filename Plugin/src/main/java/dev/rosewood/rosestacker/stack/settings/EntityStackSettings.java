@@ -218,15 +218,21 @@ public abstract class EntityStackSettings extends StackSettings {
         LivingEntity entity1 = stack1.getEntity();
         LivingEntity entity2 = stack2.getEntity();
 
-        if (entity1.getType() != entity2.getType())
-            return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+        boolean isSameEntity = entity1 == entity2;
+        int offset = comparingForUnstack ? -1 : 0;
+        if (isSameEntity) {
+            if (stack1.getStackSize() + 1 + offset > this.getMaxStackSize())
+                return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
+        } else {
+            if (entity1.getType() != entity2.getType())
+                return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+
+            if (stack1.getStackSize() + stack2.getStackSize() + offset > this.getMaxStackSize())
+                return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
+        }
 
         if (!this.enabled)
             return EntityStackComparisonResult.STACKING_NOT_ENABLED;
-
-        int offset = comparingForUnstack ? -1 : 0;
-        if (stack1.getStackSize() + stack2.getStackSize() + offset > this.getMaxStackSize())
-            return EntityStackComparisonResult.STACK_SIZE_TOO_LARGE;
 
         if (PersistentDataUtils.isUnstackable(entity1) || PersistentDataUtils.isUnstackable(entity2))
             return EntityStackComparisonResult.MARKED_UNSTACKABLE;
@@ -272,6 +278,9 @@ public abstract class EntityStackSettings extends StackSettings {
                     if (equipment2.getItem(equipmentSlot).getType() != Material.AIR)
                         return EntityStackComparisonResult.HAS_EQUIPMENT;
         }
+
+        if (isSameEntity)
+            return EntityStackComparisonResult.CAN_STACK;
 
         if (this.isEntityColorable()) {
             Colorable colorable1 = (Colorable) entity1;

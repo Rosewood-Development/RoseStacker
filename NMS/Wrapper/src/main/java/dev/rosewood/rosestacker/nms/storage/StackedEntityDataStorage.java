@@ -72,6 +72,13 @@ public abstract class StackedEntityDataStorage {
     public abstract void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
+     * Adds a number of clones to the data storage
+     *
+     * @param amount The amount of clones to add
+     */
+    public abstract void addClones(int amount);
+
+    /**
      * @return A StackedEntityDataEntry object for the entity at the front of the list
      */
     public abstract StackedEntityDataEntry<?> peek();

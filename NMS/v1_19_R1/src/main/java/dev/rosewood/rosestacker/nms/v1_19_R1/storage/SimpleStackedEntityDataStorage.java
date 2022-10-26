@@ -62,6 +62,11 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
+    public void addClones(int amount) {
+        this.size += amount;
+    }
+
+    @Override
     public NBTStackedEntityDataEntry peek() {
         return this.copy();
     }

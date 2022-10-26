@@ -633,27 +633,53 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
-            Set<StackedEntity> stackedEntities = new HashSet<>();
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean removeAi = Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean();
-            for (int i = 0; i < amount; i++) {
-                LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location, spawnReason);
-                if (removeAi)
-                    PersistentDataUtils.removeEntityAi(entity);
 
-                StackedEntity newStack = new StackedEntity(entity);
-                Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
-                        stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
-                if (matchingEntity.isPresent()) {
-                    matchingEntity.get().increaseStackSize(entity, false);
-                } else {
-                    stackedEntities.add(newStack);
+            Collection<Entity> nearbyEntities = this.entityCacheManager.getNearbyEntities(location, stackSettings.getMergeRadius(), x -> x.getType() == entityType);
+            Set<StackedEntity> nearbyStackedEntities = new HashSet<>();
+            for (Entity entity : nearbyEntities) {
+                StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) entity);
+                if (stackedEntity != null)
+                    nearbyStackedEntities.add(stackedEntity);
+            }
+
+            Set<StackedEntity> newStackedEntities = new HashSet<>();
+            switch (this.stackManager.getEntityDataStorageType()) {
+                case NBT -> {
+                    for (int i = 0; i < amount; i++) {
+                        StackedEntity newStack = this.createNewEntity(nmsHandler, entityType, location, spawnReason, removeAi);
+                        Optional<StackedEntity> matchingEntity = nearbyStackedEntities.stream().filter(x ->
+                                stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
+                        if (matchingEntity.isPresent()) {
+                            matchingEntity.get().increaseStackSize(newStack.getEntity(), false);
+                        } else {
+                            nearbyStackedEntities.add(newStack);
+                            newStackedEntities.add(newStack);
+                        }
+                    }
+                }
+
+                case SIMPLE -> {
+                    for (int i = amount; i > 0; i--) {
+                        Optional<StackedEntity> matchingEntity = nearbyStackedEntities.stream().filter(x -> stackSettings.testCanStackWith(x, x, false, true)).findFirst();
+                        if (matchingEntity.isPresent()) {
+                            // Increase stack size by as much as we can
+                            int amountToIncrease = Math.min(i, stackSettings.getMaxStackSize() - matchingEntity.get().getStackSize());
+                            matchingEntity.get().increaseStackSize(amountToIncrease, false);
+                            i -= amountToIncrease;
+                        } else {
+                            StackedEntity newStack = this.createNewEntity(nmsHandler, entityType, location, spawnReason, removeAi);
+                            nearbyStackedEntities.add(newStack);
+                            newStackedEntities.add(newStack);
+                        }
+                    }
                 }
             }
 
             Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
-                for (StackedEntity stackedEntity : stackedEntities) {
+                for (StackedEntity stackedEntity : newStackedEntities) {
                     LivingEntity entity = stackedEntity.getEntity();
                     this.entityCacheManager.preCacheEntity(entity);
                     nmsHandler.spawnExistingEntity(stackedEntity.getEntity(), spawnReason, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
@@ -666,6 +692,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 this.stackManager.setEntityStackingTemporarilyDisabled(false);
             });
         });
+    }
+
+    private StackedEntity createNewEntity(NMSHandler nmsHandler, EntityType entityType, Location location, SpawnReason spawnReason, boolean removeAi) {
+        LivingEntity entity = nmsHandler.createNewEntityUnspawned(entityType, location, spawnReason);
+        if (removeAi)
+            PersistentDataUtils.removeEntityAi(entity);
+
+        return new StackedEntity(entity);
     }
 
     @Override
