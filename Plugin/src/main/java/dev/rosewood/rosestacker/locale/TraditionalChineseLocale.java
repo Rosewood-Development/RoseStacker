@@ -48,6 +48,7 @@ public class TraditionalChineseLocale implements Locale {
             this.put("base-command-color", "&e");
             this.put("base-command-help", "&e使用 &b/rs help &e以獲取更多資訊.");
             this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#3", "協助指令");
             this.put("command-help-description", "顯示指令協助選單... 對, 就是這個選單");

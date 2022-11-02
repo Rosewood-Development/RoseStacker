@@ -52,6 +52,7 @@ public class FilipinoLocale implements Locale {
             this.put("command-help-description", "Ipinapakita ang menu ng tulong... Nakarating kana");
             this.put("command-help-title", "&eMagagamit na mga Utos:");
             this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload Command");
             this.put("command-reload-description", "I-reload ang plugin");

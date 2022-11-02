@@ -48,6 +48,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("base-command-color", "&e");
             this.put("base-command-help", "&e使用 &b/rs help &e来获取更多命令信息。");
             this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#3", "帮助命令");
             this.put("command-help-description", "&8 - &d/rs help &7- 显示命令帮助菜单... 就是您现在看着的这个");

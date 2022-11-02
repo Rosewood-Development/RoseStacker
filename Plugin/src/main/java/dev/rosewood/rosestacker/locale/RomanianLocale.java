@@ -52,6 +52,7 @@ public class RomanianLocale implements Locale {
             this.put("command-help-description", "Deschide meniul de ajutor");
             this.put("command-help-title", "&eComenzi disponibile:");
             this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload command");
             this.put("command-reload-description", "Reincarca configuratia");

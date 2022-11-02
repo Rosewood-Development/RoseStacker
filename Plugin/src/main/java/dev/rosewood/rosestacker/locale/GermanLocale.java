@@ -52,6 +52,7 @@ public class GermanLocale implements Locale {
             this.put("command-help-description", "Zeigt das Hilfe-Menü an... du bist angekommen!");
             this.put("command-help-title", "&eVerfügbare Befehle:");
             this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload Command");
             this.put("command-reload-description", "Läd das Plugin neu");
