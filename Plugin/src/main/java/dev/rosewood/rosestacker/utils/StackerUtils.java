@@ -173,7 +173,7 @@ public final class StackerUtils {
      * @return true if the Material can be passed through, false otherwise
      */
     public static boolean isOccluding(Material material) {
-        if (material.name().endsWith("_STAINED_GLASS")
+        if (material.name().contains("GLASS")
                 || material.name().endsWith("_STAINED_GLASS_PANE")
                 || material.name().contains("FENCE")
                 || material.name().endsWith("SLAB")
@@ -181,7 +181,7 @@ public final class StackerUtils {
             return true;
 
         return switch (material) {
-            case CHEST, ENDER_CHEST, TRAPPED_CHEST, GLASS, GLASS_PANE, ICE -> true;
+            case CHEST, ENDER_CHEST, TRAPPED_CHEST, ICE -> true;
             default -> material.isOccluding();
         };
     }
