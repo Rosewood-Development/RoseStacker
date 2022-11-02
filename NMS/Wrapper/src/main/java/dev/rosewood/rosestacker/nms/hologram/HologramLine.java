@@ -11,7 +11,7 @@ public class HologramLine {
 
     public HologramLine(int entityId, Location location, String text) {
         this.entityId = entityId;
-        this.location = location;
+        this.location = location.clone();
         this.text = text;
     }
 

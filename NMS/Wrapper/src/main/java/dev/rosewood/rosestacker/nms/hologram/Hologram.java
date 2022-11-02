@@ -21,7 +21,7 @@ public abstract class Hologram {
     protected final Location location;
 
     public Hologram(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
-        this.location = location;
+        this.location = location.clone();
         this.watchers = Collections.synchronizedMap(new WeakHashMap<>());
         this.hologramLines = new ArrayList<>();
         for (int i = 0; i < text.size(); i++) {
