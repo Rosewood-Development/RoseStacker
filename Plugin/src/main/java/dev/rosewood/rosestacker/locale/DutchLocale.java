@@ -80,6 +80,7 @@ public class DutchLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &eItem stacks geladen, totaal van &b%total% &eitems.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eBlok stacks geladen, totaal van &b%total% &eblocks.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eSpawner stacks geladen, totaal van &b%total% &espawners.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactieve taken.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Converteert data van een andere plugin");

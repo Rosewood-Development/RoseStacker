@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 
 public class StatsCommand extends RoseCommand {
 
@@ -40,6 +41,7 @@ public class StatsCommand extends RoseCommand {
         localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).addPlaceholder("total", StackerUtils.formatNumber(itemAmount)).build());
         localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).addPlaceholder("total", StackerUtils.formatNumber(blockAmount)).build());
         localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).addPlaceholder("total", StackerUtils.formatNumber(spawnerAmount)).build());
+        localeManager.sendSimpleMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.single("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
     }
 
     @Override

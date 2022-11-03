@@ -80,6 +80,7 @@ public class TraditionalChineseLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &e份個已加載的堆疊物品, 共 &b%total% &e份物品。");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &e個已加載的堆疊方塊, 共 &b%total% &e個方塊。");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &e個已加載的生怪磚, 共 &b%total% &e個生怪磚。");
+            this.put("command-stats-active-tasks", "&b%amount%&e活動任務。");
 
             this.put("#8", "轉換指令");
             this.put("command-convert-description", "從其他堆疊插件載入資料");

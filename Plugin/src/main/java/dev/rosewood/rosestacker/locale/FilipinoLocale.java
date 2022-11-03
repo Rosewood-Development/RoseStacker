@@ -80,6 +80,7 @@ public class FilipinoLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &enaka-load na mga stack gamit, na kabuuan &b%total% &ena gamit.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &ena-load ang mga block stack, na kabuuan &b%total% &emga bloke.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ena-load na mga stack ng spawner, na kabuuan &b%total% &ena spawners.");
+            this.put("command-stats-active-tasks", "&b%amount% &eaktibong gawain.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Nagko-convert ng data mula sa isa pang stacking plugin");

@@ -80,6 +80,7 @@ public class RomanianLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &estack-uri de obiecte incarcate, in total &b%total% &eobiecte.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &estack-uri de block-uri incarcate, in total &b%total% &eblock-uri.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &estack-uri de spawnere incarcate, in total &b%total% &espawnere.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactive feladatok.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Converteste datele dintr-un alt plugin");

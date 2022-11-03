@@ -80,6 +80,7 @@ public class EnglishLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &eloaded item stacks, totaling &b%total% &eitems.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eloaded block stacks, totaling &b%total% &eblocks.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactive tasks.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Converts data from another stacking plugin");

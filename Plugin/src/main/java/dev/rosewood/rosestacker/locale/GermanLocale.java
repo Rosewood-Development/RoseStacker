@@ -80,6 +80,7 @@ public class GermanLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &eloaded Gegenstand stacks, insgesamt &b%total% &eGegenstände.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eGeladene Block stacks, insgesamt &b%total% &eBlöcke.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eGeladene Spawner-Stacks, insgesamt &b%total% &eSpawner.");
+            this.put("command-stats-active-tasks", "&b%amount% &eaktive Prozesse.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Daten von anderem Plugin Konvertieren");

@@ -80,6 +80,7 @@ public class HungarianLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &ebetöltött tárgy stack, összesen &b%total% &etárgy.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &ebetöltött blokk stack, összesen &b%total% &eblokk.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ebetöltött spawner stack, összesen &b%total% &espawner.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactive feladatok.");
 
             this.put("#8", "Convert Command");
             this.put("command-convert-description", "Adatokat konvertál másik stackelő pluginból");

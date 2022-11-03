@@ -80,6 +80,7 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stats-stacked-items", "&b%stackAmount% &e份已加载的堆叠物品, 共计 &b%total% &e个单体物品。");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &e份已加载的堆叠方块, 共计 &b%total% &e个单体方块。");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &e个已加载的堆叠刷怪笼, 共计 &b%total% &e个单体刷怪笼。");
+            this.put("command-stats-active-tasks", "&b%amount%&e的活动任务。");
 
             this.put("#8", "转化命令");
             this.put("command-convert-description", "从另一个堆叠类型的插件转化数据");
