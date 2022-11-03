@@ -3,8 +3,10 @@ package dev.rosewood.rosestacker.spawner.conditions.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class LightnessConditionTag extends ConditionTag {
@@ -15,7 +17,8 @@ public class LightnessConditionTag extends ConditionTag {
 
     @Override
     public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
-        return !StackerUtils.isOccluding(spawnBlock.getType()) && spawnBlock.getLightLevel() > 8;
+        Material type = EntityUtils.getLazyBlockMaterial(spawnBlock.getLocation());
+        return !StackerUtils.isOccluding(type) && spawnBlock.getLightLevel() > 8;
     }
 
     @Override

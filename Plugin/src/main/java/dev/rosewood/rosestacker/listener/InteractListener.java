@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -82,7 +83,7 @@ public class InteractListener implements Listener {
                 }
 
                 StackedSpawner finalStackedSpawner = stackedSpawner;
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                ThreadUtils.runSync(() -> {
                     // Make sure spawners convert and update their display properly
                     finalStackedSpawner.updateSpawnerProperties(false);
                     finalStackedSpawner.updateDisplay();
@@ -123,13 +124,13 @@ public class InteractListener implements Listener {
         Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::updateDisplay);
+            ThreadUtils.runSync(stackedEntity::updateDisplay);
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
                 case COD, SALMON, PUFFERFISH, TROPICAL_FISH, AXOLOTL -> {
                     if (stackedEntity.getStackSize() != 1)
-                        Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
+                        ThreadUtils.runSync(stackedEntity::decreaseStackSize);
                 }
             }
             return;
@@ -153,7 +154,7 @@ public class InteractListener implements Listener {
 
         if (this.spawnEntities(null, spawnLocation, itemStack)) {
             Inventory inventory = ((Container) block.getState()).getInventory();
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 for (int slot = 0; slot < inventory.getSize(); slot++) {
                     ItemStack item = inventory.getItem(slot);
                     if (item == null || !item.isSimilar(itemStack))

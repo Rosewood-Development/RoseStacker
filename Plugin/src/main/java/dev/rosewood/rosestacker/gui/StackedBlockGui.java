@@ -22,6 +22,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -266,7 +267,7 @@ public class StackedBlockGui {
         this.kickOutViewers();
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+        ThreadUtils.runSync(() -> {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
             Bukkit.getPluginManager().callEvent(blockUnstackEvent);
             if (blockUnstackEvent.isCancelled())

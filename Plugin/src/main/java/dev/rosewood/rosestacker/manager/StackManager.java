@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -549,7 +550,7 @@ public class StackManager extends Manager implements StackingLogic {
             this.processingChunks = true;
             this.processingChunksTime = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            ThreadUtils.runAsync(() -> {
                 if (!convertChunkEntities.isEmpty())
                     this.conversionManager.convertChunkEntities(convertChunkEntities);
                 this.processingChunks = false;

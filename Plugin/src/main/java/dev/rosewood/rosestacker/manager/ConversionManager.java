@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.conversion.converter.StackPluginConverter;
 import dev.rosewood.rosestacker.conversion.handler.ConversionHandler;
 import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackType;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -126,7 +127,7 @@ public class ConversionManager extends Manager implements Listener {
             this.dataManager.setConversionHandlers(converter.getConverterTypes());
 
             // Reload plugin to convert and update data
-            Bukkit.getScheduler().runTask(this.rosePlugin, this.rosePlugin::reload);
+            ThreadUtils.runSync(this.rosePlugin::reload);
         } catch (Exception ex) {
             return false;
         }
@@ -184,7 +185,7 @@ public class ConversionManager extends Manager implements Listener {
 
         // Update nametags synchronously
         if (!convertedStacks.isEmpty())
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> convertedStacks.forEach(Stack::updateDisplay));
+            ThreadUtils.runSync(() -> convertedStacks.forEach(Stack::updateDisplay));
     }
 
     /**

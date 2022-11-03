@@ -19,8 +19,8 @@ public class FluidConditionTag extends ConditionTag {
     @Override
     public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
         boolean isFluid = true;
-        for (Block block : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
-            isFluid &= block.getType() == this.fluidType;
+        for (Material type : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)).values())
+            isFluid &= type == this.fluidType;
         return isFluid;
     }
 

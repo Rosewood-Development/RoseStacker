@@ -22,6 +22,7 @@ import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -136,7 +137,7 @@ public class EntityListener implements Listener {
 
         // Delay stacking by 1 tick for spawn eggs due to an egg duplication issue
         if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+            ThreadUtils.runSync(task);
         } else {
             task.run();
         }
@@ -359,7 +360,7 @@ public class EntityListener implements Listener {
         };
 
         if (Setting.ENTITY_KILL_DELAY_NEXT_SPAWN.getBoolean()) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+            ThreadUtils.runSync(task);
         } else {
             task.run();
         }
@@ -424,7 +425,7 @@ public class EntityListener implements Listener {
 
             boolean aiDisabled = PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity());
             event.getEntity().remove();
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
                 LivingEntity newEntity = nmsHandler.createEntityFromNBT(serialized, transformedEntity.getLocation(), true, transformedEntity.getType());
                 if (aiDisabled)
@@ -447,9 +448,9 @@ public class EntityListener implements Listener {
                 PersistentDataUtils.removeEntityAi((LivingEntity) event.getTransformedEntity());
 
             if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
-                Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, stackedEntity::decreaseStackSize, 20);
+                ThreadUtils.runSyncDelayed(stackedEntity::decreaseStackSize, 20);
             } else {
-                Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
+                ThreadUtils.runSync(stackedEntity::decreaseStackSize);
             }
         }
     }
@@ -502,7 +503,7 @@ public class EntityListener implements Listener {
 
         SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
         if (!sheepStackSettings.shouldShearAllSheepInStack()) {
-            Bukkit.getScheduler().runTask(rosePlugin, () -> {
+            ThreadUtils.runSync( () -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
             });
@@ -511,7 +512,7 @@ public class EntityListener implements Listener {
 
         List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runAsync(() -> {
             try {
                 stackedEntity.getDataStorage().forEach(internal -> {
                     Sheep sheep = (Sheep) internal;
@@ -521,7 +522,7 @@ public class EntityListener implements Listener {
                     }
                 });
 
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+                ThreadUtils.runSync(() -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
             } finally {
                 stackManager.setEntityUnstackingTemporarilyDisabled(false);
             }
@@ -563,13 +564,11 @@ public class EntityListener implements Listener {
             return;
 
         AtomicInteger regrowRemaining = new AtomicInteger(regrowAmount);
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            stackedEntity.getDataStorage().forEach(internal -> {
-                Sheep sheep = (Sheep) internal;
-                if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0)
-                    sheep.setSheared(true);
-            });
-        });
+        ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEach(internal -> {
+            Sheep sheep = (Sheep) internal;
+            if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0)
+                sheep.setSheared(true);
+        }));
     }
 
 }

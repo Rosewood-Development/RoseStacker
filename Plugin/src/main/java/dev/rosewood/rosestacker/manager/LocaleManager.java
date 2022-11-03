@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
 import dev.rosewood.rosestacker.locale.TraditionalChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -78,7 +79,7 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     public void fetchMinecraftTranslationLocales() {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
             String version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
@@ -117,7 +118,7 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     public void getMinecraftTranslationValues(String locale, Consumer<TranslationResponse> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             Map<Material, String> materialValues = new EnumMap<>(Material.class);
             Map<EntityType, String> entityValues = new EnumMap<>(EntityType.class);
 

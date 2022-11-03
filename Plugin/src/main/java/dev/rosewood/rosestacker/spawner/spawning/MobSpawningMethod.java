@@ -98,6 +98,7 @@ public class MobSpawningMethod implements SpawningMethod {
             int spawnRange = spawnerTile.getSpawnRange();
             int attempts = 0;
             int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt() * spawnRange * spawnRange;
+            int desiredLocations = Math.max(2, stackSettings.getSpawnCountStackSizeMultiplier());
             while (attempts <= maxFailedSpawnAttempts) {
                 int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                 int yOffset = !Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
@@ -131,7 +132,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     break;
 
                 spawnLocations.add(spawnLocation);
-                if (spawnLocations.size() >= spawnAmount)
+                if (spawnLocations.size() >= desiredLocations)
                     break;
             }
 

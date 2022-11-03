@@ -4,6 +4,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -87,7 +88,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, this.stackManager::processNametags);
+        ThreadUtils.runAsync(this.stackManager::processNametags);
     }
 
 }

@@ -21,6 +21,7 @@ import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -122,7 +123,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
         // We switch over to a non-async thread specifically for ender dragons because of this.
         if (!Bukkit.isPrimaryThread() && entity instanceof EnderDragon) {
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), task);
+            ThreadUtils.runSync(task);
         } else {
             task.run();
         }
@@ -230,7 +231,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runAsync(() -> {
             List<LivingEntity> internalEntities = new ArrayList<>();
 
             int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
@@ -362,16 +363,16 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             };
 
             if (!Bukkit.isPrimaryThread()) {
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), finishTask);
+                ThreadUtils.runSync(finishTask);
             } else {
                 finishTask.run();
             }
         };
 
         if (async && Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), mainTask);
+            ThreadUtils.runAsync(mainTask);
         } else if (!async && !Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), mainTask);
+            ThreadUtils.runSync(mainTask);
         } else {
             mainTask.run();
         }

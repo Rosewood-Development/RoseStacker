@@ -27,6 +27,7 @@ import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -143,7 +144,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
             for (StackedEntity stackedEntity : this.stackedEntities.values()) {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getEntity().isValid()) {
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    ThreadUtils.runSync(() -> {
                         if (stackedEntity.getStackSize() > 1)
                             this.splitEntityStack(stackedEntity);
                     });
@@ -151,7 +152,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     NMSHandler nmsHandler = NMSAdapter.getHandler();
                     StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
                     stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(stackedEntity.getEntity(), this.stackManager.getEntityDataStorageType()));
-                    Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    ThreadUtils.runSync(() -> {
                         for (StackedEntityDataEntry<?> stackedEntityDataEntry : nbt.getAll())
                             nmsHandler.createEntityFromNBT(stackedEntityDataEntry, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
                     });
@@ -178,7 +179,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         // Cleans up entities/items that aren't stacked
         this.cleanupTimer++;
         if (this.cleanupTimer >= CLEANUP_TIMER_TARGET) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 for (Entity entity : this.targetWorld.getEntities()) {
                     if (this.isRemoved(entity))
                         continue;
@@ -631,7 +632,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (world == null)
             return;
 
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean removeAi = Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean();
@@ -677,7 +678,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 }
             }
 
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
                 for (StackedEntity stackedEntity : newStackedEntities) {
                     LivingEntity entity = stackedEntity.getEntity();
@@ -991,7 +992,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (Bukkit.isPrimaryThread()) {
             removeTask.run();
         } else {
-            Bukkit.getScheduler().runTask(this.rosePlugin, removeTask);
+            ThreadUtils.runSync(removeTask);
         }
     }
 
@@ -1058,7 +1059,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (Bukkit.isPrimaryThread()) {
                 removeTask.run();
             } else {
-                Bukkit.getScheduler().runTask(this.rosePlugin, removeTask);
+                ThreadUtils.runSync(removeTask);
             }
 
             this.removeItemStack(removed);

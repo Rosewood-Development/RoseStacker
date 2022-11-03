@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -105,7 +106,7 @@ public class UltimateStackerPluginConverter extends StackPluginConverter {
 
             if (!stackedBlocks.isEmpty() || !stackedSpawners.isEmpty()) {
                 StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                ThreadUtils.runSync(() -> {
                     for (StackedBlock stackedBlock : stackedBlocks)
                         stackManager.createBlockStack(stackedBlock.getLocation().getBlock(), stackedBlock.getStackSize());
 

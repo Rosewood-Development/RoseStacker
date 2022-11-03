@@ -11,6 +11,7 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.command.type.TranslationLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
@@ -90,7 +91,7 @@ public class TranslateCommand extends RoseCommand {
             itemStackConfig.save();
             spawnerStackConfig.save();
 
-            Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 this.rosePlugin.reload();
                 localeManager.sendMessage(context.getSender(), "command-translate-success");
             });
