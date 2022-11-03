@@ -14,7 +14,6 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 

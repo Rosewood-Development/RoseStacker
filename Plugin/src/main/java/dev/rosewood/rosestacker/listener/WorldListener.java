@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;

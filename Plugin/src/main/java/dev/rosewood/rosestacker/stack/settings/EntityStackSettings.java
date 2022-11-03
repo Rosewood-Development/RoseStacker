@@ -29,6 +29,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sittable;
+import org.bukkit.entity.SpawnCategory;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Turtle;
 import org.bukkit.inventory.EntityEquipment;
@@ -92,7 +93,8 @@ public abstract class EntityStackSettings extends StackSettings {
         String skullTexture = entityTypeDataObject.get("skull_texture").getAsString();
         List<String> breedingMaterialsStrings = gson.fromJson(entityTypeDataObject.get("breeding_materials").getAsJsonArray(), stringListType);
         List<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).toList();
-        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials);
+        SpawnCategory spawnCategory = SpawnCategory.valueOf(entityTypeDataObject.get("spawn_category").getAsString());
+        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials, spawnCategory);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");

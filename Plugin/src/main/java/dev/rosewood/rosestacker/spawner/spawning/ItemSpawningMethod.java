@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.spawner.spawning;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
-import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
