@@ -178,6 +178,10 @@ public final class EntityUtils {
     }
 
     public static Material getLazyBlockMaterial(Location location) {
+        World world = location.getWorld();
+        if (world == null || location.getBlockY() < world.getMinHeight() || location.getBlockY() > world.getMaxHeight())
+            return Material.AIR;
+
         try {
             ChunkLocation pair = new ChunkLocation(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
             return chunkSnapshotCache.get(pair, () -> {
