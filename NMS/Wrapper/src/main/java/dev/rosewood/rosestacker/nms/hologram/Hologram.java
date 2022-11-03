@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -91,7 +90,7 @@ public abstract class Hologram {
      * @return the text of this hologram
      */
     public List<String> getText() {
-        return this.hologramLines.stream().map(HologramLine::getText).collect(Collectors.toList());
+        return this.hologramLines.stream().map(HologramLine::getText).toList();
     }
 
     /**

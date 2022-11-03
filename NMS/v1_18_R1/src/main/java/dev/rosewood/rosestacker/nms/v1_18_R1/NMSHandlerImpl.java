@@ -463,7 +463,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public Hologram createHologram(Location location, List<String> text) {
-        return new HologramImpl(text, location, entityCounter::getAndIncrement);
+        return new HologramImpl(text, location, entityCounter::incrementAndGet);
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {
