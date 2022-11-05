@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EnglishLocale implements Locale {
@@ -38,20 +37,29 @@ public class EnglishLocale implements Locale {
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display-single", "&7%name%");
 
+            this.put("#1.1", "Hologram Display Tags");
+            this.put("#1.2", "Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%");
+            this.put("#1.3", "Multiple lines are supported");
+            this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-single", List.of("&7%name%"));
+
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
-            this.put("base-command-help", "&eUse &b/rs help &efor command information.");
+            this.put("base-command-help", "&eUse &b/%cmd% help &efor command information.");
 
             this.put("#3", "Help Command");
-            this.put("command-help-description", "&8 - &d/rs help &7- Displays the help menu... You have arrived");
+            this.put("command-help-description", "Displays the help menu... You have arrived");
             this.put("command-help-title", "&eAvailable Commands:");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload Command");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- Reloads the plugin");
+            this.put("command-reload-description", "Reloads the plugin");
             this.put("command-reload-reloaded", "&ePlugin data, configuration, and locale files were reloaded.");
 
             this.put("#5", "Give Command");
-            this.put("command-give-description", "&8 - &d/rs give &7- Give pre-stacked items");
+            this.put("command-give-description", "Give pre-stacked items");
             this.put("command-give-usage", "&cUsage: &e/rs give <block|spawner|entity> <player> <type> [stackSize] [amount]");
             this.put("command-give-given", "&eGave &b%player% &e[%display%&e].");
             this.put("command-give-given-multiple", "&eGave &b%player% &e%amount%x [%display%&e].");
@@ -59,28 +67,29 @@ public class EnglishLocale implements Locale {
             this.put("command-give-too-large", "&cThe amount that you specified exceeds the max stack size for that type.");
 
             this.put("#6", "Clearall Command");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- Clears all of a stack type");
+            this.put("command-clearall-description", "Clears all of a stack type");
             this.put("command-clearall-killed-entities", "&eCleared &b%amount% &eentity stacks.");
             this.put("command-clearall-killed-items", "&eCleared &b%amount% &eitem stacks.");
             this.put("command-clearall-killed-all", "&eCleared &b%entityAmount% &eentity stacks and &b%itemAmount% &eitem stacks.");
 
             this.put("#7", "Stats Command");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- Displays stats about the plugin");
+            this.put("command-stats-description", "Displays stats about the plugin");
             this.put("command-stats-header", "&aCurrent Plugin Stats:");
             this.put("command-stats-threads", "&b%amount% &eactive stacking threads.");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &eloaded entity stacks, totaling &b%total% &eentities.");
             this.put("command-stats-stacked-items", "&b%stackAmount% &eloaded item stacks, totaling &b%total% &eitems.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eloaded block stacks, totaling &b%total% &eblocks.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactive tasks.");
 
             this.put("#8", "Convert Command");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- Converts data from another stacking plugin");
+            this.put("command-convert-description", "Converts data from another stacking plugin");
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
             this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
             this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.");
 
             this.put("#9", "Translate Command");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- Translates the stack names");
+            this.put("command-translate-description", "Translates the stack names");
             this.put("command-translate-loading", "&eDownloading and applying translation data, this may take a moment.");
             this.put("command-translate-failure", "&cUnable to translate the stack names. There was a problem fetching the locale data. Please try again later.");
             this.put("command-translate-invalid-locale", "&cUnable to translate the stack names. The locale that you specified is invalid.");
@@ -90,9 +99,10 @@ public class EnglishLocale implements Locale {
             this.put("command-translate-success", "&aSuccessfully translated the stack names.");
 
             this.put("#10", "Stacking Tool Command");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Gives a player the stacking tool");
+            this.put("command-stacktool-description", "Gives a player the stacking tool");
             this.put("command-stacktool-given", "&eYou have been given the stacking tool.");
             this.put("command-stacktool-given-other", "&b%player% &ahas been given the stacking tool.");
+            this.put("command-stacktool-no-console", "&cYou cannot give the stacking tool to the console.");
             this.put("command-stacktool-no-permission", "&cYou do not have permission to use the stacking tool.");
             this.put("command-stacktool-invalid-entity", "&cThat entity is not part of a stack, is it a custom mob?");
             this.put("command-stacktool-marked-unstackable", "&eThe &b%type% &ehas been marked as &cunstackable&e.");
@@ -122,12 +132,12 @@ public class EnglishLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Editing %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cDestroy Stack", "&eDestroys the stack and drops the items"));
+            this.put("gui-stacked-block-page-back", List.of("&ePrevious Page (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eNext Page (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cDestroy Stack", "&eDestroys the stack and drops the items"));
             this.put("gui-stacked-block-destroy-title", "Destroy Block Stack?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirm", "&eYes, destroy the stack"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cCancel", "&eNo, go back to previous screen"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aConfirm", "&eYes, destroy the stack"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cCancel", "&eNo, go back to previous screen"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Viewing %name%");
@@ -191,33 +201,33 @@ public class EnglishLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "Must be placed by a player");
 
             this.put("#14", "Given Stack Item Lore");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core Messages");
-            this.put("acf-core-permission-denied", "&cYou don't have permission for that!");
-            this.put("acf-core-permission-denied-parameter", "&cYou don't have permission for that!");
-            this.put("acf-core-error-generic-logged", "&cAn error occurred. Please report to the plugin author.");
-            this.put("acf-core-error-performing-command", "&cAn error occurred executing the command.");
-            this.put("acf-core-unknown-command", "&cUnknown command. Use &b/rs&c for commands.");
-            this.put("acf-core-invalid-syntax", "&cUsage: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&cError: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&cError: An invalid argument was given.");
-            this.put("acf-core-must-be-a-number", "&cError: &b{num}&c must be a number.");
-            this.put("acf-core-must-be-min-length", "&cError: Must be at least &b{min}&c characters long.");
-            this.put("acf-core-must-be-max-length", "&cError: Must be at most &b{max}&c characters long.");
-            this.put("acf-core-please-specify-at-most", "&cError: Please specify a value of at most &b{max}&c.");
-            this.put("acf-core-please-specify-at-least", "&cError: Please specify a value of at least &b{min}&c.");
-            this.put("acf-core-not-allowed-on-console", "&cOnly players may execute this command.");
-            this.put("acf-core-could-not-find-player", "&cError: Could not find a player by the name: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&cError: No command matched &b{search}&c.");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&cYou don't have permission for that!");
+            this.put("only-player", "&cThis command can only be executed by a player.");
+            this.put("unknown-command", "&cUnknown command, use &b/%cmd% help &cfor more info.");
+            this.put("unknown-command-error", "&cAn unknown error occurred; details have been printed to console. Please contact a server administrator.");
+            this.put("invalid-subcommand", "&cInvalid subcommand.");
+            this.put("invalid-argument", "&cInvalid argument: %message%.");
+            this.put("invalid-argument-null", "&cInvalid argument: %name% was null.");
+            this.put("missing-arguments", "&cMissing arguments, &b%amount% &crequired.");
+            this.put("missing-arguments-extra", "&cMissing arguments, &b%amount%+ &crequired.");
 
-            this.put("#17", "ACF-Minecraft Messages");
-            this.put("acf-minecraft-no-player-found-server", "&cError: Could not find a player by the name: &b{search}");
-            this.put("acf-minecraft-is-not-a-valid-name", "&cError: &b{name} &cis not a valid player name.");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% type [%input%] does not exist");
+            this.put("argument-handler-enum-list", "%enum% type [%input%] does not exist. Valid types: %types%");
+            this.put("argument-handler-string", "String cannot be empty");
+            this.put("argument-handler-integer", "Integer [%input%] must be a whole number between -2^31 and 2^31-1 inclusively");
+            this.put("argument-handler-player", "No Player with the username [%input%] was found online");
+            this.put("argument-handler-stackplugin", "No plugin with the name [%input%] was found");
+            this.put("argument-handler-material", "No material with the name [%input%] was found");
+            this.put("argument-handler-stackamount", "The stack size [%input%] is invalid, must be a number greater than 0");
+            this.put("argument-handler-stacktype", "The stack type [%input%] is invalid");
+            this.put("argument-handler-translationlocale", "The translation locale [%input%] is invalid");
 
             this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +

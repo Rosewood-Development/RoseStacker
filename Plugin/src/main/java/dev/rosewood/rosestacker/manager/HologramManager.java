@@ -6,7 +6,9 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
@@ -17,7 +19,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
-
 
 public class HologramManager extends Manager implements Listener {
 
@@ -38,7 +39,7 @@ public class HologramManager extends Manager implements Listener {
 
     @Override
     public void reload() {
-        this.watcherTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateWatchers, 0L, Setting.NAMETAG_UPDATE_FREQUENCY.getLong());
+        this.watcherTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateWatchers, 0L, Setting.HOLOGRAM_UPDATE_FREQUENCY.getLong());
         this.renderDistanceSqrd = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble() * Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
         this.hideThroughWalls = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
     }
@@ -77,7 +78,7 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             Player player = event.getPlayer();
             for (Hologram hologram : this.holograms.values())
                 this.updateWatcher(player, hologram);
@@ -86,7 +87,7 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             Player player = event.getPlayer();
             for (Hologram hologram : this.holograms.values())
                 hologram.removeWatcher(player);
@@ -99,7 +100,7 @@ public class HologramManager extends Manager implements Listener {
      * @param location The location of the hologram
      * @param text The text for the hologram
      */
-    public void createOrUpdateHologram(Location location, String text) {
+    public void createOrUpdateHologram(Location location, List<String> text) {
         Hologram hologram = this.holograms.get(location);
         if (hologram == null) {
             hologram = this.nmsHandler.createHologram(location, text);

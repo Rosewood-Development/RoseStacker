@@ -4,7 +4,6 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.utils.EntityUtils;
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -20,8 +19,8 @@ public class FluidConditionTag extends ConditionTag {
     @Override
     public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
         boolean isFluid = true;
-        for (Block block : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
-            isFluid &= block.getType() == this.fluidType;
+        for (Material type : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)).values())
+            isFluid &= type == this.fluidType;
         return isFluid;
     }
 
@@ -41,7 +40,7 @@ public class FluidConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return Collections.singletonList(this.fluidType.name());
+        return List.of(this.fluidType.name());
     }
 
 }

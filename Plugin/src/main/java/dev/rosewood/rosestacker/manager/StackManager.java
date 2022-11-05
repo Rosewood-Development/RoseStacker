@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
@@ -13,8 +14,8 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,8 @@ public class StackManager extends Manager implements StackingLogic {
     private boolean isEntityStackingTemporarilyDisabled;
     private boolean isEntityUnstackingTemporarilyDisabled;
 
+    private StackedEntityDataStorageType entityDataStorageType;
+
     public StackManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
@@ -62,6 +65,8 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void reload() {
+        this.entityDataStorageType = StackedEntityDataStorageType.fromName(Setting.ENTITY_DATA_STORAGE_TYPE.getString());
+
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
@@ -395,7 +400,7 @@ public class StackManager extends Manager implements StackingLogic {
         for (StackingThread stackingThread : this.stackingThreads.values()) {
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
                 stackingThread.saveChunkBlocks(chunk, clearStored);
-                stackingThread.saveChunkEntities(chunk, Arrays.asList(chunk.getEntities()), clearStored);
+                stackingThread.saveChunkEntities(chunk, List.of(chunk.getEntities()), clearStored);
             }
         }
     }
@@ -535,7 +540,7 @@ public class StackManager extends Manager implements StackingLogic {
                     continue;
 
                 convertChunks.add(chunk);
-                convertChunkEntities.addAll(Arrays.asList(chunk.getEntities()));
+                convertChunkEntities.addAll(List.of(chunk.getEntities()));
                 PersistentDataUtils.setChunkConverted(chunk);
             }
 
@@ -545,7 +550,7 @@ public class StackManager extends Manager implements StackingLogic {
             this.processingChunks = true;
             this.processingChunksTime = System.currentTimeMillis();
 
-            Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+            ThreadUtils.runAsync(() -> {
                 if (!convertChunkEntities.isEmpty())
                     this.conversionManager.convertChunkEntities(convertChunkEntities);
                 this.processingChunks = false;
@@ -592,6 +597,13 @@ public class StackManager extends Manager implements StackingLogic {
      */
     public boolean isEntityUnstackingTemporarilyDisabled() {
         return this.isEntityUnstackingTemporarilyDisabled;
+    }
+
+    /**
+     * @return the current entity data storage type for newly created entity stacks
+     */
+    public StackedEntityDataStorageType getEntityDataStorageType() {
+        return this.entityDataStorageType;
     }
 
 }

@@ -3,9 +3,10 @@ package dev.rosewood.rosestacker.spawner.conditions.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Collections;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class TotalDarknessConditionTag extends ConditionTag {
@@ -16,7 +17,8 @@ public class TotalDarknessConditionTag extends ConditionTag {
 
     @Override
     public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
-        if (StackerUtils.isOccluding(spawnBlock.getType()))
+        Material type = EntityUtils.getLazyBlockMaterial(spawnBlock.getLocation());
+        if (StackerUtils.isOccluding(type))
             return false;
 
         return spawnBlock.getLightLevel() == 0;
@@ -29,7 +31,7 @@ public class TotalDarknessConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return Collections.emptyList();
+        return List.of();
     }
 
 }

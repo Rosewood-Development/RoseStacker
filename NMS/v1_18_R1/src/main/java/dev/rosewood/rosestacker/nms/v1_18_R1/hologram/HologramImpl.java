@@ -1,11 +1,15 @@
 package dev.rosewood.rosestacker.nms.v1_18_R1.hologram;
 
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
+import dev.rosewood.rosestacker.nms.hologram.HologramLine;
 import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SynchedEntityDataWrapper;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -24,49 +28,62 @@ import org.bukkit.entity.Player;
 
 public class HologramImpl extends Hologram {
 
-    public HologramImpl(int entityId, Location location, String text) {
-        super(entityId, location, text);
+    private static final List<SynchedEntityData.DataItem<?>> DATA_ITEMS = Arrays.asList(
+            new SynchedEntityData.DataItem<>(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
+            new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(10), true),
+            new SynchedEntityData.DataItem<>(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))
+    );
+
+    public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
+        super(text, location, entityIdSupplier);
     }
 
     @Override
     protected void create(Player player) {
-        ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
-                this.entityId,
-                UUID.randomUUID(),
-                this.location.getX(),
-                this.location.getY(),
-                this.location.getZ(),
-                90,
-                0,
-                EntityType.AREA_EFFECT_CLOUD,
-                1,
-                Vec3.ZERO
-        );
+        for (HologramLine line : this.hologramLines) {
+            ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
+                    line.getEntityId(),
+                    UUID.randomUUID(),
+                    line.getLocation().getX(),
+                    line.getLocation().getY(),
+                    line.getLocation().getZ(),
+                    90,
+                    0,
+                    EntityType.AREA_EFFECT_CLOUD,
+                    1,
+                    Vec3.ZERO
+            );
 
-        ((CraftPlayer) player).getHandle().connection.send(packet);
+            ((CraftPlayer) player).getHandle().connection.send(packet);
+        }
     }
 
     @Override
-    protected void update(Player player) {
-        Boolean visible = this.watchers.get(player);
-        if (visible == null)
-            return;
+    protected void update(Collection<Player> players, boolean force) {
+        for (HologramLine line : this.hologramLines) {
+            if (!force && !line.checkDirty())
+                continue;
 
-        List<SynchedEntityData.DataItem<?>> dataItems = new ArrayList<>();
-        Optional<Component> nameComponent = Optional.of(CraftChatMessage.fromStringOrNull(this.text));
-        dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), nameComponent));
-        dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), visible));
-        dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F));
-        dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(10), true));
-        dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState())));
+            List<SynchedEntityData.DataItem<?>> dataItems = new ArrayList<>(DATA_ITEMS);
+            Optional<Component> chatMessage = Optional.of(CraftChatMessage.fromStringOrNull(line.getText()));
+            dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), chatMessage));
 
-        ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(this.entityId, new SynchedEntityDataWrapper(dataItems), false);
-        ((CraftPlayer) player).getHandle().connection.send(packet);
+            for (Player player : players) {
+                Boolean visible = this.watchers.get(player);
+                if (visible == null)
+                    return;
+
+                List<SynchedEntityData.DataItem<?>> allDataItems = new ArrayList<>(dataItems);
+                allDataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), visible));
+
+                ((CraftPlayer) player).getHandle().connection.send(new ClientboundSetEntityDataPacket(line.getEntityId(), new SynchedEntityDataWrapper(allDataItems), false));
+            }
+        }
     }
 
     @Override
     protected void delete(Player player) {
-        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(this.entityId);
+        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(this.hologramLines.stream().mapToInt(HologramLine::getEntityId).toArray());
 
         ((CraftPlayer) player).getHandle().connection.send(packet);
     }

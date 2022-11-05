@@ -1,13 +1,17 @@
 package dev.rosewood.rosestacker.utils;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -36,6 +40,10 @@ public final class EntityUtils {
     private static final Random RANDOM = new Random();
     private static Map<EntityType, BoundingBox> cachedBoundingBoxes;
 
+    private static final Cache<ChunkLocation, ChunkSnapshot> chunkSnapshotCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .build();
+
     /**
      * Get loot for a given entity
      *
@@ -47,7 +55,7 @@ public final class EntityUtils {
     public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation) {
         if (entity instanceof Lootable lootable) {
             if (lootable.getLootTable() == null)
-                return Collections.emptySet();
+                return Set.of();
 
             LootContext lootContext = new LootContext.Builder(lootedLocation)
                     .lootedEntity(entity)
@@ -57,7 +65,7 @@ public final class EntityUtils {
             return lootable.getLootTable().populateLoot(RANDOM, lootContext);
         }
 
-        return Collections.emptySet();
+        return Set.of();
     }
 
     /**
@@ -143,12 +151,12 @@ public final class EntityUtils {
      * @param location The Location the Entity would be at
      * @return A List of Blocks the Entity intersects with
      */
-    public static List<Block> getIntersectingBlocks(EntityType entityType, Location location) {
-        BoundingBox bounds = getBoundingBox(entityType, location).expand(-0.1);;
-        List<Block> blocks = new ArrayList<>();
+    public static Map<Location, Material> getIntersectingBlocks(EntityType entityType, Location location) {
+        BoundingBox bounds = getBoundingBox(entityType, location).expand(-0.1);
+        Map<Location, Material> intersectingBlocks = new HashMap<>();
         World world = location.getWorld();
         if (world == null)
-            return blocks;
+            return intersectingBlocks;
 
         int minX = floorCoordinate(bounds.getMinX());
         int maxX = floorCoordinate(bounds.getMaxX());
@@ -157,12 +165,33 @@ public final class EntityUtils {
         int minZ = floorCoordinate(bounds.getMinZ());
         int maxZ = floorCoordinate(bounds.getMaxZ());
 
-        for (int x = minX; x <= maxX; x++)
-            for (int y = minY; y <= maxY; y++)
-                for (int z = minZ; z <= maxZ; z++)
-                    blocks.add(world.getBlockAt(x, y, z));
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Location blockLocation = new Location(world, x, y, z);
+                    intersectingBlocks.put(blockLocation, getLazyBlockMaterial(blockLocation));
+                }
+            }
+        }
 
-        return blocks;
+        return intersectingBlocks;
+    }
+
+    public static Material getLazyBlockMaterial(Location location) {
+        World world = location.getWorld();
+        if (world == null || location.getBlockY() < world.getMinHeight() || location.getBlockY() > world.getMaxHeight())
+            return Material.AIR;
+
+        try {
+            ChunkLocation pair = new ChunkLocation(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+            return chunkSnapshotCache.get(pair, () -> {
+                Chunk chunk = location.getWorld().getChunkAt(location.getBlockX() >> 4, location.getBlockZ() >> 4);
+                return chunk.getChunkSnapshot();
+            }).getBlockType(location.getBlockX() & 15, location.getBlockY(), location.getBlockZ() & 15);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return Material.AIR;
+        }
     }
 
     /**
@@ -195,5 +224,7 @@ public final class EntityUtils {
     public static void clearCache() {
         cachedBoundingBoxes = null;
     }
+
+    private record ChunkLocation(String world, int x, int z) { }
 
 }

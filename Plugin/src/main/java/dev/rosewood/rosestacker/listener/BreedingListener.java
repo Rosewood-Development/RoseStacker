@@ -7,7 +7,7 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import org.bukkit.Bukkit;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Ageable;
@@ -86,7 +86,7 @@ public class BreedingListener implements Listener {
 
         // Drop experience and spawn entities a few ticks later
         int f_totalChildren = totalChildren;
-        Bukkit.getScheduler().runTaskLater(this.rosePlugin, () -> {
+        ThreadUtils.runSyncDelayed(() -> {
             for (int i = 0; i < f_totalChildren; i++)
                 animal.getWorld().spawn(animal.getLocation(), entityClass, x -> {
                     Ageable baby = (Ageable) x;

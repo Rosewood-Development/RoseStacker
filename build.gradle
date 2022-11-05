@@ -6,7 +6,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.4.15'
+    version = '1.5.0'
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -20,13 +20,13 @@ allprojects {
         maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://repo.md-5.net/content/repositories/public/' }
         maven { url = 'https://repo.codemc.org/repository/maven-public' }
-        maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.viaversion.com/' }
         maven { url = 'https://jitpack.io' }
         maven { url = 'https://libraries.minecraft.net' }
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
@@ -63,10 +63,6 @@ shadowJar {
 
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
     relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
-    relocate('co.aikar.commands', 'dev.rosewood.rosestacker.lib.acf.commands')
-    relocate('co.aikar.locales', 'dev.rosewood.rosestacker.lib.acf.locales')
-
-    exclude 'acf-*.properties'
 }
 
 build.dependsOn shadowJar

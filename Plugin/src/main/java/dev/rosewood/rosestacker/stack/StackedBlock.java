@@ -9,6 +9,8 @@ import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.utils.StackerUtils;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -97,10 +99,10 @@ public class StackedBlock extends Stack<BlockStackSettings> {
             return;
         }
 
-        String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
+        List<String> displayStrings = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("block-hologram-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
                 .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
 
-        hologramManager.createOrUpdateHologram(location, displayString);
+        hologramManager.createOrUpdateHologram(location, displayStrings);
     }
 
     public Location getHologramLocation() {

@@ -12,14 +12,15 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Player;
 
@@ -48,7 +49,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
 
-        Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runSync(() -> {
             this.updateSpawnerProperties(true);
             this.updateDisplay();
         });
@@ -135,6 +136,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
             return;
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
+        LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
 
         Location location = this.getHologramLocation();
 
@@ -144,16 +146,25 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
             return;
         }
 
-        String displayString;
+        List<String> displayStrings;
         if (this.size == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", this.getStackSize())
-                    .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display-single", this.getPlaceholders());
         } else {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", this.getStackSize())
-                    .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display", this.getPlaceholders());
         }
 
-        hologramManager.createOrUpdateHologram(location, displayString);
+        hologramManager.createOrUpdateHologram(location, displayStrings);
+    }
+
+    private StringPlaceholders getPlaceholders() {
+        int delay = this.spawnerTile.getDelay();
+        return StringPlaceholders.builder("name", this.stackSettings.getDisplayName())
+                .addPlaceholder("amount", StackerUtils.formatNumber(this.getStackSize()))
+                .addPlaceholder("max_amount", StackerUtils.formatNumber(this.getStackSettings().getMaxStackSize()))
+                .addPlaceholder("time_remaining", StackerUtils.formatTicksAsTime(delay))
+                .addPlaceholder("ticks_remaining", StackerUtils.formatNumber(delay))
+                .addPlaceholder("total_spawned", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.spawnerTile)))
+                .build();
     }
 
     public Location getHologramLocation() {
@@ -188,9 +199,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         this.spawnerTile.setDelay(delay);
 
-        BlockState state = this.block.getState();
-        if (state instanceof CreatureSpawner)
-            this.cachedCreatureSpawner = (CreatureSpawner) state;
+        if (this.block.getState() instanceof CreatureSpawner creatureSpawner)
+            this.cachedCreatureSpawner = creatureSpawner;
     }
 
 }

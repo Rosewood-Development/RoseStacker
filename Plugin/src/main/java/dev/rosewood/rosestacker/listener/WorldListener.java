@@ -4,8 +4,8 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import java.util.Arrays;
-import org.bukkit.Bukkit;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
+import java.util.List;
 import org.bukkit.Chunk;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -60,7 +60,7 @@ public class WorldListener implements Listener {
                     if (entity instanceof LivingEntity)
                         PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-                this.stackManager.loadChunkEntities(chunk, Arrays.asList(entities));
+                this.stackManager.loadChunkEntities(chunk, List.of(entities));
             }
 
             this.stackManager.loadChunkBlocks(chunk);
@@ -72,7 +72,7 @@ public class WorldListener implements Listener {
         this.stackManager.saveChunkBlocks(event.getChunk(), true);
 
         if (NMSUtil.getVersionNumber() < 17)
-            this.stackManager.saveChunkEntities(event.getChunk(), Arrays.asList(event.getChunk().getEntities()), true);
+            this.stackManager.saveChunkEntities(event.getChunk(), List.of(event.getChunk().getEntities()), true);
     }
 
     @EventHandler
@@ -87,7 +87,7 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, this.stackManager::processNametags);
+        ThreadUtils.runAsync(this.stackManager::processNametags);
     }
 
 }

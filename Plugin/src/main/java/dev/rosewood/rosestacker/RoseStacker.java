@@ -20,6 +20,7 @@ import dev.rosewood.rosestacker.listener.ItemListener;
 import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
+import dev.rosewood.rosestacker.listener.paper.PaperPreCreatureSpawnListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.ConversionManager;
@@ -31,7 +32,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Arrays;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -51,7 +52,7 @@ public class RoseStacker extends RosePlugin {
     }
 
     public RoseStacker() {
-        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, null);
+        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, CommandManager.class);
 
         instance = this;
     }
@@ -92,12 +93,16 @@ public class RoseStacker extends RosePlugin {
             }
         }
 
+        // Try to hook with Paper
+        if (NMSUtil.isPaper())
+            pluginManager.registerEvents(new PaperPreCreatureSpawnListener(this), this);
+
         // Try to hook with PlaceholderAPI
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
             new RoseStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus
-        Bukkit.getScheduler().runTask(this, () -> {
+        ThreadUtils.runSync(() -> {
             if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
                 ShopGuiPlusHook.setupSpawners(this);
         });
@@ -131,7 +136,7 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     protected List<Class<? extends Manager>> getManagerLoadPriority() {
-        return Arrays.asList(
+        return List.of(
                 HologramManager.class,
                 StackSettingManager.class,
                 DataManager.class,

@@ -8,7 +8,6 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosegarden.manager.AbstractLocaleManager;
 import dev.rosewood.rosegarden.utils.HexUtils;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.locale.DutchLocale;
 import dev.rosewood.rosestacker.locale.EnglishLocale;
@@ -20,11 +19,12 @@ import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
 import dev.rosewood.rosestacker.locale.TraditionalChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +33,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -50,7 +48,7 @@ public class LocaleManager extends AbstractLocaleManager {
 
     @Override
     public List<Locale> getLocales() {
-        return Arrays.asList(
+        return List.of(
                 new DutchLocale(),
                 new EnglishLocale(),
                 new FilipinoLocale(),
@@ -63,62 +61,27 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     /**
-     * @return a map of acf-core messages and their values
-     */
-    public Map<String, String> getAcfCoreMessages() {
-        return this.locale.getKeys(false).stream()
-                .filter(x -> x.startsWith("acf-core"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-core-", "").replaceAll("-", "_"), this.locale::getString));
-    }
-
-    /**
-     * @return a map of acf-core minecraft messages and their values
-     */
-    public Map<String, String> getAcfMinecraftMessages() {
-        return this.locale.getKeys(false).stream()
-                .filter(x -> x.startsWith("acf-minecraft"))
-                .collect(Collectors.toMap(x -> x.replaceFirst("acf-minecraft-", "").replaceAll("-", "_"), this.locale::getString));
-    }
-
-    /**
-     * Gets a gui locale message with the given placeholders applied
+     * Gets a list or single locale message with the given placeholders applied, will return an empty list for no messages
      *
      * @param messageKey The key of the message to get
      * @param stringPlaceholders The placeholders to apply
-     * @return The locale message with the given placeholders applied
-     */
-    public List<String> getGuiLocaleMessage(String messageKey, StringPlaceholders stringPlaceholders) {
-        List<String> message = this.locale.getStringList(messageKey);
-        if (message.isEmpty())
-            message.add(ChatColor.RED + "Missing message in locale file: " + messageKey);
-        message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
-        return message;
-    }
-
-    /**
-     * Gets a list of locale messages with the given placeholders applied, will return an empty list for no messages
-     *
-     * @param messageKey The key of the message to get
-     * @param stringPlaceholders The placeholders to apply
-     * @return The locale message with the given placeholders applied
+     * @return The locale messages with the given placeholders applied
      */
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
-        return this.locale.getStringList(messageKey).stream()
-                .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
-                .collect(Collectors.toList());
+        if (this.locale.isList(messageKey)) {
+            List<String> message = this.locale.getStringList(messageKey);
+            message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
+            return message;
+        } else {
+            return new ArrayList<>(Collections.singletonList(this.getLocaleMessage(messageKey, stringPlaceholders)));
+        }
     }
 
     public void fetchMinecraftTranslationLocales() {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            String version;
-            if (NMSUtil.getVersionNumber() >= 16) {
-                version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
-            } else {
-                version = "1.15.2";
-            }
-
+        ThreadUtils.runAsync(() -> {
             DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
 
+            String version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
             List<String> locales = dataManager.getTranslationLocales(version);
             if (!locales.isEmpty()) {
                 this.translationLocales = locales;
@@ -154,7 +117,7 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     public void getMinecraftTranslationValues(String locale, Consumer<TranslationResponse> callback) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
+        ThreadUtils.runAsync(() -> {
             Map<Material, String> materialValues = new EnumMap<>(Material.class);
             Map<EntityType, String> entityValues = new EnumMap<>(EntityType.class);
 

@@ -5,14 +5,13 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import java.util.Arrays;
 import java.util.List;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
 public class VillagerStackSettings extends EntityStackSettings {
 
-    private static final List<String> UNPROFESSIONED_VALUE_NAMES = Arrays.asList("NONE", "NITWIT");
+    private static final List<String> UNPROFESSIONED_VALUE_NAMES = List.of("NONE", "NITWIT");
 
     private final boolean dontStackIfProfessioned;
     private final boolean dontStackIfDifferentProfession;

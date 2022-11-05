@@ -12,11 +12,11 @@ import dev.rosewood.rosestacker.conversion.StackPlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -93,7 +93,7 @@ public class WildStackerPluginConverter extends StackPluginConverter {
             }
 
             if (!stackedBlocks.isEmpty() || !stackedSpawners.isEmpty()) {
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                ThreadUtils.runSync(() -> {
                     for (StackedBlock stackedBlock : stackedBlocks)
                         stackManager.createBlockStack(stackedBlock.getLocation().getBlock(), stackedBlock.getStackSize());
 

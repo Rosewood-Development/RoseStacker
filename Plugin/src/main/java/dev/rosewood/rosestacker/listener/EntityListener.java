@@ -22,17 +22,18 @@ import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -135,7 +136,7 @@ public class EntityListener implements Listener {
 
         // Delay stacking by 1 tick for spawn eggs due to an egg duplication issue
         if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+            ThreadUtils.runSync(task);
         } else {
             task.run();
         }
@@ -258,28 +259,24 @@ public class EntityListener implements Listener {
 
         double damage = event.getFinalDamage();
 
-        List<LivingEntity> killedEntities = new ArrayList<>();
-        List<LivingEntity> internalEntities = StackerUtils.deconstructStackedEntities(stackedEntity);
-        for (LivingEntity internal : internalEntities) {
-            double health = internal.getHealth();
-            if (health - damage <= 0) {
-                killedEntities.add(internal);
+        List<LivingEntity> killedEntities = stackedEntity.getDataStorage().removeIf(internal -> {
+            if (internal.getHealth() - damage <= 0) {
+                internal.setHealth(0);
+                return true;
             } else {
-                internal.setHealth(health - damage);
+                internal.setHealth(internal.getHealth() - damage);
+                return false;
             }
-        }
+        });
 
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
-            internalEntities.removeIf(killedEntities::contains);
             stackedEntity.dropPartialStackLoot(killedEntities, 1, new ArrayList<>(), EntityUtils.getApproximateExperience(stackedEntity.getStackSettings().getEntityType().getEntityClass()));
 
             Player killer = entity.getKiller();
             if (killer != null && killedEntities.size() - 1 > 0)
                 killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killedEntities.size() - 1);
         }
-
-        StackerUtils.reconstructStackedEntities(stackedEntity, internalEntities);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -331,9 +328,30 @@ public class EntityListener implements Listener {
 
         Vector previousVelocity = entity.getVelocity().clone();
         Runnable task = () -> {
-            // Decrease stack size by 1
-            stackedEntity.updateDisplay();
-            stackedEntity.decreaseStackSize();
+            // Should we kill multiple entities?
+            if (Setting.ENTITY_MULTIKILL_ENABLED.getBoolean()) {
+                int multikillAmount = Setting.ENTITY_MULTIKILL_AMOUNT.getInt();
+                int killAmount = 1;
+                if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
+                    Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
+                    if (requiredEnchantment == null) {
+                        // Only decrease stack size by 1 and print a warning to the console
+                        RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
+                    } else if (event != null && event.getEntity().getKiller() != null) {
+                        Player killer = event.getEntity().getKiller();
+                        int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
+                        if (enchantmentLevel > 0)
+                            killAmount = multikillAmount * enchantmentLevel;
+                    }
+                } else {
+                    killAmount = multikillAmount;
+                }
+                stackedEntity.killPartialStack(event, killAmount);
+            } else {
+                // Decrease stack size by 1
+                stackedEntity.decreaseStackSize();
+            }
+
             stackedEntity.getEntity().setVelocity(new Vector());
 
             if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
@@ -341,7 +359,7 @@ public class EntityListener implements Listener {
         };
 
         if (Setting.ENTITY_KILL_DELAY_NEXT_SPAWN.getBoolean()) {
-            Bukkit.getScheduler().runTask(this.rosePlugin, task);
+            ThreadUtils.runSync(task);
         } else {
             task.run();
         }
@@ -406,7 +424,7 @@ public class EntityListener implements Listener {
 
             boolean aiDisabled = PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity());
             event.getEntity().remove();
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, () -> {
+            ThreadUtils.runSync(() -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
                 LivingEntity newEntity = nmsHandler.createEntityFromNBT(serialized, transformedEntity.getLocation(), true, transformedEntity.getType());
                 if (aiDisabled)
@@ -416,12 +434,11 @@ public class EntityListener implements Listener {
                 if (newStack == null)
                     return;
 
-                for (StackedEntityDataEntry<?> serializedEntity : stackedEntity.getStackedEntityNBT().getAll()) {
-                    LivingEntity entity = nmsHandler.createEntityFromNBT(serializedEntity, transformedEntity.getLocation(), false, transformedEntity.getType());
+                stackedEntity.getDataStorage().forEach(entity -> {
                     if (aiDisabled)
                         PersistentDataUtils.removeEntityAi(entity);
                     newStack.increaseStackSize(entity, false);
-                }
+                });
                 newStack.updateDisplay();
             });
         } else {
@@ -430,9 +447,9 @@ public class EntityListener implements Listener {
                 PersistentDataUtils.removeEntityAi((LivingEntity) event.getTransformedEntity());
 
             if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
-                Bukkit.getScheduler().scheduleSyncDelayedTask(this.rosePlugin, stackedEntity::decreaseStackSize, 20);
+                ThreadUtils.runSyncDelayed(stackedEntity::decreaseStackSize, 20);
             } else {
-                Bukkit.getScheduler().runTask(this.rosePlugin, stackedEntity::decreaseStackSize);
+                ThreadUtils.runSync(stackedEntity::decreaseStackSize);
             }
         }
     }
@@ -485,7 +502,7 @@ public class EntityListener implements Listener {
 
         SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
         if (!sheepStackSettings.shouldShearAllSheepInStack()) {
-            Bukkit.getScheduler().runTask(rosePlugin, () -> {
+            ThreadUtils.runSync( () -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
             });
@@ -494,22 +511,17 @@ public class EntityListener implements Listener {
 
         List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runAsync(() -> {
             try {
-                List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
-                        .map(x -> (Sheep) x)
-                        .collect(Collectors.toList());
-
-                for (Sheep sheep : sheepList) {
+                stackedEntity.getDataStorage().forEach(internal -> {
+                    Sheep sheep = (Sheep) internal;
                     if (!sheep.isSheared()) {
-                        ItemStack sheepWool = new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount());
                         sheep.setSheared(true);
-                        drops.add(sheepWool);
+                        drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
                     }
-                }
-                StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
+                });
 
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+                ThreadUtils.runSync(() -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
             } finally {
                 stackManager.setEntityUnstackingTemporarilyDisabled(false);
             }
@@ -550,25 +562,12 @@ public class EntityListener implements Listener {
         if (regrowAmount < 1)
             return;
 
-        int fRegrowAmount = regrowAmount;
-        Bukkit.getScheduler().runTaskAsynchronously(this.rosePlugin, () -> {
-            int remaining = fRegrowAmount;
-
-            List<Sheep> sheepList = StackerUtils.deconstructStackedEntities(stackedEntity).stream()
-                    .map(x -> (Sheep) x)
-                    .collect(Collectors.toList());
-
-            for (Sheep sheep : sheepList) {
-                if (sheep.isSheared()) {
-                    sheep.setSheared(false);
-                    remaining--;
-                    if (remaining <= 0)
-                        break;
-                }
-            }
-
-            StackerUtils.reconstructStackedEntities(stackedEntity, sheepList);
-        });
+        AtomicInteger regrowRemaining = new AtomicInteger(regrowAmount);
+        ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEach(internal -> {
+            Sheep sheep = (Sheep) internal;
+            if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0)
+                sheep.setSheared(true);
+        }));
     }
 
 }

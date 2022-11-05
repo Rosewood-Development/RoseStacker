@@ -22,9 +22,8 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -85,7 +84,7 @@ public class StackedBlockGui {
         for (int i = 9; i <= 36; i += 9) borderSlots.add(i);
         for (int i = 17; i <= 44; i += 9) borderSlots.add(i);
         for (int i = 46; i <= 52; i += 2) borderSlots.add(i);
-        borderSlots.addAll(Arrays.asList(45, 53));
+        borderSlots.addAll(List.of(45, 53));
         ItemStack borderItem = new ItemStack(GuiHelper.parseMaterial(Setting.BLOCK_GUI_BORDER_MATERIAL.getString()));
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
@@ -96,17 +95,17 @@ public class StackedBlockGui {
 
         List<Integer> destroyBorderSlots = new ArrayList<>();
         for (int i = 0; i <= 26; i++) destroyBorderSlots.add(i);
-        destroyBorderSlots.removeAll(Arrays.asList(12, 14));
+        destroyBorderSlots.removeAll(List.of(12, 14));
 
         GuiScreenSection editableSection = GuiFactory.createScreenSection(paginatedSlots);
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         BlockStackSettings stackSettings = this.stackedBlock.getStackSettings();
 
-        GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-back", StringPlaceholders.empty()));
-        GuiStringHelper destroyString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy", StringPlaceholders.empty()));
-        GuiStringHelper pageForwardString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-page-forward", StringPlaceholders.empty()));
-        GuiStringHelper confirmDestroyString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy-confirm", StringPlaceholders.empty()));
-        GuiStringHelper confirmCancelString = new GuiStringHelper(localeManager.getGuiLocaleMessage("gui-stacked-block-destroy-cancel", StringPlaceholders.empty()));
+        GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-page-back", StringPlaceholders.empty()));
+        GuiStringHelper destroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy", StringPlaceholders.empty()));
+        GuiStringHelper pageForwardString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-page-forward", StringPlaceholders.empty()));
+        GuiStringHelper confirmDestroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-confirm", StringPlaceholders.empty()));
+        GuiStringHelper confirmCancelString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-cancel", StringPlaceholders.empty()));
 
         List<ItemStack> stackItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
         int pages = (int) Math.ceil((double) stackItems.size() / paginatedSlots.size()) + 1;
@@ -268,7 +267,7 @@ public class StackedBlockGui {
         this.kickOutViewers();
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+        ThreadUtils.runSync(() -> {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
             Bukkit.getPluginManager().callEvent(blockUnstackEvent);
             if (blockUnstackEvent.isCancelled())
@@ -278,7 +277,7 @@ public class StackedBlockGui {
             if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                 itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount());
             } else {
-                itemsToDrop = Collections.singletonList(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount()));
+                itemsToDrop = List.of(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount()));
             }
 
             if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {

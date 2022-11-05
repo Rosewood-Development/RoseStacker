@@ -1,50 +1,50 @@
 package dev.rosewood.rosestacker.nms.v1_16_R3.storage;
 
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.v1_16_R3.NMSHandlerImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.server.v1_16_R3.EntityVillagerAbstract;
-import net.minecraft.server.v1_16_R3.MerchantRecipeList;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.server.v1_16_R3.NBTBase;
 import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import net.minecraft.server.v1_16_R3.NBTTagList;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftAbstractVillager;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
-import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.LivingEntity;
 
-public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
+public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
-    private static final Field field_AbstractVillager_offers = ReflectionUtils.getFieldByName(EntityVillagerAbstract.class, "trades");
     private final NBTTagCompound base;
     private final List<NBTTagCompound> data;
 
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
+        super(StackedEntityDataStorageType.NBT, livingEntity);
         this.base = new NBTTagCompound();
 
-        this.saveToTag(livingEntity, this.base);
+        ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity, this.base);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
 
         this.data = Collections.synchronizedList(new LinkedList<>());
     }
 
-    public NBTStackedEntityDataStorage(byte[] data) {
+    public NBTStackedEntityDataStorage(LivingEntity livingEntity, byte[] data) {
+        super(StackedEntityDataStorageType.NBT, livingEntity);
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
@@ -80,6 +80,12 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
     }
 
     @Override
+    public void addClones(int amount) {
+        for (int i = 0; i < amount; i++)
+            this.data.add(this.base.clone());
+    }
+
+    @Override
     public NBTStackedEntityDataEntry peek() {
         return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
     }
@@ -87,6 +93,16 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
     @Override
     public NBTStackedEntityDataEntry pop() {
         return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0)));
+    }
+
+    @Override
+    public List<StackedEntityDataEntry<?>> pop(int amount) {
+        amount = Math.min(amount, this.data.size());
+
+        List<StackedEntityDataEntry<?>> popped = new ArrayList<>(amount);
+        for (int i = 0; i < amount; i++)
+            popped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0))));
+        return popped;
     }
 
     @Override
@@ -104,18 +120,6 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(this.data.size());
         for (NBTTagCompound compoundTag : new ArrayList<>(this.data))
             wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)));
-        return wrapped;
-    }
-
-    @Override
-    public List<StackedEntityDataEntry<?>> getTop(int count) {
-        if (count > this.data.size())
-            count = this.data.size();
-
-        List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(count);
-        Iterator<NBTTagCompound> iterator = this.data.iterator();
-        for (int i = 0; i < count; i++)
-            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(iterator.next())));
         return wrapped;
     }
 
@@ -142,9 +146,49 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         }
     }
 
+    @Override
+    public void forEach(Consumer<LivingEntity> consumer) {
+        this.forEachCapped(Integer.MAX_VALUE, consumer);
+    }
+
+    @Override
+    public void forEachCapped(int count, Consumer<LivingEntity> consumer) {
+        if (count > this.data.size())
+            count = this.data.size();
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        LivingEntity thisEntity = this.entity.get();
+        if (thisEntity == null)
+            return;
+
+        Iterator<NBTTagCompound> iterator = this.data.iterator();
+        for (int i = 0; i < count; i++) {
+            NBTTagCompound compoundTag = iterator.next();
+            LivingEntity entity = nmsHandler.createEntityFromNBT(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)), thisEntity.getLocation(), false, thisEntity.getType());
+            consumer.accept(entity);
+        }
+    }
+
+    @Override
+    public List<LivingEntity> removeIf(Function<LivingEntity, Boolean> function) {
+        List<LivingEntity> removedEntries = new ArrayList<>(this.data.size());
+        LivingEntity thisEntity = this.entity.get();
+        if (thisEntity == null)
+            return removedEntries;
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        this.data.removeIf(x -> {
+            LivingEntity entity = nmsHandler.createEntityFromNBT(new NBTStackedEntityDataEntry(this.rebuild(x)), thisEntity.getLocation(), false, thisEntity.getType());
+            boolean removed = function.apply(entity);
+            if (removed) removedEntries.add(entity);
+            return removed;
+        });
+        return removedEntries;
+    }
+
     private void addAt(int index, LivingEntity livingEntity) {
         NBTTagCompound compoundTag = new NBTTagCompound();
-        this.saveToTag(livingEntity, compoundTag);
+        ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity, compoundTag);
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);
@@ -174,32 +218,6 @@ public class NBTStackedEntityDataStorage implements StackedEntityDataStorage {
         merged.a(compoundTag);
         this.fillAttributeUuids(merged);
         return merged;
-    }
-
-    private void saveToTag(LivingEntity livingEntity, NBTTagCompound compoundTag) {
-        // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
-        if (livingEntity instanceof AbstractVillager) {
-            try {
-                EntityVillagerAbstract villager = ((CraftAbstractVillager) livingEntity).getHandle();
-
-                // Set the trades to empty if they are null to prevent trades from generating during the saveWithoutId call
-                boolean bypassTrades = field_AbstractVillager_offers.get(villager) == null;
-                if (bypassTrades)
-                    field_AbstractVillager_offers.set(villager, new MerchantRecipeList());
-
-                ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
-
-                // Restore the offers back to null and make sure nothing is written to the NBT
-                if (bypassTrades) {
-                    field_AbstractVillager_offers.set(villager, null);
-                    compoundTag.remove("Offers");
-                }
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-        } else {
-            ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
-        }
     }
 
     private void stripUnneeded(NBTTagCompound compoundTag) {

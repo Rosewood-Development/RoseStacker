@@ -4,17 +4,23 @@ import java.util.Arrays;
 
 public enum StackedEntityDataStorageType {
 
-    NBT(0),
-    SIMPLE(1);
+    NBT(0, "Store all NBT data for internal entities, memory and performance intensive but highly accurate"),
+    SIMPLE(1, "Store only the stack size and clone the main entity, memory efficient and extremely fast but less accurate");
 
     private final int id;
+    private final String description;
 
-    StackedEntityDataStorageType(int id) {
+    StackedEntityDataStorageType(int id, String description) {
         this.id = id;
+        this.description = description;
     }
 
     public int getId() {
         return this.id;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     public static StackedEntityDataStorageType fromId(int id) {
@@ -22,6 +28,13 @@ public enum StackedEntityDataStorageType {
                 .filter(x -> x.getId() == id)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static StackedEntityDataStorageType fromName(String name) {
+        return Arrays.stream(StackedEntityDataStorageType.values())
+                .filter(x -> x.name().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(StackedEntityDataStorageType.NBT);
     }
 
 }

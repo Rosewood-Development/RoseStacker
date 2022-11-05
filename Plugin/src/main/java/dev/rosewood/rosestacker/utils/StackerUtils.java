@@ -3,15 +3,9 @@ package dev.rosewood.rosestacker.utils;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
-import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -31,7 +25,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -107,7 +100,7 @@ public final class StackerUtils {
                 .filter(EntityType::isSpawnable)
                 .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
                 .sorted(Comparator.comparing(Enum::name))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static Set<EntityType> getStackableEntityTypes() {
@@ -170,26 +163,7 @@ public final class StackerUtils {
                 .filter(x -> {
             inventory.setItem(0, new ItemStack(x));
             return inventory.getItem(0) != null && x != Material.SPAWNER;
-        }).sorted(Comparator.comparing(Enum::name)).collect(Collectors.toList());
-    }
-
-    public static List<LivingEntity> deconstructStackedEntities(StackedEntity stackedEntity) {
-        List<StackedEntityDataEntry<?>> stackedEntityDataEntry = stackedEntity.getStackedEntityNBT().getAll();
-        List<LivingEntity> livingEntities = new ArrayList<>(stackedEntityDataEntry.size());
-        Location location = stackedEntity.getLocation();
-
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (StackedEntityDataEntry<?> nbt : stackedEntityDataEntry)
-            livingEntities.add(nmsHandler.createEntityFromNBT(nbt, location, false, stackedEntity.getEntity().getType()));
-
-        return livingEntities;
-    }
-
-    public static void reconstructStackedEntities(StackedEntity stackedEntity, List<? extends LivingEntity> livingEntities) {
-        StackedEntityDataStorage stackedEntityDataStorage = NMSAdapter.getHandler().createEntityDataStorage(stackedEntity.getEntity());
-        for (LivingEntity livingEntity : livingEntities)
-            stackedEntityDataStorage.addLast(livingEntity);
-        stackedEntity.setStackedEntityNBT(stackedEntityDataStorage);
+        }).sorted(Comparator.comparing(Enum::name)).toList();
     }
 
     /**
@@ -199,7 +173,7 @@ public final class StackerUtils {
      * @return true if the Material can be passed through, false otherwise
      */
     public static boolean isOccluding(Material material) {
-        if (material.name().endsWith("_STAINED_GLASS")
+        if (material.name().contains("GLASS")
                 || material.name().endsWith("_STAINED_GLASS_PANE")
                 || material.name().contains("FENCE")
                 || material.name().endsWith("SLAB")
@@ -207,7 +181,7 @@ public final class StackerUtils {
             return true;
 
         return switch (material) {
-            case CHEST, ENDER_CHEST, TRAPPED_CHEST, GLASS, GLASS_PANE, ICE -> true;
+            case CHEST, ENDER_CHEST, TRAPPED_CHEST, ICE -> true;
             default -> material.isOccluding();
         };
     }
@@ -225,8 +199,26 @@ public final class StackerUtils {
         };
     }
 
-    public static String formatNumber(long points) {
-        return formatter.format(points);
+    /**
+     * Formats a number to a string with a number grouping separator
+     *
+     * @param value The numerical value to format
+     * @return The formatted string
+     */
+    public static String formatNumber(long value) {
+        return formatter.format(value);
+    }
+
+    public static String formatTicksAsTime(long value) {
+        long seconds = value / 20;
+        long minutes = seconds / 60;
+
+        if (minutes > 0) {
+            seconds -= minutes * 60;
+            return String.format("%dm %ds", minutes, seconds);
+        } else {
+            return String.format("%ds", seconds);
+        }
     }
 
     /**

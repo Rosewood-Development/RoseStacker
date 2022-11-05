@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FilipinoLocale implements Locale {
@@ -38,20 +37,29 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display-single", "&7%name%");
 
+            this.put("#1.1", "Hologram Display Tags");
+            this.put("#1.2", "Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%");
+            this.put("#1.3", "Multiple lines are supported");
+            this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-single", List.of("&7%name%"));
+
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
-            this.put("base-command-help", "&eUse &b/rs help &epara sa impormasyon ng utos");
+            this.put("base-command-help", "&eUse &b/%cmd% help &epara sa impormasyon ng utos");
 
             this.put("#3", "Help Command");
-            this.put("command-help-description", "&8 - &d/rs help &7- Ipinapakita ang menu ng tulong... Nakarating kana");
+            this.put("command-help-description", "Ipinapakita ang menu ng tulong... Nakarating kana");
             this.put("command-help-title", "&eMagagamit na mga Utos:");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload Command");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- I-reload ang plugin");
+            this.put("command-reload-description", "I-reload ang plugin");
             this.put("command-reload-reloaded", "&eAng data ng plugin, pagsasaayos, at mga lokal na file ay na-reload.");
 
             this.put("#5", "Give Command");
-            this.put("command-give-description", "&8 - &d/rs give &7- Bigyan ang mga paunang naka-stack na item");
+            this.put("command-give-description", "Bigyan ang mga paunang naka-stack na item");
             this.put("command-give-usage", "&cPaggamit: &e/rs give <block|spawner|entity> <player> <type> [stackSize] [amount]");
             this.put("command-give-given", "&eNagbigay &b%player% &e[%display%&e].");
             this.put("command-give-given-multiple", "&eNagbigay &b%player% &e%amount%x [%display%&e].");
@@ -59,28 +67,29 @@ public class FilipinoLocale implements Locale {
             this.put("command-give-too-large", "&cAng halagang tinukoy mo ay lumampas sa laki ng max na stack para sa ganitong uri.");
 
             this.put("#6", "Clearall Command");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- Tinatanggal ang lahat ng uri ng stack");
+            this.put("command-clearall-description", "Tinatanggal ang lahat ng uri ng stack");
             this.put("command-clearall-killed-entities", "&eTinanggal ang &b%amount% na &estacked na nilalang");
             this.put("command-clearall-killed-items", "&eTinanggal ang &b%amount% &estacked na gamit.");
             this.put("command-clearall-killed-all", "&eTinanggal ang &b%entityAmount% &estack na nilalang at &b%itemAmount% &eStacked na gamit.");
 
             this.put("#7", "Stats Command");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- Nagpapakita ng mga istatistika tungkol sa plugin");
+            this.put("command-stats-description", "Nagpapakita ng mga istatistika tungkol sa plugin");
             this.put("command-stats-header", "&aMga Kasalukuyang Plugin Stats:");
             this.put("command-stats-threads", "&b%amount% &emga aktibong stacking thread.");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &ena-load na entity stack, na kabuuan &b%total% &ena nilalang.");
             this.put("command-stats-stacked-items", "&b%stackAmount% &enaka-load na mga stack gamit, na kabuuan &b%total% &ena gamit.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &ena-load ang mga block stack, na kabuuan &b%total% &emga bloke.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ena-load na mga stack ng spawner, na kabuuan &b%total% &ena spawners.");
+            this.put("command-stats-active-tasks", "&b%amount% &eaktibong gawain.");
 
             this.put("#8", "Convert Command");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- Nagko-convert ng data mula sa isa pang stacking plugin");
+            this.put("command-convert-description", "Nagko-convert ng data mula sa isa pang stacking plugin");
             this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. Hindi pinagana ang na-convert na plugin. Tiyaking aalisin ang na-convert na plugin mula sa iyong folder ng mga plugin.");
             this.put("command-convert-failed", "&cNabigong mag-convert &b%plugin%&c, plugin ay hindi pinagana.");
             this.put("command-convert-aborted", "&cInalis ang pagtatangkang mag-convert &b%plugin%&c. Nag-convert ka na mula sa isa pang stacking plugin.");
 
             this.put("#9", "Translate Command");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- Isinalin ang mga pangalan ng stack");
+            this.put("command-translate-description", "Isinalin ang mga pangalan ng stack");
             this.put("command-translate-loading", "&ePag-download at paglalapat ng data ng pagsasalin, maaari itong tumagal ng ilang sandali.");
             this.put("command-translate-failure", "&cHindi maisalin ang mga pangalan ng stack. Mayroong isang problema sa pagkuha ng data ng lokal. Subukang muli mamaya.");
             this.put("command-translate-invalid-locale", "&cHindi maisalin ang mga pangalan ng stack. Ang lokal na iyong tinukoy ay hindi wasto.");
@@ -89,7 +98,7 @@ public class FilipinoLocale implements Locale {
             this.put("command-translate-success", "&aMatagumpay na naisalin ang mga pangalan ng stack.");
 
             this.put("#10", "Stacking Tool Command");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Binibigyan ang isang manlalaro ng stacking tool");
+            this.put("command-stacktool-description", "Binibigyan ang isang manlalaro ng stacking tool");
             this.put("command-stacktool-given", "&eNabigyan ka ng tool sa pag-stack.");
             this.put("command-stacktool-given-other", "&b%player% &abinigyan ng stacking tool.");
             this.put("command-stacktool-no-permission", "&cWala kang pahintulot na gamitin ang tool sa pag-stack.");
@@ -122,12 +131,12 @@ public class FilipinoLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "pag-edit ng %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&eNakaraang pahina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&eSusunod na pahina (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cWasakin ang Stack", "&eWinawasak ang stack at nahuhulog ang mga item"));
+            this.put("gui-stacked-block-page-back", List.of("&eNakaraang pahina (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&eSusunod na pahina (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cWasakin ang Stack", "&eWinawasak ang stack at nahuhulog ang mga item"));
             this.put("gui-stacked-block-destroy-title", "Wasakin ang Block Stack?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aKumpirmahin", "&eOo, sirain ang stack"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cKanselahin", "&eHindi, bumalik sa nakaraang screen"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aKumpirmahin", "&eOo, sirain ang stack"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cKanselahin", "&eHindi, bumalik sa nakaraang screen"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Pagtingin %name%");
@@ -191,33 +200,33 @@ public class FilipinoLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "Dapat ilagay ng isang manlalaro");
 
             this.put("#14", "Given Stack Item Lore");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core Messages");
-            this.put("acf-core-permission-denied", "&cWala kang pahintulot para doon!");
-            this.put("acf-core-permission-denied-parameter", "&cWala kang pahintulot para doon!");
-            this.put("acf-core-error-generic-logged", "&cMay pagkakamaling naganap. Mangyaring iulat sa may-akda ng plugin.");
-            this.put("acf-core-error-performing-command", "&cNagkaroon ng error sa pagpapatupad ng utos.");
-            this.put("acf-core-unknown-command", "&cHindi kilalang utos. gamitin ang &b/rs&c Hindi kilalang utos. gamitin");
-            this.put("acf-core-invalid-syntax", "&cPaggamit: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&cError: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&cError: Isang di-wastong argumento ang ibinigay.");
-            this.put("acf-core-must-be-a-number", "&cError: &b{num}&c dapat na isang numero.");
-            this.put("acf-core-must-be-min-length", "&cError: Dapat ay hindi bababa sa &b{min}&c haba ng character.");
-            this.put("acf-core-must-be-max-length", "&cError: Dapat ay higit sa lahat &b{max}&c haba ng character.");
-            this.put("acf-core-please-specify-at-most", "&cError: Mangyaring tukuyin ang isang halaga ng hindi hihigit &b{max}&c.");
-            this.put("acf-core-please-specify-at-least", "&cError: Mangyaring tukuyin ang isang halaga ng hindi bababa sa &b{min}&c.");
-            this.put("acf-core-not-allowed-on-console", "&cAng mga manlalaro lamang ang maaaring magpatupad ng utos na ito.");
-            this.put("acf-core-could-not-find-player", "&cError: Hindi makahanap ng player ng pangalan: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&cError: Walang utos na tumugma &b{search}&c.");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&cWala kang pahintulot para doon!");
+            this.put("only-player", "&cAng utos na ito ay maaari lamang isagawa ng isang manlalaro.");
+            this.put("unknown-command", "&cHindi kilalang command, gamitin ang &b/%cmd% help &cpara sa higit pang impormasyon.");
+            this.put("unknown-command-error", "&cMay naganap na hindi kilalang error. Ang mga detalye ay na-print para sa console. Mangyaring makipag-ugnayan sa isang administrator ng server.");
+            this.put("invalid-subcommand", "&cDi-wastong subcommand.");
+            this.put("invalid-argument", "&cDi-wastong argumento: %message%.");
+            this.put("invalid-argument-null", "&cDi-wastong argumento: %name% ay null.");
+            this.put("missing-arguments", "&cMga nawawalang argumento, &b%amount% &cang kailangan.");
+            this.put("missing-arguments-extra", "&cMga nawawalang argumento, &b%amount%+ &cang kailangan.");
 
-            this.put("#17", "ACF-Minecraft Messages");
-            this.put("acf-minecraft-no-player-found-server", "&cError: Hindi mahanap ang isang manlalaro sa pamamagitan ng pangalan: &b{search}");
-            this.put("acf-minecraft-is-not-a-valid-name", "&cError: &b{name} &cay hindi wastong pangalan ng manlalaro.");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% uri [%input%] ay hindi umiiral");
+            this.put("argument-handler-enum-list", "%enum% uri [%input%] ay hindi umiiral. Mga wastong uri: %types%");
+            this.put("argument-handler-string", "Hindi maaaring walang laman ang string");
+            this.put("argument-handler-integer", "Ang integer [%input%] ay dapat na isang buong numero sa pagitan ng -2^31 at 2^31-1 kasama");
+            this.put("argument-handler-player", "Walang Player na may username na [%input%] ang natagpuan online");
+            this.put("argument-handler-stackplugin", "Walang nakitang plugin na may pangalang [%input%]");
+            this.put("argument-handler-material", "Walang nakitang materyal na may pangalang [%input%]");
+            this.put("argument-handler-stackamount", "Ang laki ng stack [%input%] ay di-wasto, dapat ay isang numerong mas mataas sa 0");
+            this.put("argument-handler-stacktype", "Ang uri ng stack na [%input%] ay hindi wasto");
+            this.put("argument-handler-translationlocale", "Ang lokal na pagsasalin [%input%] ay hindi wasto");
 
             this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cMayroong mga plugin sa iyong server na kilalang sumasalungat sa RoseStacker. " +

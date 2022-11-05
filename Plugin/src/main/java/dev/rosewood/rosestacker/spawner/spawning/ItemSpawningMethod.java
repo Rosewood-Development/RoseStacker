@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.spawner.spawning;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
-import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
@@ -11,13 +10,13 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -43,7 +42,7 @@ public class ItemSpawningMethod implements SpawningMethod {
         List<ConditionTag> spawnRequirements = new ArrayList<>();
 
         // Check general spawner conditions // TODO
-        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).collect(Collectors.toList());
+        List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).toList();
         spawnRequirements.removeAll(perSpawnConditions);
 
         Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());
@@ -67,7 +66,7 @@ public class ItemSpawningMethod implements SpawningMethod {
             spawnAmount = spawnerTile.getSpawnCount();
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(RoseStacker.getInstance(), () -> {
+        ThreadUtils.runAsync(() -> {
             Set<Location> spawnLocations = new HashSet<>();
             int spawnRange = spawnerTile.getSpawnRange();
             for (int i = 0; i < spawnAmount; i++) {
@@ -105,7 +104,7 @@ public class ItemSpawningMethod implements SpawningMethod {
             int successfulSpawns = spawnLocations.size() > 0 ? spawnAmount : 0;
 
             // Drop items
-            Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+            ThreadUtils.runSync(() -> {
                 // Assign each location a portion of the total items to drop
                 int amountPerLocation = (int) Math.ceil((double) spawnAmount / spawnLocations.size());
                 int amountLeft = spawnAmount;
@@ -119,7 +118,7 @@ public class ItemSpawningMethod implements SpawningMethod {
             });
 
             stackedSpawner.getLastInvalidConditions().clear();
-            if (successfulSpawns <= 0) {
+            if (successfulSpawns == 0) {
                 if (invalidSpawnConditions.isEmpty()) {
                     stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
                 } else {
@@ -134,7 +133,7 @@ public class ItemSpawningMethod implements SpawningMethod {
             } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                Bukkit.getScheduler().runTask(RoseStacker.getInstance(), () -> {
+                ThreadUtils.runSync(() -> {
                     if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });

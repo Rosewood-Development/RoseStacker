@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SimplifiedChineseLocale implements Locale {
@@ -38,20 +37,29 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display-single", "&7%name%");
 
+            this.put("#1.1", "Hologram Display Tags");
+            this.put("#1.2", "Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%");
+            this.put("#1.3", "Multiple lines are supported");
+            this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-single", List.of("&7%name%"));
+
             this.put("#2", "基础命令信息");
             this.put("base-command-color", "&e");
             this.put("base-command-help", "&e使用 &b/rs help &e来获取更多命令信息。");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#3", "帮助命令");
             this.put("command-help-description", "&8 - &d/rs help &7- 显示命令帮助菜单... 就是您现在看着的这个");
             this.put("command-help-title", "&e可用的命令:");
 
             this.put("#4", "重载命令");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- 重新加载插件");
+            this.put("command-reload-description", "重新加载插件");
             this.put("command-reload-reloaded", "&e插件数据，配置文件，语言文件均已被重新加载。");
 
             this.put("#5", "给予命令");
-            this.put("command-give-description", "&8 - &d/rs give &7- 给予预先堆叠的物品");
+            this.put("command-give-description", "给予预先堆叠的物品");
             this.put("command-give-usage", "&c用法: &e/rs give <block|spawner|entity> <玩家> <类型> [堆叠量] [份数]");
             this.put("command-give-given", "&e已给予玩家 &b%player% &e[%display%&e]。");
             this.put("command-give-given-multiple", "&e已给予玩家 &b%player% &e%amount%x [%display%&e]。");
@@ -59,28 +67,29 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-give-too-large", "&c您指定的堆叠量超过了该类型所允许的最大堆叠量。");
 
             this.put("#6", "清理堆叠命令");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- 清除一种堆叠类型的所有堆叠个体。");
+            this.put("command-clearall-description", "清除一种堆叠类型的所有堆叠个体。");
             this.put("command-clearall-killed-entities", "&e清除了 &b%amount% &e个堆叠的实体。");
             this.put("command-clearall-killed-items", "&e清除了 &b%amount% &e份堆叠的物品。");
             this.put("command-clearall-killed-all", "&e清除了 &b%entityAmount% &e个堆叠的实体和 &b%itemAmount% &e份堆叠的物品。");
 
             this.put("#7", "统计命令");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- 显示插件的统计数据");
+            this.put("command-stats-description", "显示插件的统计数据");
             this.put("command-stats-header", "&a当前插件统计数据:");
             this.put("command-stats-threads", "&b%amount% &e个活跃的堆叠线程。");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &e个已加载的堆叠实体, 共计 &b%total% &e个单体实体。");
             this.put("command-stats-stacked-items", "&b%stackAmount% &e份已加载的堆叠物品, 共计 &b%total% &e个单体物品。");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &e份已加载的堆叠方块, 共计 &b%total% &e个单体方块。");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &e个已加载的堆叠刷怪笼, 共计 &b%total% &e个单体刷怪笼。");
+            this.put("command-stats-active-tasks", "&b%amount%&e的活动任务。");
 
             this.put("#8", "转化命令");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- 从另一个堆叠类型的插件转化数据");
+            this.put("command-convert-description", "从另一个堆叠类型的插件转化数据");
             this.put("command-convert-converted", "&e已转化插件 &b%plugin% &e的数据至 RoseStacker。拥有数据源的插件已被关闭，请确保在下次重启前将其移出插件文件夹。");
             this.put("command-convert-failed", "&c无法转化插件 &b%plugin% &c的数据, 该插件未处于运行状态。");
             this.put("command-convert-aborted", "&c已中止对插件 &b%plugin% &c进行数据转化的尝试， 您已经从另一个堆叠插件转化过数据了。");
 
             this.put("#9", "翻译命令");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- 翻译堆叠整体的显示名称");
+            this.put("command-translate-description", "翻译堆叠整体的显示名称");
             this.put("command-translate-loading", "&e正在下载并应用翻译数据, 这可能会花点时间。");
             this.put("command-translate-failure", "&c无法翻译堆叠整体的显示名称。在获取语言数据时发生了错误，请稍后再试一次。");
             this.put("command-translate-invalid-locale", "&c无法翻译堆叠整体的显示名称。您所指定的语言文件是无效的。");
@@ -90,9 +99,10 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-translate-success", "&a成功翻译堆叠整体的显示名称。");
 
             this.put("#10", "堆叠工具命令");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- 给予玩家一份堆叠工具");
+            this.put("command-stacktool-description", "给予玩家一份堆叠工具");
             this.put("command-stacktool-given", "&e您已被给予堆叠工具。");
             this.put("command-stacktool-given-other", "&b%player% &a已被给予堆叠工具。");
+            this.put("command-stacktool-no-console", "&c你不能把叠加工具交给控制台。");
             this.put("command-stacktool-no-permission", "&c您没有足够的权限去使用堆叠工具。");
             this.put("command-stacktool-invalid-entity", "&c那个实体不是堆叠的一部分，是自定义的实体吗？");
             this.put("command-stacktool-marked-unstackable", "&e类型 &b%type% &e已被标记为 &c不可堆叠&e。");
@@ -122,12 +132,12 @@ public class SimplifiedChineseLocale implements Locale {
 
             this.put("#11", "堆叠方块 GUI");
             this.put("gui-stacked-block-title", "编辑堆叠 %name% 中");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&e上一页 (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&e下一页 (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&c销毁堆叠", "&e拆分堆叠整体为掉落物"));
+            this.put("gui-stacked-block-page-back", List.of("&e上一页 (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&e下一页 (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&c销毁堆叠", "&e拆分堆叠整体为掉落物"));
             this.put("gui-stacked-block-destroy-title", "确定要销毁堆叠整体?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&a确认", "&e是的，帮我拆分它"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&c取消", "&e不，我想回到上一页"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&a确认", "&e是的，帮我拆分它"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&c取消", "&e不，我想回到上一页"));
 
             this.put("#12", "堆叠刷怪笼 GUI");
             this.put("gui-stacked-spawner-title", "查看 %name% 中");
@@ -191,33 +201,33 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "必须由玩家放置");
 
             this.put("#14", "给予物品描述(lore)");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core 信息");
-            this.put("acf-core-permission-denied", "&c您没有权限那么做!");
-            this.put("acf-core-permission-denied-parameter", "&c您没有权限那么做!");
-            this.put("acf-core-error-generic-logged", "&c发生了一个错误。请向插件作者发送报告。");
-            this.put("acf-core-error-performing-command", "&c运行指令时发生了一个错误。");
-            this.put("acf-core-unknown-command", "&c未知的指令。使用 &b/rs&c 获取更多信息。");
-            this.put("acf-core-invalid-syntax", "&c用法: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&c错误: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&c错误: 所提供的数据扩展值无效。");
-            this.put("acf-core-must-be-a-number", "&c错误: &b{num}&c 必须是一个数字。");
-            this.put("acf-core-must-be-min-length", "&c错误: 至少要有 &b{min}&c 个字符那么长。");
-            this.put("acf-core-must-be-max-length", "&c错误: 最多只能有 &b{max}&c 字符。");
-            this.put("acf-core-please-specify-at-most", "&c错误: 请提供一个小于 &b{max}&c 的值。");
-            this.put("acf-core-please-specify-at-least", "&c错误: 请提供一个大于 &b{min}&c 的值。");
-            this.put("acf-core-not-allowed-on-console", "&c只有玩家才可能执行这个命令。");
-            this.put("acf-core-could-not-find-player", "&c错误: 没有找到您寻找的玩家: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&c错误: 没有命令与您的搜索匹配 &b{search}&c。");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&c您没有权限那么做!");
+            this.put("only-player", "&c这个命令只能由玩家执行。");
+            this.put("unknown-command", "&c未知的命令，使用&b/%cmd%&c帮助以获得更多信息。");
+            this.put("unknown-command-error", "&c发生了一个未知的错误。详情已打印到控制台。请联系服务器管理员。");
+            this.put("invalid-subcommand", "&c无效的子命令。");
+            this.put("invalid-argument", "&c无效参数：%message%。");
+            this.put("invalid-argument-null", "&c无效参数：%name%为空。");
+            this.put("missing-arguments", "&c缺少参数，需要&b%amount%&c。");
+            this.put("missing-arguments-extra", "&c缺少参数，需要&b%amount%+&c。");
 
-            this.put("#17", "ACF-Minecraft 信息");
-            this.put("acf-minecraft-no-player-found-server", "&c错误: 没有找到您要寻找的玩家: &b{search}");
-            this.put("acf-minecraft-is-not-a-valid-name", "&c错误: &b{name} &c不是个有效的玩家名。");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% 类型 [%input%] 不存在");
+            this.put("argument-handler-enum-list", "%enum%类型[%input%]不存在。有效类型：%types%");
+            this.put("argument-handler-string", "字符串不能为空");
+            this.put("argument-handler-integer", "整数[%input%]必须是在-2^31和2^31-1之间的整数，包括在内。");
+            this.put("argument-handler-player", "没有发现用户名为[%input%]的玩家在线。");
+            this.put("argument-handler-stackplugin", "没有找到名称为[%input%]的插件");
+            this.put("argument-handler-material", "没有发现名称为[%input%]的材料。");
+            this.put("argument-handler-stackamount", "堆栈大小[%input%]无效，必须是一个大于0的数字");
+            this.put("argument-handler-stacktype", "堆栈类型[%input%]是无效的");
+            this.put("argument-handler-translationlocale", "翻译语言[%input%] 无效");
 
             this.put("#18", "转化锁定信息");
             this.put("convert-lock-conflictions", "&c服务器上有一些插件与RoseStacker冲突。" +

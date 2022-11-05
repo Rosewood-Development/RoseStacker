@@ -10,7 +10,6 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -69,7 +68,7 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return Collections.singletonList(String.valueOf(this.maxNearbyEntities));
+        return List.of(String.valueOf(this.maxNearbyEntities));
     }
 
 }

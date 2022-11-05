@@ -5,9 +5,8 @@ import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RomanianLocale implements Locale {
@@ -38,20 +37,29 @@ public class RomanianLocale implements Locale {
             this.put("spawner-stack-display", "&c%amount%x &7%name%");
             this.put("spawner-stack-display-single", "&7%name%");
 
+            this.put("#1.1", "Hologram Display Tags");
+            this.put("#1.2", "Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%");
+            this.put("#1.3", "Multiple lines are supported");
+            this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-single", List.of("&7%name%"));
+
             this.put("#2", "Base Command Message");
             this.put("base-command-color", "&e");
-            this.put("base-command-help", "&eFoloseste &b/rs help &epentru ajutor");
+            this.put("base-command-help", "&eFoloseste &b/%cmd% help &epentru ajutor");
 
             this.put("#3", "Help command");
-            this.put("command-help-description", "&8 - &d/rs help &7- Deschide meniul de ajutor");
+            this.put("command-help-description", "Deschide meniul de ajutor");
             this.put("command-help-title", "&eComenzi disponibile:");
+            this.put("command-help-list-description", "&8 - &d/%cmd% %subcmd% %args% &7- %desc%");
+            this.put("command-help-list-description-no-args", "&8 - &d/%cmd% %subcmd% &7- %desc%");
 
             this.put("#4", "Reload command");
-            this.put("command-reload-description", "&8 - &d/rs reload &7- Reincarca configuratia");
+            this.put("command-reload-description", "Reincarca configuratia");
             this.put("command-reload-reloaded", "&eConfiguratia a fost reincarcata.");
 
             this.put("#5", "Give Command");
-            this.put("command-give-description", "&8 - &d/rs give &7- Ofera obiecte pre-stackate");
+            this.put("command-give-description", "Ofera obiecte pre-stackate");
             this.put("command-give-usage", "&cComanda: &e/rs give <block|spawner|entitate> <jucator> <tip> [dimensiuneStack] [cantitate]");
             this.put("command-give-given", "&b%player% &ea primit [%display%&e].");
             this.put("command-give-given-multiple", "&b%player% &ea primit %amount%x [%display%&e].");
@@ -59,28 +67,29 @@ public class RomanianLocale implements Locale {
             this.put("command-give-too-large", "&cCantitatea specificata depaseste dimensiunea maxima a stackarii pentru acest tip.");
 
             this.put("#6", "Clearall Command");
-            this.put("command-clearall-description", "&8 - &d/rs clearall &7- Sterge toate entitatile");
+            this.put("command-clearall-description", "Sterge toate entitatile");
             this.put("command-clearall-killed-entities", "&eAu fost sterse &b%amount% &eentitati.");
             this.put("command-clearall-killed-items", "&eAu fost sterse &b%amount% &eobiecte.");
             this.put("command-clearall-killed-all", "&eAu fost sterse &b%entityAmount% &eentitati si &b%itemAmount% &eobiecte.");
 
             this.put("#7", "Stats Command");
-            this.put("command-stats-description", "&8 - &d/rs stats &7- Arata statisticile plugin-ului");
+            this.put("command-stats-description", "Arata statisticile plugin-ului");
             this.put("command-stats-header", "&aStatistici Plugin:");
             this.put("command-stats-threads", "&b%amount% &efire active de stackare.");
             this.put("command-stats-stacked-entities", "&b%stackAmount% &estack-uri de entitati incarcate, in total &b%total% &eentitati.");
             this.put("command-stats-stacked-items", "&b%stackAmount% &estack-uri de obiecte incarcate, in total &b%total% &eobiecte.");
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &estack-uri de block-uri incarcate, in total &b%total% &eblock-uri.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &estack-uri de spawnere incarcate, in total &b%total% &espawnere.");
+            this.put("command-stats-active-tasks", "&b%amount% &eactive feladatok.");
 
             this.put("#8", "Convert Command");
-            this.put("command-convert-description", "&8 - &d/rs convert &7- Converteste datele dintr-un alt plugin");
+            this.put("command-convert-description", "Converteste datele dintr-un alt plugin");
             this.put("command-convert-converted", "&eS-a convertit data din &b%plugin% &ein RoseStacker. Plugin-ul convertit a fost dezactivat, nu uita sa stergi il din fisierul cu plugin-uri.");
             this.put("command-convert-failed", "&cConvertirea plugin-ului &b%plugin%&c a esuat, plugin-ul este dezactivat.");
             this.put("command-convert-aborted", "&cConvertirea plugin-ului &b%plugin%&c a esuat, deja ai convertit din alt plugin de stackare.");
 
             this.put("#9", "Translate Command");
-            this.put("command-translate-description", "&8 - &d/rs translate &7- Traduce plugin-ul");
+            this.put("command-translate-description", "Traduce plugin-ul");
             this.put("command-translate-loading", "&eSe descarca si aplica datele traducerii, asteapta cateva momente.");
             this.put("command-translate-failure", "&cNu s-a putut traduce, a intervenit o eroare in datele locale. Incearca mai tarziu");
             this.put("command-translate-invalid-locale", "&cNu s-a putut traduce, fisierul locale specificat este invalid.");
@@ -89,9 +98,10 @@ public class RomanianLocale implements Locale {
             this.put("command-translate-success", "&aTraducerea a fost efectuata cu succes.");
 
             this.put("#10", "Stacking Tool Command");
-            this.put("command-stacktool-description", "&8 - &d/rs stacktool &7- Ofera unui jucator stacking tool");
+            this.put("command-stacktool-description", "Ofera unui jucator stacking tool");
             this.put("command-stacktool-given", "&eAi primit stacking tool.");
             this.put("command-stacktool-given-other", "&b%player% &aa primit stacking tool.");
+            this.put("command-stacktool-no-console", "&cNu puteți da stacking tool la consolă.");
             this.put("command-stacktool-no-permission", "&cNu ai permisiunea sa folosesti stacking tool.");
             this.put("command-stacktool-invalid-entity", "&cThat entity is not part of a stack, is it a custom mob?");
             this.put("command-stacktool-marked-unstackable", "&b%type% &ea fost setat ca &cnestackabil&e.");
@@ -121,12 +131,12 @@ public class RomanianLocale implements Locale {
 
             this.put("#11", "Stacked Block GUI");
             this.put("gui-stacked-block-title", "Se editeaza %name% Stack");
-            this.put("gui-stacked-block-page-back", Collections.singletonList("&ePagina precedenta (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-page-forward", Collections.singletonList("&ePagina urmatoare (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
-            this.put("gui-stacked-block-destroy", Arrays.asList("&cDistrugere Stack", "&eDistruge stack-ul si dropeaza obiectele"));
+            this.put("gui-stacked-block-page-back", List.of("&ePagina precedenta (" + GuiUtil.PREVIOUS_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-page-forward", List.of("&ePagina urmatoare (" + GuiUtil.NEXT_PAGE_NUMBER_PLACEHOLDER + "/" + GuiUtil.MAX_PAGE_NUMBER_PLACEHOLDER + ")"));
+            this.put("gui-stacked-block-destroy", List.of("&cDistrugere Stack", "&eDistruge stack-ul si dropeaza obiectele"));
             this.put("gui-stacked-block-destroy-title", "Distrugi block-urile?");
-            this.put("gui-stacked-block-destroy-confirm", Arrays.asList("&aConfirma", "&eDa, distruge stack-ul"));
-            this.put("gui-stacked-block-destroy-cancel", Arrays.asList("&cAnuleaza", "&eNu, intoarce-te la ecranul precedent"));
+            this.put("gui-stacked-block-destroy-confirm", List.of("&aConfirma", "&eDa, distruge stack-ul"));
+            this.put("gui-stacked-block-destroy-cancel", List.of("&cAnuleaza", "&eNu, intoarce-te la ecranul precedent"));
 
             this.put("#12", "Stacked Spawner GUI");
             this.put("gui-stacked-spawner-title", "Se vizualizeaza %name%");
@@ -190,33 +200,33 @@ public class RomanianLocale implements Locale {
             this.put("spawner-condition-not-player-placed-invalid", "Trebuie să fie plasat de către un jucător");
 
             this.put("#14", "Given Stack Item Lore");
-            this.put("#15", "Note: This will appear in the lore of the items give from the '/rs give' command");
+            this.put("#15", "Note: This will appear in the lore of the items given from the '/rs give' command");
             this.put("stack-item-lore-spawner", new ArrayList<>());
             this.put("stack-item-lore-block", new ArrayList<>());
             this.put("stack-item-lore-entity", new ArrayList<>());
 
-            this.put("#16", "ACF-Core Messages");
-            this.put("acf-core-permission-denied", "&cNu ai permisiunea pentru a face asta!");
-            this.put("acf-core-permission-denied-parameter", "&cNu ai permisiunea pentru a face asta!");
-            this.put("acf-core-error-generic-logged", "&cEroare! Raporteaza unui operator.");
-            this.put("acf-core-error-performing-command", "&cEroare! Raporteaza unui operator.");
-            this.put("acf-core-unknown-command", "&cComanda necunoscuta. Tasteaza &e/rs&c pentru comenzi.");
-            this.put("acf-core-invalid-syntax", "&cComanda: &e{command}&e {syntax}");
-            this.put("acf-core-error-prefix", "&cEroare: {message}");
-            this.put("acf-core-info-message", "&e{message}");
-            this.put("acf-core-please-specify-one-of", "&cEroare! Argument invalid.");
-            this.put("acf-core-must-be-a-number", "&cEroare! &b{num} &btrebuie sa fie un numar.");
-            this.put("acf-core-must-be-min-length", "&cEroare! &cNumar minim de caractere: &b{min}&c.");
-            this.put("acf-core-must-be-max-length", "&cEroare! &cNumar minim de caractere: &b{max}&c.");
-            this.put("acf-core-please-specify-at-most", "&cEroare! &cSpecifica o valoare de maxim &b{max}&c.");
-            this.put("acf-core-please-specify-at-least", "&cEroare! &cSpecifica o valoare de minim &b{min}&c.");
-            this.put("acf-core-not-allowed-on-console", "&cDoar jucatorii pot executa aceasta comanda.");
-            this.put("acf-core-could-not-find-player", "&cEroare! Nu s-a putut gasi jucatorul cu numele: &b{search}");
-            this.put("acf-core-no-command-matched-search", "&cEroare! &cComanda necunoscuta. Tasteaza &b/rs&c pentru comenzi.");
+            this.put("#16", "Generic Command Messages");
+            this.put("no-permission", "&cNu ai permisiunea pentru a face asta!");
+            this.put("only-player", "&cAceastă comandă poate fi folosită doar de către un jucător.");
+            this.put("unknown-command", "&cComandă necunoscută, utilizați &b/%cmd% help &cpentru mai multe informații.");
+            this.put("unknown-command-error", "&cA apărut o eroare necunoscută; detaliile au fost tipărite în consolă. Vă rugăm să contactați un administrator de server.");
+            this.put("invalid-subcommand", "&cSubcomandă invalidă.");
+            this.put("invalid-argument", "&cArgument nevalabil: %message%.");
+            this.put("invalid-argument-null", "&cArgument nevalabil: %name% era nul.");
+            this.put("missing-arguments", "&cArgumente lipsă, &b%amount% &ceste necesar.");
+            this.put("missing-arguments-extra", "&cArgumente lipsă, &b%amount%+ &ceste necesar.");
 
-            this.put("#17", "ACF-Minecraft Messages");
-            this.put("acf-minecraft-no-player-found-server", "&cEroare! &cNu s-a putut gasi jucatorul &b{search}&c.");
-            this.put("acf-minecraft-is-not-a-valid-name", "&cEroare! &cNu s-a putut gasi jucatorul &b{search}&c.");
+            this.put("#17", "Argument Handler Error Messages");
+            this.put("argument-handler-enum", "%enum% tipul [%input%] nu există");
+            this.put("argument-handler-enum-list", "Tipul %enum% [%input%] nu există. Tipuri valide: %types%");
+            this.put("argument-handler-string", "Șirul nu poate fi gol");
+            this.put("argument-handler-integer", "Întregul [%input%] trebuie să fie un număr întreg cuprins între -2^31 și 2^31-1 inclusiv.");
+            this.put("argument-handler-player", "Niciun jucător cu numele de utilizator [%input%] nu a fost găsit online");
+            this.put("argument-handler-stackplugin", "Nu a fost găsit niciun plugin cu numele [%input%].");
+            this.put("argument-handler-material", "Nu a fost găsit niciun material cu numele [%input%].");
+            this.put("argument-handler-stackamount", "Dimensiunea stivei [%input%] nu este validă, trebuie să fie un număr mai mare decât 0");
+            this.put("argument-handler-stacktype", "Tipul de stivă [%input%] nu este valid");
+            this.put("argument-handler-translationlocale", "Locația de traducere [%input%] nu este validă");
 
             this.put("#18", "Convert Lock Messages");
             this.put("convert-lock-conflictions", "&cSunt plugin-uri ce se afla in conflict cu RoseStacker, pentru a preveni aceste conflicte si/sau pierderea datelor, RoseStacker a dezactivat unu sau mai multe stack types. " +

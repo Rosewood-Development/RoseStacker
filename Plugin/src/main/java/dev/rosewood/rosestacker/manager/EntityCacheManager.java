@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
@@ -75,7 +74,7 @@ public class EntityCacheManager extends Manager {
 
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
-                Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world, x, z));
+                Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, z));
                 if (entities != null)
                     nearbyEntities.addAll(entities);
             }
@@ -100,7 +99,7 @@ public class EntityCacheManager extends Manager {
         if (world == null)
             return new ArrayList<>();
 
-        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world, location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
         if (entities == null)
             return new ArrayList<>();
 
@@ -117,7 +116,7 @@ public class EntityCacheManager extends Manager {
      */
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
-        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
         Collection<Entity> entities = this.entityCache.get(chunkLocation);
         if (entities == null) {
             entities = new LinkedBlockingDeque<>();
@@ -136,7 +135,7 @@ public class EntityCacheManager extends Manager {
                     if (type != EntityType.DROPPED_ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;
 
-                    ChunkLocation chunkLocation = new ChunkLocation(world, entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
+                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
                     Collection<Entity> entities = this.entityCache.get(chunkLocation);
                     if (entities == null) {
                         entities = new LinkedBlockingDeque<>();
@@ -148,45 +147,6 @@ public class EntityCacheManager extends Manager {
         }
     }
 
-    private static class ChunkLocation {
-
-        private final World world;
-        private final int x, z;
-
-        public ChunkLocation(World world, int x, int z) {
-            this.world = world;
-            this.x = x;
-            this.z = z;
-        }
-
-        public World getWorld() {
-            return this.world;
-        }
-
-        public int getX() {
-            return this.x;
-        }
-
-        public int getZ() {
-            return this.z;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-
-            if (!(o instanceof ChunkLocation other))
-                return false;
-
-            return this.x == other.x && this.z == other.z && this.world.equals(other.world);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.world, this.x, this.z);
-        }
-
-    }
+    private record ChunkLocation(String world, int x, int z) { }
 
 }

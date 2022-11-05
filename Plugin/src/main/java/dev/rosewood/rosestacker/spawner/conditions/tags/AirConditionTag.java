@@ -5,8 +5,8 @@ import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.Collections;
 import java.util.List;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class AirConditionTag extends ConditionTag {
@@ -18,8 +18,8 @@ public class AirConditionTag extends ConditionTag {
     @Override
     public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
         boolean isAir = true;
-        for (Block block : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)))
-            isAir &= StackerUtils.isAir(block.getType()) || !StackerUtils.isOccluding(block.getType());
+        for (Material type : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnedType(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)).values())
+            isAir &= StackerUtils.isAir(type) || !StackerUtils.isOccluding(type);
         return isAir;
     }
 
@@ -30,7 +30,7 @@ public class AirConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return Collections.emptyList();
+        return List.of();
     }
 
 }
