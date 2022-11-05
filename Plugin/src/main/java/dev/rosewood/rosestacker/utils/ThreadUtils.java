@@ -43,20 +43,31 @@ public final class ThreadUtils {
     }
 
     private static Runnable wrap(Runnable runnable) {
-        return () -> {
-            activeThreads.incrementAndGet();
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            try {
-                runnable.run();
-            } finally {
-                activeThreads.decrementAndGet();
-                if (DEBUG) {
-                    double ms = stopwatch.elapsed().toNanos() / 1000000.0;
-                    if (ms > 0)
-                        rosePlugin.getLogger().warning("Thread took " + DecimalFormat.getInstance().format(ms) + "ms to complete");
+        if (DEBUG) {
+            return () -> {
+                activeThreads.incrementAndGet();
+                Stopwatch stopwatch = Stopwatch.createStarted();
+                try {
+                    runnable.run();
+                } finally {
+                    activeThreads.decrementAndGet();
+                    if (DEBUG) {
+                        double ms = stopwatch.elapsed().toNanos() / 1000000.0;
+                        if (ms > 30)
+                            rosePlugin.getLogger().warning("Thread took " + DecimalFormat.getInstance().format(ms) + "ms to complete");
+                    }
                 }
-            }
-        };
+            };
+        } else {
+            return () -> {
+                activeThreads.incrementAndGet();
+                try {
+                    runnable.run();
+                } finally {
+                    activeThreads.decrementAndGet();
+                }
+            };
+        }
     }
 
     private static boolean checkEnabled() {
