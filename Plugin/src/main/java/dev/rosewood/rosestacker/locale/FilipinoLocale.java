@@ -235,6 +235,7 @@ public class FilipinoLocale implements Locale {
                     "Papayagan ka rin ng file na iyon na kilalanin na nabasa mo ang babalang ito at hahayaan kang huwag paganahin ang mensaheng ito.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cBabala! Hindi ka maaaring maglagay ng spawner dito!");
             this.put("spawner-silk-touch-protect", "&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke at / o may pahintulot na kunin ang mga spawner. Hindi mo magagawa kung hindi man.");
             this.put("spawner-advanced-place-no-permission", "&cBabala! &eWala kang pahintulot na ilagay ang uri ng spawner.");
             this.put("spawner-advanced-break-no-permission", "&cBabala! &eWala kang pahintulot na kunin ang uri ng spawner.");

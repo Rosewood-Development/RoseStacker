@@ -236,6 +236,7 @@ public class EnglishLocale implements Locale {
                     "That file will also allow you to acknowledge that you have read this warning and let you to disable this message.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cWarning! You cannot place a spawner here!");
             this.put("spawner-silk-touch-protect", "&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.");
             this.put("spawner-advanced-place-no-permission", "&cWarning! &eYou do not have permission to place that type of spawner.");
             this.put("spawner-advanced-break-no-permission", "&cWarning! &eYou do not have permission to pick up that type of spawner.");

@@ -235,6 +235,7 @@ public class DutchLocale implements Locale {
                     "Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cWaarschuwing! Je kunt hier geen spawner plaatsen!");
             this.put("spawner-silk-touch-protect", "&cWarning! &eJe moet een silk touch pickaxe gebruiken of je hebt geen permissie om spawner op te rapen. Anders kan je dit niet doen.");
             this.put("spawner-advanced-place-no-permission", "&cWaarschuwing! &eJe hebt geen toestemming om dit soort spawner te plaatsen.");
             this.put("spawner-advanced-break-no-permission", "&cWaarschuwing! &eJe hebt geen toestemming om dit soort spawner op te rapen.");

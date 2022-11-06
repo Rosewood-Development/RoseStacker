@@ -590,6 +590,7 @@ public class BlockListener implements Listener {
                 isAdditiveStack = true;
                 isDistanceStack = true;
             } else if (anyNearby && Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean()) {
+                this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-advanced-place-range");
                 event.setCancelled(true);
                 return;
             }

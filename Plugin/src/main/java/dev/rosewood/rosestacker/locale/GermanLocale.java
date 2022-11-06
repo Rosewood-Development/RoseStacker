@@ -236,6 +236,7 @@ public class GermanLocale implements Locale {
                     "Diese Datei wird dir ebenso die möglichkeit geben zu bestätigen dass du diese Warnung gelesen hast und somit diese Warnmeldung deaktivieren.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cWarnung! Du kannst hier keinen Spawner platzieren!");
             this.put("spawner-silk-touch-protect", "&cWarnung! &eDu musst eine Spitzhacke mit Behutsamkeit nutzen und/oder die berechtigung Spawner aufzuheben. Andernfalls wird es nicht möglich sein");
             this.put("spawner-advanced-place-no-permission", "&cWarnung! &eDu hast nicht die nötigen berechtigungen um diesen Spawner zu plazieren.");
             this.put("spawner-advanced-break-no-permission", "&cWarnung! &eDu hast nicht die nötigen berechtigungen um diesen Spawner abzubauen.");
