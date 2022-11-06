@@ -73,7 +73,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_INSTANT_KILL_DISABLED_AI("global-entity-settings.instant-kill-disabled-ai", false, "Should entities with disabled AI be killed instantly when receiving damage from a player?"),
         ENTITY_DISABLE_ALL_MOB_AI("global-entity-settings.disable-all-mob-ai", false, "Should the AI of all mobs on the server be disabled?", "The parts of the AI that are disabled can be further customized in the global-spawner-settings.disable-mob-ai-options section"),
         ENTITY_SAVE_MAX_STACK_SIZE("global-entity-settings.save-max-stack-size", -1, "The maximum amount of entities that will be stored when entities are saved to chunk data", "Useful for when you have a very high max stack size, set to -1 to disable"),
-        ENTITY_OBEY_MOB_CAPS("global-entity-settings.obey-mob-caps", false, "Should entities attempting to spawn check for nearby stacks in an attempt to better obey mob caps?", "Note: This will only work on Paper servers and may be performance intensive"),
+        ENTITY_OBEY_MOB_CAPS("global-entity-settings.obey-mob-caps", false, "Should entities attempting to spawn check for nearby stacks in an attempt to better obey mob caps?", "Note: This will only work on 1.18.2+ Paper servers and may be performance intensive"),
 
         GLOBAL_ITEM_SETTINGS("global-item-settings", null, "Global item settings", "Changed values in item_settings.yml will override these values"),
         ITEM_STACKING_ENABLED("global-item-settings.stacking-enabled", true, "Should item stacking be enabled at all?"),
