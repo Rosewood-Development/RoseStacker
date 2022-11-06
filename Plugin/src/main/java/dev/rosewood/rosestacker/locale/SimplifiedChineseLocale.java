@@ -236,6 +236,7 @@ public class SimplifiedChineseLocale implements Locale {
                     "该文件还允许您确认您已阅读此警告，并允许您禁用此消息。");
 
             this.put("#19", "杂项信息");
+            this.put("spawner-advanced-place-range","&c警告！ 你不能在这里放置一个刷怪笼！");
             this.put("spawner-silk-touch-protect", "&c警告! &e您需要附魔有精准采集的稿子 并且/或 有权限拿起一个刷怪笼。否则您将不能这样做。");
             this.put("spawner-convert-not-enough", "&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的刷怪蛋数量并不足以进行转换的操作。");
             this.put("spawner-advanced-place-no-permission", "&c警告! &e您没有恰当的权限来放置这种类型的刷怪笼。");

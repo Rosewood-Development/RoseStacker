@@ -236,6 +236,7 @@ public class HungarianLocale implements Locale {
                     "Ez a fájl lehetővéteszi hogy megtudhasd hogy van egy ilyen figyelmeztetés és el dönthesd kikapcsolod-e ezt az üzenetet.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cWarnung! Du kannst hier keinen Spawner platzieren!");
             this.put("spawner-silk-touch-protect", "&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra és/vagy legyen jogod felszedni anélkül a spawnert. Egyébként nem fogod tudni felszedni.");
             this.put("spawner-advanced-place-no-permission", "&cFigyelmeztetés! &eNincs jogod lerakni ezt a típusú spawnert.");
             this.put("spawner-advanced-break-no-permission", "&cFigyelmeztetés! &eNincs jogod felszedni ezt a típusú spawnert.");

@@ -234,6 +234,7 @@ public class RomanianLocale implements Locale {
                     "Acel document, de asemenea, iti va aduce la cunostiinta ca ai citit acest avertisment si te va lasa sa il dezactivezi.");
 
             this.put("#19", "Misc Messages");
+            this.put("spawner-advanced-place-range","&cAvertizare! Nu puteți plasa un generator aici!");
             this.put("spawner-silk-touch-protect", "&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch si/sau trebuie sa ai permisiunea de a lua spawnerele.");
             this.put("spawner-advanced-place-no-permission", "&cAtentie! &eNu ai permisiunea pentru a pune acest tip de spawner.");
             this.put("spawner-advanced-break-no-permission", "&cAtentie! &eNu ai permisiunea pentru a lua acest tip de spawner.");

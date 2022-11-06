@@ -236,6 +236,7 @@ public class TraditionalChineseLocale implements Locale {
                     "你亦可以於此檔案確認你已經閱讀了此警告，並停止顯示此訊息。");
 
             this.put("#19", "其他訊息");
+            this.put("spawner-advanced-place-range","&c警告！ 你不能在這裡放置一個刷怪籠！");
             this.put("spawner-silk-touch-protect", "&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬或擁有拾起生怪磚的權限。 否則你不能這樣做。");
             this.put("spawner-advanced-place-no-permission", "&c警告! &e你沒有放置該類別的生怪磚的權限。");
             this.put("spawner-advanced-break-no-permission", "&c警告! &e你沒有拾起該類別的生怪磚的權限。");
