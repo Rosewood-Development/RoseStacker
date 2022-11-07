@@ -42,6 +42,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_MULTIKILL_OPTIONS("global-entity-settings.multikill-options", null, "Allows killing multiple mobs at once, does not work with kill-entire-stack-on-death settings"),
         ENTITY_MULTIKILL_ENABLED("global-entity-settings.multikill-options.multikill-enabled", false, "Should multikill be enabled?"),
         ENTITY_MULTIKILL_AMOUNT("global-entity-settings.multikill-options.multikill-amount", 5, "The amount of mobs in the stack to kill at a time", "If using the multikill enchantment, this will be the number of mobs killed per enchantment level"),
+        ENTITY_MULTIKILL_PLAYER_ONLY("global-entity-settings.multikill-options.multikill-player-only", false, "Should the multikill only apply when done directly by a player?"),
         ENTITY_MULTIKILL_ENCHANTMENT_ENABLED("global-entity-settings.multikill-options.multikill-enchantment-enabled", false, "Should an enchantment on the tool be required to be able to use the multikill features?"),
         ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", Enchantment.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),

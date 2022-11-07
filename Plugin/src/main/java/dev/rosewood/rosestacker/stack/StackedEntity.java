@@ -157,7 +157,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public StackedEntity decreaseStackSize() {
         if (this.stackedEntityDataStorage.isEmpty())
-            throw new IllegalStateException();
+            return null;
 
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
         LivingEntity oldEntity = this.entity;
@@ -551,7 +551,11 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void killPartialStack(@Nullable EntityDeathEvent event, int amount) {
         if (amount == 1) {
-            this.decreaseStackSize();
+            if (this.getStackSize() == 1) {
+                RoseStacker.getInstance().getManager(StackManager.class).removeEntityStack(this);
+            } else {
+                this.decreaseStackSize();
+            }
             return;
         }
 
