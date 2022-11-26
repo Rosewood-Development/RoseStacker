@@ -37,7 +37,7 @@ public class ZombieVillagerStackSettings extends EntityStackSettings {
     @Override
     protected void setDefaultsInternal() {
         this.setIfNotExists("dont-stack-if-different-profession", false);
-        this.setIfNotExists("dont-stack-if-converting", false);
+        this.setIfNotExists("dont-stack-if-converting", true);
     }
 
     @Override

@@ -133,7 +133,8 @@ public class StackedSpawnerGui {
                     lore.add(this.getString("disabled-mob-ai", StringPlaceholders.single("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
                     int range = stackSettings.getEntitySearchRange() == -1 ? spawnerTile.getSpawnRange() : stackSettings.getEntitySearchRange();
                     lore.add(this.getString("entity-search-range", StringPlaceholders.single("range", range)));
-                    lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", spawnerTile.getRequiredPlayerRange())));
+                    if (!this.stackedSpawner.getStackSettings().hasUnlimitedPlayerActivationRange())
+                        lore.add(this.getString("player-activation-range", StringPlaceholders.single("range", spawnerTile.getRequiredPlayerRange())));
                     lore.add(this.getString("spawn-range", StringPlaceholders.single("range", spawnerTile.getSpawnRange())));
 
                     if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
