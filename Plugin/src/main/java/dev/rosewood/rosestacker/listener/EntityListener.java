@@ -332,20 +332,24 @@ public class EntityListener implements Listener {
             if (Setting.ENTITY_MULTIKILL_ENABLED.getBoolean()) {
                 int multikillAmount = Setting.ENTITY_MULTIKILL_AMOUNT.getInt();
                 int killAmount = 1;
-                if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
-                    Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
-                    if (requiredEnchantment == null) {
-                        // Only decrease stack size by 1 and print a warning to the console
-                        RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
-                    } else if (event != null && event.getEntity().getKiller() != null) {
-                        Player killer = event.getEntity().getKiller();
-                        int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
-                        if (enchantmentLevel > 0)
-                            killAmount = multikillAmount * enchantmentLevel;
+
+                if (!Setting.ENTITY_MULTIKILL_PLAYER_ONLY.getBoolean() || entity.getKiller() != null) {
+                    if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
+                        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
+                        if (requiredEnchantment == null) {
+                            // Only decrease stack size by 1 and print a warning to the console
+                            RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
+                        } else if (event != null && event.getEntity().getKiller() != null) {
+                            Player killer = event.getEntity().getKiller();
+                            int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
+                            if (enchantmentLevel > 0)
+                                killAmount = multikillAmount * enchantmentLevel;
+                        }
+                    } else {
+                        killAmount = multikillAmount;
                     }
-                } else {
-                    killAmount = multikillAmount;
                 }
+
                 stackedEntity.killPartialStack(event, killAmount);
             } else {
                 // Decrease stack size by 1

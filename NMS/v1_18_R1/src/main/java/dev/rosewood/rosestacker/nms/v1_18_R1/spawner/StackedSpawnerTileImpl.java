@@ -143,7 +143,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     }
 
     private boolean isNearPlayer(Level level, BlockPos blockPos) {
-        if (this.requiredPlayerRange < 0)
+        if (this.stackedSpawner.getStackSettings().hasUnlimitedPlayerActivationRange())
             return true;
         return level.hasNearbyAlivePlayer((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D, Math.max(this.stackedSpawner.getStackSettings().getPlayerActivationRange(), 0.1));
     }

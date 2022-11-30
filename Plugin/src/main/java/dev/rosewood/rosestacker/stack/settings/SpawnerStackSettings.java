@@ -149,9 +149,15 @@ public class SpawnerStackSettings extends StackSettings {
     }
 
     public int getPlayerActivationRange() {
+        if (this.hasUnlimitedPlayerActivationRange())
+            return Integer.MAX_VALUE;
         if (this.playerActivationRange != -1)
             return Math.max(this.playerActivationRange, 1);
         return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt(), 1);
+    }
+
+    public boolean hasUnlimitedPlayerActivationRange() {
+        return this.playerActivationRange == -2 || Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt() == -2;
     }
 
     public int getSpawnRange() {
