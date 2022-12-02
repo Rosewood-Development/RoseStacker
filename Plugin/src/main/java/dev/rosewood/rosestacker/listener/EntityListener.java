@@ -28,6 +28,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
@@ -105,13 +106,13 @@ public class EntityListener implements Listener {
         if (!this.stackManager.isItemStackingEnabled() || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        if (entity instanceof Item) {
-            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings((Item) event.getEntity());
+        if (entity instanceof Item item) {
+            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings(item);
             if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
                 return;
 
             this.entityCacheManager.preCacheEntity(entity);
-            this.stackManager.createItemStack((Item) entity, true);
+            this.stackManager.createItemStack(item, true);
         }
     }
 
@@ -261,8 +262,7 @@ public class EntityListener implements Listener {
 
         List<LivingEntity> killedEntities = stackedEntity.getDataStorage().removeIf(internal -> {
             if (internal.getHealth() - damage <= 0) {
-                internal.setHealth(0);
-                return true;
+                return true; // Don't set the health below 0, as that will trigger the death event which we want to avoid
             } else {
                 internal.setHealth(internal.getHealth() - damage);
                 return false;
