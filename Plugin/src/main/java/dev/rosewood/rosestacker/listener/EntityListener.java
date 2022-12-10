@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -28,7 +29,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
@@ -506,7 +506,7 @@ public class EntityListener implements Listener {
 
         SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
         if (!sheepStackSettings.shouldShearAllSheepInStack()) {
-            ThreadUtils.runSync( () -> {
+            ThreadUtils.runSync(() -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
             });
@@ -519,7 +519,7 @@ public class EntityListener implements Listener {
             try {
                 stackedEntity.getDataStorage().forEach(internal -> {
                     Sheep sheep = (Sheep) internal;
-                    if (!sheep.isSheared()) {
+                    if (!sheep.isSheared() || stackManager.getEntityDataStorageType() == StackedEntityDataStorageType.SIMPLE) {
                         sheep.setSheared(true);
                         drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
                     }
