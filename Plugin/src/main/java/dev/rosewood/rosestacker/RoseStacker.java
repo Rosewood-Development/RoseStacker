@@ -94,7 +94,7 @@ public class RoseStacker extends RosePlugin {
         }
 
         // Try to hook with Paper
-        if (NMSUtil.isPaper())
+        if (NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 18)
             pluginManager.registerEvents(new PaperPreCreatureSpawnListener(this), this);
 
         // Try to hook with PlaceholderAPI

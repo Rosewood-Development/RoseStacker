@@ -7,7 +7,11 @@ import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.SpawnCategory;
@@ -17,6 +21,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 public class PaperPreCreatureSpawnListener implements Listener {
+
+    private static final Map<String, SpawnCategory> SPAWN_CATEGORY_LOOKUP = Arrays.stream(SpawnCategory.values()).collect(Collectors.toMap(SpawnCategory::name, Function.identity()));
 
     private final StackManager stackManager;
     private final EntityCacheManager entityCacheManager;
@@ -33,7 +39,8 @@ public class PaperPreCreatureSpawnListener implements Listener {
         if (!ConfigurationManager.Setting.ENTITY_OBEY_MOB_CAPS.getBoolean() || event.getReason() != SpawnReason.NATURAL)
             return;
 
-        SpawnCategory spawnCategory = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().getSpawnCategory();
+        String category = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().getSpawnCategory();
+        SpawnCategory spawnCategory = SPAWN_CATEGORY_LOOKUP.get(category);
         int limit = event.getSpawnLocation().getWorld().getSpawnLimit(spawnCategory);
 
         int total = 0;

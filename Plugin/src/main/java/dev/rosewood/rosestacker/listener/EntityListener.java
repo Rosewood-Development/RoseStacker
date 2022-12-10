@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -105,13 +106,13 @@ public class EntityListener implements Listener {
         if (!this.stackManager.isItemStackingEnabled() || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        if (entity instanceof Item) {
-            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings((Item) event.getEntity());
+        if (entity instanceof Item item) {
+            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings(item);
             if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
                 return;
 
             this.entityCacheManager.preCacheEntity(entity);
-            this.stackManager.createItemStack((Item) entity, true);
+            this.stackManager.createItemStack(item, true);
         }
     }
 
@@ -261,8 +262,7 @@ public class EntityListener implements Listener {
 
         List<LivingEntity> killedEntities = stackedEntity.getDataStorage().removeIf(internal -> {
             if (internal.getHealth() - damage <= 0) {
-                internal.setHealth(0);
-                return true;
+                return true; // Don't set the health below 0, as that will trigger the death event which we want to avoid
             } else {
                 internal.setHealth(internal.getHealth() - damage);
                 return false;
@@ -332,20 +332,24 @@ public class EntityListener implements Listener {
             if (Setting.ENTITY_MULTIKILL_ENABLED.getBoolean()) {
                 int multikillAmount = Setting.ENTITY_MULTIKILL_AMOUNT.getInt();
                 int killAmount = 1;
-                if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
-                    Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
-                    if (requiredEnchantment == null) {
-                        // Only decrease stack size by 1 and print a warning to the console
-                        RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
-                    } else if (event != null && event.getEntity().getKiller() != null) {
-                        Player killer = event.getEntity().getKiller();
-                        int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
-                        if (enchantmentLevel > 0)
-                            killAmount = multikillAmount * enchantmentLevel;
+
+                if (!Setting.ENTITY_MULTIKILL_PLAYER_ONLY.getBoolean() || entity.getKiller() != null) {
+                    if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
+                        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
+                        if (requiredEnchantment == null) {
+                            // Only decrease stack size by 1 and print a warning to the console
+                            RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
+                        } else if (event != null && event.getEntity().getKiller() != null) {
+                            Player killer = event.getEntity().getKiller();
+                            int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
+                            if (enchantmentLevel > 0)
+                                killAmount = multikillAmount * enchantmentLevel;
+                        }
+                    } else {
+                        killAmount = multikillAmount;
                     }
-                } else {
-                    killAmount = multikillAmount;
                 }
+
                 stackedEntity.killPartialStack(event, killAmount);
             } else {
                 // Decrease stack size by 1
@@ -502,7 +506,7 @@ public class EntityListener implements Listener {
 
         SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
         if (!sheepStackSettings.shouldShearAllSheepInStack()) {
-            ThreadUtils.runSync( () -> {
+            ThreadUtils.runSync(() -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
             });
@@ -515,7 +519,7 @@ public class EntityListener implements Listener {
             try {
                 stackedEntity.getDataStorage().forEach(internal -> {
                     Sheep sheep = (Sheep) internal;
-                    if (!sheep.isSheared()) {
+                    if (!sheep.isSheared() || stackManager.getEntityDataStorageType() == StackedEntityDataStorageType.SIMPLE) {
                         sheep.setSheared(true);
                         drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
                     }
