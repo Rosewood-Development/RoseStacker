@@ -52,7 +52,7 @@ dependencies {
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.1.0.48-SNAPSHOT'
+    api 'dev.rosewood:rosegarden:1.1.0.50-SNAPSHOT'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
 }
 
