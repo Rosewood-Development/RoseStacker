@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -62,7 +63,12 @@ public class InteractListener implements Listener {
                     stackedSpawner = stackManager.createSpawnerStack(clickedBlock, 1, false);
 
                 EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
-                if (stackSettings != null && stackSettings.getEntityType() == stackedSpawner.getSpawnerTile().getSpawnedType()) {
+                if (stackSettings == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if (SpawnerType.of(stackSettings.getEntityType()).equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
                     // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
                     event.setCancelled(true);
                     return;

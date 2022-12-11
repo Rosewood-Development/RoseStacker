@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -47,7 +48,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.block = spawner;
         this.cachedCreatureSpawner = (CreatureSpawner) this.block.getState();
         this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
-        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnerType());
 
         ThreadUtils.runSync(() -> {
             this.updateSpawnerProperties(true);
@@ -148,9 +149,9 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         List<String> displayStrings;
         if (this.size == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
-            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display-single", this.getPlaceholders());
+            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display" + (this.spawnerTile.getSpawnerType().isEmpty() ? "-empty" : "") + "-single", this.getPlaceholders());
         } else {
-            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display", this.getPlaceholders());
+            displayStrings = localeManager.getLocaleMessages("spawner-hologram-display" + (this.spawnerTile.getSpawnerType().isEmpty() ? "-empty" : ""), this.getPlaceholders());
         }
 
         hologramManager.createOrUpdateHologram(location, displayStrings);
@@ -182,22 +183,25 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     public void updateSpawnerProperties(boolean resetDelay) {
         // Handle the entity type changing
-        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnedType());
+        SpawnerType spawnerType = this.spawnerTile.getSpawnerType();
+        this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
 
-        if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
-        if (this.stackSettings.getMaxSpawnDelay() != -1) this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
-        if (this.stackSettings.getMinSpawnDelay() != -1) this.spawnerTile.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
-        if (this.stackSettings.getPlayerActivationRange() != -1) this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
-        if (this.stackSettings.getSpawnRange() != -1) this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
+        if (!spawnerType.isEmpty()) {
+            if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());
+            if (this.stackSettings.getMaxSpawnDelay() != -1) this.spawnerTile.setMaxSpawnDelay(this.stackSettings.getMaxSpawnDelay());
+            if (this.stackSettings.getMinSpawnDelay() != -1) this.spawnerTile.setMinSpawnDelay(this.stackSettings.getMinSpawnDelay());
+            if (this.stackSettings.getPlayerActivationRange() != -1) this.spawnerTile.setRequiredPlayerRange(this.stackSettings.getPlayerActivationRange());
+            if (this.stackSettings.getSpawnRange() != -1) this.spawnerTile.setSpawnRange(this.stackSettings.getSpawnRange());
 
-        int delay;
-        if (resetDelay) {
-            delay = StackerUtils.randomInRange(this.spawnerTile.getMinSpawnDelay(), this.spawnerTile.getMaxSpawnDelay());
-        } else {
-            delay = this.spawnerTile.getDelay();
+            int delay;
+            if (resetDelay) {
+                delay = StackerUtils.randomInRange(this.spawnerTile.getMinSpawnDelay(), this.spawnerTile.getMaxSpawnDelay());
+            } else {
+                delay = this.spawnerTile.getDelay();
+            }
+
+            this.spawnerTile.setDelay(delay);
         }
-
-        this.spawnerTile.setDelay(delay);
 
         if (this.block.getState() instanceof CreatureSpawner creatureSpawner)
             this.cachedCreatureSpawner = creatureSpawner;

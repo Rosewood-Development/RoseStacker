@@ -1,17 +1,17 @@
 package dev.rosewood.rosestacker.command.type;
 
-import org.bukkit.entity.EntityType;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 
 public class StackedSpawnerType {
 
-    private final EntityType entityType;
+    private final SpawnerType spawnerType;
 
-    public StackedSpawnerType(EntityType entityType) {
-        this.entityType = entityType;
+    public StackedSpawnerType(SpawnerType spawnerType) {
+        this.spawnerType = spawnerType;
     }
 
-    public EntityType get() {
-        return this.entityType;
+    public SpawnerType get() {
+        return this.spawnerType;
     }
 
 }

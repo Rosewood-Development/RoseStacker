@@ -36,12 +36,12 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
         SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
         int detectionRange = stackSettings.getEntitySearchRange() == -1 ? stackedSpawner.getSpawnerTile().getSpawnRange() : stackSettings.getEntitySearchRange();
         Block block = stackedSpawner.getBlock();
-        EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
+        List<EntityType> entityTypes = stackedSpawner.getSpawnerTile().getSpawnerType().getEntityTypes();
 
         Collection<Entity> nearbyEntities = this.entityCacheManager.getNearbyEntities(
                 block.getLocation().clone().add(0.5, 0.5, 0.5),
                 detectionRange,
-                entity -> entity.getType() == entityType);
+                entity -> entityTypes.contains(entity.getType()));
 
         if (Setting.SPAWNER_MAX_NEARBY_ENTITIES_INCLUDE_STACKS.getBoolean()) {
             return nearbyEntities.stream().mapToInt(x -> {

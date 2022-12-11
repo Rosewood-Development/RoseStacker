@@ -174,6 +174,7 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
         compoundTag.remove("OnGround");
         compoundTag.remove("FallDistance");
         compoundTag.remove("Leash");
+        compoundTag.remove("IsSitting");
         compoundTag.remove("Spigot.ticksLived");
         compoundTag.remove("Paper.OriginWorld");
         compoundTag.remove("Paper.Origin");
