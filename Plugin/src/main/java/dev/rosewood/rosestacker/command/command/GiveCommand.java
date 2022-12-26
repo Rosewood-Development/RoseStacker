@@ -122,9 +122,9 @@ public class GiveCommand extends RoseCommand {
         }
 
         @RoseExecutable
-        public void execute(@Inject CommandContext context, Player target, StackedSpawnerType entityType, StackedSpawnerAmount stackSize, @Optional Integer amount) {
+        public void execute(@Inject CommandContext context, Player target, StackedSpawnerType spawnerType, StackedSpawnerAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType.get());
+            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType.get());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
@@ -138,7 +138,7 @@ public class GiveCommand extends RoseCommand {
             if (amount == null || amount < 1)
                 amount = 1;
 
-            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(entityType.get(), stackSize.get());
+            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(spawnerType.get(), stackSize.get());
             giveDuplicates(target, item, amount);
 
             String displayString;

@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -37,6 +38,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.ApiStatus;
 
 public final class ItemUtils {
 
@@ -163,13 +165,18 @@ public final class ItemUtils {
         return material.name().endsWith("_SPAWN_EGG");
     }
 
+    @ApiStatus.Obsolete
     public static ItemStack getSpawnerAsStackedItemStack(EntityType entityType, int amount) {
+        return getSpawnerAsStackedItemStack(SpawnerType.of(entityType), amount);
+    }
+
+    public static ItemStack getSpawnerAsStackedItemStack(SpawnerType spawnerType, int amount) {
         ItemStack itemStack = new ItemStack(Material.SPAWNER);
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
             return itemStack;
 
-        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
         StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
         String displayString;
         if (amount == 1) {
@@ -185,18 +192,20 @@ public final class ItemUtils {
         if (!lore.isEmpty())
             itemMeta.setLore(lore);
 
-        // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
-        BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
-        CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
-        creatureSpawner.setSpawnedType(entityType);
-        blockStateMeta.setBlockState(creatureSpawner);
+        if (!spawnerType.isEmpty()) {
+            // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
+            BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+            CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
+            creatureSpawner.setSpawnedType(spawnerType.getOrThrow());
+            blockStateMeta.setBlockState(creatureSpawner);
+        }
 
         itemStack.setItemMeta(itemMeta);
 
         // Set stack size and spawned entity type
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         itemStack = nmsHandler.setItemStackNBT(itemStack, "StackSize", amount);
-        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", entityType.name());
+        itemStack = nmsHandler.setItemStackNBT(itemStack, "EntityType", spawnerType.getEnumName());
 
         return itemStack;
     }
@@ -254,6 +263,8 @@ public final class ItemUtils {
         String entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "EntityType");
         if (!entityTypeName.isEmpty()) {
             try {
+                if (entityTypeName.equals("EMPTY"))
+                    return null;
                 return EntityType.valueOf(entityTypeName);
             } catch (Exception ignored) { }
         }
@@ -287,7 +298,7 @@ public final class ItemUtils {
         // Try checking the spawner data then?
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null)
-            return EntityType.PIG;
+            return null;
 
         BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
         CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
@@ -306,7 +317,12 @@ public final class ItemUtils {
             } catch (Exception ignored) { }
         }
 
-        return EntityType.PIG;
+        return null;
+    }
+
+    public static SpawnerType getStackedItemSpawnerType(ItemStack itemStack) {
+        EntityType entityType = getStackedItemEntityType(itemStack);
+        return entityType == null ? SpawnerType.empty() : SpawnerType.of(entityType);
     }
 
     public static ItemStack getStackingTool() {

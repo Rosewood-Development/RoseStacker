@@ -70,5 +70,6 @@ public enum EntityStackComparisonResult {
     SCREAMING,
     DIFFERENT_HORNS,
     PLAYING_DEAD,
-    HOLDING_ITEMS
+    HOLDING_ITEMS,
+    DASHING
 }

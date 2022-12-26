@@ -1,8 +1,7 @@
-package dev.rosewood.rosestacker.nms.v1_18_R1.hologram;
+package dev.rosewood.rosestacker.nms.v1_19_R2.hologram;
 
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.hologram.HologramLine;
-import dev.rosewood.rosestacker.nms.v1_18_R1.entity.SynchedEntityDataWrapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,16 +21,16 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
 public class HologramImpl extends Hologram {
-
-    private static final List<SynchedEntityData.DataItem<?>> DATA_ITEMS = Arrays.asList(
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(10), true),
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))
+    
+    private static final List<SynchedEntityData.DataValue<?>> DATA_VALUES = Arrays.asList(
+            SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
+            SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(10), true),
+            SynchedEntityData.DataValue.create(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))
     );
 
     public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
@@ -51,7 +50,8 @@ public class HologramImpl extends Hologram {
                     0,
                     EntityType.AREA_EFFECT_CLOUD,
                     1,
-                    Vec3.ZERO
+                    Vec3.ZERO,
+                    0
             );
 
             ((CraftPlayer) player).getHandle().connection.send(packet);
@@ -64,19 +64,19 @@ public class HologramImpl extends Hologram {
             if (!force && !line.checkDirty())
                 continue;
 
-            List<SynchedEntityData.DataItem<?>> dataItems = new ArrayList<>(DATA_ITEMS);
+            List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(DATA_VALUES);
             Optional<Component> chatMessage = Optional.of(CraftChatMessage.fromStringOrNull(line.getText()));
-            dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), chatMessage));
+            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), chatMessage));
 
             for (Player player : players) {
                 Boolean visible = this.watchers.get(player);
                 if (visible == null)
                     return;
 
-                List<SynchedEntityData.DataItem<?>> allDataItems = new ArrayList<>(dataItems);
-                allDataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), visible));
+                List<SynchedEntityData.DataValue<?>> allDataValues = new ArrayList<>(dataValues);
+                allDataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), visible));
 
-                ((CraftPlayer) player).getHandle().connection.send(new ClientboundSetEntityDataPacket(line.getEntityId(), new SynchedEntityDataWrapper(allDataItems), false));
+                ((CraftPlayer) player).getHandle().connection.send(new ClientboundSetEntityDataPacket(line.getEntityId(), allDataValues));
             }
         }
     }

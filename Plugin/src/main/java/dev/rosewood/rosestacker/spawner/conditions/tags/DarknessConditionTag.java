@@ -22,10 +22,10 @@ public class DarknessConditionTag extends ConditionTag {
         if (StackerUtils.isOccluding(type))
             return false;
 
-        if (stackedSpawner.getSpawnerTile().getSpawnedType() == EntityType.BLAZE || stackedSpawner.getSpawnerTile().getSpawnedType() == EntityType.SILVERFISH)
-            return spawnBlock.getLightLevel() <= 11;
-
-        return spawnBlock.getLightLevel() <= 7;
+        return switch (stackedSpawner.getSpawnerTile().getSpawnerType().getOrThrow()) {
+            case BLAZE, SILVERFISH -> spawnBlock.getLightLevel() <= 11;
+            default -> spawnBlock.getLightLevel() <= 7;
+        };
     }
 
     @Override

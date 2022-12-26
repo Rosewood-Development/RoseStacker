@@ -140,7 +140,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     break;
             }
 
-            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
+            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnerType().getOrThrow();
             Predicate<Entity> predicate = entity -> entity.getType() == entityType;
             Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(stackedSpawner.getLocation(), stackSettings.getSpawnRange(), predicate);
             List<StackedEntity> nearbyStackedEntities = new ArrayList<>();

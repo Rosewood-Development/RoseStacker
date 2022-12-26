@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
@@ -31,7 +32,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -132,7 +132,7 @@ public class BlockListener implements Listener {
             if (stackedSpawner == null)
                 stackedSpawner = stackManager.createSpawnerStack(block, 1, false);
 
-            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnedType();
+            SpawnerType spawnerType = stackedSpawner.getSpawnerTile().getSpawnerType();
             boolean breakEverything = Setting.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
             int breakAmount = breakEverything ? stackedSpawner.getStackSize() : 1;
 
@@ -144,7 +144,7 @@ public class BlockListener implements Listener {
             }
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
-            if (this.tryDropSpawners(player, dropLocation, entityType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
+            if (this.tryDropSpawners(player, dropLocation, spawnerType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
                 BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     stackedSpawner.setStackSize(0);
@@ -229,12 +229,12 @@ public class BlockListener implements Listener {
      *
      * @param player The Player
      * @param dropLocation The location to drop the items
-     * @param spawnedType The type of entity the spawner spawns
+     * @param spawnerType The type of entity the spawner spawns
      * @param amount The amount to try to drop
      * @param placedByPlayer whether or not the spawner was placed by a player
      * @return true if spawners weren't protected, false otherwise
      */
-    private boolean tryDropSpawners(Player player, Location dropLocation, EntityType spawnedType, int amount, boolean placedByPlayer) {
+    private boolean tryDropSpawners(Player player, Location dropLocation, SpawnerType spawnerType, int amount, boolean placedByPlayer) {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
         if (dropLocation.getWorld() == null)
             return true;
@@ -252,8 +252,8 @@ public class BlockListener implements Listener {
 
             int silkTouchLevel = itemInHand.getEnchantmentLevel(Enchantment.SILK_TOUCH);
             boolean destroyFromMissingPermission;
-            boolean hasAdvNoSilkPermission = player.hasPermission("rosestacker.nosilk." + spawnedType.name().toLowerCase());
-            boolean hasAdvSilkTouchPermission = player.hasPermission("rosestacker.silktouch." + spawnedType.name().toLowerCase());
+            boolean hasAdvNoSilkPermission = player.hasPermission("rosestacker.nosilk." + spawnerType.getEnumName().toLowerCase());
+            boolean hasAdvSilkTouchPermission = player.hasPermission("rosestacker.silktouch." + spawnerType.getEnumName().toLowerCase());
             if (Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()) {
                 boolean hasPermission = hasAdvNoSilkPermission;
                 if (silkTouchLevel > 0)
@@ -309,9 +309,9 @@ public class BlockListener implements Listener {
         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
             items = new ArrayList<>();
             for (int i = 0; i < amount; i++)
-                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
+                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1));
         } else {
-            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, amount));
+            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, amount));
         }
 
         if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
@@ -446,16 +446,16 @@ public class BlockListener implements Listener {
                 } else {
                     stackedSpawner.setStackSize(0);
                     stackManager.removeSpawnerStack(stackedSpawner);
-                    EntityType spawnedType = stackedSpawner.getSpawnerTile().getSpawnedType();
+                    SpawnerType spawnerType = stackedSpawner.getSpawnerTile().getSpawnerType();
                     block.setType(Material.AIR);
                     ThreadUtils.runSync(() -> {
                         List<ItemStack> items;
                         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                             items = new ArrayList<>();
                             for (int i = 0; i < newStackSize; i++)
-                                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, 1));
+                                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1));
                         } else {
-                            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnedType, newStackSize));
+                            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, newStackSize));
                         }
                         stackManager.preStackItems(items, block.getLocation().clone());
                     });
@@ -547,7 +547,7 @@ public class BlockListener implements Listener {
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
         boolean isDistanceStack = false;
         boolean isAdditiveStack = against.getType() == block.getType();
-        EntityType entityType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemEntityType(placedItem) : null;
+        SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : SpawnerType.empty();
         int stackAmount = ItemUtils.getStackedItemStackAmount(placedItem);
 
         // See if we can stack the spawner (if applicable) into one nearby
@@ -563,7 +563,7 @@ public class BlockListener implements Listener {
                 for (StackedSpawner spawner : spawners) {
                     double distance = spawner.getLocation().distanceSquared(block.getLocation());
                     if (distance < closestDistance) {
-                        boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
+                        boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
                         anyNearby |= Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
                         if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
                             closestDistance = distance;
@@ -575,7 +575,7 @@ public class BlockListener implements Listener {
                 Chunk chunk = block.getChunk();
                 for (StackedSpawner spawner : spawners) {
                     if (chunk == spawner.getBlock().getChunk()) {
-                        boolean sameType = spawner.getSpawnerTile().getSpawnedType() == entityType;
+                        boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
                         anyNearby |= Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
                         if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
                             nearest = spawner;
@@ -596,34 +596,43 @@ public class BlockListener implements Listener {
         }
 
         // Don't allow placing if they don't have permission
-        if (entityType != null && Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()
-                && !player.hasPermission("rosestacker.spawnerplace." + entityType.name().toLowerCase())) {
+        if (spawnerType != null && Setting.SPAWNER_ADVANCED_PERMISSIONS.getBoolean()
+                && !player.hasPermission("rosestacker.spawnerplace." + spawnerType.getEnumName().toLowerCase())) {
             this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-advanced-place-no-permission");
             event.setCancelled(true);
             return;
         }
 
-        if (isAdditiveStack && against.getType() == Material.SPAWNER)
-            isAdditiveStack = ((CreatureSpawner) against.getState()).getSpawnedType() == entityType;
+        StackedSpawner againstSpawner = null;
+        if (isAdditiveStack && against.getType() == Material.SPAWNER) {
+            againstSpawner = stackManager.getStackedSpawner(against);
+            if (againstSpawner == null) {
+                event.setCancelled(true);
+                return;
+            }
+
+            isAdditiveStack = againstSpawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
+        }
 
         if (isAdditiveStack && ((!player.isSneaking() || (Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && placedItem.getType() == Material.SPAWNER)) || against.getType().isInteractable() || isDistanceStack)) {
             if (block.getType() == Material.SPAWNER) {
-                if (!stackManager.isSpawnerTypeStackable(entityType))
+                if (!stackManager.isSpawnerTypeStackable(spawnerType))
                     return;
 
                 // Handle spawner stacking
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(against);
+                if (againstSpawner == null)
+                    againstSpawner = stackManager.getStackedSpawner(against);
 
                 int itemsToTake;
-                if (stackedSpawner != null && Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && player.isSneaking()) {
+                if (againstSpawner != null && Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && player.isSneaking()) {
                     itemsToTake = 0;
                     int availableItems = placedItem.getAmount();
                     for (int i = 0; i < availableItems; i++)
-                        if (stackedSpawner.getStackSize() + stackAmount * (itemsToTake + 1) <= stackedSpawner.getStackSettings().getMaxStackSize())
+                        if (againstSpawner.getStackSize() + stackAmount * (itemsToTake + 1) <= againstSpawner.getStackSettings().getMaxStackSize())
                             itemsToTake++;
                     stackAmount *= itemsToTake;
                 } else {
-                    if (stackedSpawner != null && stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                    if (againstSpawner != null && againstSpawner.getStackSize() + stackAmount > againstSpawner.getStackSettings().getMaxStackSize()) {
                         event.setCancelled(true);
                         return;
                     }
@@ -635,8 +644,8 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                if (stackedSpawner != null) {
-                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, false);
+                if (againstSpawner != null) {
+                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, againstSpawner, stackAmount, false);
                     Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                     if (spawnerStackEvent.isCancelled()) {
                         event.setCancelled(true);
@@ -644,22 +653,22 @@ public class BlockListener implements Listener {
                     }
                     stackAmount = spawnerStackEvent.getIncreaseAmount();
                 } else {
-                    stackedSpawner = stackManager.createSpawnerStack(against, 1, false);
+                    againstSpawner = stackManager.createSpawnerStack(against, 1, false);
 
-                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, stackedSpawner, stackAmount, true);
+                    SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, againstSpawner, stackAmount, true);
                     Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                     if (spawnerStackEvent.isCancelled()) {
                         event.setCancelled(true);
                         return;
                     }
 
-                    if (stackedSpawner.getStackSize() + stackAmount > stackedSpawner.getStackSettings().getMaxStackSize()) {
+                    if (againstSpawner.getStackSize() + stackAmount > againstSpawner.getStackSettings().getMaxStackSize()) {
                         event.setCancelled(true);
                         return;
                     }
                 }
 
-                stackedSpawner.increaseStackSize(stackAmount);
+                againstSpawner.increaseStackSize(stackAmount);
 
                 // Fling particles from the attempted place location to the actual place location
                 if (isDistanceStack && Setting.SPAWNER_AUTO_STACK_PARTICLES.getBoolean()) {
@@ -738,11 +747,10 @@ public class BlockListener implements Listener {
             // Set the spawner type
             StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
             if (placedItem.getType() == Material.SPAWNER) {
-                EntityType spawnedType = ItemUtils.getStackedItemEntityType(placedItem);
-                if (spawnedType == null)
+                if (spawnerType == null)
                     return;
 
-                SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnedType);
+                SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnerType);
                 if (spawnerStackSettings == null)
                     return;
 
@@ -766,7 +774,7 @@ public class BlockListener implements Listener {
 
                 StackedSpawner stackedSpawner = stackManager.createSpawnerStack(block, stackAmount, true);
                 if (stackedSpawner != null) {
-                    stackedSpawner.getSpawnerTile().setSpawnedType(spawnedType);
+                    stackedSpawner.getSpawnerTile().setSpawnerType(spawnerType);
                     stackedSpawner.updateSpawnerProperties(true);
                 }
             } else {

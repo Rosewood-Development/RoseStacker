@@ -18,16 +18,14 @@ public abstract class Hologram {
     protected final List<HologramLine> hologramLines;
     protected final Map<Player, Boolean> watchers;
     protected final Location location;
+    private final Supplier<Integer> entityIdSupplier;
 
     public Hologram(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
         this.location = location.clone();
         this.watchers = Collections.synchronizedMap(new WeakHashMap<>());
+        this.entityIdSupplier = entityIdSupplier;
         this.hologramLines = new ArrayList<>();
-        for (int i = 0; i < text.size(); i++) {
-            double offset = (text.size() - i - 1) * LINE_OFFSET;
-            Location lineLocation = location.clone().add(0, offset, 0);
-            this.hologramLines.add(new HologramLine(entityIdSupplier.get(), lineLocation, text.get(i)));
-        }
+        this.createLines(text);
     }
 
     /**
@@ -125,13 +123,27 @@ public abstract class Hologram {
      * @throws IllegalArgumentException if the text is a different length than the existing text
      */
     public void setText(List<String> text) {
-        if (text.size() != this.hologramLines.size())
-            throw new IllegalArgumentException("Text must be the same length as the existing text");
+        if (text.size() != this.hologramLines.size()) {
+            this.createLines(text);
+            return;
+        }
 
         for (int i = 0; i < text.size(); i++)
             this.hologramLines.get(i).setText(text.get(i));
 
         this.update(this.watchers.keySet(), false);
+    }
+
+    private void createLines(List<String> text) {
+        this.watchers.keySet().forEach(this::delete);
+        this.hologramLines.clear();
+        for (int i = 0; i < text.size(); i++) {
+            double offset = (text.size() - i - 1) * LINE_OFFSET;
+            Location lineLocation = this.location.clone().add(0, offset, 0);
+            this.hologramLines.add(new HologramLine(this.entityIdSupplier.get(), lineLocation, text.get(i)));
+        }
+        this.watchers.keySet().forEach(this::create);
+        this.update(this.watchers.keySet(), true);
     }
 
     /**

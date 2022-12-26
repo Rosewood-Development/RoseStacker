@@ -43,6 +43,8 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("block-hologram-display", List.of("&c%amount%x &7%name%"));
             this.put("spawner-hologram-display", List.of("&c%amount%x &7%name%"));
             this.put("spawner-hologram-display-single", List.of("&7%name%"));
+            this.put("spawner-hologram-display-empty", List.of("&c%amount%x &7%name%"));
+            this.put("spawner-hologram-display-empty-single", List.of("&7%name%"));
 
             this.put("#2", "基础命令信息");
             this.put("base-command-color", "&e");

@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -483,6 +484,17 @@ public class StackManager extends Manager implements StackingLogic {
      */
     public boolean isSpawnerTypeStackable(EntityType entityType) {
         SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        return stackSettings != null && stackSettings.isStackingEnabled();
+    }
+
+    /**
+     * Checks if a given spanwer type for a spawner is able to be stacked
+     *
+     * @param spawnerType the type to check
+     * @return true if the spawner entity type is stackable, otherwise false
+     */
+    public boolean isSpawnerTypeStackable(SpawnerType spawnerType) {
+        SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 

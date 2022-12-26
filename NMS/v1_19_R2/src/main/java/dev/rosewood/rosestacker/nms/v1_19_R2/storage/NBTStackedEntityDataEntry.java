@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_18_R1.storage;
+package dev.rosewood.rosestacker.nms.v1_19_R2.storage;
 
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import net.minecraft.nbt.CompoundTag;

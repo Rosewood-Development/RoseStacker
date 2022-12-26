@@ -255,7 +255,7 @@ public class StackToolListener implements Listener {
                     return;
 
                 this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.single("type", stackedSpawner.getSpawnerTile().getSpawnedType().name()));
+                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.single("type", stackedSpawner.getSpawnerTile().getSpawnerType().getEnumName()));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", StackerUtils.formatNumber(stackedSpawner.getStackSize())));
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getX()))
                         .addPlaceholder("y", StackerUtils.formatNumber(clickedBlock.getY()))

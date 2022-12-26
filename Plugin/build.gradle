@@ -24,9 +24,9 @@ dependencies {
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'me.clip:placeholderapi:2.10.9'
-    compileOnly 'org.jetbrains:annotations:16.0.2'
     compileOnly 'us.myles:viaversion:3.2.1'
     compileOnly 'com.viaversion:viaversion:4.0.0-21w18a'
+    compileOnly 'org.jetbrains:annotations:23.1.0'
 
     // Stacker plugins
     compileOnly 'com.bgsoftware:wildstacker:3.1.1'
@@ -52,7 +52,7 @@ dependencies {
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.1.0.48-SNAPSHOT'
+    api 'dev.rosewood:rosegarden:1.1.0.50-SNAPSHOT'
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
 }
 

@@ -228,6 +228,13 @@ public interface NMSHandler {
     Hologram createHologram(Location location, List<String> text);
 
     /**
+     * @return true if empty spawners are supported, false otherwise
+     */
+    default boolean supportsEmptySpawners() {
+        return false;
+    }
+
+    /**
      * 1.19 uses a new RandomSource system which causes a server crash when accessed async.
      * Try to hijack this RandomSource and inject our own into the world which allows "thread-safe" access.
      * This is likely a very bad idea, sorry to whoever is reading this.

@@ -2,20 +2,47 @@ package dev.rosewood.rosestacker.nms.spawner;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.jetbrains.annotations.ApiStatus;
 
 public interface StackedSpawnerTile {
 
     /**
      * @return the type of entity that this spawner will spawn next
      */
-    EntityType getSpawnedType();
+    @ApiStatus.Experimental
+    SpawnerType getSpawnerType();
 
     /**
      * Sets the type of entity that this spawner will spawn
      *
-     * @param entityType The type of entity to spawn
+     * @param spawnerType The type of entity to spawn
      */
-    void setSpawnedType(EntityType entityType);
+    @ApiStatus.Experimental
+    void setSpawnerType(SpawnerType spawnerType);
+
+//    /**
+//     * Gets the EntityType this spawner will spawn.
+//     * Does not support empty spawners or multiple entity types.
+//     * Will return {@link EntityType#PIG} if the spawner is empty.
+//     * This method is obsolete, consider using {@link #setSpawnerType(SpawnerType)} instead.
+//     *
+//     * @return the type of entity that this spawner will spawn next
+//     */
+//    @ApiStatus.Obsolete
+//    default EntityType getSpawnedType() {
+//        return this.getSpawnerType().get().orElse(EntityType.PIG);
+//    }
+//
+//    /**
+//     * Sets the type of entity that this spawner will spawn.
+//     * This method is obsolete, consider using {@link #setSpawnerType(SpawnerType)} instead.
+//     *
+//     * @param entityType The type of entity to spawn
+//     */
+//    @ApiStatus.Obsolete
+//    default void setSpawnedType(EntityType entityType) {
+//        this.setSpawnerType(SpawnerType.of(entityType));
+//    }
 
     /**
      * @return the delay of the spawner

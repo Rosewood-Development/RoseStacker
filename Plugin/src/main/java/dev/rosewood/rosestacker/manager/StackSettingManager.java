@@ -6,6 +6,8 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.ClassUtils;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTags;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -19,11 +21,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,17 +47,17 @@ public class StackSettingManager extends Manager {
     private final Map<Material, BlockStackSettings> blockSettings;
     private final Map<EntityType, EntityStackSettings> entitySettings;
     private final Map<Material, ItemStackSettings> itemSettings;
-    private final Map<EntityType, SpawnerStackSettings> spawnerSettings;
+    private final Map<SpawnerType, SpawnerStackSettings> spawnerSettings;
 
     private boolean registeredPermissions = false;
 
     public StackSettingManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
-        this.blockSettings = new HashMap<>();
-        this.entitySettings = new HashMap<>();
-        this.itemSettings = new HashMap<>();
-        this.spawnerSettings = new HashMap<>();
+        this.blockSettings = new LinkedHashMap<>();
+        this.entitySettings = new LinkedHashMap<>();
+        this.itemSettings = new LinkedHashMap<>();
+        this.spawnerSettings = new LinkedHashMap<>();
     }
 
     @Override
@@ -88,6 +91,8 @@ public class StackSettingManager extends Manager {
             JsonObject jsonObject = jsonParser.parse(entityDataReader).getAsJsonObject();
 
             List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.rosePlugin, PACKAGE_PATH, EntityStackSettings.class);
+            classes.sort(Comparator.comparing(Class::getSimpleName));
+
             List<String> ignoredLoading = new ArrayList<>();
             for (Class<EntityStackSettings> clazz : classes) {
                 try {
@@ -141,9 +146,13 @@ public class StackSettingManager extends Manager {
             );
         }
 
-        StackerUtils.getAlphabeticalStackableEntityTypes().forEach(x -> {
-            SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, x);
-            this.spawnerSettings.put(x, spawnerStackSettings);
+        TreeSet<SpawnerType> spawnerTypes = new TreeSet<>(Comparator.comparing(SpawnerType::getEnumName));
+        if (NMSAdapter.getHandler().supportsEmptySpawners())
+            spawnerTypes.add(SpawnerType.empty());
+        this.entitySettings.keySet().forEach(x -> spawnerTypes.add(SpawnerType.of(x)));
+        spawnerTypes.forEach(spawnerType -> {
+            SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, spawnerType);
+            this.spawnerSettings.put(spawnerType, spawnerStackSettings);
             if (spawnerStackSettings.hasChanges())
                 saveSpawnerSettingsFile.set(true);
         });
@@ -297,7 +306,17 @@ public class StackSettingManager extends Manager {
      * @return The SpawnerStackSettings for the spawner entity type
      */
     public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
-        return this.spawnerSettings.get(entityType);
+        return this.spawnerSettings.get(SpawnerType.of(entityType));
+    }
+
+    /**
+     * Gets the SpawnerStackSettings for a spawner entity type
+     *
+     * @param spawnerType The spawner type to get the settings of
+     * @return The SpawnerStackSettings for the spawner entity type
+     */
+    public SpawnerStackSettings getSpawnerStackSettings(SpawnerType spawnerType) {
+        return this.spawnerSettings.get(spawnerType);
     }
 
     /**
@@ -331,10 +350,10 @@ public class StackSettingManager extends Manager {
                 .collect(Collectors.toSet());
     }
 
-    public Set<EntityType> getStackableSpawnerTypes() {
+    public Set<SpawnerType> getStackableSpawnerTypes() {
         return this.spawnerSettings.values().stream()
                 .filter(SpawnerStackSettings::isStackingEnabled)
-                .map(SpawnerStackSettings::getEntityType)
+                .map(SpawnerStackSettings::getSpawnerType)
                 .collect(Collectors.toSet());
     }
 
