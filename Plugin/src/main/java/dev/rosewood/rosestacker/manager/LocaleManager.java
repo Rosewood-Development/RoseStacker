@@ -78,18 +78,14 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     public void fetchMinecraftTranslationLocales() {
+        if (!this.translationLocales.isEmpty())
+            return;
+
         ThreadUtils.runAsync(() -> {
-            DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
             String version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
-            List<String> locales = dataManager.getTranslationLocales(version);
-            if (!locales.isEmpty()) {
-                this.translationLocales = locales;
-                return;
-            }
-
             String queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
 
+            List<String> locales = new ArrayList<>();
             try {
                 URL url = new URL(queryLink);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -104,15 +100,15 @@ public class LocaleManager extends AbstractLocaleManager {
                             locales.add(name);
                     }
                 }
-            } catch (Exception ignored) { }
 
-            locales.sort(String::compareTo);
+                locales.sort(String::compareTo);
 
-            this.translationLocales = locales;
+                this.translationLocales = locales;
 
-            dataManager.saveTranslationLocales(version, locales);
-
-            this.rosePlugin.getLogger().info("Fetched " + locales.size() + " translation locales.");
+                this.rosePlugin.getLogger().info("Fetched " + locales.size() + " translation locales.");
+            } catch (Exception ignored) {
+                this.rosePlugin.getLogger().warning("Failed to fetch translation locales. Likely could not connect to api.github.com");
+            }
         });
     }
 

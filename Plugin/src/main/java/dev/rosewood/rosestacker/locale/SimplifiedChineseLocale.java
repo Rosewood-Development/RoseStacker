@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &e份已加载的堆叠方块, 共计 &b%total% &e个单体方块。");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &e个已加载的堆叠刷怪笼, 共计 &b%total% &e个单体刷怪笼。");
             this.put("command-stats-active-tasks", "&b%amount%&e的活动任务。");
-
-            this.put("#8", "转化命令");
-            this.put("command-convert-description", "从另一个堆叠类型的插件转化数据");
-            this.put("command-convert-converted", "&e已转化插件 &b%plugin% &e的数据至 RoseStacker。拥有数据源的插件已被关闭，请确保在下次重启前将其移出插件文件夹。");
-            this.put("command-convert-failed", "&c无法转化插件 &b%plugin% &c的数据, 该插件未处于运行状态。");
-            this.put("command-convert-aborted", "&c已中止对插件 &b%plugin% &c进行数据转化的尝试， 您已经从另一个堆叠插件转化过数据了。");
 
             this.put("#9", "翻译命令");
             this.put("command-translate-description", "翻译堆叠整体的显示名称");
@@ -230,12 +222,6 @@ public class SimplifiedChineseLocale implements Locale {
             this.put("argument-handler-stackamount", "堆栈大小[%input%]无效，必须是一个大于0的数字");
             this.put("argument-handler-stacktype", "堆栈类型[%input%]是无效的");
             this.put("argument-handler-translationlocale", "翻译语言[%input%] 无效");
-
-            this.put("#18", "转化锁定信息");
-            this.put("convert-lock-conflictions", "&c服务器上有一些插件与RoseStacker冲突。" +
-                    "为了防止冲突造成 数据丢失，RoseStacker禁用了一个或多个堆叠类型。 " +
-                    "与此同时，我们在 plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " 创建了文件， 您可以在其中配置禁用的堆叠类型 " +
-                    "该文件还允许您确认您已阅读此警告，并允许您禁用此消息。");
 
             this.put("#19", "杂项信息");
             this.put("spawner-silk-touch-protect", "&c警告! &e您需要附魔有精准采集的稿子 并且/或 有权限拿起一个刷怪笼。否则您将不能这样做。");

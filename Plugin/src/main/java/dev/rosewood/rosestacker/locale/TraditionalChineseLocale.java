@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class TraditionalChineseLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &e個已加載的堆疊方塊, 共 &b%total% &e個方塊。");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &e個已加載的生怪磚, 共 &b%total% &e個生怪磚。");
             this.put("command-stats-active-tasks", "&b%amount%&e活動任務。");
-
-            this.put("#8", "轉換指令");
-            this.put("command-convert-description", "從其他堆疊插件載入資料");
-            this.put("command-convert-converted", "&e已成功把 &b%plugin% 的資料 &e轉換到 RoseStacker。 轉換數據來源的插件已經被停用，請確保你已經把該插件從插件文件夾中移除。");
-            this.put("command-convert-failed", "&c無法轉換 &b%plugin%&c 的資料，該插件並未啟用。");
-            this.put("command-convert-aborted", "&c已中止轉換 &b%plugin%&c 的資料， 你已經正在轉換另一個堆疊插件的資料了。");
 
             this.put("#9", "翻譯指令");
             this.put("command-translate-description", "翻譯堆疊個體的名稱。");
@@ -230,12 +222,6 @@ public class TraditionalChineseLocale implements Locale {
             this.put("argument-handler-stackamount", "堆棧大小 [%input%] 無效，必須是大於 0 的數字");
             this.put("argument-handler-stacktype", "堆棧類型 [%input%] 無效");
             this.put("argument-handler-translationlocale", "翻譯語言環境 [%input%] 無效");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&c你的伺服器上有插件已知會與 RoseStacker 產生衝突。" +
-                    "為了防止衝突發生或數據遺失, RoseStacker 已經停用了一個或更多的堆疊類別。 " +
-                    "一個檔案於已經於 plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " 產生了，你可以在此設定已停用的堆疊類別 " +
-                    "你亦可以於此檔案確認你已經閱讀了此警告，並停止顯示此訊息。");
 
             this.put("#19", "其他訊息");
             this.put("spawner-silk-touch-protect", "&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬或擁有拾起生怪磚的權限。 否則你不能這樣做。");

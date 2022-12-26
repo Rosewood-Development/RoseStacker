@@ -23,8 +23,6 @@ import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.listener.paper.PaperPreCreatureSpawnListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
-import dev.rosewood.rosestacker.manager.ConversionManager;
-import dev.rosewood.rosestacker.manager.DataManager;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -52,7 +50,7 @@ public class RoseStacker extends RosePlugin {
     }
 
     public RoseStacker() {
-        super(82729, 5517, ConfigurationManager.class, DataManager.class, LocaleManager.class, CommandManager.class);
+        super(82729, 5517, ConfigurationManager.class, null, LocaleManager.class, CommandManager.class);
 
         instance = this;
     }
@@ -139,9 +137,7 @@ public class RoseStacker extends RosePlugin {
         return List.of(
                 HologramManager.class,
                 StackSettingManager.class,
-                DataManager.class,
                 CommandManager.class,
-                ConversionManager.class,
                 EntityCacheManager.class,
                 StackManager.class
         );

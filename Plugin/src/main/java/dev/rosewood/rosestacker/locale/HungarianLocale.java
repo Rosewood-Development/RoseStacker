@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class HungarianLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &ebetöltött blokk stack, összesen &b%total% &eblokk.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ebetöltött spawner stack, összesen &b%total% &espawner.");
             this.put("command-stats-active-tasks", "&b%amount% &eactive feladatok.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Adatokat konvertál másik stackelő pluginból");
-            this.put("command-convert-converted", "&eAdatok konvertálva &b%plugin%-ból/ből &ea RoseStackerbe. Az át konvertált plugin kikapcsolva. Legyél biztos abban hogy eltávolítod a régi stackelő plugint a plugins mappából.");
-            this.put("command-convert-failed", "&cSikertelen konvertálás &b%plugin%-ból/ből&c, a plugin nincs betöltve.");
-            this.put("command-convert-aborted", "&cAdatok konvertálása a &b%plugin%-ból/ből &cmegszakítva. Már konvertáltál egy másik stackelő plugint.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Lefordítja a stack neveket");
@@ -230,12 +222,6 @@ public class HungarianLocale implements Locale {
             this.put("argument-handler-stackamount", "A stack méret [%input%] nem érvényes, 0-nál nagyobb számnak kell lennie");
             this.put("argument-handler-stacktype", "Stack méret [%input%] nem érvényes");
             this.put("argument-handler-translationlocale", "A fordítási szín [%input%] nem érvényes");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cOlyan pluginok vannak a szervereden amikről tudjuk hogy konfliktusba fognak kerülni a RoseStackerel. " +
-                    "Hogy megelőzzük a konfliktust és/vagy az adat vesztést, RoseStacker kikapcsolt egy vagy több stack típust. " +
-                    "Egy fájl létre lett hozva itt plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " ahol be tudod állítani a kikapcsolt stackelés típusokat. " +
-                    "Ez a fájl lehetővéteszi hogy megtudhasd hogy van egy ilyen figyelmeztetés és el dönthesd kikapcsolod-e ezt az üzenetet.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra és/vagy legyen jogod felszedni anélkül a spawnert. Egyébként nem fogod tudni felszedni.");

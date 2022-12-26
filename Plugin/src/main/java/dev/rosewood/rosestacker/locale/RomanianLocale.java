@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class RomanianLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &estack-uri de block-uri incarcate, in total &b%total% &eblock-uri.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &estack-uri de spawnere incarcate, in total &b%total% &espawnere.");
             this.put("command-stats-active-tasks", "&b%amount% &eactive feladatok.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Converteste datele dintr-un alt plugin");
-            this.put("command-convert-converted", "&eS-a convertit data din &b%plugin% &ein RoseStacker. Plugin-ul convertit a fost dezactivat, nu uita sa stergi il din fisierul cu plugin-uri.");
-            this.put("command-convert-failed", "&cConvertirea plugin-ului &b%plugin%&c a esuat, plugin-ul este dezactivat.");
-            this.put("command-convert-aborted", "&cConvertirea plugin-ului &b%plugin%&c a esuat, deja ai convertit din alt plugin de stackare.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Traduce plugin-ul");
@@ -229,11 +221,6 @@ public class RomanianLocale implements Locale {
             this.put("argument-handler-stackamount", "Dimensiunea stivei [%input%] nu este validă, trebuie să fie un număr mai mare decât 0");
             this.put("argument-handler-stacktype", "Tipul de stivă [%input%] nu este valid");
             this.put("argument-handler-translationlocale", "Locația de traducere [%input%] nu este validă");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cSunt plugin-uri ce se afla in conflict cu RoseStacker, pentru a preveni aceste conflicte si/sau pierderea datelor, RoseStacker a dezactivat unu sau mai multe stack types. " +
-                    "Un document a fost creat in plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " unde poti configura stack types dezactivate. " +
-                    "Acel document, de asemenea, iti va aduce la cunostiinta ca ai citit acest avertisment si te va lasa sa il dezactivezi.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch si/sau trebuie sa ai permisiunea de a lua spawnerele.");

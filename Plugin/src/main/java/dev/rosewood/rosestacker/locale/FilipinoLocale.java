@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class FilipinoLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &ena-load ang mga block stack, na kabuuan &b%total% &emga bloke.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &ena-load na mga stack ng spawner, na kabuuan &b%total% &ena spawners.");
             this.put("command-stats-active-tasks", "&b%amount% &eaktibong gawain.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Nagko-convert ng data mula sa isa pang stacking plugin");
-            this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. Hindi pinagana ang na-convert na plugin. Tiyaking aalisin ang na-convert na plugin mula sa iyong folder ng mga plugin.");
-            this.put("command-convert-failed", "&cNabigong mag-convert &b%plugin%&c, plugin ay hindi pinagana.");
-            this.put("command-convert-aborted", "&cInalis ang pagtatangkang mag-convert &b%plugin%&c. Nag-convert ka na mula sa isa pang stacking plugin.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Isinalin ang mga pangalan ng stack");
@@ -229,12 +221,6 @@ public class FilipinoLocale implements Locale {
             this.put("argument-handler-stackamount", "Ang laki ng stack [%input%] ay di-wasto, dapat ay isang numerong mas mataas sa 0");
             this.put("argument-handler-stacktype", "Ang uri ng stack na [%input%] ay hindi wasto");
             this.put("argument-handler-translationlocale", "Ang lokal na pagsasalin [%input%] ay hindi wasto");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cMayroong mga plugin sa iyong server na kilalang sumasalungat sa RoseStacker. " +
-                    "Upang mapigilan ang mga pagkakasalungatan at/o pagkawala ng data, hindi pinagana ng RoseStacker ang isa o higit pang mga uri ng stack. " +
-                    "Ang isang file ay nilikha sa mga plugin /" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " kung saan maaari mong i-configure ang mga hindi pinagana na uri ng stack. " +
-                    "Papayagan ka rin ng file na iyon na kilalanin na nabasa mo ang babalang ito at hahayaan kang huwag paganahin ang mensaheng ito.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke at / o may pahintulot na kunin ang mga spawner. Hindi mo magagawa kung hindi man.");

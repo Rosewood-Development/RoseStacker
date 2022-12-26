@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class DutchLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eBlok stacks geladen, totaal van &b%total% &eblocks.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eSpawner stacks geladen, totaal van &b%total% &espawners.");
             this.put("command-stats-active-tasks", "&b%amount% &eactieve taken.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Converteert data van een andere plugin");
-            this.put("command-convert-converted", "&eData van &b%plugin% &eto RoseStacker geconverteerd. De geconverteerde data is uigeschakeld. Zorg zeker dat je de geconverteerde plugin uit je plugin folder verwijderd.");
-            this.put("command-convert-failed", "&cConverteren mislukt &b%plugin%&c, de plugin is niet ingeschakeld.");
-            this.put("command-convert-aborted", "&cPogin tot converteren geanuleerd &b%plugin%&c. Je hebt al geconverteerd van een andere stack plugin.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Vertaald de stack namen");
@@ -229,12 +221,6 @@ public class DutchLocale implements Locale {
             this.put("argument-handler-stackamount", "De stack grootte [%input%] is ongeldig, het nummer moet groter zijn dan 0");
             this.put("argument-handler-stacktype", "Het stack type [%input%] is ongeldig");
             this.put("argument-handler-translationlocale", "De vertaling folder [%input%] is ongeldig");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cEr zijn plugin op je server die gekend zijn om te rotzooien met RoseStacker. " +
-                    "Om conflicten en data verlies te voorkomen, heeft RoseStacker 1 of meerder stack soorten uitgeschakeld. " +
-                    "Een bestand is aangemaakt in plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " waar je de uitgeschakelde stack soorten kan configureren. " +
-                    "Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarning! &eJe moet een silk touch pickaxe gebruiken of je hebt geen permissie om spawner op te rapen. Anders kan je dit niet doen.");

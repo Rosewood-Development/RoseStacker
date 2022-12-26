@@ -8,7 +8,6 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 
 public class DarknessConditionTag extends ConditionTag {
 

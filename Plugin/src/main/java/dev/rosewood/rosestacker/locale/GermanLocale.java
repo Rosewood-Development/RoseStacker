@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class GermanLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eGeladene Block stacks, insgesamt &b%total% &eBlöcke.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eGeladene Spawner-Stacks, insgesamt &b%total% &eSpawner.");
             this.put("command-stats-active-tasks", "&b%amount% &eaktive Prozesse.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Daten von anderem Plugin Konvertieren");
-            this.put("command-convert-converted", "&eDaten von &b%plugin% &ezu RoseStacker Konvertiert. Das Konvertierte Plugin wurde Deaktiviert. Stelle sicher das Konvertierte Plugin vom Plugins Ordner zu Entfernen.");
-            this.put("command-convert-failed", "&cFehler beim Konvertieren von &b%plugin%&c, Plugin ist nicht aktiv.");
-            this.put("command-convert-aborted", "&cKonvertierung des Plugins &b%plugin%&c abgebrochen. Du hast schon von einem anderen Stack-Plugin Konvertiert.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Übersetzt die Stack-Namen");
@@ -230,12 +222,6 @@ public class GermanLocale implements Locale {
             this.put("argument-handler-stackamount", "Die größe vom Stack [%input%] ist nicht gültig. Die Zahl muss größer als 0 sein");
             this.put("argument-handler-stacktype", "Der Stack Typ [%input%] ist nicht gültig");
             this.put("argument-handler-translationlocale", "Die Übersetzung [%input%] ist nicht gültig");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cAuf deinem Server gibt es Plugins die dafür bekannt sind probleme mit RoseStacker aufzubringen. " +
-                    "Um konflikte und/oder Datenverlust zu verhindern hat RoseStacker ein oder mehrere Stack-Typen deaktiviert. " +
-                    "Eine Datei wurde erstellt im verzeichnis: plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " Wo du deine Deaktivierten Stack-Typen Konfigurieren kannst. " +
-                    "Diese Datei wird dir ebenso die möglichkeit geben zu bestätigen dass du diese Warnung gelesen hast und somit diese Warnmeldung deaktivieren.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarnung! &eDu musst eine Spitzhacke mit Behutsamkeit nutzen und/oder die berechtigung Spawner aufzuheben. Andernfalls wird es nicht möglich sein");

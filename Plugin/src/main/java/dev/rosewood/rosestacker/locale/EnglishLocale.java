@@ -2,8 +2,6 @@ package dev.rosewood.rosestacker.locale;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.locale.Locale;
-import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConversionManager;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,12 +81,6 @@ public class EnglishLocale implements Locale {
             this.put("command-stats-stacked-blocks", "&b%stackAmount% &eloaded block stacks, totaling &b%total% &eblocks.");
             this.put("command-stats-stacked-spawners", "&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.");
             this.put("command-stats-active-tasks", "&b%amount% &eactive tasks.");
-
-            this.put("#8", "Convert Command");
-            this.put("command-convert-description", "Converts data from another stacking plugin");
-            this.put("command-convert-converted", "&eConverted data from &b%plugin% &eto RoseStacker. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.");
-            this.put("command-convert-failed", "&cFailed to convert &b%plugin%&c, plugin is not enabled.");
-            this.put("command-convert-aborted", "&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.");
 
             this.put("#9", "Translate Command");
             this.put("command-translate-description", "Translates the stack names");
@@ -230,12 +222,6 @@ public class EnglishLocale implements Locale {
             this.put("argument-handler-stackamount", "The stack size [%input%] is invalid, must be a number greater than 0");
             this.put("argument-handler-stacktype", "The stack type [%input%] is invalid");
             this.put("argument-handler-translationlocale", "The translation locale [%input%] is invalid");
-
-            this.put("#18", "Convert Lock Messages");
-            this.put("convert-lock-conflictions", "&cThere are plugins on your server that are known to conflict with RoseStacker. " +
-                    "In order to prevent conflictions and/or data loss, RoseStacker has disabled one or more stack types. " +
-                    "A file has been created at plugins/" + RoseStacker.getInstance().getName() + "/" + ConversionManager.FILE_NAME + " where you can configure the disabled stack types. " +
-                    "That file will also allow you to acknowledge that you have read this warning and let you to disable this message.");
 
             this.put("#19", "Misc Messages");
             this.put("spawner-silk-touch-protect", "&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.");
