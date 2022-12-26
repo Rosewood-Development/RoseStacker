@@ -28,7 +28,7 @@ public class TranslateCommand extends RoseCommand {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
 
-        String format = spawnerFormat.get();
+        String format = spawnerFormat == null ? null : spawnerFormat.get();
         if (format == null) {
             format = "{}";
             localeManager.sendMessage(context.getSender(), "command-translate-spawner-format");
