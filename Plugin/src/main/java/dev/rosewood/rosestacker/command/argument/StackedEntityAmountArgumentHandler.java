@@ -5,7 +5,6 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.StackedEntityAmount;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import org.bukkit.entity.EntityType;
 
-public class StackedEntityAmountArgumentHandler extends RoseCommandArgumentHandler<StackedEntityAmount> {
+public class StackedEntityAmountArgumentHandler extends RoseCommandArgumentHandler<StackedEntityAmountArgumentHandler.StackedEntityAmount> {
 
     public StackedEntityAmountArgumentHandler(RosePlugin rosePlugin) {
         super(rosePlugin, StackedEntityAmount.class);
@@ -45,5 +44,7 @@ public class StackedEntityAmountArgumentHandler extends RoseCommandArgumentHandl
         int maxStackAmount = spawnerStackSettings.getMaxStackSize();
         return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<stackSize>");
     }
+
+    public record StackedEntityAmount(int amount) { }
 
 }

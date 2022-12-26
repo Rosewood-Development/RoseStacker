@@ -5,7 +5,6 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.StackedSpawnerType;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.entity.EntityType;
 
-public class StackedSpawnerTypeArgumentHandler extends RoseCommandArgumentHandler<StackedSpawnerType> {
+public class StackedSpawnerTypeArgumentHandler extends RoseCommandArgumentHandler<StackedSpawnerTypeArgumentHandler.StackedSpawnerType> {
 
     public StackedSpawnerTypeArgumentHandler(RosePlugin rosePlugin) {
         super(rosePlugin, StackedSpawnerType.class);
@@ -42,5 +41,7 @@ public class StackedSpawnerTypeArgumentHandler extends RoseCommandArgumentHandle
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }
+
+    public record StackedSpawnerType(SpawnerType spawnerType) { }
 
 }

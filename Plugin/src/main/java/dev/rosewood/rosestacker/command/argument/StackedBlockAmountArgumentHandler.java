@@ -5,7 +5,6 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.StackedBlockAmount;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import org.bukkit.Material;
 
-public class StackedBlockAmountArgumentHandler extends RoseCommandArgumentHandler<StackedBlockAmount> {
+public class StackedBlockAmountArgumentHandler extends RoseCommandArgumentHandler<StackedBlockAmountArgumentHandler.StackedBlockAmount> {
 
     public StackedBlockAmountArgumentHandler(RosePlugin rosePlugin) {
         super(rosePlugin, StackedBlockAmount.class);
@@ -45,5 +44,7 @@ public class StackedBlockAmountArgumentHandler extends RoseCommandArgumentHandle
         int maxStackAmount = blockStackSettings.getMaxStackSize();
         return Arrays.asList(String.valueOf(maxStackAmount), String.valueOf(maxStackAmount / 2), String.valueOf(maxStackAmount / 4), "<stackSize>");
     }
+
+    public record StackedBlockAmount(int amount) { }
 
 }

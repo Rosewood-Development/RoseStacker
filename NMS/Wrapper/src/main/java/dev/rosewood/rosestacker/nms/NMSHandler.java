@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms;
 
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import java.util.List;
@@ -22,28 +22,6 @@ import org.bukkit.inventory.ItemStack;
  * For internal use only. Subject to change extremely frequently.
  */
 public interface NMSHandler {
-
-    /**
-     * Serializes a LivingEntity to a base64 string
-     *
-     * @param livingEntity to serialize
-     * @return base64 string of the entity
-     * @deprecated To be changed to transformEntityType(LivingEntity, EntityType)
-     */
-    @Deprecated(forRemoval = true)
-    StackedEntityDataEntry<?> getEntityAsNBT(LivingEntity livingEntity);
-
-    /**
-     * Deserializes and optionally forcefully spawns the entity at the given location
-     *
-     * @param serialized entity
-     * @param location to spawn the entity at
-     * @param addToWorld whether or not to add the entity to the world
-     * @param entityType entity type to create and apply the serialized nbt over
-     * @return the entity spawned from the NBT
-     */
-    @Deprecated(forRemoval = true)
-    LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType);
 
     /**
      * Creates a LivingEntity instance where the actual entity has not been added to the world.
@@ -190,6 +168,14 @@ public interface NMSHandler {
         }
         return this.hasLineOfSight(entity1, location);
     }
+
+    /**
+     * Creates a new EntityDataEntry from a LivingEntity
+     *
+     * @param livingEntity The LivingEntity
+     * @return The EntityDataEntry
+     */
+    EntityDataEntry createEntityDataEntry(LivingEntity livingEntity);
 
     /**
      * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint

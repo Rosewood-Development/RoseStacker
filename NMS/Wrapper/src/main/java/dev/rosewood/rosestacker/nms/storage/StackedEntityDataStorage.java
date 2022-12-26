@@ -60,16 +60,16 @@ public abstract class StackedEntityDataStorage {
     /**
      * Adds all given entries to the front
      *
-     * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
+     * @param entityDataEntry The StackedEntityDataEntry entries to add
      */
-    public abstract void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
+    public abstract void addAllFirst(List<EntityDataEntry> entityDataEntry);
 
     /**
      * Adds all given entries to the end
      *
-     * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
+     * @param entityDataEntry The StackedEntityDataEntry entries to add
      */
-    public abstract void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
+    public abstract void addAllLast(List<EntityDataEntry> entityDataEntry);
 
     /**
      * Adds a number of clones to the data storage
@@ -81,14 +81,14 @@ public abstract class StackedEntityDataStorage {
     /**
      * @return A StackedEntityDataEntry object for the entity at the front of the list
      */
-    public abstract StackedEntityDataEntry<?> peek();
+    public abstract EntityDataEntry peek();
 
     /**
      * Gets and removes an entity from the list
      *
      * @return A StackedEntityDataEntry object for the entity at the front of the list
      */
-    public abstract StackedEntityDataEntry<?> pop();
+    public abstract EntityDataEntry pop();
 
     /**
      * Gets and removes an entity from the list
@@ -96,7 +96,7 @@ public abstract class StackedEntityDataStorage {
      * @param amount The amount of entities to remove
      * @return A List of StackedEntityDataEntry objects for the entities at the front of the list
      */
-    public abstract List<StackedEntityDataEntry<?>> pop(int amount);
+    public abstract List<EntityDataEntry> pop(int amount);
 
     /**
      * @return the number of entries
@@ -111,7 +111,7 @@ public abstract class StackedEntityDataStorage {
     /**
      * @return a list of all uncompressed entries
      */
-    public abstract List<StackedEntityDataEntry<?>> getAll();
+    public abstract List<EntityDataEntry> getAll();
 
     /**
      * Serializes the stored entity data into a byte array
