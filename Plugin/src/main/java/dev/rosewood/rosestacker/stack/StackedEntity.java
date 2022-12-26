@@ -564,8 +564,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         for (StackedEntityDataEntry<?> entry : removed)
             entities.add(NMSAdapter.getHandler().createEntityFromNBT(entry, this.entity.getLocation(), false, this.entity.getType()));
 
-        this.decreaseStackSize();
-
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
             if (this.entity instanceof Slime)
@@ -584,6 +582,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 event.setDroppedExp(experience * this.getStackSize());
             }
         }
+
+        this.decreaseStackSize();
 
         Player killer = this.entity.getKiller();
         if (killer != null && this.getStackSize() - 1 > 0)
