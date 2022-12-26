@@ -1,23 +1,25 @@
 package dev.rosewood.rosestacker.nms.v1_16_R3.spawner;
 
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
+import dev.rosewood.rosestacker.nms.util.ExtraUtils;
 import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.Blocks;
 import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.MinecraftKey;
 import net.minecraft.server.v1_16_R3.MobSpawnerAbstract;
 import net.minecraft.server.v1_16_R3.MobSpawnerData;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import net.minecraft.server.v1_16_R3.TileEntityMobSpawner;
 import net.minecraft.server.v1_16_R3.WeightedRandom;
 import net.minecraft.server.v1_16_R3.World;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;
 
@@ -103,10 +105,9 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private void trySpawns(boolean onlyCheckConditions) {
         try {
             if (this.spawnData != null) {
-                MinecraftKey resourceLocation = MinecraftKey.a(this.spawnData.getEntity().getString("id"));
-                if (resourceLocation != null) {
-                    NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
-                    EntityType entityType = this.fromKey(namespacedKey);
+                String typeId = this.spawnData.getEntity().getString("id");
+                if (!typeId.isEmpty()) {
+                    EntityType entityType = ExtraUtils.getEntityTypeFromKey(NamespacedKey.fromString(typeId));
                     if (entityType != null)
                         new MobSpawningMethod(entityType).spawn(this.stackedSpawner, onlyCheckConditions);
                 }
@@ -114,14 +115,6 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private EntityType fromKey(NamespacedKey namespacedKey) {
-        return Arrays.stream(EntityType.values())
-                .filter(x -> x != EntityType.UNKNOWN)
-                .filter(x -> x.getKey().equals(namespacedKey))
-                .findFirst()
-                .orElse(null);
     }
 
     private void updateTile() {
@@ -178,21 +171,48 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     }
 
     @Override
-    public EntityType getSpawnedType() {
-        MinecraftKey resourceLocation = MinecraftKey.a(this.spawnData.getEntity().getString("id"));
-        if (resourceLocation != null) {
-            NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
-            EntityType entityType = this.fromKey(namespacedKey);
-            if (entityType != null)
-                return entityType;
+    public SpawnerType getSpawnerType() {
+        if (this.mobs.isEmpty()) {
+            if (this.spawnData == null)
+                return SpawnerType.empty();
+
+            String typeId = this.spawnData.getEntity().getString("id");
+            if (typeId.isEmpty())
+                return SpawnerType.empty();
+
+            return SpawnerType.of(ExtraUtils.getEntityTypeFromKey(NamespacedKey.fromString(typeId)));
         }
-        return EntityType.PIG;
+
+        return SpawnerType.of(this.mobs.stream()
+                .map(MobSpawnerData::getEntity)
+                .map(x -> x.getString("id"))
+                .map(NamespacedKey::fromString)
+                .map(ExtraUtils::getEntityTypeFromKey)
+                .toList());
     }
 
     @Override
-    public void setSpawnedType(EntityType entityType) {
-        this.spawnData.getEntity().setString("id", entityType.getKey().getKey());
-        this.mobs.clear();
+    public void setSpawnerType(SpawnerType spawnerType) {
+        if (spawnerType.size() == 1) {
+            this.spawnData = new MobSpawnerData();
+            this.spawnData.getEntity().setString("id", spawnerType.getOrThrow().getKey().getKey());
+            this.mobs.clear();
+            this.updateTile();
+            return;
+        }
+
+        List<MobSpawnerData> entries = new ArrayList<>();
+        for (EntityType entityType : spawnerType.getEntityTypes()) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("id", entityType.getKey().getKey());
+            entries.add(1, new MobSpawnerData(tag));
+        }
+        this.mobs.addAll(entries);
+
+        if (!this.mobs.isEmpty())
+            this.setSpawnData(WeightedRandom.a(this.a().random, this.mobs));
+
+        this.updateTile();
     }
 
     @Override

@@ -96,7 +96,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         this.trySpawns(false);
 
         // Randomize spawn potentials
-        this.spawnPotentials.getRandom(RandomSource.create()).map(WeightedEntry.Wrapper::getData).ifPresent(x -> this.nextSpawnData = x);
+        this.spawnPotentials.getRandom(level.getRandom()).map(WeightedEntry.Wrapper::getData).ifPresent(x -> this.nextSpawnData = x);
     }
 
     private void trySpawns(boolean onlyCheckConditions) {
