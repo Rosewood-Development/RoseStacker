@@ -6,6 +6,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.ClassUtils;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.spawner.conditions.ConditionTags;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
@@ -146,7 +147,8 @@ public class StackSettingManager extends Manager {
         }
 
         TreeSet<SpawnerType> spawnerTypes = new TreeSet<>(Comparator.comparing(SpawnerType::getEnumName));
-        spawnerTypes.add(SpawnerType.empty());
+        if (NMSAdapter.getHandler().supportsEmptySpawners())
+            spawnerTypes.add(SpawnerType.empty());
         this.entitySettings.keySet().forEach(x -> spawnerTypes.add(SpawnerType.of(x)));
         spawnerTypes.forEach(spawnerType -> {
             SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, spawnerType);

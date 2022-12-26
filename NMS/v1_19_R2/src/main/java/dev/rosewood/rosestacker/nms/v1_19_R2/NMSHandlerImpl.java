@@ -485,6 +485,11 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
+    public boolean supportsEmptySpawners() {
+        return true;
+    }
+
+    @Override
     public void hijackRandomSource(World world) {
         ServerLevel level = ((CraftWorld) world).getHandle();
         if (!(level.random instanceof LegacyRandomSource))

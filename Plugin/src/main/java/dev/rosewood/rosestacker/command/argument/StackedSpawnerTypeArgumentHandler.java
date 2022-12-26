@@ -7,6 +7,7 @@ import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.command.type.StackedSpawnerType;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +23,7 @@ public class StackedSpawnerTypeArgumentHandler extends RoseCommandArgumentHandle
     @Override
     protected StackedSpawnerType handleInternal(RoseCommandArgumentInfo argumentInfo, ArgumentParser argumentParser) throws HandledArgumentException {
         String input = argumentParser.next();
-        if (input.equalsIgnoreCase("empty"))
+        if (NMSAdapter.getHandler().supportsEmptySpawners() && input.equalsIgnoreCase("empty"))
             return new StackedSpawnerType(SpawnerType.empty());
 
         return Arrays.stream(EntityType.values())

@@ -145,7 +145,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private void loadOld(BaseSpawner baseSpawner) {
         this.spawnDelay = baseSpawner.spawnDelay;
         this.spawnPotentials = baseSpawner.spawnPotentials;
-        this.nextSpawnData = baseSpawner.nextSpawnData == null ? null : new SpawnData();
+        this.nextSpawnData = baseSpawner.nextSpawnData;
         this.minSpawnDelay = baseSpawner.minSpawnDelay;
         this.maxSpawnDelay = baseSpawner.maxSpawnDelay;
         this.spawnCount = baseSpawner.spawnCount;
