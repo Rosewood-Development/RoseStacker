@@ -15,7 +15,6 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.entity.SlimeStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
@@ -252,7 +251,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     && (((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER
                     || ((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER_SKULL);
             boolean isSlime = thisEntity instanceof Slime;
-            boolean isAccurateSlime = isSlime && ((SlimeStackSettings) this.stackSettings).isAccurateDropsWithKillEntireStackOnDeath();
+            boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue("accurate-drops-with-kill-entire-stack-on-death").getBoolean();
 
             Map<LivingEntity, EntityStackMultipleDeathEvent.EntityDrops> entityDrops = new LinkedHashMap<>(internalEntities.size());
             if (callEvents) {

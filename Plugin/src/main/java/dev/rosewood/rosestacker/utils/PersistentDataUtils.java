@@ -10,6 +10,7 @@ import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PiglinAbstract;
@@ -45,7 +46,7 @@ public final class PersistentDataUtils {
         }
     }
 
-    public static boolean isUnstackable(LivingEntity entity) {
+    public static boolean isUnstackable(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
     }
@@ -132,7 +133,7 @@ public final class PersistentDataUtils {
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME), PersistentDataType.INTEGER);
     }
 
-    public static void tagSpawnedFromSpawner(LivingEntity entity) {
+    public static void tagSpawnedFromSpawner(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER, 1);
     }
@@ -143,7 +144,7 @@ public final class PersistentDataUtils {
      * @param entity The entity to check
      * @return true if the entity was spawned from one of our spawners, otherwise false
      */
-    public static boolean isSpawnedFromSpawner(LivingEntity entity) {
+    public static boolean isSpawnedFromSpawner(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER);
     }

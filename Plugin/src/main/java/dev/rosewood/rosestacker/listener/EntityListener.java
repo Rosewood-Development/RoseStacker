@@ -8,8 +8,6 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -17,9 +15,6 @@ import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.stack.settings.entity.ChickenStackSettings;
-import dev.rosewood.rosestacker.stack.settings.entity.MushroomCowStackSettings;
-import dev.rosewood.rosestacker.stack.settings.entity.SheepStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -411,16 +406,14 @@ public class EntityListener implements Listener {
             return;
 
         if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
             EntityDataEntry serialized = EntityDataEntry.of(transformedEntity);;
             event.setCancelled(true);
 
             // Handle mooshroom shearing
             if (event.getEntityType() == EntityType.MUSHROOM_COW) {
-                MushroomCowStackSettings stackSettings = (MushroomCowStackSettings) stackedEntity.getStackSettings();
                 int mushroomsDropped = 5;
-                if (stackSettings.shouldDropAdditionalMushroomsPerCowInStack())
-                    mushroomsDropped += (stackedEntity.getStackSize() - 1) * stackSettings.getExtraMushroomsPerCowInStack();
+                if (stackedEntity.getStackSettings().getSettingValue("drop-additional-mushrooms-for-each-cow-in-stack").getBoolean())
+                    mushroomsDropped += (stackedEntity.getStackSize() - 1) * stackedEntity.getStackSettings().getSettingValue("extra-mushrooms-per-cow-in-stack").getInt();
 
                 Material dropType = ((MushroomCow) event.getEntity()).getVariant() == Variant.BROWN ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
                 this.stackManager.preStackItems(GuiUtil.getMaterialAmountAsItemStacks(dropType, mushroomsDropped), event.getEntity().getLocation());
@@ -474,13 +467,11 @@ public class EntityListener implements Listener {
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
-        ChickenStackSettings chickenStackSettings = (ChickenStackSettings) stackedEntity.getStackSettings();
-        if (!chickenStackSettings.shouldMultiplyEggDropsByStackSize())
-            return;
-
-        event.getItemDrop().remove();
-        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
-        this.stackManager.preStackItems(items, event.getEntity().getLocation());
+        if (stackedEntity.getStackSettings().getSettingValue("multiply-egg-drops-by-stack-size").getBoolean()) {
+            event.getItemDrop().remove();
+            List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
+            this.stackManager.preStackItems(items, event.getEntity().getLocation());
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -504,8 +495,7 @@ public class EntityListener implements Listener {
         if (stackedEntity == null)
             return false;
 
-        SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
-        if (!sheepStackSettings.shouldShearAllSheepInStack()) {
+        if (!stackedEntity.getStackSettings().getSettingValue("shear-all-sheep-in-stack").getBoolean()) {
             ThreadUtils.runSync(() -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
@@ -554,8 +544,7 @@ public class EntityListener implements Listener {
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
-        SheepStackSettings sheepStackSettings = (SheepStackSettings) stackedEntity.getStackSettings();
-        double regrowPercentage = sheepStackSettings.getPercentageOfWoolToRegrowPerGrassEaten() / 100D;
+        double regrowPercentage = stackedEntity.getStackSettings().getSettingValue("percentage-of-wool-to-regrow-per-grass-eaten").getInt() / 100D;
         int regrowAmount = Math.max(1, (int) Math.round(stackedEntity.getStackSize() * regrowPercentage));
 
         if (sheepEntity.isSheared()) {

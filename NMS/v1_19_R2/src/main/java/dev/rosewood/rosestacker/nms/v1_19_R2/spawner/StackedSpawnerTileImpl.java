@@ -4,7 +4,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
-import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
+import dev.rosewood.rosestacker.spawning.MobSpawningMethod;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.Optional;
