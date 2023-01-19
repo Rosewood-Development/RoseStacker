@@ -521,7 +521,8 @@ public class BlockListener implements Listener {
         Block block = event.getBlock();
 
         // Block is transforming from one type to another, ignore this to prevent potential duplication
-        if (event.getBlockReplacedState().getType().isSolid())
+        Material replacedType = event.getBlockReplacedState().getType();
+        if (replacedType.isSolid() && !replacedType.name().equals("SCULK_VEIN")) // For whatever reason SCULK_VEIN blocks are marked as solid even though they can be replaced??
             return;
 
         if (block.getType() == Material.SPAWNER) {
