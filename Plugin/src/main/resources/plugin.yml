@@ -2,15 +2,11 @@ name: RoseStacker
 version: '@version@'
 authors: [Esophose]
 website: https://www.spigotmc.org/resources/rosestacker.82729/
-main: dev.rosewood.rosestacker.RoseStacker
+main: dev.rosewood.rosestacker.RoseStackerPlugin
 api-version: '1.13'
 loadbefore: [ShopGUIPlus]
 softdepend:
   - Vault
-  - UltimateStacker
-  - EpicSpawners
-  - WildStacker
-  - StackMob
   - PlaceholderAPI
   - CoreProtect
   - LogBlock

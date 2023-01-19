@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -32,7 +32,7 @@ public class BeeListener implements Listener {
 
         Bee beeEntity = (Bee) event.getEntity();
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(beeEntity);
+        StackedEntityImpl stackedEntity = stackManager.getStackedEntity(beeEntity);
         if (stackedEntity == null)
             return;
 

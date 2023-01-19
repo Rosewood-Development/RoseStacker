@@ -5,10 +5,10 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
-import dev.rosewood.rosestacker.stack.StackedBlock;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.StackedItem;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedBlockImpl;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.StackedItemImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -73,7 +73,7 @@ public class StackToolListener implements Listener {
             return;
         }
 
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
             this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
             return;
@@ -115,7 +115,7 @@ public class StackToolListener implements Listener {
             return;
         }
 
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
             this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
             return;
@@ -141,8 +141,8 @@ public class StackToolListener implements Listener {
             } else {
                 this.localeManager.sendMessage(player, "command-stacktool-select-2", StringPlaceholders.single("type", stackedEntity.getStackSettings().getDisplayName()));
 
-                StackedEntity entity1 = selected.getEntity1();
-                StackedEntity entity2 = selected.getEntity2();
+                StackedEntityImpl entity1 = selected.getEntity1();
+                StackedEntityImpl entity2 = selected.getEntity2();
                 selected.unselect();
 
                 EntityStackComparisonResult result = stackedEntity.getStackSettings().canStackWith(entity1, entity2, false, true);
@@ -206,7 +206,7 @@ public class StackToolListener implements Listener {
                 if (!EntityUtils.isLookingAtItem(player, item))
                     continue;
 
-                StackedItem stackedItem = this.stackManager.getStackedItem(item);
+                StackedItemImpl stackedItem = this.stackManager.getStackedItem(item);
                 if (stackedItem == null)
                     continue;
 
@@ -236,7 +236,7 @@ public class StackToolListener implements Listener {
                 return;
 
             if (clickedBlock.getType() != Material.SPAWNER) {
-                StackedBlock stackedBlock = this.stackManager.getStackedBlock(clickedBlock);
+                StackedBlockImpl stackedBlock = this.stackManager.getStackedBlock(clickedBlock);
                 if (stackedBlock == null)
                     return;
 
@@ -250,7 +250,7 @@ public class StackToolListener implements Listener {
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getChunk().getX()))
                         .addPlaceholder("z", StackerUtils.formatNumber(clickedBlock.getChunk().getZ())).build());
             } else {
-                StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
+                StackedSpawnerImpl stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
                 if (stackedSpawner == null)
                     return;
 
@@ -271,7 +271,7 @@ public class StackToolListener implements Listener {
             if (clickedBlock == null || clickedBlock.getType() != Material.SPAWNER)
                 return;
 
-            StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
+            StackedSpawnerImpl stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
             if (stackedSpawner == null) {
                 CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
                 creatureSpawner.setDelay(5);
@@ -303,9 +303,9 @@ public class StackToolListener implements Listener {
 
     private static class SelectedEntities {
 
-        private StackedEntity entity1, entity2;
+        private StackedEntityImpl entity1, entity2;
 
-        public void select(StackedEntity entity) {
+        public void select(StackedEntityImpl entity) {
             if (this.entity1 == null) {
                 this.entity1 = entity;
             } else if (this.entity2 == null) {
@@ -322,11 +322,11 @@ public class StackToolListener implements Listener {
             return this.entity1 != null && this.entity2 != null;
         }
 
-        public StackedEntity getEntity1() {
+        public StackedEntityImpl getEntity1() {
             return this.entity1;
         }
 
-        public StackedEntity getEntity2() {
+        public StackedEntityImpl getEntity2() {
             return this.entity2;
         }
 

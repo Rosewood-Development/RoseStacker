@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 
-public class HologramManager extends Manager implements Listener {
+public class HologramManager extends Manager implements ManagerLogic, Listener {
 
     private final Map<Location, Hologram> holograms;
     private final NMSHandler nmsHandler;

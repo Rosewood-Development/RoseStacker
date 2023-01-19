@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.stack.StackingThread;
+import dev.rosewood.rosestacker.stack.StackingThreadImpl;
 import me.minebuilders.clearlag.events.EntityRemoveEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,7 +20,7 @@ public class ClearlagListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onClear(EntityRemoveEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        StackingThread stackingThread = stackManager.getStackingThread(event.getWorld());
+        StackingThreadImpl stackingThread = stackManager.getStackingThread(event.getWorld());
         if (stackingThread == null)
             return;
 

@@ -48,12 +48,12 @@ allprojects {
 }
 
 dependencies {
+    implementation project(':API')
     implementation project(':Plugin')
-    implementation project(':NMS:Wrapper')
-//    implementation project(':NMS:v1_16_R3')
-//    implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
-//    implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
-//    implementation project(path: ':NMS:v1_19_R1', configuration: 'remapped')
+    implementation project(':NMS:v1_16_R3')
+    implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_19_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_19_R2', configuration: 'remapped')
     implementation project(':Hook:Hook-Wrapper')
     implementation project(':Hook:mcMMO-New')

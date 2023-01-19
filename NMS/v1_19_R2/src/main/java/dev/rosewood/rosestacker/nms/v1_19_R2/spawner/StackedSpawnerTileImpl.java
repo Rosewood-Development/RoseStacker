@@ -1,12 +1,12 @@
 package dev.rosewood.rosestacker.nms.v1_19_R2.spawner;
 
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
-import dev.rosewood.rosestacker.spawning.MobSpawningMethod;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.spawner.MobSpawningMethod;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -29,14 +29,14 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
     private final SpawnerBlockEntity blockEntity;
     private final BlockPos blockPos;
-    private final StackedSpawner stackedSpawner;
+    private final StackedSpawnerImpl stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
     private boolean checkedInitialConditions;
 
-    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
+    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawnerImpl stackedSpawner) {
         this.blockEntity = blockEntity;
         this.stackedSpawner = stackedSpawner;
         Location location = stackedSpawner.getLocation();
@@ -59,7 +59,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
             this.trySpawns(true);
         }
 
-        SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
+        SpawnerStackSettingsImpl stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
         if (Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean()) {

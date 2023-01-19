@@ -7,7 +7,7 @@ import dev.rosewood.rosestacker.command.StackerCommandWrapper;
 import java.util.Collections;
 import java.util.List;
 
-public class CommandManager extends AbstractCommandManager {
+public class CommandManager extends AbstractCommandManager implements ManagerLogic {
 
     public CommandManager(RosePlugin rosePlugin) {
         super(rosePlugin);

@@ -3,8 +3,8 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -41,14 +41,14 @@ public class BreedingListener implements Listener {
         if (!stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(animal);
+        StackedEntityImpl stackedEntity = stackManager.getStackedEntity(animal);
         if (stackedEntity == null)
             return;
 
         Player player = event.getPlayer();
-        EntityStackSettings stackSettings = stackedEntity.getStackSettings();
+        EntityStackSettingsImpl stackSettings = stackedEntity.getStackSettings();
         ItemStack breedingItem = player.getInventory().getItem(event.getHand());
-        if (breedingItem == null || !stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
+        if (breedingItem == null || !stackSettings.isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
             return;
 
         if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {

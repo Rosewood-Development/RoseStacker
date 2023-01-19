@@ -11,11 +11,12 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.StackedBlockImpl;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -87,7 +88,7 @@ public class BlockListener implements Listener {
 
         if (event.getPlayer().isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (stackManager.isBlockStackingEnabled() && Setting.BLOCK_GUI_ENABLED.getBoolean()) {
-                StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+                StackedBlockImpl stackedBlock = stackManager.getStackedBlock(block);
                 if (stackedBlock != null) {
                     stackedBlock.openGui(event.getPlayer());
                     event.setCancelled(true);
@@ -97,7 +98,7 @@ public class BlockListener implements Listener {
 
             boolean isNotSneakOverriding = !Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() || item == null || item.getType() != Material.SPAWNER;
             if (stackManager.isSpawnerStackingEnabled() && block.getType() == Material.SPAWNER && Setting.SPAWNER_GUI_ENABLED.getBoolean() && isNotSneakOverriding) {
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+                StackedSpawnerImpl stackedSpawner = stackManager.getStackedSpawner(block);
                 if (stackedSpawner == null)
                     stackedSpawner = stackManager.createSpawnerStack(block, 1, false); // Doesn't exist, need it to in order to open the GUI
 
@@ -128,7 +129,7 @@ public class BlockListener implements Listener {
             if (!stackManager.isSpawnerStackingEnabled())
                 return;
 
-            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            StackedSpawnerImpl stackedSpawner = stackManager.getStackedSpawner(block);
             if (stackedSpawner == null)
                 stackedSpawner = stackManager.createSpawnerStack(block, 1, false);
 
@@ -165,7 +166,7 @@ public class BlockListener implements Listener {
             if (!stackManager.isBlockStackingEnabled())
                 return;
 
-            StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            StackedBlockImpl stackedBlock = stackManager.getStackedBlock(block);
             if (stackedBlock == null)
                 return;
 
@@ -367,7 +368,7 @@ public class BlockListener implements Listener {
                 if (!StackerUtils.passesChance(Setting.BLOCK_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
                     continue;
 
-                StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+                StackedBlockImpl stackedBlock = stackManager.getStackedBlock(block);
                 stackedBlock.kickOutGuiViewers();
 
                 int destroyAmountFixed = Setting.BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
@@ -417,7 +418,7 @@ public class BlockListener implements Listener {
                 if (!StackerUtils.passesChance(Setting.SPAWNER_EXPLOSION_DESTROY_CHANCE.getDouble() / 100))
                     continue;
 
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+                StackedSpawnerImpl stackedSpawner = stackManager.getStackedSpawner(block);
 
                 int destroyAmountFixed = Setting.SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED.getInt();
                 int destroyAmount;
@@ -603,7 +604,7 @@ public class BlockListener implements Listener {
             return;
         }
 
-        StackedSpawner againstSpawner = null;
+        StackedSpawnerImpl againstSpawner = null;
         if (isAdditiveStack && against.getType() == Material.SPAWNER) {
             againstSpawner = stackManager.getStackedSpawner(against);
             if (againstSpawner == null) {
@@ -691,7 +692,7 @@ public class BlockListener implements Listener {
                     return;
 
                 // Handle normal block stacking
-                StackedBlock stackedBlock = stackManager.getStackedBlock(against);
+                StackedBlockImpl stackedBlock = stackManager.getStackedBlock(against);
 
                 if (stackedBlock != null) {
                     if (stackedBlock.isLocked()) {
@@ -750,7 +751,7 @@ public class BlockListener implements Listener {
                 if (spawnerType == null)
                     return;
 
-                SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnerType);
+                SpawnerStackSettingsImpl spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnerType);
                 if (spawnerStackSettings == null)
                     return;
 
@@ -762,7 +763,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedSpawner tempStackedSpawner = new StackedSpawner(0, block, true);
+                StackedSpawnerImpl tempStackedSpawner = new StackedSpawnerImpl(0, block, true);
                 SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {
@@ -772,7 +773,7 @@ public class BlockListener implements Listener {
                 }
                 stackAmount = spawnerStackEvent.getIncreaseAmount();
 
-                StackedSpawner stackedSpawner = stackManager.createSpawnerStack(block, stackAmount, true);
+                StackedSpawnerImpl stackedSpawner = stackManager.createSpawnerStack(block, stackAmount, true);
                 if (stackedSpawner != null) {
                     stackedSpawner.getSpawnerTile().setSpawnerType(spawnerType);
                     stackedSpawner.updateSpawnerProperties(true);
@@ -781,7 +782,7 @@ public class BlockListener implements Listener {
                 if (stackAmount <= 1)
                     return;
 
-                BlockStackSettings blockStackSettings = stackSettingManager.getBlockStackSettings(block);
+                BlockStackSettingsImpl blockStackSettings = stackSettingManager.getBlockStackSettings(block);
                 if (blockStackSettings == null)
                     return;
 
@@ -790,7 +791,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedBlock tempStackedBlock = new StackedBlock(0, block);
+                StackedBlockImpl tempStackedBlock = new StackedBlockImpl(0, block);
                 BlockStackEvent blockStackEvent = new BlockStackEvent(player, tempStackedBlock, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(blockStackEvent);
                 if (blockStackEvent.isCancelled()) {

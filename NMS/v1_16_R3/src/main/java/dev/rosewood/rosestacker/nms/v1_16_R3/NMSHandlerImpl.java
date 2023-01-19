@@ -6,7 +6,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
@@ -15,10 +15,10 @@ import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.spawner.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.v1_16_R3.storage.SimpleStackedEntityDataStorage;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.server.v1_16_R3.BehaviorController;
 import net.minecraft.server.v1_16_R3.BlockPosition;
@@ -58,11 +57,7 @@ import net.minecraft.server.v1_16_R3.MathHelper;
 import net.minecraft.server.v1_16_R3.MerchantRecipeList;
 import net.minecraft.server.v1_16_R3.MobSpawnerAbstract;
 import net.minecraft.server.v1_16_R3.MovingObjectPosition;
-import net.minecraft.server.v1_16_R3.NBTBase;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.NBTTagDouble;
-import net.minecraft.server.v1_16_R3.NBTTagFloat;
-import net.minecraft.server.v1_16_R3.NBTTagList;
 import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_16_R3.PathfinderGoalFloat;
 import net.minecraft.server.v1_16_R3.PathfinderGoalSelector;
@@ -148,81 +143,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedEntityDataEntry<?> getEntityAsNBT(LivingEntity livingEntity) {
-        NBTTagCompound nbt = new NBTTagCompound();
-        EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
-        nmsEntity.save(nbt);
-        return new NBTStackedEntityDataEntry(nbt);
-    }
-
-    private void setTag(NBTTagList tag, int index, NBTBase value) {
-        if (index >= tag.size()) {
-            tag.b(index, value);
-        } else {
-            tag.a(index, value);
-        }
-    }
-
-    @Override
-    public LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType) {
-        try {
-            NBTTagCompound nbt = (NBTTagCompound) serialized.get();
-
-            NBTTagList positionTagList = nbt.getList("Pos", 6);
-            if (positionTagList == null)
-                positionTagList = new NBTTagList();
-            this.setTag(positionTagList, 0, NBTTagDouble.a(location.getX()));
-            this.setTag(positionTagList, 1, NBTTagDouble.a(location.getY()));
-            this.setTag(positionTagList, 2, NBTTagDouble.a(location.getZ()));
-            nbt.set("Pos", positionTagList);
-            NBTTagList rotationTagList = nbt.getList("Rotation", 5);
-            if (rotationTagList == null)
-                rotationTagList = new NBTTagList();
-            this.setTag(rotationTagList, 0, NBTTagFloat.a(location.getYaw()));
-            this.setTag(rotationTagList, 1, NBTTagFloat.a(location.getPitch()));
-            nbt.set("Rotation", rotationTagList);
-            nbt.a("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
-
-            Optional<EntityTypes<?>> optionalEntity = EntityTypes.a(entityType.getKey().getKey());
-            if (optionalEntity.isPresent()) {
-                WorldServer world = ((CraftWorld) location.getWorld()).getHandle();
-
-                Entity entity = this.createCreature(
-                        optionalEntity.get(),
-                        world,
-                        nbt,
-                        null,
-                        null,
-                        new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        EnumMobSpawn.COMMAND
-                );
-
-                if (entity == null)
-                    throw new NullPointerException("Unable to create entity from NBT");
-
-                // Load NBT
-                entity.load(nbt);
-
-                if (addToWorld) {
-                    IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, true);
-                    if (!(ichunkaccess instanceof Chunk))
-                        throw new NullPointerException("Unable to spawn entity from NBT, couldn't get chunk");
-
-                    ichunkaccess.a(entity);
-                    method_WorldServer_registerEntity.invoke(world, entity);
-                    entity.noDamageTicks = 0;
-                }
-
-                return (LivingEntity) entity.getBukkitEntity();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
     public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
@@ -250,7 +170,7 @@ public class NMSHandlerImpl implements NMSHandler {
      * Duplicate of {@link EntityTypes#createCreature(WorldServer, NBTTagCompound, IChatBaseComponent, EntityHuman, BlockPosition, EnumMobSpawn, boolean, boolean)}.
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
-    private <T extends Entity> T createCreature(EntityTypes<T> entityTypes, WorldServer worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, EnumMobSpawn enummobspawn) {
+    public <T extends Entity> T createCreature(EntityTypes<T> entityTypes, WorldServer worldserver, NBTTagCompound nbttagcompound, IChatBaseComponent ichatbasecomponent, EntityHuman entityhuman, BlockPosition blockposition, EnumMobSpawn enummobspawn) {
         T newEntity;
         if (entityTypes == EntityTypes.SPIDER) {
             newEntity = (T) new SoloEntitySpider((EntityTypes<? extends EntitySpider>) entityTypes, worldserver);
@@ -449,6 +369,12 @@ public class NMSHandlerImpl implements NMSHandler {
         return nmsEntity1.world.rayTrace(new RayTrace(vec3d, target, RayTrace.BlockCollisionOption.VISUAL, RayTrace.FluidCollisionOption.NONE, nmsEntity1)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
     }
 
+    @Override
+    public EntityDataEntry createEntityDataEntry(LivingEntity livingEntity) {
+        return new NBTEntityDataEntry(livingEntity);
+    }
+
+    @Override
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity);
@@ -456,6 +382,7 @@ public class NMSHandlerImpl implements NMSHandler {
         };
     }
 
+    @Override
     public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity, data);
@@ -465,7 +392,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj) {
-        StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
+        StackedSpawnerImpl stackedSpawner = (StackedSpawnerImpl) stackedSpawnerObj;
         Block block = stackedSpawner.getBlock();
         WorldServer level = ((CraftWorld) block.getWorld()).getHandle();
         BlockPosition blockPos = new BlockPosition(block.getX(), block.getY(), block.getZ());
@@ -522,6 +449,14 @@ public class NMSHandlerImpl implements NMSHandler {
             }
         } else {
             ((CraftLivingEntity) livingEntity).getHandle().save(compoundTag);
+        }
+    }
+
+    public void registerEntity(WorldServer world, Entity entity) {
+        try {
+            method_WorldServer_registerEntity.invoke(world, entity);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
         }
     }
 

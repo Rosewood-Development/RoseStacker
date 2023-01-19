@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly project(':NMS:Wrapper')
+    compileOnly project(':API')
     compileOnly project(':Plugin')
     compileOnly 'org.spigotmc:spigot:1.17.1:remapped-mojang'
 

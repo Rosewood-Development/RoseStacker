@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -16,7 +16,7 @@ public class AirConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
+    public boolean check(StackedSpawnerImpl stackedSpawner, Block spawnBlock) {
         boolean isAir = true;
         for (Material type : EntityUtils.getIntersectingBlocks(stackedSpawner.getSpawnerTile().getSpawnerType().getOrThrow(), spawnBlock.getLocation().clone().add(0.5, 0, 0.5)).values())
             isAir &= StackerUtils.isAir(type) || !StackerUtils.isOccluding(type);

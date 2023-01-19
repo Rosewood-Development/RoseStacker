@@ -1,3 +1,0 @@
-dependencies {
-    compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
-}

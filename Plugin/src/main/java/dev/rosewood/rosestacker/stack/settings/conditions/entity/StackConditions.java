@@ -9,9 +9,11 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ageable;
@@ -249,23 +251,23 @@ public final class StackConditions {
 
     }
 
-    public static List<StackCondition<?>> getEligibleConditions(Class<? extends Entity> entityClass) {
+    public static List<StackCondition<?>> getEligibleConditions(Predicate<Class<?>> filterPredicate) {
         return CLASS_STACK_EVALUATION_MAP.keySet().stream()
-                .filter(x -> x.isAssignableFrom(entityClass))
+                .filter(filterPredicate)
                 .flatMap(x -> CLASS_STACK_EVALUATION_MAP.get(x).stream())
                 .toList();
     }
 
-    public static <T> void registerConfig(Class<T> assignableClass, String key, boolean defaultEnabled, EntityStackComparisonResult failureReason, StackValidationPredicate<T> validationPredicate) {
+    public static <T> void registerConfig(Class<T> assignableClass, String key, boolean defaultEnabled, EntityStackComparisonResult comparisonResult, BiPredicate<T, T> validationPredicate) {
         registerInternal(assignableClass, new ConfigProperties("dont-stack-if-" + key, defaultEnabled), (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions)
-                -> validationPredicate.test(entity1, entity2) ? failureReason : EntityStackComparisonResult.CAN_STACK);
+                -> validationPredicate.test(entity1, entity2) ? comparisonResult : EntityStackComparisonResult.CAN_STACK);
     }
 
     public static <T> void register(Class<T> assignableClass, StackValidationFunction<T> validationFunction) {
         registerInternal(assignableClass, null, validationFunction);
     }
 
-    private static <T, P extends StackValidationFunction<T>> void registerInternal(Class<T> assignableClass, ConfigProperties configProperties, P validationFunction) {
+    private static <T> void registerInternal(Class<T> assignableClass, ConfigProperties configProperties, StackValidationFunction<T> validationFunction) {
         CLASS_STACK_EVALUATION_MAP.put(assignableClass, new StackCondition<>(configProperties, validationFunction));
     }
 
@@ -275,14 +277,9 @@ public final class StackConditions {
 
     @FunctionalInterface
     public interface StackValidationFunction<T> {
-        EntityStackComparisonResult apply(EntityStackSettings stackSettings, StackedEntity stack1,
+        EntityStackComparisonResult apply(EntityStackSettingsImpl stackSettings, StackedEntity stack1,
                                           StackedEntity stack2, T entity1, T entity2, boolean comparingForUnstack,
                                           boolean ignorePositions);
-    }
-
-    @FunctionalInterface
-    public interface StackValidationPredicate<T> {
-        boolean test(T entity1, T entity2);
     }
 
 }

@@ -6,16 +6,17 @@ pluginManagement {
 }
 
 rootProject.name = 'RoseStacker'
-
-include('Plugin')
-include('NMS:Wrapper')
-//include('NMS:v1_16_R3')
-//include('NMS:v1_17_R1')
-//include('NMS:v1_18_R2')
-//include('NMS:v1_19_R1')
-include('NMS:v1_19_R2')
-include('Hook:Hook-Wrapper')
-include('Hook:mcMMO-New')
-include('Hook:mcMMO-Old')
-include('Hook:MythicMobs-New')
-include('Hook:MythicMobs-Old')
+include(
+        'API',
+        'Plugin',
+        'NMS:v1_16_R3',
+        'NMS:v1_17_R1',
+        'NMS:v1_18_R2',
+        'NMS:v1_19_R1',
+        'NMS:v1_19_R2',
+        'Hook:Hook-Wrapper',
+        'Hook:mcMMO-New',
+        'Hook:mcMMO-Old',
+        'Hook:MythicMobs-New',
+        'Hook:MythicMobs-Old'
+)

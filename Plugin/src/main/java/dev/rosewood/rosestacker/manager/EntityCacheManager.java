@@ -19,7 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
-public class EntityCacheManager extends Manager {
+public class EntityCacheManager extends Manager implements ManagerLogic {
 
     private final Map<ChunkLocation, Collection<Entity>> entityCache;
     private BukkitTask refreshTask;

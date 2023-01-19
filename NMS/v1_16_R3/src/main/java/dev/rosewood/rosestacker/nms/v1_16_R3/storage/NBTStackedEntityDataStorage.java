@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_16_R3.storage;
 
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
@@ -70,12 +70,12 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+    public void addAllFirst(List<EntityDataEntry> stackedEntityDataEntry) {
         stackedEntityDataEntry.forEach(x -> this.addAt(0, x));
     }
 
     @Override
-    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+    public void addAllLast(List<EntityDataEntry> stackedEntityDataEntry) {
         stackedEntityDataEntry.forEach(x -> this.addAt(this.data.size(), x));
     }
 
@@ -86,22 +86,22 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public NBTStackedEntityDataEntry peek() {
-        return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
+    public NBTEntityDataEntry peek() {
+        return new NBTEntityDataEntry(this.rebuild(this.data.get(0)));
     }
 
     @Override
-    public NBTStackedEntityDataEntry pop() {
-        return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0)));
+    public NBTEntityDataEntry pop() {
+        return new NBTEntityDataEntry(this.rebuild(this.data.remove(0)));
     }
 
     @Override
-    public List<StackedEntityDataEntry<?>> pop(int amount) {
+    public List<EntityDataEntry> pop(int amount) {
         amount = Math.min(amount, this.data.size());
 
-        List<StackedEntityDataEntry<?>> popped = new ArrayList<>(amount);
+        List<EntityDataEntry> popped = new ArrayList<>(amount);
         for (int i = 0; i < amount; i++)
-            popped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0))));
+            popped.add(new NBTEntityDataEntry(this.rebuild(this.data.remove(0))));
         return popped;
     }
 
@@ -116,10 +116,10 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public List<StackedEntityDataEntry<?>> getAll() {
-        List<StackedEntityDataEntry<?>> wrapped = new ArrayList<>(this.data.size());
+    public List<EntityDataEntry> getAll() {
+        List<EntityDataEntry> wrapped = new ArrayList<>(this.data.size());
         for (NBTTagCompound compoundTag : new ArrayList<>(this.data))
-            wrapped.add(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)));
+            wrapped.add(new NBTEntityDataEntry(this.rebuild(compoundTag)));
         return wrapped;
     }
 
@@ -164,7 +164,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         Iterator<NBTTagCompound> iterator = this.data.iterator();
         for (int i = 0; i < count; i++) {
             NBTTagCompound compoundTag = iterator.next();
-            LivingEntity entity = nmsHandler.createEntityFromNBT(new NBTStackedEntityDataEntry(this.rebuild(compoundTag)), thisEntity.getLocation(), false, thisEntity.getType());
+            LivingEntity entity = new NBTEntityDataEntry(this.rebuild(compoundTag)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
             consumer.accept(entity);
         }
     }
@@ -178,7 +178,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         this.data.removeIf(x -> {
-            LivingEntity entity = nmsHandler.createEntityFromNBT(new NBTStackedEntityDataEntry(this.rebuild(x)), thisEntity.getLocation(), false, thisEntity.getType());
+            LivingEntity entity = new NBTEntityDataEntry(this.rebuild(x)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
             boolean removed = function.apply(entity);
             if (removed) removedEntries.add(entity);
             return removed;
@@ -195,8 +195,8 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         this.data.add(index, compoundTag);
     }
 
-    private void addAt(int index, StackedEntityDataEntry<?> stackedEntityDataEntry) {
-        NBTTagCompound compoundTag = (NBTTagCompound) stackedEntityDataEntry.get();
+    private void addAt(int index, EntityDataEntry entityDataEntry) {
+        NBTTagCompound compoundTag = ((NBTEntityDataEntry) entityDataEntry).get();
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);
@@ -230,6 +230,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         compoundTag.remove("OnGround");
         compoundTag.remove("FallDistance");
         compoundTag.remove("Leash");
+        compoundTag.remove("AngryAt");
         compoundTag.remove("Spigot.ticksLived");
         compoundTag.remove("Paper.OriginWorld");
         compoundTag.remove("Paper.Origin");

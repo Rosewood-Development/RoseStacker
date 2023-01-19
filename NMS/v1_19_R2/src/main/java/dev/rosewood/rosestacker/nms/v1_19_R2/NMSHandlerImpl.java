@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_19_R2;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
@@ -17,7 +18,7 @@ import dev.rosewood.rosestacker.nms.v1_19_R2.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_19_R2.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_19_R2.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.v1_19_R2.storage.SimpleStackedEntityDataStorage;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -381,6 +382,7 @@ public class NMSHandlerImpl implements NMSHandler {
         return new NBTEntityDataEntry(livingEntity);
     }
 
+    @Override
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity);
@@ -388,6 +390,7 @@ public class NMSHandlerImpl implements NMSHandler {
         };
     }
 
+    @Override
     public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity, data);
@@ -397,7 +400,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public StackedSpawnerTile injectStackedSpawnerTile(Object stackedSpawnerObj) {
-        StackedSpawner stackedSpawner = (StackedSpawner) stackedSpawnerObj;
+        StackedSpawnerImpl stackedSpawner = (StackedSpawnerImpl) stackedSpawnerObj;
         Block block = stackedSpawner.getBlock();
         ServerLevel level = ((CraftWorld) block.getWorld()).getHandle();
         BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
@@ -472,7 +475,7 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     private static void sendInfoConsoleMessage(String message) {
-        Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info(message);
+        RoseStacker.getInstance().getLogger().info(message);
     }
 
     public void saveEntityToTag(LivingEntity livingEntity, CompoundTag compoundTag) {

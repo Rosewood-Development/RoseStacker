@@ -3,18 +3,23 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.stack.StackedBlockImpl;
 import dev.rosewood.rosestacker.stack.StackedEntity;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
 import dev.rosewood.rosestacker.stack.StackedItem;
+import dev.rosewood.rosestacker.stack.StackedItemImpl;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.StackingLogic;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.stack.StackingThread;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackingThreadImpl;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +41,9 @@ import org.bukkit.scheduler.BukkitTask;
 /**
  * Manages StackingThreads
  */
-public class StackManager extends Manager implements StackingLogic {
+public class StackManager extends Manager implements StackManagerLogic {
 
-    private final Map<UUID, StackingThread> stackingThreads;
+    private final Map<UUID, StackingThreadImpl> stackingThreads;
 
     private BukkitTask autosaveTask;
 
@@ -81,7 +86,7 @@ public class StackManager extends Manager implements StackingLogic {
         this.saveAllData(true);
 
         // Close and clear StackingThreads
-        this.stackingThreads.values().forEach(StackingThread::close);
+        this.stackingThreads.values().forEach(StackingThreadImpl::close);
         this.stackingThreads.clear();
     }
 
@@ -114,8 +119,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedEntity getStackedEntity(LivingEntity livingEntity) {
-        StackingThread stackingThread = this.getStackingThread(livingEntity.getWorld());
+    public StackedEntityImpl getStackedEntity(LivingEntity livingEntity) {
+        StackingThreadImpl stackingThread = this.getStackingThread(livingEntity.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -123,8 +128,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedItem getStackedItem(Item item) {
-        StackingThread stackingThread = this.getStackingThread(item.getWorld());
+    public StackedItemImpl getStackedItem(Item item) {
+        StackingThreadImpl stackingThread = this.getStackingThread(item.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -132,8 +137,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedBlock getStackedBlock(Block block) {
-        StackingThread stackingThread = this.getStackingThread(block.getWorld());
+    public StackedBlockImpl getStackedBlock(Block block) {
+        StackingThreadImpl stackingThread = this.getStackingThread(block.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -141,8 +146,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedSpawner getStackedSpawner(Block block) {
-        StackingThread stackingThread = this.getStackingThread(block.getWorld());
+    public StackedSpawnerImpl getStackedSpawner(Block block) {
+        StackingThreadImpl stackingThread = this.getStackingThread(block.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -171,28 +176,28 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void removeEntityStack(StackedEntity stackedEntity) {
-        StackingThread stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
         if (stackingThread != null)
             stackingThread.removeEntityStack(stackedEntity);
     }
 
     @Override
     public void removeItemStack(StackedItem stackedItem) {
-        StackingThread stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
         if (stackingThread != null)
             stackingThread.removeItemStack(stackedItem);
     }
 
     @Override
     public void removeBlockStack(StackedBlock stackedBlock) {
-        StackingThread stackingThread = this.getStackingThread(stackedBlock.getBlock().getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedBlock.getBlock().getWorld());
         if (stackingThread != null)
             stackingThread.removeBlockStack(stackedBlock);
     }
 
     @Override
     public void removeSpawnerStack(StackedSpawner stackedSpawner) {
-        StackingThread stackingThread = this.getStackingThread(stackedSpawner.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedSpawner.getWorld());
         if (stackingThread != null)
             stackingThread.removeSpawnerStack(stackedSpawner);
     }
@@ -200,7 +205,7 @@ public class StackManager extends Manager implements StackingLogic {
     @Override
     public int removeAllEntityStacks() {
         int total = 0;
-        for (StackingThread stackingThread : this.stackingThreads.values())
+        for (StackingThreadImpl stackingThread : this.stackingThreads.values())
             total += stackingThread.removeAllEntityStacks();
         return total;
     }
@@ -208,21 +213,21 @@ public class StackManager extends Manager implements StackingLogic {
     @Override
     public int removeAllItemStacks() {
         int total = 0;
-        for (StackingThread stackingThread : this.stackingThreads.values())
+        for (StackingThreadImpl stackingThread : this.stackingThreads.values())
             total += stackingThread.removeAllItemStacks();
         return total;
     }
 
     @Override
     public void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey) {
-        StackingThread stackingThread = this.getStackingThread(newKey.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(newKey.getWorld());
         if (stackingThread != null)
             stackingThread.updateStackedEntityKey(oldKey, newKey);
     }
 
     @Override
-    public StackedEntity splitEntityStack(StackedEntity stackedEntity) {
-        StackingThread stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
+    public StackedEntityImpl splitEntityStack(StackedEntity stackedEntity) {
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
         if (stackingThread == null)
             return null;
 
@@ -230,8 +235,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedItem splitItemStack(StackedItem stackedItem, int newSize) {
-        StackingThread stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
+    public StackedItemImpl splitItemStack(StackedItem stackedItem, int newSize) {
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
         if (stackingThread == null)
             return null;
 
@@ -239,8 +244,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedEntity createEntityStack(LivingEntity livingEntity, boolean tryStack) {
-        StackingThread stackingThread = this.getStackingThread(livingEntity.getWorld());
+    public StackedEntityImpl createEntityStack(LivingEntity livingEntity, boolean tryStack) {
+        StackingThreadImpl stackingThread = this.getStackingThread(livingEntity.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -248,8 +253,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedItem createItemStack(Item item, boolean tryStack) {
-        StackingThread stackingThread = this.getStackingThread(item.getWorld());
+    public StackedItemImpl createItemStack(Item item, boolean tryStack) {
+        StackingThreadImpl stackingThread = this.getStackingThread(item.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -257,8 +262,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedBlock createBlockStack(Block block, int amount) {
-        StackingThread stackingThread = this.getStackingThread(block.getWorld());
+    public StackedBlockImpl createBlockStack(Block block, int amount) {
+        StackingThreadImpl stackingThread = this.getStackingThread(block.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -266,8 +271,8 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedSpawner createSpawnerStack(Block block, int amount, boolean placedByPlayer) {
-        StackingThread stackingThread = this.getStackingThread(block.getWorld());
+    public StackedSpawnerImpl createSpawnerStack(Block block, int amount, boolean placedByPlayer) {
+        StackingThreadImpl stackingThread = this.getStackingThread(block.getWorld());
         if (stackingThread == null)
             return null;
 
@@ -276,7 +281,7 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
-        StackingThread stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
         if (stackingThread == null)
             return;
 
@@ -285,7 +290,7 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void addItemStack(StackedItem stackedItem) {
-        StackingThread stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
         if (stackingThread == null)
             return;
 
@@ -298,7 +303,7 @@ public class StackManager extends Manager implements StackingLogic {
         if (world == null)
             return;
 
-        StackingThread stackingThread = this.getStackingThread(world);
+        StackingThreadImpl stackingThread = this.getStackingThread(world);
         if (stackingThread == null)
             return;
 
@@ -316,7 +321,7 @@ public class StackManager extends Manager implements StackingLogic {
         if (world == null)
             return;
 
-        StackingThread stackingThread = this.getStackingThread(world);
+        StackingThreadImpl stackingThread = this.getStackingThread(world);
         if (stackingThread == null)
             return;
 
@@ -324,12 +329,12 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public StackedItem dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally) {
+    public StackedItemImpl dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally) {
         World world = location.getWorld();
         if (world == null)
             return null;
 
-        StackingThread stackingThread = this.getStackingThread(world);
+        StackingThreadImpl stackingThread = this.getStackingThread(world);
         if (stackingThread == null)
             return null;
 
@@ -338,28 +343,28 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void loadChunkBlocks(Chunk chunk) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
             stackingThread.loadChunkBlocks(chunk);
     }
 
     @Override
     public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
             stackingThread.loadChunkEntities(chunk, entities);
     }
 
     @Override
     public void saveChunkBlocks(Chunk chunk, boolean clearStored) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
             stackingThread.saveChunkBlocks(chunk, clearStored);
     }
 
     @Override
     public void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+        StackingThreadImpl stackingThread = this.getStackingThread(chunk.getWorld());
         if (stackingThread != null)
             stackingThread.saveChunkEntities(chunk, entities, clearStored);
     }
@@ -368,7 +373,7 @@ public class StackManager extends Manager implements StackingLogic {
      * Saves all data in loaded chunks
      */
     public void saveAllData(boolean clearStored) {
-        for (StackingThread stackingThread : this.stackingThreads.values()) {
+        for (StackingThreadImpl stackingThread : this.stackingThreads.values()) {
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
                 stackingThread.saveChunkBlocks(chunk, clearStored);
                 stackingThread.saveChunkEntities(chunk, List.of(chunk.getEntities()), clearStored);
@@ -392,13 +397,18 @@ public class StackManager extends Manager implements StackingLogic {
         return Setting.SPAWNER_STACKING_ENABLED.getBoolean();
     }
 
+    @Override
+    public boolean isEntityStackMultipleDeathEventCalled() {
+        return !Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
+    }
+
     /**
      * Gets a StackingThread for a World
      *
      * @param world the World
      * @return a StackingThread for the World, otherwise null if one doesn't exist
      */
-    public StackingThread getStackingThread(World world) {
+    public StackingThreadImpl getStackingThread(World world) {
         return this.stackingThreads.get(world.getUID());
     }
 
@@ -406,7 +416,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return a Map of key -> World UUID, value -> StackingThread of all StackingThreads
      */
     public Map<UUID, StackingThread> getStackingThreads() {
-        return this.stackingThreads;
+        return Collections.unmodifiableMap(this.stackingThreads);
     }
 
     /**
@@ -418,7 +428,7 @@ public class StackManager extends Manager implements StackingLogic {
         if (this.isWorldDisabled(world) || this.stackingThreads.containsKey(world.getUID()))
             return;
 
-        this.stackingThreads.put(world.getUID(), new StackingThread(this.rosePlugin, this, world));
+        this.stackingThreads.put(world.getUID(), new StackingThreadImpl(this.rosePlugin, this, world));
     }
 
     /**
@@ -428,7 +438,7 @@ public class StackManager extends Manager implements StackingLogic {
      */
     public void unloadWorld(World world) {
         UUID worldUUID = world.getUID();
-        StackingThread stackingThread = this.stackingThreads.get(worldUUID);
+        StackingThreadImpl stackingThread = this.stackingThreads.get(worldUUID);
         if (stackingThread != null) {
             stackingThread.close();
             this.stackingThreads.remove(worldUUID);
@@ -442,7 +452,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the block is stackable, otherwise false
      */
     public boolean isBlockTypeStackable(Block block) {
-        BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(block);
+        BlockStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(block);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
@@ -453,7 +463,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the spawner entity type is stackable, otherwise false
      */
     public boolean isSpawnerTypeStackable(EntityType entityType) {
-        SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
+        SpawnerStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
@@ -464,7 +474,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if the spawner entity type is stackable, otherwise false
      */
     public boolean isSpawnerTypeStackable(SpawnerType spawnerType) {
-        SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
+        SpawnerStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
         return stackSettings != null && stackSettings.isStackingEnabled();
     }
 
@@ -480,9 +490,9 @@ public class StackManager extends Manager implements StackingLogic {
         return Setting.DISABLED_WORLDS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(world.getName()));
     }
 
-    public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {
-        StackingThread fromThread = this.getStackingThread(from);
-        StackingThread toThread = this.getStackingThread(to);
+    public void changeStackingThread(UUID entityUUID, StackedEntityImpl stackedEntity, World from, World to) {
+        StackingThreadImpl fromThread = this.getStackingThread(from);
+        StackingThreadImpl toThread = this.getStackingThread(to);
 
         if (fromThread == null || toThread == null)
             return;
@@ -491,9 +501,9 @@ public class StackManager extends Manager implements StackingLogic {
         fromThread.transferExistingEntityStack(entityUUID, stackedEntity, toThread);
     }
 
-    public void changeStackingThread(UUID entityUUID, StackedItem stackedItem, World from, World to) {
-        StackingThread fromThread = this.getStackingThread(from);
-        StackingThread toThread = this.getStackingThread(to);
+    public void changeStackingThread(UUID entityUUID, StackedItemImpl stackedItem, World from, World to) {
+        StackingThreadImpl fromThread = this.getStackingThread(from);
+        StackingThreadImpl toThread = this.getStackingThread(to);
 
         if (fromThread == null || toThread == null)
             return;
@@ -503,7 +513,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     public void processNametags() {
-        for (StackingThread stackingThread : this.stackingThreads.values())
+        for (StackingThreadImpl stackingThread : this.stackingThreads.values())
             stackingThread.processNametags();
     }
 

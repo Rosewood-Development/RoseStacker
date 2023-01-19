@@ -18,9 +18,9 @@ import dev.rosewood.rosestacker.command.argument.StackedSpawnerAmountArgumentHan
 import dev.rosewood.rosestacker.command.argument.StackedSpawnerTypeArgumentHandler;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.Arrays;
@@ -76,7 +76,7 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedBlockMaterialArgumentHandler.StackedBlockMaterial material, StackedBlockAmountArgumentHandler.StackedBlockAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material.material());
+            BlockStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material.material());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
@@ -124,7 +124,7 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedSpawnerTypeArgumentHandler.StackedSpawnerType spawnerType, StackedSpawnerAmountArgumentHandler.StackedSpawnerAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType.spawnerType());
+            SpawnerStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType.spawnerType());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
@@ -178,7 +178,7 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedEntityTypeArgumentHandler.StackedEntityType entityType, StackedEntityAmountArgumentHandler.StackedEntityAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType.entityType());
+            EntityStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType.entityType());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;

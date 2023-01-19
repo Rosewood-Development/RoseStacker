@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
-public class LocaleManager extends AbstractLocaleManager {
+public class LocaleManager extends AbstractLocaleManager implements ManagerLogic {
 
     private List<String> translationLocales;
 

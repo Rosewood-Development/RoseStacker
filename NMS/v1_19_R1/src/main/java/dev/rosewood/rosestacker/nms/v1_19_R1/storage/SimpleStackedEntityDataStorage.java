@@ -1,8 +1,7 @@
 package dev.rosewood.rosestacker.nms.v1_19_R1.storage;
 
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
@@ -52,12 +51,12 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+    public void addAllFirst(List<EntityDataEntry> stackedEntityDataEntry) {
         this.size += stackedEntityDataEntry.size();
     }
 
     @Override
-    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+    public void addAllLast(List<EntityDataEntry> stackedEntityDataEntry) {
         this.size += stackedEntityDataEntry.size();
     }
 
@@ -67,12 +66,12 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public NBTStackedEntityDataEntry peek() {
+    public NBTEntityDataEntry peek() {
         return this.copy();
     }
 
     @Override
-    public NBTStackedEntityDataEntry pop() {
+    public NBTEntityDataEntry pop() {
         if (this.isEmpty())
             throw new IllegalStateException("No more data is available");
         this.size--;
@@ -80,10 +79,10 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public List<StackedEntityDataEntry<?>> pop(int amount) {
+    public List<EntityDataEntry> pop(int amount) {
         amount = Math.min(amount, this.size);
         this.size -= amount;
-        StackedEntityDataEntry<?>[] popped = new StackedEntityDataEntry[amount];
+        EntityDataEntry[] popped = new EntityDataEntry[amount];
         Arrays.fill(popped, this.copy());
         return List.of(popped);
     }
@@ -99,8 +98,8 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public List<StackedEntityDataEntry<?>> getAll() {
-        StackedEntityDataEntry<?>[] entries = new StackedEntityDataEntry[this.size];
+    public List<EntityDataEntry> getAll() {
+        EntityDataEntry[] entries = new EntityDataEntry[this.size];
         Arrays.fill(entries, this.copy());
         return List.of(entries);
     }
@@ -130,10 +129,9 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
         if (entity == null)
             return;
 
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
         int amount = Math.min(count, this.size);
         for (int i = 0; i < amount; i++)
-            consumer.accept(nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType()));
+            consumer.accept(this.copy().createEntity(entity.getLocation(), false, entity.getType()));
     }
 
     @Override
@@ -142,10 +140,9 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
         if (entity == null)
             return List.of();
 
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
         List<LivingEntity> removedEntries = new ArrayList<>(this.size);
         for (int i = 0; i < this.size; i++) {
-            LivingEntity clone = nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType());
+            LivingEntity clone = this.copy().createEntity(entity.getLocation(), false, entity.getType());
             if (function.apply(clone))
                 removedEntries.add(clone);
         }
@@ -153,15 +150,15 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
         return removedEntries;
     }
 
-    private NBTStackedEntityDataEntry copy() {
+    private NBTEntityDataEntry copy() {
         CompoundTag tag = new CompoundTag();
         LivingEntity entity = this.entity.get();
         if (entity == null)
-            return new NBTStackedEntityDataEntry(tag);
+            return new NBTEntityDataEntry(tag);
 
         ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(entity, tag);
         this.stripUnneeded(tag);
-        return new NBTStackedEntityDataEntry(tag);
+        return new NBTEntityDataEntry(tag);
     }
 
     private void stripUnneeded(CompoundTag compoundTag) {
@@ -174,6 +171,7 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
         compoundTag.remove("OnGround");
         compoundTag.remove("FallDistance");
         compoundTag.remove("Leash");
+        compoundTag.remove("AngryAt");
         compoundTag.remove("Spigot.ticksLived");
         compoundTag.remove("Paper.OriginWorld");
         compoundTag.remove("Paper.Origin");

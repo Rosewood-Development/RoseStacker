@@ -11,10 +11,10 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -141,7 +141,7 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        BlockStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(material);
+        BlockStackSettingsImpl stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(material);
         StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
         String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", placeholders);
 
@@ -176,7 +176,7 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
+        SpawnerStackSettingsImpl stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
         StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
         String displayString;
         if (amount == 1) {
@@ -211,8 +211,8 @@ public final class ItemUtils {
     }
 
     public static ItemStack getEntityAsStackedItemStack(EntityType entityType, int amount) {
-        EntityStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
-        Material spawnEggMaterial = stackSettings.getEntityTypeData().getSpawnEggMaterial();
+        EntityStackSettingsImpl stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+        Material spawnEggMaterial = stackSettings.getEntityTypeData().spawnEggMaterial();
         if (spawnEggMaterial == null)
             return null;
 

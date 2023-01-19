@@ -19,8 +19,8 @@ import dev.rosewood.rosestacker.gui.GuiHelper.GuiStringHelper;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.stack.StackedBlock;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.stack.StackedBlockImpl;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
@@ -37,12 +37,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class StackedBlockGui {
 
     private final RosePlugin rosePlugin;
-    private final StackedBlock stackedBlock;
+    private final StackedBlockImpl stackedBlock;
 
     private final GuiFramework guiFramework;
     private GuiContainer guiContainer;
 
-    public StackedBlockGui(StackedBlock stackedBlock) {
+    public StackedBlockGui(StackedBlockImpl stackedBlock) {
         this.rosePlugin = RoseStacker.getInstance();
         this.stackedBlock = stackedBlock;
 
@@ -99,7 +99,7 @@ public class StackedBlockGui {
 
         GuiScreenSection editableSection = GuiFactory.createScreenSection(paginatedSlots);
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-        BlockStackSettings stackSettings = this.stackedBlock.getStackSettings();
+        BlockStackSettingsImpl stackSettings = this.stackedBlock.getStackSettings();
 
         GuiStringHelper pageBackString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-page-back", StringPlaceholders.empty()));
         GuiStringHelper destroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy", StringPlaceholders.empty()));

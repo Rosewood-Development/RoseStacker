@@ -43,7 +43,6 @@ public final class StackerUtils {
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
     private static final Random RANDOM = new Random();
-    private static List<EntityType> cachedAlphabeticalEntityTypes;
     private static Set<EntityType> cachedStackableEntityTypes;
 
     private static NumberFormat formatter = NumberFormat.getInstance();
@@ -89,18 +88,6 @@ public final class StackerUtils {
             max = temp;
         }
         return RANDOM.nextInt(max - min + 1) + min;
-    }
-
-    public static List<EntityType> getAlphabeticalStackableEntityTypes() {
-        if (cachedAlphabeticalEntityTypes != null)
-            return cachedAlphabeticalEntityTypes;
-
-        return cachedAlphabeticalEntityTypes = Stream.of(EntityType.values())
-                .filter(EntityType::isAlive)
-                .filter(EntityType::isSpawnable)
-                .filter(x -> x != EntityType.PLAYER && x != EntityType.ARMOR_STAND)
-                .sorted(Comparator.comparing(Enum::name))
-                .toList();
     }
 
     public static Set<EntityType> getStackableEntityTypes() {
@@ -245,7 +232,6 @@ public final class StackerUtils {
     }
 
     public static void clearCache() {
-        cachedAlphabeticalEntityTypes = null;
         cachedStackableEntityTypes = null;
         EntityUtils.clearCache();
         ItemUtils.clearCache();

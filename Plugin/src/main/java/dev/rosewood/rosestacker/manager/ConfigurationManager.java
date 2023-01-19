@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 
-public class ConfigurationManager extends AbstractConfigurationManager {
+public class ConfigurationManager extends AbstractConfigurationManager implements ManagerLogic {
 
     public enum Setting implements RoseSetting {
         DISABLED_WORLDS("disabled-worlds", List.of("disabled_world_name"), "A list of worlds that the plugin is disabled in"),

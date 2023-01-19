@@ -6,7 +6,7 @@ import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ public class StackedEntityAmountArgumentHandler extends RoseCommandArgumentHandl
         if (entityType == null)
             return Collections.singletonList("<stackSize>");
 
-        EntityStackSettings spawnerStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+        EntityStackSettingsImpl spawnerStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
         if (spawnerStackSettings == null)
             return Collections.singletonList("<stackSize>");
 

@@ -3,8 +3,8 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.stack.StackedItem;
-import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.stack.StackedItemImpl;
+import dev.rosewood.rosestacker.stack.settings.ItemStackSettingsImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -40,7 +40,7 @@ public class ItemListener implements Listener {
         if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()) || !this.stackManager.isItemStackingEnabled())
             return;
 
-        StackedItem stackedItem = this.stackManager.getStackedItem(event.getEntity());
+        StackedItemImpl stackedItem = this.stackManager.getStackedItem(event.getEntity());
         if (stackedItem != null)
             this.stackManager.removeItemStack(stackedItem);
     }
@@ -50,7 +50,7 @@ public class ItemListener implements Listener {
         if (this.stackManager.isWorldDisabled(event.getEntity().getWorld()) || !this.stackManager.isItemStackingEnabled())
             return;
 
-        ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings(event.getEntity());
+        ItemStackSettingsImpl itemStackSettings = this.stackSettingManager.getItemStackSettings(event.getEntity());
         if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
             return;
 
@@ -66,7 +66,7 @@ public class ItemListener implements Listener {
         if (!this.stackManager.isItemStackingEnabled())
             return;
 
-        StackedItem stackedItem = this.stackManager.getStackedItem(event.getItem());
+        StackedItemImpl stackedItem = this.stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
             return;
 
@@ -114,7 +114,7 @@ public class ItemListener implements Listener {
         if (!this.stackManager.isItemStackingEnabled())
             return;
 
-        StackedItem stackedItem = this.stackManager.getStackedItem(event.getItem());
+        StackedItemImpl stackedItem = this.stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
             return;
 
@@ -132,7 +132,7 @@ public class ItemListener implements Listener {
      * @param eventEntity The entity picking up the item, or null
      * @return true if the pickup event should be cancelled, otherwise false
      */
-    private boolean applyInventoryItemPickup(Inventory inventory, StackedItem stackedItem, Entity eventEntity) {
+    private boolean applyInventoryItemPickup(Inventory inventory, StackedItemImpl stackedItem, Entity eventEntity) {
         ItemStack target = stackedItem.getItem().getItemStack();
         int maxStackSize = target.getMaxStackSize();
 

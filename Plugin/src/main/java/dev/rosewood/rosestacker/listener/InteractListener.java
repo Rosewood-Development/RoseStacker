@@ -5,10 +5,10 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import org.bukkit.GameMode;
@@ -58,11 +58,11 @@ public class InteractListener implements Listener {
                     && ItemUtils.isSpawnEgg(item.getType())
                     && ItemUtils.getStackedItemStackAmount(item) == 1) {
 
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                StackedSpawnerImpl stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
                 if (stackedSpawner == null)
                     stackedSpawner = stackManager.createSpawnerStack(clickedBlock, 1, false);
 
-                EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
+                EntityStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
                 if (stackSettings == null) {
                     event.setCancelled(true);
                     return;
@@ -87,7 +87,7 @@ public class InteractListener implements Listener {
                     return;
                 }
 
-                StackedSpawner finalStackedSpawner = stackedSpawner;
+                StackedSpawnerImpl finalStackedSpawner = stackedSpawner;
                 ThreadUtils.runSync(() -> {
                     // Make sure spawners convert and update their display properly
                     finalStackedSpawner.updateSpawnerProperties(false);
@@ -122,7 +122,7 @@ public class InteractListener implements Listener {
         if (!stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+        StackedEntityImpl stackedEntity = stackManager.getStackedEntity(entity);
         if (stackedEntity == null)
             return;
 
@@ -180,7 +180,7 @@ public class InteractListener implements Listener {
             return false;
 
         int spawnAmount = ItemUtils.getStackedItemStackAmount(itemStack);
-        EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
+        EntityStackSettingsImpl stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(itemStack.getType());
         EntityType entityType = stackSettings.getEntityType();
         if (original != null && original.getType() != entityType)
             return false;

@@ -40,7 +40,6 @@ public class NBTEntityDataEntry implements EntityDataEntry {
     public LivingEntity createEntity(Location location, boolean addToWorld, EntityType entityType) {
         try {
             NMSHandlerImpl nmsHandler = (NMSHandlerImpl) NMSAdapter.getHandler();
-
             CompoundTag nbt = this.compoundTag.copy();
 
             ListTag positionTagList = nbt.getList("Pos", Tag.TAG_DOUBLE);

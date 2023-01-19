@@ -14,8 +14,8 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -31,11 +31,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class StackedSpawnerGui {
 
     private final LocaleManager localeManager;
-    private final StackedSpawner stackedSpawner;
+    private final StackedSpawnerImpl stackedSpawner;
     private final GuiFramework guiFramework;
     private GuiContainer guiContainer;
 
-    public StackedSpawnerGui(StackedSpawner stackedSpawner) {
+    public StackedSpawnerGui(StackedSpawnerImpl stackedSpawner) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
 
         this.localeManager = rosePlugin.getManager(LocaleManager.class);
@@ -62,7 +62,7 @@ public class StackedSpawnerGui {
         this.guiContainer = GuiFactory.createContainer()
                 .setTickRate(Setting.SPAWNER_GUI_TICK_UPDATE_RATE.getInt());
 
-        SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
+        SpawnerStackSettingsImpl stackSettings = this.stackedSpawner.getStackSettings();
 
         GuiScreen mainScreen = GuiFactory.createScreen(this.guiContainer, GuiSize.ROWS_THREE)
                 .setTitle(this.localeManager.getLocaleMessage("gui-stacked-spawner-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
@@ -102,8 +102,7 @@ public class StackedSpawnerGui {
             Material conditionsValid = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_VALID_SPAWN_CONDITIONS_MATERIAL.getString());
             Material conditionsInvalid = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_INVALID_SPAWN_CONDITIONS_MATERIAL.getString());
 
-            ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(spawnerType)
-                    .getEntityTypeData().getSkullItem();
+            ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(spawnerType).getSkullItem();
             ItemMeta skullMeta = skull.getItemMeta();
             if (skullMeta != null) {
                 String displayString;

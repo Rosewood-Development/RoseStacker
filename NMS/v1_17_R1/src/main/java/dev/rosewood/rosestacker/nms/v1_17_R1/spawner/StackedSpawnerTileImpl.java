@@ -1,22 +1,19 @@
 package dev.rosewood.rosestacker.nms.v1_17_R1.spawner;
 
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
-import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.spawner.MobSpawningMethod;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
@@ -26,7 +23,6 @@ import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftNamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataContainer;
 
@@ -34,14 +30,14 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
     private final SpawnerBlockEntity blockEntity;
     private final BlockPos blockPos;
-    private final StackedSpawner stackedSpawner;
+    private final StackedSpawnerImpl stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
     private boolean checkedInitialConditions;
 
-    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
+    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawnerImpl stackedSpawner) {
         this.blockEntity = blockEntity;
         this.stackedSpawner = stackedSpawner;
         Location location = stackedSpawner.getLocation();

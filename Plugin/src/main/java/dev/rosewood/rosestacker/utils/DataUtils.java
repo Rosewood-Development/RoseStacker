@@ -5,10 +5,10 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
-import dev.rosewood.rosestacker.stack.StackedBlock;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.StackedItem;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedBlockImpl;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.StackedItemImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -41,12 +41,12 @@ public final class DataUtils {
     private static final NamespacedKey CHUNK_BLOCKS_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_block_data");
     private static final int BLOCK_DATA_VERSION = 1;
 
-    public static StackedEntity readStackedEntity(LivingEntity entity, StackedEntityDataStorageType storageType) {
+    public static StackedEntityImpl readStackedEntity(LivingEntity entity, StackedEntityDataStorageType storageType) {
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         byte[] data = pdc.get(ENTITY_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
-            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, storageType));
+            return new StackedEntityImpl(entity, nmsHandler.createEntityDataStorage(entity, storageType));
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(new GZIPInputStream(inputStream))) {
@@ -57,14 +57,14 @@ public final class DataUtils {
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT));
+                return new StackedEntityImpl(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT));
             } else if (dataVersion == 2) {
                 StackedEntityDataStorageType type = StackedEntityDataStorageType.fromId(dataInput.readInt());
                 int length = dataInput.readInt();
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type));
+                return new StackedEntityImpl(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +73,7 @@ public final class DataUtils {
         return null;
     }
 
-    public static void writeStackedEntity(StackedEntity stackedEntity) {
+    public static void writeStackedEntity(StackedEntityImpl stackedEntity) {
         PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
         byte[] data = null;
 
@@ -104,12 +104,12 @@ public final class DataUtils {
         entity.getPersistentDataContainer().remove(ENTITY_KEY);
     }
 
-    public static StackedItem readStackedItem(Item item) {
+    public static StackedItemImpl readStackedItem(Item item) {
         PersistentDataContainer pdc = item.getPersistentDataContainer();
 
         byte[] data = pdc.get(ITEM_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
-            return new StackedItem(item.getItemStack().getAmount(), item);
+            return new StackedItemImpl(item.getItemStack().getAmount(), item);
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
@@ -117,7 +117,7 @@ public final class DataUtils {
             int dataVersion = dataInput.readInt();
             if (dataVersion == 1) {
                 int stackSize = dataInput.readInt();
-                return new StackedItem(stackSize, item);
+                return new StackedItemImpl(stackSize, item);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,7 +126,7 @@ public final class DataUtils {
         return null;
     }
 
-    public static void writeStackedItem(StackedItem stackedItem) {
+    public static void writeStackedItem(StackedItemImpl stackedItem) {
         PersistentDataContainer pdc = stackedItem.getItem().getPersistentDataContainer();
         byte[] data = null;
 
@@ -146,10 +146,10 @@ public final class DataUtils {
             pdc.set(ITEM_KEY, PersistentDataType.BYTE_ARRAY, data);
     }
 
-    public static List<StackedSpawner> readStackedSpawners(Chunk chunk) {
+    public static List<StackedSpawnerImpl> readStackedSpawners(Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
 
-        List<StackedSpawner> stackedSpawners = new ArrayList<>();
+        List<StackedSpawnerImpl> stackedSpawners = new ArrayList<>();
         byte[] data = pdc.get(CHUNK_SPAWNERS_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
             return stackedSpawners;
@@ -168,7 +168,7 @@ public final class DataUtils {
                     boolean placedByPlayer = dataInput.readBoolean();
                     Block block = chunk.getBlock(x, y, z);
                     if (block.getType() == Material.SPAWNER)
-                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer));
+                        stackedSpawners.add(new StackedSpawnerImpl(stackSize, block, placedByPlayer));
                 }
             }
         } catch (Exception e) {
@@ -179,7 +179,7 @@ public final class DataUtils {
         return stackedSpawners;
     }
 
-    public static void writeStackedSpawners(Collection<StackedSpawner> stackedSpawners, Chunk chunk) {
+    public static void writeStackedSpawners(Collection<StackedSpawnerImpl> stackedSpawners, Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
         byte[] data = null;
 
@@ -189,7 +189,7 @@ public final class DataUtils {
             dataOutput.writeInt(SPAWNER_DATA_VERSION);
             dataOutput.writeInt(stackedSpawners.size());
 
-            for (StackedSpawner stackedSpawner : stackedSpawners) {
+            for (StackedSpawnerImpl stackedSpawner : stackedSpawners) {
                 dataOutput.writeInt(stackedSpawner.getStackSize());
                 dataOutput.writeInt(stackedSpawner.getLocation().getBlockX() & 0xF);
                 dataOutput.writeInt(stackedSpawner.getLocation().getBlockY());
@@ -208,10 +208,10 @@ public final class DataUtils {
             pdc.set(CHUNK_SPAWNERS_KEY, PersistentDataType.BYTE_ARRAY, data);
     }
 
-    public static List<StackedBlock> readStackedBlocks(Chunk chunk) {
+    public static List<StackedBlockImpl> readStackedBlocks(Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
 
-        List<StackedBlock> stackedBlocks = new ArrayList<>();
+        List<StackedBlockImpl> stackedBlocks = new ArrayList<>();
         byte[] data = pdc.get(CHUNK_BLOCKS_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
             return stackedBlocks;
@@ -228,7 +228,7 @@ public final class DataUtils {
                     int y = dataInput.readInt();
                     int z = dataInput.readInt();
 
-                    stackedBlocks.add(new StackedBlock(stackSize, chunk.getBlock(x, y, z)));
+                    stackedBlocks.add(new StackedBlockImpl(stackSize, chunk.getBlock(x, y, z)));
                 }
             }
         } catch (Exception e) {
@@ -239,7 +239,7 @@ public final class DataUtils {
         return stackedBlocks;
     }
 
-    public static void writeStackedBlocks(Collection<StackedBlock> stackedBlocks, Chunk chunk) {
+    public static void writeStackedBlocks(Collection<StackedBlockImpl> stackedBlocks, Chunk chunk) {
         PersistentDataContainer pdc = chunk.getPersistentDataContainer();
         byte[] data = null;
 
@@ -249,7 +249,7 @@ public final class DataUtils {
             dataOutput.writeInt(BLOCK_DATA_VERSION);
             dataOutput.writeInt(stackedBlocks.size());
 
-            for (StackedBlock stackedBlock : stackedBlocks) {
+            for (StackedBlockImpl stackedBlock : stackedBlocks) {
                 dataOutput.writeInt(stackedBlock.getStackSize());
                 dataOutput.writeInt(stackedBlock.getLocation().getBlockX() & 0xF);
                 dataOutput.writeInt(stackedBlock.getLocation().getBlockY());

@@ -191,7 +191,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     private void addAt(int index, EntityDataEntry entityDataEntry) {
-        CompoundTag compoundTag = ((NBTEntityDataEntry) entityDataEntry).get(); // TODO: May be unsafe
+        CompoundTag compoundTag = ((NBTEntityDataEntry) entityDataEntry).get(); // TODO: May be unsafe if we add additional types in the future
         this.stripUnneeded(compoundTag);
         this.stripAttributeUuids(compoundTag);
         this.removeDuplicates(compoundTag);

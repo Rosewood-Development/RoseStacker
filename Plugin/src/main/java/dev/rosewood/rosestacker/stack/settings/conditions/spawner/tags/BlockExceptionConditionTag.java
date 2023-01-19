@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class BlockExceptionConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
+    public boolean check(StackedSpawnerImpl stackedSpawner, Block spawnBlock) {
         return !this.blocks.contains(EntityUtils.getLazyBlockMaterial(spawnBlock.getRelative(BlockFace.DOWN).getLocation()));
     }
 

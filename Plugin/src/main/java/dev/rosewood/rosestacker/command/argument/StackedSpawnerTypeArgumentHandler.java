@@ -7,7 +7,7 @@ import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

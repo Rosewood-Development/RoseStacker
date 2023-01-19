@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.stack.settings.conditions.spawner;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.block.Block;
@@ -53,7 +53,7 @@ public abstract class ConditionTag {
      * @param spawnBlock The block the entity will be spawned in
      * @return true if the condition is met, otherwise false
      */
-    public abstract boolean check(StackedSpawner stackedSpawner, Block spawnBlock);
+    public abstract boolean check(StackedSpawnerImpl stackedSpawner, Block spawnBlock);
 
     /**
      * Parses the value portion of the tag

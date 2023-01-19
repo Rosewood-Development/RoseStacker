@@ -6,11 +6,11 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
-import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
-import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.ItemStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -39,12 +39,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
-public class StackSettingManager extends Manager {
+public class StackSettingManager extends Manager implements StackSettingManagerLogic {
 
-    private final Map<Material, BlockStackSettings> blockSettings;
-    private final Map<EntityType, EntityStackSettings> entitySettings;
-    private final Map<Material, ItemStackSettings> itemSettings;
-    private final Map<SpawnerType, SpawnerStackSettings> spawnerSettings;
+    private final Map<Material, BlockStackSettingsImpl> blockSettings;
+    private final Map<EntityType, EntityStackSettingsImpl> entitySettings;
+    private final Map<Material, ItemStackSettingsImpl> itemSettings;
+    private final Map<SpawnerType, SpawnerStackSettingsImpl> spawnerSettings;
 
     private boolean registeredPermissions = false;
 
@@ -74,7 +74,7 @@ public class StackSettingManager extends Manager {
         // Load block settings
         CommentedFileConfiguration blockSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(blockSettingsFile);
         StackerUtils.getPossibleStackableBlockMaterials().forEach(x -> {
-            BlockStackSettings blockStackSettings = new BlockStackSettings(blockSettingsConfiguration, x);
+            BlockStackSettingsImpl blockStackSettings = new BlockStackSettingsImpl(blockSettingsConfiguration, x);
             this.blockSettings.put(x, blockStackSettings);
             if (blockStackSettings.hasChanges())
                 saveBlockSettingsFile.set(true);
@@ -98,7 +98,7 @@ public class StackSettingManager extends Manager {
                     return;
                 }
 
-                EntityStackSettings entityStackSetting = new EntityStackSettings(entitySettingsConfiguration, jsonObject.get(x).getAsJsonObject(), entityType);
+                EntityStackSettingsImpl entityStackSetting = new EntityStackSettingsImpl(entitySettingsConfiguration, jsonObject.get(x).getAsJsonObject(), entityType);
                 this.entitySettings.put(entityType, entityStackSetting);
                 if (entityStackSetting.hasChanges())
                     saveEntitySettingsFile.set(true);
@@ -113,7 +113,7 @@ public class StackSettingManager extends Manager {
         // Load item settings
         CommentedFileConfiguration itemSettingsConfiguration = CommentedFileConfiguration.loadConfiguration(itemSettingsFile);
         Stream.of(Material.values()).sorted(Comparator.comparing(Enum::name)).forEach(x -> {
-            ItemStackSettings itemStackSettings = new ItemStackSettings(itemSettingsConfiguration, x);
+            ItemStackSettingsImpl itemStackSettings = new ItemStackSettingsImpl(itemSettingsConfiguration, x);
             this.itemSettings.put(x, itemStackSettings);
             if (itemStackSettings.hasChanges())
                 saveItemSettingsFile.set(true);
@@ -147,7 +147,7 @@ public class StackSettingManager extends Manager {
             spawnerTypes.add(SpawnerType.empty());
         this.entitySettings.keySet().forEach(x -> spawnerTypes.add(SpawnerType.of(x)));
         spawnerTypes.forEach(spawnerType -> {
-            SpawnerStackSettings spawnerStackSettings = new SpawnerStackSettings(spawnerSettingsConfiguration, spawnerType);
+            SpawnerStackSettingsImpl spawnerStackSettings = new SpawnerStackSettingsImpl(spawnerSettingsConfiguration, spawnerType);
             this.spawnerSettings.put(spawnerType, spawnerStackSettings);
             if (spawnerStackSettings.hasChanges())
                 saveSpawnerSettingsFile.set(true);
@@ -224,7 +224,7 @@ public class StackSettingManager extends Manager {
      * @param material The block material to get the settings of
      * @return The BlockStackSettings for the block type, or null if the block type is not stackable
      */
-    public BlockStackSettings getBlockStackSettings(Material material) {
+    public BlockStackSettingsImpl getBlockStackSettings(Material material) {
         return this.blockSettings.get(material);
     }
 
@@ -234,7 +234,7 @@ public class StackSettingManager extends Manager {
      * @param block The block to get the settings of
      * @return The BlockStackSettings for the block, or null if the block type is not stackable
      */
-    public BlockStackSettings getBlockStackSettings(Block block) {
+    public BlockStackSettingsImpl getBlockStackSettings(Block block) {
         return this.getBlockStackSettings(block.getType());
     }
 
@@ -244,7 +244,7 @@ public class StackSettingManager extends Manager {
      * @param entityType The entity type to get the settings of
      * @return The EntityStackSettings for the entity type
      */
-    public EntityStackSettings getEntityStackSettings(EntityType entityType) {
+    public EntityStackSettingsImpl getEntityStackSettings(EntityType entityType) {
         return this.entitySettings.get(entityType);
     }
 
@@ -254,7 +254,7 @@ public class StackSettingManager extends Manager {
      * @param entity The entity to get the settings of
      * @return The EntityStackSettings for the entity
      */
-    public EntityStackSettings getEntityStackSettings(LivingEntity entity) {
+    public EntityStackSettingsImpl getEntityStackSettings(LivingEntity entity) {
         return this.getEntityStackSettings(entity.getType());
     }
 
@@ -264,12 +264,12 @@ public class StackSettingManager extends Manager {
      * @param material The spawn egg material to get the settings of
      * @return The EntityStackSettings for the spawn egg material, or null if the material is not a spawn egg
      */
-    public EntityStackSettings getEntityStackSettings(Material material) {
+    public EntityStackSettingsImpl getEntityStackSettings(Material material) {
         if (!ItemUtils.isSpawnEgg(material))
             return null;
 
-        for (EntityStackSettings settings : this.entitySettings.values())
-            if (settings.getEntityTypeData().getSpawnEggMaterial() == material)
+        for (EntityStackSettingsImpl settings : this.entitySettings.values())
+            if (settings.getEntityTypeData().spawnEggMaterial() == material)
                 return settings;
 
         return null;
@@ -281,7 +281,7 @@ public class StackSettingManager extends Manager {
      * @param material The item type to get the settings of
      * @return The ItemStackSettings for the item type
      */
-    public ItemStackSettings getItemStackSettings(Material material) {
+    public ItemStackSettingsImpl getItemStackSettings(Material material) {
         return this.itemSettings.get(material);
     }
 
@@ -291,7 +291,7 @@ public class StackSettingManager extends Manager {
      * @param item The item to get the settings of
      * @return The ItemStackSettings for the item
      */
-    public ItemStackSettings getItemStackSettings(Item item) {
+    public ItemStackSettingsImpl getItemStackSettings(Item item) {
         return this.getItemStackSettings(item.getItemStack().getType());
     }
 
@@ -301,8 +301,8 @@ public class StackSettingManager extends Manager {
      * @param entityType The spawner entity type to get the settings of
      * @return The SpawnerStackSettings for the spawner entity type
      */
-    public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
-        return this.spawnerSettings.get(SpawnerType.of(entityType));
+    public SpawnerStackSettingsImpl getSpawnerStackSettings(EntityType entityType) {
+        return this.getSpawnerStackSettings(SpawnerType.of(entityType));
     }
 
     /**
@@ -311,7 +311,7 @@ public class StackSettingManager extends Manager {
      * @param spawnerType The spawner type to get the settings of
      * @return The SpawnerStackSettings for the spawner entity type
      */
-    public SpawnerStackSettings getSpawnerStackSettings(SpawnerType spawnerType) {
+    public SpawnerStackSettingsImpl getSpawnerStackSettings(SpawnerType spawnerType) {
         return this.spawnerSettings.get(spawnerType);
     }
 
@@ -321,35 +321,35 @@ public class StackSettingManager extends Manager {
      * @param creatureSpawner The spawner to get the settings of
      * @return The SpawnerStackSettings for the spawner
      */
-    public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
+    public SpawnerStackSettingsImpl getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
         return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
     }
 
     public Set<EntityType> getStackableEntityTypes() {
         return this.entitySettings.values().stream()
-                .filter(EntityStackSettings::isStackingEnabled)
-                .map(EntityStackSettings::getEntityType)
+                .filter(EntityStackSettingsImpl::isStackingEnabled)
+                .map(EntityStackSettingsImpl::getEntityType)
                 .collect(Collectors.toSet());
     }
 
     public Set<Material> getStackableItemTypes() {
         return this.itemSettings.values().stream()
-                .filter(ItemStackSettings::isStackingEnabled)
-                .map(ItemStackSettings::getType)
+                .filter(ItemStackSettingsImpl::isStackingEnabled)
+                .map(ItemStackSettingsImpl::getType)
                 .collect(Collectors.toSet());
     }
 
     public Set<Material> getStackableBlockTypes() {
         return this.blockSettings.values().stream()
-                .filter(BlockStackSettings::isStackingEnabled)
-                .map(BlockStackSettings::getType)
+                .filter(BlockStackSettingsImpl::isStackingEnabled)
+                .map(BlockStackSettingsImpl::getType)
                 .collect(Collectors.toSet());
     }
 
     public Set<SpawnerType> getStackableSpawnerTypes() {
         return this.spawnerSettings.values().stream()
-                .filter(SpawnerStackSettings::isStackingEnabled)
-                .map(SpawnerStackSettings::getSpawnerType)
+                .filter(SpawnerStackSettingsImpl::isStackingEnabled)
+                .map(SpawnerStackSettingsImpl::getSpawnerType)
                 .collect(Collectors.toSet());
     }
 

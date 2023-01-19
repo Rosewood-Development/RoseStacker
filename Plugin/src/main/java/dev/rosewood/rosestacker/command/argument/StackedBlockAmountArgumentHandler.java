@@ -6,7 +6,7 @@ import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.stack.settings.BlockStackSettingsImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ public class StackedBlockAmountArgumentHandler extends RoseCommandArgumentHandle
         if (blockType == null)
             return Collections.singletonList("<stackSize>");
 
-        BlockStackSettings blockStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(blockType);
+        BlockStackSettingsImpl blockStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(blockType);
         if (blockStackSettings == null)
             return Collections.singletonList("<stackSize>");
 

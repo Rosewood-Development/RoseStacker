@@ -99,14 +99,14 @@ public final class EntityUtils {
      * @return true if the entities can see each other, otherwise false
      */
     public static boolean hasLineOfSight(Entity entity1, Entity entity2, double accuracy, boolean requireOccluding) {
-        if (entity1 instanceof LivingEntity) // Try to use the NMS method if possible, it's significantly faster
-            return NMSAdapter.getHandler().hasLineOfSight((LivingEntity) entity1, entity2);
+        if (entity1 instanceof LivingEntity livingEntity) // Try to use the NMS method if possible, it's significantly faster
+            return NMSAdapter.getHandler().hasLineOfSight(livingEntity, entity2);
 
         Location location1 = entity1.getLocation().clone();
         Location location2 = entity2.getLocation().clone();
 
-        if (entity2 instanceof LivingEntity)
-            location2.add(0, ((LivingEntity) entity2).getEyeHeight(), 0);
+        if (entity2 instanceof LivingEntity livingEntity)
+            location2.add(0, livingEntity.getEyeHeight(), 0);
 
         Vector vector1 = location1.toVector();
         Vector vector2 = location2.toVector();

@@ -10,11 +10,11 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.StackedItem;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.StackedItemImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.ItemStackSettingsImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -102,7 +102,7 @@ public class EntityListener implements Listener {
             return;
 
         if (entity instanceof Item item) {
-            ItemStackSettings itemStackSettings = this.stackSettingManager.getItemStackSettings(item);
+            ItemStackSettingsImpl itemStackSettings = this.stackSettingManager.getItemStackSettings(item);
             if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
                 return;
 
@@ -148,8 +148,8 @@ public class EntityListener implements Listener {
             return;
 
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
-        SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
-        StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
+        SpawnerStackSettingsImpl stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
+        StackedSpawnerImpl stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
         if (stackedSpawner == null)
             stackedSpawner = stackManager.createSpawnerStack(event.getSpawner().getBlock(), 1, false);
 
@@ -191,7 +191,7 @@ public class EntityListener implements Listener {
             if (!this.stackManager.isEntityStackingEnabled())
                 return;
 
-            StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
+            StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null) {
                 this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
                 stackedEntity.updateDisplay();
@@ -200,7 +200,7 @@ public class EntityListener implements Listener {
             if (!this.stackManager.isItemStackingEnabled())
                 return;
 
-            StackedItem stackedItem = this.stackManager.getStackedItem(item);
+            StackedItemImpl stackedItem = this.stackManager.getStackedItem(item);
             if (stackedItem != null) {
                 this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld());
                 stackedItem.updateDisplay();
@@ -246,7 +246,7 @@ public class EntityListener implements Listener {
         if (!this.stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
@@ -306,7 +306,7 @@ public class EntityListener implements Listener {
         if (!this.stackManager.isEntityStackingEnabled())
             return;
 
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null)
             return;
 
@@ -401,7 +401,7 @@ public class EntityListener implements Listener {
                 || !this.stackManager.isEntityStacked((LivingEntity) event.getEntity()))
             return;
 
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) event.getEntity());
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity((LivingEntity) event.getEntity());
         if (stackedEntity.getStackSize() == 1)
             return;
 
@@ -426,7 +426,7 @@ public class EntityListener implements Listener {
                 LivingEntity newEntity = serialized.createEntity(transformedEntity.getLocation(), true, transformedEntity.getType());
                 if (aiDisabled)
                     PersistentDataUtils.removeEntityAi(newEntity);
-                StackedEntity newStack = this.stackManager.createEntityStack(newEntity, false);
+                StackedEntityImpl newStack = this.stackManager.createEntityStack(newEntity, false);
                 this.stackManager.setEntityStackingTemporarilyDisabled(false);
                 if (newStack == null)
                     return;
@@ -463,7 +463,7 @@ public class EntityListener implements Listener {
             return;
 
         Chicken chickenEntity = (Chicken) event.getEntity();
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(chickenEntity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(chickenEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
@@ -491,7 +491,7 @@ public class EntityListener implements Listener {
             return false;
 
         Sheep sheepEntity = (Sheep) entity;
-        StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
+        StackedEntityImpl stackedEntity = stackManager.getStackedEntity(sheepEntity);
         if (stackedEntity == null)
             return false;
 
@@ -540,7 +540,7 @@ public class EntityListener implements Listener {
             return;
 
         Sheep sheepEntity = event.getEntity();
-        StackedEntity stackedEntity = this.stackManager.getStackedEntity(sheepEntity);
+        StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity(sheepEntity);
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 

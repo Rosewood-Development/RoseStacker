@@ -12,7 +12,7 @@ compileJava {
 
 dependencies {
     // Other modules
-    compileOnly project(':NMS:Wrapper')
+    compileOnly project(':API')
     compileOnly project(':Hook:Hook-Wrapper')
     compileOnly project(':Hook:mcMMO-New')
     compileOnly project(':Hook:mcMMO-Old')
@@ -52,7 +52,7 @@ dependencies {
     compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
 
     // Dependencies that will be shaded into the jar
-    api 'dev.rosewood:rosegarden:1.1.0.50-SNAPSHOT'
+    api "dev.rosewood:rosegarden:$rosegardenVersion"
     api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
 }
 

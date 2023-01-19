@@ -1,11 +1,11 @@
 package dev.rosewood.rosestacker.nms.v1_18_R2.spawner;
 
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
-import dev.rosewood.rosestacker.spawner.spawning.MobSpawningMethod;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.spawner.MobSpawningMethod;
+import dev.rosewood.rosestacker.spawner.SpawnerType;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.util.Optional;
 import java.util.Random;
@@ -29,14 +29,14 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
 
     private final SpawnerBlockEntity blockEntity;
     private final BlockPos blockPos;
-    private final StackedSpawner stackedSpawner;
+    private final StackedSpawnerImpl stackedSpawner;
     private boolean redstoneDeactivated;
     private int redstoneTimeSinceLastCheck;
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
     private boolean checkedInitialConditions;
 
-    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
+    public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawnerImpl stackedSpawner) {
         this.blockEntity = blockEntity;
         this.stackedSpawner = stackedSpawner;
         Location location = stackedSpawner.getLocation();

@@ -5,9 +5,9 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
-import dev.rosewood.rosestacker.stack.StackedEntity;
-import dev.rosewood.rosestacker.stack.StackedSpawner;
-import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.StackedEntityImpl;
+import dev.rosewood.rosestacker.stack.StackedSpawnerImpl;
+import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettingsImpl;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import java.util.Collection;
 import java.util.List;
@@ -27,13 +27,13 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
     }
 
     @Override
-    public boolean check(StackedSpawner stackedSpawner, Block spawnBlock) {
+    public boolean check(StackedSpawnerImpl stackedSpawner, Block spawnBlock) {
         if (this.stackManager == null || this.entityCacheManager == null) {
             this.stackManager = RoseStacker.getInstance().getManager(StackManager.class);
             this.entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         }
 
-        SpawnerStackSettings stackSettings = stackedSpawner.getStackSettings();
+        SpawnerStackSettingsImpl stackSettings = stackedSpawner.getStackSettings();
         int detectionRange = stackSettings.getEntitySearchRange() == -1 ? stackedSpawner.getSpawnerTile().getSpawnRange() : stackSettings.getEntitySearchRange();
         Block block = stackedSpawner.getBlock();
         List<EntityType> entityTypes = stackedSpawner.getSpawnerTile().getSpawnerType().getEntityTypes();
@@ -45,7 +45,7 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
 
         if (Setting.SPAWNER_MAX_NEARBY_ENTITIES_INCLUDE_STACKS.getBoolean()) {
             return nearbyEntities.stream().mapToInt(x -> {
-                StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) x);
+                StackedEntityImpl stackedEntity = this.stackManager.getStackedEntity((LivingEntity) x);
                 return stackedEntity == null ? 1 : stackedEntity.getStackSize();
             }).sum() < this.maxNearbyEntities;
         } else {
