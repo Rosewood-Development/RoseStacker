@@ -695,6 +695,7 @@
   "SNOWMAN": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
+    "spawn_egg_material": "SNOW_GOLEM_SPAWN_EGG",
     "default_spawn_requirements": [
       "on-ground"
     ],
@@ -848,6 +849,7 @@
   "WARDEN": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
+    "spawn_egg_material": "WARDEN_SPAWN_EGG",
     "default_spawn_requirements": [
       "darkness"
     ],
