@@ -1,9 +1,5 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-plugins {
-    id 'maven-publish'
-}
-
 compileJava {
     options.compilerArgs += ['-parameters']
     options.fork = true
@@ -66,30 +62,4 @@ processResources {
 
 shadowJar {
     archiveClassifier.set(null)
-}
-
-publishing {
-    publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
-            artifactId = 'rosestacker'
-            pom {
-                name = 'rosestacker'
-            }
-        }
-    }
-    repositories {
-        if (project.hasProperty('mavenUser') && project.hasProperty('mavenPassword')) {
-            maven {
-                credentials {
-                    username project.mavenUser
-                    password project.mavenPassword
-                }
-
-                def releasesRepoUrl = 'https://repo.rosewooddev.io/repository/public-releases/'
-                def snapshotsRepoUrl = 'https://repo.rosewooddev.io/repository/public-snapshots/'
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-            }
-        }
-    }
 }
