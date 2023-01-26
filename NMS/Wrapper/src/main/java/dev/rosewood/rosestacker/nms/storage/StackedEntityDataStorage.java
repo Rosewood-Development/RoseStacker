@@ -3,6 +3,8 @@ package dev.rosewood.rosestacker.nms.storage;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.bukkit.entity.LivingEntity;
@@ -44,32 +46,18 @@ public abstract class StackedEntityDataStorage {
     }
 
     /**
-     * Adds a new entry to the front
+     * Adds a new entry
      *
      * @param entity The entity to add
      */
-    public abstract void addFirst(LivingEntity entity);
+    public abstract void add(LivingEntity entity);
 
     /**
-     * Adds a new entry to the end
-     *
-     * @param entity The entity to add
-     */
-    public abstract void addLast(LivingEntity entity);
-
-    /**
-     * Adds all given entries to the front
+     * Adds all given entries
      *
      * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
      */
-    public abstract void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
-
-    /**
-     * Adds all given entries to the end
-     *
-     * @param stackedEntityDataEntry The StackedEntityDataEntry entries to add
-     */
-    public abstract void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
+    public abstract void addAll(List<StackedEntityDataEntry<?>> stackedEntityDataEntry);
 
     /**
      * Adds a number of clones to the data storage
@@ -149,5 +137,15 @@ public abstract class StackedEntityDataStorage {
      * @return a list of all removed entries
      */
     public abstract List<LivingEntity> removeIf(Function<LivingEntity, Boolean> function);
+
+    /**
+     * Creates a backing queue to be used for the storage
+     *
+     * @return the backing queue
+     * @param <T> the type of the queue
+     */
+    public static <T> Queue<T> createBackingQueue() {
+        return new LinkedBlockingQueue<>();
+    }
 
 }

@@ -42,22 +42,12 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public void addFirst(LivingEntity entity) {
+    public void add(LivingEntity entity) {
         this.size++;
     }
 
     @Override
-    public void addLast(LivingEntity entity) {
-        this.size++;
-    }
-
-    @Override
-    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
-        this.size += stackedEntityDataEntry.size();
-    }
-
-    @Override
-    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+    public void addAll(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
         this.size += stackedEntityDataEntry.size();
     }
 

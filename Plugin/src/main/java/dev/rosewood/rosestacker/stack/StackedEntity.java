@@ -109,12 +109,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
-            if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-                this.stackedEntityDataStorage.addLast(entity);
-            } else {
-                this.stackedEntityDataStorage.addFirst(entity);
-            }
-
+            this.stackedEntityDataStorage.add(entity);
             if (updateDisplay)
                 this.updateDisplay();
         };
@@ -142,11 +137,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
-        if (Setting.ENTITY_STACK_TO_BOTTOM.getBoolean()) {
-            this.stackedEntityDataStorage.addAllLast(serializedStackedEntities.getAll());
-        } else {
-            this.stackedEntityDataStorage.addAllFirst(serializedStackedEntities.getAll());
-        }
+        this.stackedEntityDataStorage.addAll(serializedStackedEntities.getAll());
         this.updateDisplay();
     }
 

@@ -57,7 +57,6 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_LOOT_APPROXIMATION_ENABLED("global-entity-settings.loot-approximation-options.approximation-enabled", true, "Should loot be approximated to reduce lag for killing large stack sizes at once?"),
         ENTITY_LOOT_APPROXIMATION_THRESHOLD("global-entity-settings.loot-approximation-options.approximation-threshold", 2048, "The threshold at which loot drops will be approximated"),
         ENTITY_LOOT_APPROXIMATION_AMOUNT("global-entity-settings.loot-approximation-options.approximation-amount", 256, "The number of times the entity loot tables will be run"),
-        ENTITY_STACK_TO_BOTTOM("global-entity-settings.stack-to-bottom", false, "Should newly stacked entities be put on the bottom of the stack?"),
         ENTITY_REQUIRE_LINE_OF_SIGHT("global-entity-settings.require-line-of-sight", true, "Do entities need to be able to see each other to be able to stack?", "Setting this to true will prevent entities from stacking through walls"),
         ENTITY_TRANSFORM_ENTIRE_STACK("global-entity-settings.transform-entire-stack", true, "Should the entire stack of entities be transformed when the main entity is transformed?", "This applies to pigs getting struck by lightning, zombies drowning, etc"),
         ENTITY_ONLY_STACK_ON_GROUND("global-entity-settings.only-stack-on-ground", false, "Do entities have to be on the ground in order to stack?", "This does not apply if the mobs can fly or live in the water"),

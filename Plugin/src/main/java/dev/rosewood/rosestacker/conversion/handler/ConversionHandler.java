@@ -70,7 +70,7 @@ public abstract class ConversionHandler {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         StackedEntityDataStorage stackedEntityDataStorage = nmsHandler.createEntityDataStorage(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM), RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType());
         for (int i = 0; i < amount - 1; i++)
-            stackedEntityDataStorage.addFirst(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
+            stackedEntityDataStorage.add(nmsHandler.createNewEntityUnspawned(entityType, location, CreatureSpawnEvent.SpawnReason.CUSTOM));
 
         return stackedEntityDataStorage;
     }

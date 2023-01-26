@@ -12,10 +12,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -28,7 +27,7 @@ import org.bukkit.entity.LivingEntity;
 public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
     private final CompoundTag base;
-    private final List<CompoundTag> data;
+    private final Queue<CompoundTag> data;
 
     public NBTStackedEntityDataStorage(LivingEntity livingEntity) {
         super(StackedEntityDataStorageType.NBT, livingEntity);
@@ -38,7 +37,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
 
-        this.data = Collections.synchronizedList(new LinkedList<>());
+        this.data = createBackingQueue();
     }
 
     public NBTStackedEntityDataStorage(LivingEntity livingEntity, byte[] data) {
@@ -48,33 +47,33 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
             this.base = NbtIo.read(dataInput);
             int length = dataInput.readInt();
-            List<CompoundTag> tags = new LinkedList<>();
+            this.data = createBackingQueue();
             for (int i = 0; i < length; i++)
-                tags.add(NbtIo.read(dataInput));
-            this.data = Collections.synchronizedList(tags);
+                this.data.add(NbtIo.read(dataInput));
         } catch (Exception e) {
             throw new StackedEntityDataIOException(e);
         }
     }
 
     @Override
-    public void addFirst(LivingEntity entity) {
-        this.addAt(0, entity);
+    public void add(LivingEntity entity) {
+        CompoundTag compoundTag = new CompoundTag();
+        ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(entity, compoundTag);
+        this.stripUnneeded(compoundTag);
+        this.stripAttributeUuids(compoundTag);
+        this.removeDuplicates(compoundTag);
+        this.data.add(compoundTag);
     }
 
     @Override
-    public void addLast(LivingEntity entity) {
-        this.addAt(this.data.size(), entity);
-    }
-
-    @Override
-    public void addAllFirst(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
-        stackedEntityDataEntry.forEach(x -> this.addAt(0, x));
-    }
-
-    @Override
-    public void addAllLast(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
-        stackedEntityDataEntry.forEach(x -> this.addAt(this.data.size(), x));
+    public void addAll(List<StackedEntityDataEntry<?>> stackedEntityDataEntry) {
+        stackedEntityDataEntry.forEach(entry -> {
+            CompoundTag compoundTag = (CompoundTag) entry.get();
+            this.stripUnneeded(compoundTag);
+            this.stripAttributeUuids(compoundTag);
+            this.removeDuplicates(compoundTag);
+            this.data.add(compoundTag);
+        });
     }
 
     @Override
@@ -85,12 +84,12 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
     @Override
     public NBTStackedEntityDataEntry peek() {
-        return new NBTStackedEntityDataEntry(this.rebuild(this.data.get(0)));
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.element()));
     }
 
     @Override
     public NBTStackedEntityDataEntry pop() {
-        return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0)));
+        return new NBTStackedEntityDataEntry(this.rebuild(this.data.remove()));
     }
 
     @Override
@@ -99,7 +98,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
 
         List<StackedEntityDataEntry<?>> popped = new ArrayList<>(amount);
         for (int i = 0; i < amount; i++)
-            popped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.remove(0))));
+            popped.add(new NBTStackedEntityDataEntry(this.rebuild(this.data.remove())));
         return popped;
     }
 
@@ -182,23 +181,6 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
             return removed;
         });
         return removedEntries;
-    }
-
-    private void addAt(int index, LivingEntity livingEntity) {
-        CompoundTag compoundTag = new CompoundTag();
-        ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity, compoundTag);
-        this.stripUnneeded(compoundTag);
-        this.stripAttributeUuids(compoundTag);
-        this.removeDuplicates(compoundTag);
-        this.data.add(index, compoundTag);
-    }
-
-    private void addAt(int index, StackedEntityDataEntry<?> stackedEntityDataEntry) {
-        CompoundTag compoundTag = (CompoundTag) stackedEntityDataEntry.get();
-        this.stripUnneeded(compoundTag);
-        this.stripAttributeUuids(compoundTag);
-        this.removeDuplicates(compoundTag);
-        this.data.add(index, compoundTag);
     }
 
     private void removeDuplicates(CompoundTag compoundTag) {
