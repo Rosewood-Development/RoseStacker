@@ -63,7 +63,7 @@ public class BlockListener implements Listener {
         this.rosePlugin = rosePlugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockClicked(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null)
@@ -90,7 +90,8 @@ public class BlockListener implements Listener {
                 StackedBlock stackedBlock = stackManager.getStackedBlock(block);
                 if (stackedBlock != null) {
                     stackedBlock.openGui(event.getPlayer());
-                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    event.setUseItemInHand(Event.Result.DENY);
                     return;
                 }
             }

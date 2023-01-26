@@ -41,7 +41,7 @@ public class InteractListener implements Listener {
         this.rosePlugin = rosePlugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         Block clickedBlock = event.getClickedBlock();
         ItemStack item = event.getItem();
@@ -58,23 +58,23 @@ public class InteractListener implements Listener {
                     && ItemUtils.isSpawnEgg(item.getType())
                     && ItemUtils.getStackedItemStackAmount(item) == 1) {
 
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-                if (stackedSpawner == null)
-                    stackedSpawner = stackManager.createSpawnerStack(clickedBlock, 1, false);
-
                 EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
                 if (stackSettings == null) {
                     event.setCancelled(true);
                     return;
                 }
 
-                if (SpawnerType.of(stackSettings.getEntityType()).equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
-                    // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
+                if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
                     event.setCancelled(true);
                     return;
                 }
 
-                if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+                if (stackedSpawner == null) // Let vanilla handle the interaction instead
+                    return;
+
+                if (SpawnerType.of(stackSettings.getEntityType()).equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
+                    // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
                     event.setCancelled(true);
                     return;
                 }
@@ -87,14 +87,13 @@ public class InteractListener implements Listener {
                     return;
                 }
 
-                StackedSpawner finalStackedSpawner = stackedSpawner;
                 ThreadUtils.runSync(() -> {
                     // Make sure spawners convert and update their display properly
-                    finalStackedSpawner.updateSpawnerProperties(false);
-                    finalStackedSpawner.updateDisplay();
+                    stackedSpawner.updateSpawnerProperties(false);
+                    stackedSpawner.updateDisplay();
 
-                    if (finalStackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
-                        item.setAmount(item.getAmount() - finalStackedSpawner.getStackSize() + 1);
+                    if (stackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
+                        item.setAmount(item.getAmount() - stackedSpawner.getStackSize() + 1);
                 });
 
                 return;
