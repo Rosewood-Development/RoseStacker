@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Raid;
@@ -34,10 +35,17 @@ public class RaidListener implements Listener {
      * @return true if the LivingEntity is part of a raid, false otherwise
      */
     public static boolean isActiveRaider(LivingEntity entity) {
-        if (NMSUtil.getVersionNumber() < 14 || !(entity instanceof Raider))
+        if (!(entity instanceof Raider))
             return false;
 
-        return activeRaids.stream().anyMatch(x -> x.getRaiders().contains(entity));
+        for (Raid raid : activeRaids) {
+            synchronized (raid.getRaiders()) {
+                if (raid.getRaiders().contains(entity))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
 }
