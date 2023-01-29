@@ -208,7 +208,11 @@ public final class EntityUtils {
 
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
-            boundingBox = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0), CreatureSpawnEvent.SpawnReason.CUSTOM).getBoundingBox();
+            LivingEntity entity = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0), CreatureSpawnEvent.SpawnReason.CUSTOM);
+            if (entity == null) // This should never happen unless the entity type is not a LivingEntity
+                return new BoundingBox();
+
+            boundingBox = entity.getBoundingBox();
             cachedBoundingBoxes.put(entityType, boundingBox);
         }
 
