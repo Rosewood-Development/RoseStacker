@@ -317,7 +317,14 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                             entityLootList.add(new ItemStack(Material.NETHER_STAR));
                         if (killedByWither)
                             entityLootList.add(new ItemStack(Material.WITHER_ROSE));
-                        entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
+
+                        if (entityDrops.containsKey(entity)) {
+                            EntityStackMultipleDeathEvent.EntityDrops drops = entityDrops.get(entity);
+                            drops.setExperience(drops.getExperience() + desiredExp);
+                            drops.getDrops().addAll(entityLootList);
+                        } else {
+                            entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
+                        }
                     }
                 }
 

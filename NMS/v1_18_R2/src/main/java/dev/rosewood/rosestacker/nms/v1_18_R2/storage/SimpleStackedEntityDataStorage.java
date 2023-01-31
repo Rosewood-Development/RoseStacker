@@ -110,11 +110,6 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public void forEach(Consumer<LivingEntity> consumer) {
-        this.forEachCapped(Integer.MAX_VALUE, consumer);
-    }
-
-    @Override
     public void forEachCapped(int count, Consumer<LivingEntity> consumer) {
         LivingEntity entity = this.entity.get();
         if (entity == null)
@@ -122,8 +117,9 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         int amount = Math.min(count, this.size);
+        LivingEntity clone = nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType());
         for (int i = 0; i < amount; i++)
-            consumer.accept(nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType()));
+            consumer.accept(clone);
     }
 
     @Override
@@ -134,12 +130,12 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         List<LivingEntity> removedEntries = new ArrayList<>(this.size);
-        for (int i = 0; i < this.size; i++) {
-            LivingEntity clone = nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType());
+        LivingEntity clone = nmsHandler.createEntityFromNBT(this.copy(), entity.getLocation(), false, entity.getType());
+        for (int i = 0; i < this.size; i++)
             if (function.apply(clone))
                 removedEntries.add(clone);
-        }
 
+        this.size -= removedEntries.size();
         return removedEntries;
     }
 

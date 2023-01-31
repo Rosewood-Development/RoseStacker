@@ -121,7 +121,9 @@ public abstract class StackedEntityDataStorage {
      *
      * @param consumer The consumer to call for each element
      */
-    public abstract void forEach(Consumer<LivingEntity> consumer);
+    public void forEach(Consumer<LivingEntity> consumer) {
+        this.forEachCapped(Integer.MAX_VALUE, consumer);
+    }
 
     /**
      * Calls the given consumer for each element in this storage, up to a certain amount
