@@ -228,7 +228,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
             int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
             if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
-                this.stackedEntityDataStorage.forEachCapped(approximationAmount, internalEntities::add);
+                this.stackedEntityDataStorage.forEachCapped(approximationAmount - 1, internalEntities::add);
                 this.dropPartialStackLoot(internalEntities, this.getStackSize() / (double) approximationAmount, existingLoot, droppedExp);
             } else {
                 this.stackedEntityDataStorage.forEach(internalEntities::add);
@@ -346,9 +346,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             // Multiply loot
             Collection<ItemStack> finalEntityLoot;
             if (multiplier != 1) {
-                finalEntityLoot = new ArrayList<>();
-                for (ItemStack itemStack : loot)
-                    finalEntityLoot.addAll(ItemUtils.getMultipliedItemStack(itemStack, multiplier));
+                finalEntityLoot = ItemUtils.getMultipliedItemStacks(loot, multiplier);
             } else {
                 finalEntityLoot = loot;
             }

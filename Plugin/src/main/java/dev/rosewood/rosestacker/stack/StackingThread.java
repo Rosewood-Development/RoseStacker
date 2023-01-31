@@ -714,20 +714,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return;
 
         // Merge items and store their amounts
-        Map<ItemStack, Integer> itemStackAmounts = new HashMap<>();
-        for (ItemStack itemStack : items) {
-            if (itemStack == null || itemStack.getType() == Material.AIR)
-                continue;
-
-            Optional<Map.Entry<ItemStack, Integer>> similar = itemStackAmounts.entrySet().stream().filter(x -> x.getKey().isSimilar(itemStack)).findFirst();
-            if (similar.isPresent()) {
-                similar.get().setValue(similar.get().getValue() + itemStack.getAmount());
-            } else {
-                ItemStack clone = itemStack.clone();
-                clone.setAmount(1);
-                itemStackAmounts.put(clone, itemStack.getAmount());
-            }
-        }
+        Map<ItemStack, Integer> itemStackAmounts = ItemUtils.reduceItemsByCounts(items);
 
         // Fire the event to allow other plugins to manipulate the items before we stack and drop them
         PreDropStackedItemsEvent event = new PreDropStackedItemsEvent(itemStackAmounts, location);

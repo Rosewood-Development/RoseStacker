@@ -21,7 +21,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
@@ -357,26 +359,57 @@ public final class ItemUtils {
         return getStackingTool().isSimilar(item);
     }
 
-    public static List<ItemStack> getMultipliedItemStack(ItemStack itemStack, double multiplier) {
-        int amount = (int) Math.round(itemStack.getAmount() * multiplier);
-        if (amount == 0)
-            return List.of();
+    public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier) {
+        // Reduce and multiple counts
+        Map<ItemStack, Integer> counts = reduceItemsByCounts(itemStacks).entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) (entry.getValue() * multiplier)));
 
+        // Split items back into normal stacks by their max stack size
         List<ItemStack> items = new ArrayList<>();
+        for (Map.Entry<ItemStack, Integer> entry : counts.entrySet()) {
+            ItemStack itemStack = entry.getKey();
+            int amount = entry.getValue();
+            items.addAll(splitItemStack(itemStack, amount));
+        }
+
+        return items;
+    }
+
+    public static Collection<? extends ItemStack> splitItemStack(ItemStack itemStack, int amount) {
+        List<ItemStack> items = new ArrayList<>();
+        int maxStackSize = itemStack.getMaxStackSize();
         while (amount > 0) {
-            if (amount > itemStack.getMaxStackSize()) {
-                ItemStack clone = itemStack.clone();
-                clone.setAmount(itemStack.getMaxStackSize());
+            ItemStack clone = itemStack.clone();
+            if (amount > maxStackSize) {
+                clone.setAmount(maxStackSize);
                 items.add(clone);
-                amount -= itemStack.getMaxStackSize();
+                amount -= maxStackSize;
             } else {
-                ItemStack clone = itemStack.clone();
                 clone.setAmount(amount);
                 items.add(clone);
                 amount = 0;
             }
         }
         return items;
+    }
+
+    public static Map<ItemStack, Integer> reduceItemsByCounts(Collection<ItemStack> items) {
+        Map<ItemStack, Integer> itemStackAmounts = new HashMap<>();
+        for (ItemStack itemStack : items) {
+            if (itemStack == null || itemStack.getType() == Material.AIR)
+                continue;
+
+            Optional<Map.Entry<ItemStack, Integer>> similar = itemStackAmounts.entrySet().stream().filter(x -> x.getKey().isSimilar(itemStack)).findFirst();
+            if (similar.isPresent()) {
+                similar.get().setValue(similar.get().getValue() + itemStack.getAmount());
+            } else {
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(1);
+                itemStackAmounts.put(clone, itemStack.getAmount());
+            }
+        }
+        return itemStackAmounts;
     }
 
     public static void clearCache() {
