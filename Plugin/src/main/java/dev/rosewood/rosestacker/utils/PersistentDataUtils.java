@@ -10,6 +10,7 @@ import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PiglinAbstract;
@@ -36,7 +37,7 @@ public final class PersistentDataUtils {
         pdc.set(CONVERTED_KEY, PersistentDataType.INTEGER, 1);
     }
 
-    public static void setUnstackable(LivingEntity entity, boolean unstackable) {
+    public static void setUnstackable(Entity entity, boolean unstackable) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         if (unstackable) {
             entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER, 1);
@@ -45,7 +46,7 @@ public final class PersistentDataUtils {
         }
     }
 
-    public static boolean isUnstackable(LivingEntity entity) {
+    public static boolean isUnstackable(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, UNSTACKABLE_METADATA_NAME), PersistentDataType.INTEGER);
     }
@@ -57,7 +58,7 @@ public final class PersistentDataUtils {
      * @param entity The entity to set the spawn reason of
      * @param spawnReason The spawn reason to set
      */
-    public static void setEntitySpawnReason(LivingEntity entity, SpawnReason spawnReason) {
+    public static void setEntitySpawnReason(Entity entity, SpawnReason spawnReason) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME);
@@ -71,7 +72,7 @@ public final class PersistentDataUtils {
      * @param entity The entity to get the spawn reason of
      * @return The SpawnReason, or SpawnReason.CUSTOM if none is saved
      */
-    public static SpawnReason getEntitySpawnReason(LivingEntity entity) {
+    public static SpawnReason getEntitySpawnReason(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         String reason = entity.getPersistentDataContainer().get(new NamespacedKey(rosePlugin, SPAWN_REASON_METADATA_NAME), PersistentDataType.STRING);
         SpawnReason spawnReason;
@@ -132,7 +133,7 @@ public final class PersistentDataUtils {
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME), PersistentDataType.INTEGER);
     }
 
-    public static void tagSpawnedFromSpawner(LivingEntity entity) {
+    public static void tagSpawnedFromSpawner(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         entity.getPersistentDataContainer().set(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER, 1);
     }
@@ -143,7 +144,7 @@ public final class PersistentDataUtils {
      * @param entity The entity to check
      * @return true if the entity was spawned from one of our spawners, otherwise false
      */
-    public static boolean isSpawnedFromSpawner(LivingEntity entity) {
+    public static boolean isSpawnedFromSpawner(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
         return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER);
     }

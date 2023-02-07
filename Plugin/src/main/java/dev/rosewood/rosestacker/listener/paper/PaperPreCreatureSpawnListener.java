@@ -39,7 +39,7 @@ public class PaperPreCreatureSpawnListener implements Listener {
         if (!ConfigurationManager.Setting.ENTITY_OBEY_MOB_CAPS.getBoolean() || event.getReason() != SpawnReason.NATURAL)
             return;
 
-        String category = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().getSpawnCategory();
+        String category = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().spawnCategory();
         SpawnCategory spawnCategory = SPAWN_CATEGORY_LOOKUP.get(category);
         int limit = event.getSpawnLocation().getWorld().getSpawnLimit(spawnCategory);
 

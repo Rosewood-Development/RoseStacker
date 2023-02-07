@@ -5,8 +5,8 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.spawner.conditions.ConditionTag;
-import dev.rosewood.rosestacker.spawner.conditions.ConditionTags;
+import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
+import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +94,7 @@ public class SpawnerStackSettings extends StackSettings {
             this.setIfNotExists("spawn-range", -1);
 
             EntityStackSettings entityStackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
-            List<String> defaultSpawnRequirements = new ArrayList<>(entityStackSettings.getEntityTypeData().getDefaultSpawnRequirements());
+            List<String> defaultSpawnRequirements = new ArrayList<>(entityStackSettings.getEntityTypeData().defaultSpawnRequirements());
             this.setIfNotExists("spawn-requirements", defaultSpawnRequirements);
         });
     }

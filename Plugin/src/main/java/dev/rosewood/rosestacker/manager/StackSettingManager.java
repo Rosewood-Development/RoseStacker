@@ -5,14 +5,13 @@ import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosegarden.utils.ClassUtils;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
-import dev.rosewood.rosestacker.spawner.conditions.ConditionTags;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.io.File;
@@ -41,8 +40,6 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
 public class StackSettingManager extends Manager {
-
-    private static final String PACKAGE_PATH = "dev.rosewood.rosestacker.stack.settings.entity";
 
     private final Map<Material, BlockStackSettings> blockSettings;
     private final Map<EntityType, EntityStackSettings> entitySettings;
@@ -90,26 +87,25 @@ public class StackSettingManager extends Manager {
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = jsonParser.parse(entityDataReader).getAsJsonObject();
 
-            List<Class<EntityStackSettings>> classes = ClassUtils.getClassesOf(this.rosePlugin, PACKAGE_PATH, EntityStackSettings.class);
-            classes.sort(Comparator.comparing(Class::getSimpleName));
-
-            List<String> ignoredLoading = new ArrayList<>();
-            for (Class<EntityStackSettings> clazz : classes) {
+            Set<String> keys = new TreeSet<>(jsonObject.keySet());
+            Set<String> invalidKeys = new TreeSet<>();
+            keys.forEach(x -> {
+                EntityType entityType;
                 try {
-                    EntityStackSettings entityStackSetting = clazz.getConstructor(CommentedFileConfiguration.class, JsonObject.class).newInstance(entitySettingsConfiguration, jsonObject);
-                    this.entitySettings.put(entityStackSetting.getEntityType(), entityStackSetting);
-                    if (entityStackSetting.hasChanges())
-                        saveEntitySettingsFile.set(true);
+                    entityType = EntityType.valueOf(x);
                 } catch (Exception e) {
-                    // Log entity settings that failed to load
-                    // This should only be caused by version incompatibilities
-                    String className = clazz.getSimpleName();
-                    ignoredLoading.add(className.substring(0, className.length() - 13));
+                    invalidKeys.add(x);
+                    return;
                 }
-            }
 
-            if (!ignoredLoading.isEmpty())
-                this.rosePlugin.getLogger().warning("Ignored loading stack settings for entities: " + ignoredLoading);
+                EntityStackSettings entityStackSetting = new EntityStackSettings(entitySettingsConfiguration, jsonObject.get(x).getAsJsonObject(), entityType);
+                this.entitySettings.put(entityType, entityStackSetting);
+                if (entityStackSetting.hasChanges())
+                    saveEntitySettingsFile.set(true);
+            });
+
+            if (!invalidKeys.isEmpty())
+                this.rosePlugin.getLogger().warning("Ignored loading stack settings for entities: " + invalidKeys);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -273,7 +269,7 @@ public class StackSettingManager extends Manager {
             return null;
 
         for (EntityStackSettings settings : this.entitySettings.values())
-            if (settings.getEntityTypeData().getSpawnEggMaterial() == material)
+            if (settings.getEntityTypeData().spawnEggMaterial() == material)
                 return settings;
 
         return null;

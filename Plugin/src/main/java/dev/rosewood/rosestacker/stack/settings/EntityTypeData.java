@@ -8,41 +8,15 @@ import org.bukkit.inventory.ItemStack;
 /**
  * Contains data loaded from entity_data.json
  */
-public class EntityTypeData {
-
-    private final boolean isSwimmingMob;
-    private final boolean isFlyingMob;
-    private final Material spawnEggMaterial;
-    private final List<String> defaultSpawnRequirements;
-    private final String skullTexture;
-    private final List<Material> breedingMaterials;
-    private final String spawnCategory;
-
-    public EntityTypeData(boolean isSwimmingMob, boolean isFlyingMob, Material spawnEggMaterial, List<String> defaultSpawnRequirements, String skullTexture, List<Material> breedingMaterials, String spawnCategory) {
-        this.isSwimmingMob = isSwimmingMob;
-        this.isFlyingMob = isFlyingMob;
-        this.spawnEggMaterial = spawnEggMaterial;
-        this.defaultSpawnRequirements = defaultSpawnRequirements;
-        this.skullTexture = skullTexture;
-        this.breedingMaterials = breedingMaterials;
-        this.spawnCategory = spawnCategory;
-    }
-
-    public boolean isSwimmingMob() {
-        return this.isSwimmingMob;
-    }
-
-    public boolean isFlyingMob() {
-        return this.isFlyingMob;
-    }
-
-    public Material getSpawnEggMaterial() {
-        return this.spawnEggMaterial;
-    }
-
-    public List<String> getDefaultSpawnRequirements() {
-        return this.defaultSpawnRequirements;
-    }
+public record EntityTypeData(
+        boolean swimmingMob,
+        boolean flyingMob,
+        Material spawnEggMaterial,
+        List<String> defaultSpawnRequirements,
+        String skullTexture,
+        List<Material> breedingMaterials,
+        String spawnCategory
+) {
 
     public ItemStack getSkullItem() {
         return ItemUtils.getCustomSkull(this.skullTexture);
@@ -50,10 +24,6 @@ public class EntityTypeData {
 
     public boolean isValidBreedingMaterial(Material material) {
         return this.breedingMaterials.contains(material);
-    }
-
-    public String getSpawnCategory() {
-        return this.spawnCategory;
     }
 
 }

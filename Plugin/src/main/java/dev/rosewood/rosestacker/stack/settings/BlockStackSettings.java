@@ -1,20 +1,17 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Set;
 import org.bukkit.Material;
 
 public class BlockStackSettings extends StackSettings {
 
-    private static final List<Material> enabledByDefault;
+    private static final Set<Material> enabledByDefault;
     static {
-        enabledByDefault = new ArrayList<>(List.of(Material.DIAMOND_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.EMERALD_BLOCK, Material.LAPIS_BLOCK));
-        if (NMSUtil.getVersionNumber() >= 16)
-            enabledByDefault.add(Material.NETHERITE_BLOCK);
+        enabledByDefault = EnumSet.of(Material.DIAMOND_BLOCK, Material.GOLD_BLOCK, Material.IRON_BLOCK, Material.EMERALD_BLOCK, Material.LAPIS_BLOCK, Material.NETHERITE_BLOCK);
     }
 
     private final Material material;

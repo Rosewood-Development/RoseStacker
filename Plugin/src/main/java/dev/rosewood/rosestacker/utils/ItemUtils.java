@@ -214,7 +214,7 @@ public final class ItemUtils {
 
     public static ItemStack getEntityAsStackedItemStack(EntityType entityType, int amount) {
         EntityStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entityType);
-        Material spawnEggMaterial = stackSettings.getEntityTypeData().getSpawnEggMaterial();
+        Material spawnEggMaterial = stackSettings.getEntityTypeData().spawnEggMaterial();
         if (spawnEggMaterial == null)
             return null;
 
