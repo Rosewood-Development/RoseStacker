@@ -48,7 +48,7 @@ public class ZombifiedPiglinStackSettings extends EntityStackSettings {
 
     @Override
     public EntityType getEntityType() {
-        return NMSUtil.getVersionNumber() >= 16 ? EntityType.ZOMBIFIED_PIGLIN : EntityType.valueOf("PIG_ZOMBIE");
+        return EntityType.ZOMBIFIED_PIGLIN;
     }
 
 }
