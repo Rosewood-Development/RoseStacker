@@ -254,6 +254,8 @@ public class EntityStackSettings extends StackSettings {
         switch (this.entityType) {
             case CREEPER -> NMSAdapter.getHandler().unigniteCreeper((Creeper) stacking);
         }
+
+        SpawnerFlagPersistenceHook.unflagSpawnerSpawned(stacking);
     }
 
     /**
