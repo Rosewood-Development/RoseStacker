@@ -11,6 +11,7 @@ public class ItemStackSettings extends StackSettings {
     private final boolean enabled;
     private final String displayName;
     private final int maxStackSize;
+    private final Boolean displayTags;
 
     public ItemStackSettings(CommentedFileConfiguration settingsConfiguration, Material material) {
         super(settingsConfiguration);
@@ -20,6 +21,7 @@ public class ItemStackSettings extends StackSettings {
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
         this.maxStackSize = this.settingsConfiguration.getInt("max-stack-size");
+        this.displayTags = this.settingsConfiguration.getDefaultedBoolean("display-tags");
     }
 
     @Override
@@ -29,6 +31,7 @@ public class ItemStackSettings extends StackSettings {
         this.setIfNotExists("enabled", true);
         this.setIfNotExists("display-name", StackerUtils.formatMaterialName(this.material));
         this.setIfNotExists("max-stack-size", -1);
+        this.setIfNotExists("display-tags", "default");
     }
 
     @Override
@@ -55,6 +58,12 @@ public class ItemStackSettings extends StackSettings {
 
     public Material getType() {
         return this.material;
+    }
+
+    public boolean shouldDisplayTags() {
+        if (this.displayTags == null)
+            return Setting.ITEM_DISPLAY_TAGS.getBoolean();
+        return this.displayTags;
     }
 
 }

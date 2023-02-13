@@ -79,7 +79,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
         this.item.setItemStack(itemStack);
 
-        if (!Setting.ITEM_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || !this.stackSettings.isStackingEnabled()) {
+        if (this.stackSettings == null || !this.stackSettings.isStackingEnabled() || !this.stackSettings.shouldDisplayTags()) {
             this.item.setCustomNameVisible(false);
             return;
         }
