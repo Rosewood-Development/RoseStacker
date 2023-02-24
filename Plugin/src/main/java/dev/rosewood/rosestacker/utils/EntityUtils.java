@@ -208,12 +208,22 @@ public final class EntityUtils {
 
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
-            LivingEntity entity = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0), CreatureSpawnEvent.SpawnReason.CUSTOM);
-            if (entity == null) // This should never happen unless the entity type is not a LivingEntity
-                return new BoundingBox();
+            if (entityType == EntityType.ENDER_DRAGON) {
+                boundingBox = new BoundingBox(-4, 0, -4, 4, 8, 4);
+            } else {
+                LivingEntity entity = null;
+                try {
+                    entity = NMSAdapter.getHandler().createNewEntityUnspawned(entityType, new Location(location.getWorld(), 0, 0, 0), CreatureSpawnEvent.SpawnReason.CUSTOM);
+                } catch (Exception ignored) { }
 
-            boundingBox = entity.getBoundingBox();
-            cachedBoundingBoxes.put(entityType, boundingBox);
+                if (entity != null) {
+                    boundingBox = entity.getBoundingBox();
+                    cachedBoundingBoxes.put(entityType, boundingBox);
+                } else {
+                    // This should never happen unless the entity type is not a LivingEntity
+                    boundingBox = new BoundingBox();
+                }
+            }
         }
 
         boundingBox = boundingBox.clone();
