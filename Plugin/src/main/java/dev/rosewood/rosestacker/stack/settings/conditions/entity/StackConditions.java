@@ -63,6 +63,7 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.material.Colorable;
 
@@ -129,15 +130,21 @@ public final class StackConditions {
                 EntityEquipment equipment1 = entity1.getEquipment();
                 EntityEquipment equipment2 = entity2.getEquipment();
 
-                if (equipment1 != null)
-                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values())
-                        if (equipment1.getItem(equipmentSlot).getType() != Material.AIR)
+                if (equipment1 != null) {
+                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                        ItemStack item = equipment1.getItem(equipmentSlot);
+                        if (item.getType() != Material.AIR && !stackSettings.getEntityTypeData().isStandardEquipment(item))
                             return EntityStackComparisonResult.HAS_EQUIPMENT;
+                    }
+                }
 
-                if (equipment2 != null)
-                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values())
-                        if (equipment2.getItem(equipmentSlot).getType() != Material.AIR)
+                if (equipment2 != null) {
+                    for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                        ItemStack item = equipment2.getItem(equipmentSlot);
+                        if (item.getType() != Material.AIR && !stackSettings.getEntityTypeData().isStandardEquipment(item))
                             return EntityStackComparisonResult.HAS_EQUIPMENT;
+                    }
+                }
             }
 
             if (Setting.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.getBoolean() && (RaidListener.isActiveRaider(entity1) || RaidListener.isActiveRaider(entity2)))

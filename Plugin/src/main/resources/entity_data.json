@@ -6,7 +6,8 @@
     "default_spawn_requirements": [],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjI0YjMyYWUwNjY2M2I4NjczNTk1NDMyNTU4NWViNDA4YWMwMzg5Y2E0MGM1MTc3MDFlZDFlNjVhOTJlNjNmZSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "AXOLOTL": {
     "is_swimming_mob": true,
@@ -21,7 +22,8 @@
     "breeding_materials": [
       "TROPICAL_FISH_BUCKET"
     ],
-    "spawn_category": "AXOLOTL"
+    "spawn_category": "AXOLOTL",
+    "standard_equipment": []
   },
   "BAT": {
     "is_swimming_mob": false,
@@ -33,7 +35,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWU5OWRlZWY5MTlkYjY2YWMyYmQyOGQ2MzAyNzU2Y2NkNTdjN2Y4YjEyYjlkY2E4ZjQxYzNlMGEwNGFjMWNjIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "AMBIENT"
+    "spawn_category": "AMBIENT",
+    "standard_equipment": []
   },
   "BEE": {
     "is_swimming_mob": false,
@@ -60,7 +63,8 @@
       "ROSE_BUSH",
       "PEONY"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "BLAZE": {
     "is_swimming_mob": false,
@@ -71,7 +75,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjc4ZWYyZTRjZjJjNDFhMmQxNGJmZGU5Y2FmZjEwMjE5ZjViMWJmNWIzNWE0OWViNTFjNjQ2Nzg4MmNiNWYwIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "CAT": {
     "is_swimming_mob": false,
@@ -86,7 +91,8 @@
       "RAW_COD",
       "RAW_SALMON"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "CAMEL": {
     "is_swimming_mob": false,
@@ -100,7 +106,8 @@
     "breeding_materials": [
       "CACTUS"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "CAVE_SPIDER": {
     "is_swimming_mob": false,
@@ -111,7 +118,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDE2NDVkZmQ3N2QwOTkyMzEwN2IzNDk2ZTk0ZWViNWMzMDMyOWY5N2VmYzk2ZWQ3NmUyMjZlOTgyMjQifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "CHICKEN": {
     "is_swimming_mob": false,
@@ -128,7 +136,8 @@
       "MELON_SEEDS",
       "BEETROOT_SEEDS"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "COD": {
     "is_swimming_mob": true,
@@ -139,7 +148,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzg5MmQ3ZGQ2YWFkZjM1Zjg2ZGEyN2ZiNjNkYTRlZGRhMjExZGY5NmQyODI5ZjY5MTQ2MmE0ZmIxY2FiMCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "WATER_AMBIENT"
+    "spawn_category": "WATER_AMBIENT",
+    "standard_equipment": []
   },
   "COW": {
     "is_swimming_mob": false,
@@ -153,7 +163,8 @@
     "breeding_materials": [
       "WHEAT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "CREEPER": {
     "is_swimming_mob": false,
@@ -164,7 +175,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjQyNTQ4MzhjMzNlYTIyN2ZmY2EyMjNkZGRhYWJmZTBiMDIxNWY3MGRhNjQ5ZTk0NDQ3N2Y0NDM3MGNhNjk1MiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "DOLPHIN": {
     "is_swimming_mob": true,
@@ -178,7 +190,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGU5Njg4Yjk1MGQ4ODBiNTViN2FhMmNmY2Q3NmU1YTBmYTk0YWFjNmQxNmY3OGU4MzNmNzQ0M2VhMjlmZWQzIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "WATER_ANIMAL"
+    "spawn_category": "WATER_ANIMAL",
+    "standard_equipment": []
   },
   "DONKEY": {
     "is_swimming_mob": false,
@@ -194,7 +207,8 @@
       "ENCHANTED_GOLDEN_APPLE",
       "GOLDEN_CARROT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "DROWNED": {
     "is_swimming_mob": true,
@@ -206,7 +220,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzg0ZGY3OWM0OTEwNGIxOThjZGFkNmQ5OWZkMGQwYmNmMTUzMWM5MmQ0YWI2MjY5ZTQwYjdkM2NiYmI4ZTk4YyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ELDER_GUARDIAN": {
     "is_swimming_mob": true,
@@ -217,7 +232,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTkyMDg5NjE4NDM1YTBlZjYzZTk1ZWU5NWE5MmI4MzA3M2Y4YzMzZmE3N2RjNTM2NTE5OWJhZDMzYjYyNTYifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ENDER_DRAGON": {
     "is_swimming_mob": false,
@@ -226,7 +242,8 @@
     "default_spawn_requirements": [],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzA1OGQwODBiZDYyMTU2ZTVmNmU1ZThkZmZhYTI4OTI2YmQ4MzM5MWRjMjZmZTc4MDY3M2VmNTJmMjZlYjA4YiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ENDERMAN": {
     "is_swimming_mob": false,
@@ -237,7 +254,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTZjMGIzNmQ1M2ZmZjY5YTQ5YzdkNmYzOTMyZjJiMGZlOTQ4ZTAzMjIyNmQ1ZTgwNDVlYzU4NDA4YTM2ZTk1MSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ENDERMITE": {
     "is_swimming_mob": false,
@@ -248,7 +266,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWJjN2I5ZDM2ZmI5MmI2YmYyOTJiZTczZDMyYzZjNWIwZWNjMjViNDQzMjNhNTQxZmFlMWYxZTY3ZTM5M2EzZSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "EVOKER": {
     "is_swimming_mob": false,
@@ -259,7 +278,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDk1NDEzNWRjODIyMTM5NzhkYjQ3ODc3OGFlMTIxMzU5MWI5M2QyMjhkMzZkZDU0ZjFlYTFkYTQ4ZTdjYmE2In19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "FOX": {
     "is_swimming_mob": false,
@@ -273,7 +293,8 @@
     "breeding_materials": [
       "SWEET_BERRIES"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "FROG": {
     "is_swimming_mob": false,
@@ -287,7 +308,8 @@
     "breeding_materials": [
       "SLIME_BALL"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "GHAST": {
     "is_swimming_mob": false,
@@ -296,7 +318,8 @@
     "default_spawn_requirements": [],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E4YjcxNGQzMmQ3ZjZjZjhiMzdlMjIxYjc1OGI5YzU5OWZmNzY2NjdjN2NkNDViYmM0OWM1ZWYxOTg1ODY0NiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "GIANT": {
     "is_swimming_mob": false,
@@ -306,7 +329,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZmYzg1NGJiODRjZjRiNzY5NzI5Nzk3M2UwMmI3OWJjMTA2OTg0NjBiNTFhNjM5YzYwZTVlNDE3NzM0ZTExIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "GLOW_SQUID": {
     "is_swimming_mob": true,
@@ -319,7 +343,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmVjZDBiNWViNmIzODRkYjA3NmQ4NDQ2MDY1MjAyOTU5ZGRkZmYwMTYxZTBkNzIzYjNkZjBjYzU4NmQxNmJiZCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "WATER_UNDERGROUND_CREATURE"
+    "spawn_category": "WATER_UNDERGROUND_CREATURE",
+    "standard_equipment": []
   },
   "GOAT": {
     "is_swimming_mob": false,
@@ -333,7 +358,8 @@
     "breeding_materials": [
       "WHEAT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "GUARDIAN": {
     "is_swimming_mob": true,
@@ -344,7 +370,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTBiZjM0YTcxZTc3MTViNmJhNTJkNWRkMWJhZTVjYjg1Zjc3M2RjOWIwZDQ1N2I0YmZjNWY5ZGQzY2M3Yzk0In19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "HOGLIN": {
     "is_swimming_mob": false,
@@ -358,7 +385,8 @@
     "breeding_materials": [
       "CRIMSON_FUNGUS"
     ],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "HORSE": {
     "is_swimming_mob": false,
@@ -374,7 +402,8 @@
       "ENCHANTED_GOLDEN_APPLE",
       "GOLDEN_CARROT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "HUSK": {
     "is_swimming_mob": false,
@@ -385,7 +414,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDY3NGM2M2M4ZGI1ZjRjYTYyOGQ2OWEzYjFmOGEzNmUyOWQ4ZmQ3NzVlMWE2YmRiNmNhYmI0YmU0ZGIxMjEifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ILLUSIONER": {
     "is_swimming_mob": false,
@@ -395,7 +425,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTEyNTEyZTdkMDE2YTIzNDNhN2JmZjFhNGNkMTUzNTdhYjg1MTU3OWYxMzg5YmQ0ZTNhMjRjYmViODhiIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
   },
   "IRON_GOLEM": {
     "is_swimming_mob": false,
@@ -406,7 +439,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODkwOTFkNzllYTBmNTllZjdlZjk0ZDdiYmE2ZTVmMTdmMmY3ZDQ1NzJjNDRmOTBmNzZjNDgxOWE3MTQifX19",
     "breeding_materials": [],
-    "spawn_category": "MISC"
+    "spawn_category": "MISC",
+    "standard_equipment": []
   },
   "LLAMA": {
     "is_swimming_mob": false,
@@ -420,7 +454,8 @@
     "breeding_materials": [
       "HAY_BALE"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "MAGMA_CUBE": {
     "is_swimming_mob": false,
@@ -429,7 +464,8 @@
     "default_spawn_requirements": [],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzg5NTdkNTAyM2M5MzdjNGM0MWFhMjQxMmQ0MzQxMGJkYTIzY2Y3OWE5ZjZhYjM2Yjc2ZmVmMmQ3YzQyOSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "MULE": {
     "is_swimming_mob": false,
@@ -441,7 +477,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZkY2RhMjY1ZTU3ZTRmNTFiMTQ1YWFjYmY1YjU5YmRjNjA5OWZmZDNjY2UwYTY2MWIyYzAwNjVkODA5MzBkOCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "MUSHROOM_COW": {
     "is_swimming_mob": false,
@@ -455,7 +492,8 @@
     "breeding_materials": [
       "WHEAT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "OCELOT": {
     "is_swimming_mob": false,
@@ -470,7 +508,8 @@
       "RAW_COD",
       "RAW_SALMON"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "PANDA": {
     "is_swimming_mob": false,
@@ -484,7 +523,8 @@
     "breeding_materials": [
       "BAMBOO"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "PARROT": {
     "is_swimming_mob": false,
@@ -496,7 +536,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjBiZmE4NTBmNWRlNGIyOTgxY2NlNzhmNTJmYzJjYzdjZDdiNWM2MmNhZWZlZGRlYjljZjMxMWU4M2Q5MDk3In19fQ==",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "PHANTOM": {
     "is_swimming_mob": false,
@@ -507,7 +548,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzQ2ODMwZGE1ZjgzYTNhYWVkODM4YTk5MTU2YWQ3ODFhNzg5Y2ZjZjEzZTI1YmVlZjdmNTRhODZlNGZhNCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "PIGLIN_BRUTE": {
     "is_swimming_mob": false,
@@ -519,7 +561,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2UzMDBlOTAyNzM0OWM0OTA3NDk3NDM4YmFjMjllM2E0Yzg3YTg0OGM1MGIzNGMyMTI0MjcyN2I1N2Y0ZTFjZiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "GOLDEN_AXE"
+    ]
   },
   "PIGLIN": {
     "is_swimming_mob": false,
@@ -531,7 +576,11 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzc5ZGE1ZmJmMmFlMWJkMGZmZGEyYjdkNWE2ZDgxMDc3NzIzMDNkMjQ2NjY3MzA5YWI0NTIwMzJhMTFmMjQ5In19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "GOLDEN_SWORD",
+      "CROSSBOW"
+    ]
   },
   "PIG": {
     "is_swimming_mob": false,
@@ -547,7 +596,8 @@
       "POTATO",
       "BEETROOT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "PILLAGER": {
     "is_swimming_mob": false,
@@ -558,7 +608,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGFlZTZiYjM3Y2JmYzkyYjBkODZkYjVhZGE0NzkwYzY0ZmY0NDY4ZDY4Yjg0OTQyZmRlMDQ0MDVlOGVmNTMzMyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
   },
   "POLAR_BEAR": {
     "is_swimming_mob": false,
@@ -570,7 +623,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzRmZTkyNjkyMmZiYjQwNmYzNDNiMzRhMTBiYjk4OTkyY2VlNDQxMDEzN2QzZjg4MDk5NDI3YjIyZGUzYWI5MCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "PUFFERFISH": {
     "is_swimming_mob": true,
@@ -581,7 +635,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTcxNTI4NzZiYzNhOTZkZDJhMjI5OTI0NWVkYjNiZWVmNjQ3YzhhNTZhYzg4NTNhNjg3YzNlN2I1ZDhiYiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "WATER_AMBIENT"
+    "spawn_category": "WATER_AMBIENT",
+    "standard_equipment": []
   },
   "RABBIT": {
     "is_swimming_mob": false,
@@ -597,7 +652,8 @@
       "CARROT",
       "GOLDEN_CARROT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "RAVAGER": {
     "is_swimming_mob": false,
@@ -608,7 +664,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2I2MjUwMWNkMWI4N2IzN2Y2MjgwMTgyMTBlYzU0MDBjYjY1YTRkMWFhYjc0ZTZhM2Y3ZjYyYWE4NWRiOTdlZSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "SALMON": {
     "is_swimming_mob": true,
@@ -619,7 +676,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWZiZGYxMDMxN2E3YTYzMTVjM2NiYWY3ZWRjNTkwZjBkOTc3MTRiZDY5OWM4NjE1YTI0ZjcyYmI4YTliYyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "WATER_AMBIENT"
+    "spawn_category": "WATER_AMBIENT",
+    "standard_equipment": []
   },
   "SHEEP": {
     "is_swimming_mob": false,
@@ -633,7 +691,8 @@
     "breeding_materials": [
       "WHEAT"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "SHULKER": {
     "is_swimming_mob": false,
@@ -644,7 +703,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTQzM2E0YjczMjczYTY0YzhhYjI4MzBiMGZmZjc3N2E2MWE0ODhjOTJmNjBmODNiZmIzZTQyMWY0MjhhNDQifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "SILVERFISH": {
     "is_swimming_mob": false,
@@ -655,7 +715,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTJlYzJjM2NiOTVhYjc3ZjdhNjBmYjRkMTYwYmNlZDRiODc5MzI5YjYyNjYzZDdhOTg2MDY0MmU1ODhhYjIxMCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "SKELETON_HORSE": {
     "is_swimming_mob": false,
@@ -667,7 +728,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDdlZmZjZTM1MTMyYzg2ZmY3MmJjYWU3N2RmYmIxZDIyNTg3ZTk0ZGYzY2JjMjU3MGVkMTdjZjg5NzNhIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "SKELETON": {
     "is_swimming_mob": false,
@@ -678,7 +740,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzAxMjY4ZTljNDkyZGExZjBkODgyNzFjYjQ5MmE0YjMwMjM5NWY1MTVhN2JiZjc3ZjRhMjBiOTVmYzAyZWIyIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
   },
   "SLIME": {
     "is_swimming_mob": false,
@@ -690,7 +755,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTIwZTg0ZDMyZDFlOWM5MTlkM2ZkYmI1M2YyYjM3YmEyNzRjMTIxYzU3YjI4MTBlNWE0NzJmNDBkYWNmMDA0ZiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "SNOWMAN": {
     "is_swimming_mob": false,
@@ -701,7 +767,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTBhZTkxODQxYWZkMjQzZWMxOTgyYTc5ZmM0NTgyM2I0ZDM3NGY2MjFlMGQ3MzQ1MzNmODZkNzI1YTZmMGE0ZiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MISC"
+    "spawn_category": "MISC",
+    "standard_equipment": []
   },
   "SPIDER": {
     "is_swimming_mob": false,
@@ -714,7 +781,8 @@
     "breeding_materials": [
       "WARPED_FUNGUS"
     ],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "SQUID": {
     "is_swimming_mob": true,
@@ -727,7 +795,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDg3MDU2MjRkYWEyOTU2YWE0NTk1NmM4MWJhYjVmNGZkYjJjNzRhNTk2MDUxZTI0MTkyMDM5YWVhM2E4YjgifX19",
     "breeding_materials": [],
-    "spawn_category": "WATER_ANIMAL"
+    "spawn_category": "WATER_ANIMAL",
+    "standard_equipment": []
   },
   "STRAY": {
     "is_swimming_mob": false,
@@ -738,7 +807,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmM1MDk3OTE2YmMwNTY1ZDMwNjAxYzBlZWJmZWIyODcyNzdhMzRlODY3YjRlYTQzYzYzODE5ZDUzZTg5ZWRlNyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
   },
   "STRIDER": {
     "is_swimming_mob": false,
@@ -749,7 +821,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMThhOWFkZjc4MGVjN2RkNDYyNWM5YzA3NzkwNTJlNmExNWE0NTE4NjY2MjM1MTFlNGM4MmU5NjU1NzE0YjNjMSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "TADPOLE": {
     "is_swimming_mob": true,
@@ -760,7 +833,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTg3MDM1ZjUzNTIzMzRjMmNiYTZhYzRjNjVjMmI5MDU5NzM5ZDZkMGU4MzljMWRkOThkNzVkMmU3Nzk1Nzg0NyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "TRADER_LLAMA": {
     "is_swimming_mob": false,
@@ -772,7 +846,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODQyNDc4MGIzYzVjNTM1MWNmNDlmYjViZjQxZmNiMjg5NDkxZGY2YzQzMDY4M2M4NGQ3ODQ2MTg4ZGI0Zjg0ZCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "TROPICAL_FISH": {
     "is_swimming_mob": true,
@@ -785,7 +860,8 @@
     "breeding_materials": [
       "HAY_BALE"
     ],
-    "spawn_category": "WATER_AMBIENT"
+    "spawn_category": "WATER_AMBIENT",
+    "standard_equipment": []
   },
   "TURTLE": {
     "is_swimming_mob": false,
@@ -800,7 +876,8 @@
     "breeding_materials": [
       "SEA_GRASS"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "VEX": {
     "is_swimming_mob": false,
@@ -811,7 +888,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzJlYzVhNTE2NjE3ZmYxNTczY2QyZjlkNWYzOTY5ZjU2ZDU1NzVjNGZmNGVmZWZhYmQyYTE4ZGM3YWI5OGNkIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "IRON_SWORD"
+    ]
   },
   "VILLAGER": {
     "is_swimming_mob": false,
@@ -822,7 +902,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDFiODMwZWI0MDgyYWNlYzgzNmJjODM1ZTQwYTExMjgyYmI1MTE5MzMxNWY5MTE4NDMzN2U4ZDM1NTU1ODMifX19",
     "breeding_materials": [],
-    "spawn_category": "MISC"
+    "spawn_category": "MISC",
+    "standard_equipment": []
   },
   "VINDICATOR": {
     "is_swimming_mob": false,
@@ -833,7 +914,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGY2ZmI4OWQxYzYzMWJkN2U3OWZlMTg1YmExYTY3MDU0MjVmNWMzMWE1ZmY2MjY1MjFlMzk1ZDRhNmY3ZTIifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "IRON_AXE"
+    ]
   },
   "WANDERING_TRADER": {
     "is_swimming_mob": false,
@@ -844,7 +928,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzc5YTgyMjkwZDdhYmUxZWZhYWJiYzcwNzEwZmYyZWMwMmRkMzRhZGUzODZiYzAwYzkzMGM0NjFjZjkzMiJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "WARDEN": {
     "is_swimming_mob": false,
@@ -855,7 +940,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTRhZmIzMDc5NDQzM2YzMmM5N2IwMmMxZDIyODMyNzMzM2YyNTlmNTZjNjhjMDIwMjdiMmExNmRmYjRhYTY2ZCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "WITCH": {
     "is_swimming_mob": false,
@@ -866,7 +952,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjBlMTNkMTg0NzRmYzk0ZWQ1NWFlYjcwNjk1NjZlNDY4N2Q3NzNkYWMxNmY0YzNmODcyMmZjOTViZjlmMmRmYSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "WITHER_SKELETON": {
     "is_swimming_mob": false,
@@ -877,7 +964,10 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzk1M2I2YzY4NDQ4ZTdlNmI2YmY4ZmIyNzNkNzIwM2FjZDhlMWJlMTllODE0ODFlYWQ1MWY0NWRlNTlhOCJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "STONE_SWORD"
+    ]
   },
   "WITHER": {
     "is_swimming_mob": false,
@@ -888,7 +978,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2RmNzRlMzIzZWQ0MTQzNjk2NWY1YzU3ZGRmMjgxNWQ1MzMyZmU5OTllNjhmYmI5ZDZjZjVjOGJkNDEzOWYifX19",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "WOLF": {
     "is_swimming_mob": false,
@@ -912,7 +1003,8 @@
       "COOKED_RABBIT",
       "COOKED_MUTTON"
     ],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "ZOGLIN": {
     "is_swimming_mob": false,
@@ -924,7 +1016,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTY3ZTE4NjAyZTAzMDM1YWQ2ODk2N2NlMDkwMjM1ZDg5OTY2NjNmYjllYTQ3NTc4ZDNhN2ViYmM0MmE1Y2NmOSJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ZOMBIE_HORSE": {
     "is_swimming_mob": false,
@@ -936,7 +1029,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDIyOTUwZjJkM2VmZGRiMThkZTg2ZjhmNTVhYzUxOGRjZTczZjEyYTZlMGY4NjM2ZDU1MWQ4ZWI0ODBjZWVjIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL"
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
   },
   "ZOMBIE": {
     "is_swimming_mob": false,
@@ -947,7 +1041,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZmYzg1NGJiODRjZjRiNzY5NzI5Nzk3M2UwMmI3OWJjMTA2OTg0NjBiNTFhNjM5YzYwZTVlNDE3NzM0ZTExIn19fQ==",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ZOMBIE_VILLAGER": {
     "is_swimming_mob": false,
@@ -958,7 +1053,8 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTVlMDhhODc3NmMxNzY0YzNmZTZhNmRkZDQxMmRmY2I4N2Y0MTMzMWRhZDQ3OWFjOTZjMjFkZjRiZjNhYzg5YyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
   },
   "ZOMBIFIED_PIGLIN": {
     "is_swimming_mob": false,
@@ -970,6 +1066,9 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2VhYmFlY2M1ZmFlNWE4YTQ5Yzg4NjNmZjQ4MzFhYWEyODQxOThmMWEyMzk4ODkwYzc2NWUwYThkZTE4ZGE4YyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "MONSTER"
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "GOLDEN_SWORD"
+    ]
   }
 }

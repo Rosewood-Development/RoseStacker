@@ -15,10 +15,13 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
@@ -106,9 +109,11 @@ public class EntityStackSettings extends StackSettings {
         List<String> defaultSpawnRequirements = gson.fromJson(jsonObject.get("default_spawn_requirements").getAsJsonArray(), stringListType);
         String skullTexture = jsonObject.get("skull_texture").getAsString();
         List<String> breedingMaterialsStrings = gson.fromJson(jsonObject.get("breeding_materials").getAsJsonArray(), stringListType);
-        List<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).toList();
+        Set<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
         String spawnCategory = jsonObject.get("spawn_category").getAsString();
-        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials, spawnCategory);
+        List<String> standardEquipmentStrings = gson.fromJson(jsonObject.get("standard_equipment").getAsJsonArray(), stringListType);
+        Set<Material> standardEquipment = standardEquipmentStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+        this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials, spawnCategory, standardEquipment);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
         this.displayName = this.settingsConfiguration.getString("display-name");
