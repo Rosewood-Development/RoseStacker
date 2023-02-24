@@ -85,7 +85,7 @@ public class EntityStackSettings extends StackSettings {
             case CHICKEN -> this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
             case SHEEP -> {
                 this.putSetting(SHEEP_SHEAR_ALL_SHEEP_IN_STACK, true);
-                this.putSetting(SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN, 25);
+                this.putSetting(SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN, 25.0);
             }
             case SLIME, MAGMA_CUBE -> this.putSetting(SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH, true);
             case MUSHROOM_COW -> {
