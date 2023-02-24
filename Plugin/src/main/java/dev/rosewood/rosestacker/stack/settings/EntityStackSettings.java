@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.utils.RoseGardenUtils;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -393,11 +394,11 @@ public class EntityStackSettings extends StackSettings {
         }
 
         public int getInt() {
-            return (int) this.value;
+            return (int) RoseGardenUtils.getNumber(this.value);
         }
 
         public double getDouble() {
-            return (double) this.value;
+            return RoseGardenUtils.getNumber(this.value);
         }
 
     }
