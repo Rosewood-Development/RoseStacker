@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.stack.settings.conditions.entity;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.NMSUtil;
-import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -70,6 +69,7 @@ import org.bukkit.material.Colorable;
 public final class StackConditions {
 
     private static final Multimap<Class<?>, StackCondition<?>> CLASS_STACK_EVALUATION_MAP;
+    private static final NMSHandler NMS_HANDLER = NMSAdapter.getHandler();
 
     static {
         CLASS_STACK_EVALUATION_MAP = MultimapBuilder.hashKeys().arrayListValues().build();
@@ -147,7 +147,7 @@ public final class StackConditions {
                 }
             }
 
-            if (Setting.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.getBoolean() && (RaidListener.isActiveRaider(entity1) || RaidListener.isActiveRaider(entity2)))
+            if (Setting.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.getBoolean() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
                 return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
 
             return EntityStackComparisonResult.CAN_STACK;

@@ -44,6 +44,7 @@ import net.minecraft.server.v1_16_R3.EntityHuman;
 import net.minecraft.server.v1_16_R3.EntityInsentient;
 import net.minecraft.server.v1_16_R3.EntityLiving;
 import net.minecraft.server.v1_16_R3.EntityRabbit;
+import net.minecraft.server.v1_16_R3.EntityRaider;
 import net.minecraft.server.v1_16_R3.EntitySpider;
 import net.minecraft.server.v1_16_R3.EntityStrider;
 import net.minecraft.server.v1_16_R3.EntityTypes;
@@ -447,6 +448,11 @@ public class NMSHandlerImpl implements NMSHandler {
         Vec3D vec3d = new Vec3D(nmsEntity1.locX(), nmsEntity1.getHeadY(), nmsEntity1.locZ());
         Vec3D target = new Vec3D(location.getX(), location.getY(), location.getZ());
         return nmsEntity1.world.rayTrace(new RayTrace(vec3d, target, RayTrace.BlockCollisionOption.VISUAL, RayTrace.FluidCollisionOption.NONE, nmsEntity1)).getType() == MovingObjectPosition.EnumMovingObjectType.MISS;
+    }
+
+    @Override
+    public boolean isActiveRaider(LivingEntity entity) {
+        return ((CraftLivingEntity) entity).getHandle() instanceof EntityRaider raider && raider.fa() != null;
     }
 
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {

@@ -17,7 +17,6 @@ import dev.rosewood.rosestacker.listener.EntitiesLoadListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
-import dev.rosewood.rosestacker.listener.RaidListener;
 import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.listener.paper.PaperPreCreatureSpawnListener;
@@ -81,7 +80,6 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new StackToolListener(this), this);
         pluginManager.registerEvents(new BreedingListener(this), this);
         pluginManager.registerEvents(new BlockShearListener(this), this);
-        pluginManager.registerEvents(new RaidListener(), this);
         pluginManager.registerEvents(new BeeListener(this), this);
 
         if (NMSUtil.getVersionNumber() >= 17) {

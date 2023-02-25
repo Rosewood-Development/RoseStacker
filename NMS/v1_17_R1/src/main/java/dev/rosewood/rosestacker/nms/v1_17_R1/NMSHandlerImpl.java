@@ -57,6 +57,7 @@ import net.minecraft.world.entity.animal.Rabbit;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
@@ -424,6 +425,11 @@ public class NMSHandlerImpl implements NMSHandler {
         Vec3 vec3d = new Vec3(nmsEntity1.getX(), nmsEntity1.getEyeY(), nmsEntity1.getZ());
         Vec3 target = new Vec3(location.getX(), location.getY(), location.getZ());
         return nmsEntity1.level.clip(new ClipContext(vec3d, target, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
+    }
+
+    @Override
+    public boolean isActiveRaider(LivingEntity entity) {
+        return ((CraftLivingEntity) entity).getHandle() instanceof Raider raider && raider.getCurrentRaid() != null;
     }
 
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {

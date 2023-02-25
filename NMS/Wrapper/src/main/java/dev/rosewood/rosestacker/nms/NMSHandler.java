@@ -192,6 +192,14 @@ public interface NMSHandler {
     }
 
     /**
+     * Checks if an entity is an actively participating in a raid
+     *
+     * @param entity The entity to check
+     * @return true if the entity is an active raider, false otherwise
+     */
+    boolean isActiveRaider(LivingEntity entity);
+
+    /**
      * Creates a new StackedEntityDataStorage instance for storing large amounts of entities of the same type in a small data footprint
      *
      * @param livingEntity The base entity
