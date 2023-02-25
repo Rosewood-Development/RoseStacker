@@ -151,34 +151,10 @@ public class SimpleStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     private void stripUnneeded(NBTTagCompound compoundTag) {
-        compoundTag.remove("UUID");
-        compoundTag.remove("Pos");
-        compoundTag.remove("Rotation");
-        compoundTag.remove("WorldUUIDMost");
-        compoundTag.remove("WorldUUIDLeast");
-        compoundTag.remove("Motion");
-        compoundTag.remove("OnGround");
-        compoundTag.remove("FallDistance");
-        compoundTag.remove("Leash");
-        compoundTag.remove("Spigot.ticksLived");
-        compoundTag.remove("Paper.OriginWorld");
-        compoundTag.remove("Paper.Origin");
+        NMSHandler.REMOVABLE_NBT_KEYS.forEach(compoundTag::remove);
         NBTTagCompound bukkitValues = compoundTag.getCompound("BukkitValues");
         bukkitValues.remove("rosestacker:stacked_entity_data");
-
-        // Remove any items the entity could be holding
-        compoundTag.remove("ArmorItems");
-        compoundTag.remove("HandItems");
-        compoundTag.remove("Items");
-        compoundTag.remove("ChestedHorse");
-        compoundTag.remove("Saddle");
-        compoundTag.remove("DecorItem");
-        compoundTag.remove("Inventory");
-        compoundTag.remove("carriedBlockState");
-
-        // Remove anything else special for duplicating the entity
-        compoundTag.remove("DeathTime");
-        compoundTag.remove("Health");
+        NMSHandler.UNSAFE_NBT_KEYS.forEach(compoundTag::remove);
     }
 
 }

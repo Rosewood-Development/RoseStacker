@@ -201,18 +201,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     private void stripUnneeded(CompoundTag compoundTag) {
-        compoundTag.remove("UUID");
-        compoundTag.remove("Pos");
-        compoundTag.remove("Rotation");
-        compoundTag.remove("WorldUUIDMost");
-        compoundTag.remove("WorldUUIDLeast");
-        compoundTag.remove("Motion");
-        compoundTag.remove("OnGround");
-        compoundTag.remove("FallDistance");
-        compoundTag.remove("Leash");
-        compoundTag.remove("Spigot.ticksLived");
-        compoundTag.remove("Paper.OriginWorld");
-        compoundTag.remove("Paper.Origin");
+        NMSHandler.REMOVABLE_NBT_KEYS.forEach(compoundTag::remove);
         CompoundTag bukkitValues = compoundTag.getCompound("BukkitValues");
         bukkitValues.remove("rosestacker:stacked_entity_data");
     }

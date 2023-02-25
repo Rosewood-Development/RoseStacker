@@ -1,10 +1,12 @@
 package dev.rosewood.rosestacker.nms;
 
+import com.google.common.collect.ImmutableList;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,6 +24,18 @@ import org.bukkit.inventory.ItemStack;
  * For internal use only. Subject to change extremely frequently.
  */
 public interface NMSHandler {
+
+    List<String> REMOVABLE_NBT_KEYS = List.of(
+            "UUID", "Pos", "Rotation", "WorldUUIDMost", "WorldUUIDLeast",
+            "Motion", "OnGround", "FallDistance", "Leash", "Spigot.ticksLived",
+            "Paper.OriginWorld", "Paper.Origin", "Patrolling", "PatrolTarget",
+            "RaidId", "Wave"
+    );
+
+    List<String> UNSAFE_NBT_KEYS = List.of(
+            "ArmorItems", "HandItems", "Items", "ChestedHorse", "Saddle",
+            "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health"
+    );
 
     /**
      * Serializes a LivingEntity to a base64 string
