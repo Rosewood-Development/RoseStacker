@@ -65,7 +65,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DONT_STACK_IF_INVULNERABLE("global-entity-settings.dont-stack-if-invulnerable", true, "Should we stack entities if they are invulnerable?"),
         ENTITY_DONT_STACK_CUSTOM_NAMED("global-entity-settings.dont-stack-custom-named", false, "Should we stack entities with custom names?"),
         ENTITY_DONT_STACK_IF_HAS_EQUIPMENT("global-entity-settings.dont-stack-if-has-equipment", false, "Should we stack entities that have equipment?", "This will ignore mobs that have standard equipment such as skeletons with unenchanted bows"),
-        ENTITY_DONT_STACK_IF_ACTIVE_RAIDER("global-entity-settings.dont-stack-if-active-raider", true, "Should we stack entities that are part of an active raid?", "This may cause issues when loading entities if disabled"),
+        ENTITY_DONT_STACK_IF_ACTIVE_RAIDER("global-entity-settings.dont-stack-if-active-raider", true, "Should we stack entities that are part of an active raid?"),
         ENTITY_STACK_FLYING_DOWNWARDS("global-entity-settings.stack-flying-downwards", false, "Should flying mobs always be stacked downwards?", "This is useful for mob grinders"),
         ENTITY_ONLY_STACK_FROM_SPAWNERS("global-entity-settings.only-stack-from-spawners", false, "Should we only stack entities spawned from spawners?"),
         ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL("global-entity-settings.trigger-death-event-for-entire-stack-kill", false, "Should an entity death event be triggered for each mob in a stack?", "If you use custom drops plugins, make sure to enable this", "Note to developers: The death events are asynchronous based on the below setting"),

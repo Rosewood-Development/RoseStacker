@@ -122,6 +122,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
 
+    private static Field field_Entity_spawnedViaMobSpawner; // Field to get the spawnedViaMobSpawner of an Entity, added by Paper, normally public
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -155,6 +157,9 @@ public class NMSHandlerImpl implements NMSHandler {
             field_LegacyRandomSource_seed = ReflectionUtils.getFieldByPositionAndType(LegacyRandomSource.class, 0, AtomicLong.class);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
+
+            if (NMSAdapter.isPaper())
+                field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -511,6 +516,18 @@ public class NMSHandlerImpl implements NMSHandler {
             AtomicLong seed = (AtomicLong) field_LegacyRandomSource_seed.get(originalRandomSource);
             RandomSource hijackedRandomSource = new ThreadSafeLegacyRandomSource(seed.get());
             unsafe.putObject(level, field_Level_random_offset, hijackedRandomSource);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setPaperFromMobSpawner(org.bukkit.entity.Entity entity) {
+        if (field_Entity_spawnedViaMobSpawner == null)
+            return;
+
+        try {
+            field_Entity_spawnedViaMobSpawner.set(((CraftEntity) entity).getHandle(), true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }

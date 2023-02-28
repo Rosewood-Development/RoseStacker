@@ -1,12 +1,10 @@
 package dev.rosewood.rosestacker.nms;
 
-import com.google.common.collect.ImmutableList;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
-import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -264,6 +262,10 @@ public interface NMSHandler {
      * @param world The World to hijack the RandomSource of
      */
     default void hijackRandomSource(World world) {
+
+    }
+
+    default void setPaperFromMobSpawner(Entity entity) {
 
     }
 

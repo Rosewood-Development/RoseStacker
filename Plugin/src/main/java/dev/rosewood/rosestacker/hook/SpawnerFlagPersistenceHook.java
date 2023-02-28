@@ -1,8 +1,10 @@
 package dev.rosewood.rosestacker.hook;
 
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.RoseGardenUtils;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -68,6 +70,8 @@ public class SpawnerFlagPersistenceHook {
 
         if (roseLootEnabled())
             LootUtils.setEntitySpawnReason(entity, SpawnReason.SPAWNER);
+
+        NMSAdapter.getHandler().setPaperFromMobSpawner(entity);
     }
 
     public static void unflagSpawnerSpawned(LivingEntity entity) {
