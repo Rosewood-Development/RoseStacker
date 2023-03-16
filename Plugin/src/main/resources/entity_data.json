@@ -61,7 +61,8 @@
       "SUNFLOWER",
       "LILAC",
       "ROSE_BUSH",
-      "PEONY"
+      "PEONY",
+      "TORCHFLOWER"
     ],
     "spawn_category": "ANIMAL",
     "standard_equipment": []
