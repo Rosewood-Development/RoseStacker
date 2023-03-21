@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.manager;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
@@ -87,18 +88,21 @@ public class StackSettingManager extends Manager {
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = jsonParser.parse(entityDataReader).getAsJsonObject();
 
-            Set<String> keys = new TreeSet<>(jsonObject.keySet());
+
             Set<String> invalidKeys = new TreeSet<>();
-            keys.forEach(x -> {
+            TreeSet<Map.Entry<String, JsonElement>> entries = new TreeSet<>(Entry.comparingByKey());
+            entries.addAll(jsonObject.entrySet());
+            entries.forEach(entry -> {
+                String name = entry.getKey();
                 EntityType entityType;
                 try {
-                    entityType = EntityType.valueOf(x);
+                    entityType = EntityType.valueOf(name);
                 } catch (Exception e) {
-                    invalidKeys.add(x);
+                    invalidKeys.add(name);
                     return;
                 }
 
-                EntityStackSettings entityStackSetting = new EntityStackSettings(entitySettingsConfiguration, jsonObject.get(x).getAsJsonObject(), entityType);
+                EntityStackSettings entityStackSetting = new EntityStackSettings(entitySettingsConfiguration, entry.getValue().getAsJsonObject(), entityType);
                 this.entitySettings.put(entityType, entityStackSetting);
                 if (entityStackSetting.hasChanges())
                     saveEntitySettingsFile.set(true);
