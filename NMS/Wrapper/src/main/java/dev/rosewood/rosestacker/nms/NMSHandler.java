@@ -27,7 +27,7 @@ public interface NMSHandler {
             "UUID", "Pos", "Rotation", "WorldUUIDMost", "WorldUUIDLeast",
             "Motion", "OnGround", "FallDistance", "Leash", "Spigot.ticksLived",
             "Paper.OriginWorld", "Paper.Origin", "Patrolling", "PatrolTarget",
-            "RaidId", "Wave"
+            "RaidId", "Wave", "AngryAt", "AngerTime"
     );
 
     List<String> UNSAFE_NBT_KEYS = List.of(

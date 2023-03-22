@@ -61,6 +61,7 @@ import net.minecraft.world.entity.animal.sniffer.Sniffer;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
@@ -201,7 +202,6 @@ public class NMSHandlerImpl implements NMSHandler {
             this.setTag(rotationTagList, 1, FloatTag.valueOf(location.getPitch()));
             nbt.put("Rotation", rotationTagList);
             nbt.putUUID("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
-            nbt.remove("AngryAt"); // Causes issues if this value is parsed async
 
             Optional<net.minecraft.world.entity.EntityType<?>> optionalEntity = net.minecraft.world.entity.EntityType.byString(entityType.getKey().getKey());
             if (optionalEntity.isPresent()) {
