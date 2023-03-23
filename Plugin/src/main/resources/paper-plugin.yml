@@ -3,30 +3,56 @@ version: '@version@'
 authors: [Esophose]
 website: https://www.spigotmc.org/resources/rosestacker.82729/
 main: dev.rosewood.rosestacker.RoseStacker
-api-version: '1.13'
-loadbefore: [ShopGUIPlus]
-softdepend:
-  - Boss
-  - Citizens
-  - ClearLag
-  - CoreProtect
-  - EliteMobs
-  - EpicBosses
-  - EpicSpawners
-  - Jobs
-  - LogBlock
-  - mcMMO
-  - MythicMobs
-  - PlaceholderAPI
-  - ProCosmetics
-  - RoseLoot
-  - Shopkeepers
-  - StackMob
-  - UltimateStacker
-  - ViaVersion
-  - WildChests
-  - WildStacker
-  - WorldGuard
+api-version: '1.19'
+dependencies:
+  - name: Boss
+    required: false
+  - name: Citizens
+    required: false
+  - name: ClearLag
+    required: false
+  - name: CoreProtect
+    required: false
+  - name: EliteMobs
+    required: false
+  - name: EpicBosses
+    required: false
+  - name: EpicSpawners
+    required: false
+  - name: Jobs
+    required: false
+  - name: LogBlock
+    required: false
+  - name: mcMMO
+    required: false
+  - name: MythicMobs
+    required: false
+  - name: PlaceholderAPI
+    required: false
+  - name: ProCosmetics
+    required: false
+  - name: RoseLoot
+    required: false
+  - name: Shopkeepers
+    required: false
+  - name: StackMob
+    required: false
+  - name: UltimateStacker
+    required: false
+  - name: ViaVersion
+    required: false
+  - name: WildChests
+    required: false
+  - name: WildStacker
+    required: false
+  - name: WorldGuard
+    required: false
+load-after:
+  - name: PlaceholderAPI
+  - name: ShopGUIPlus
+  - name: Clearlag
+  - name: ViaVersion
+  - name: WildChests
 permissions:
   rosestacker.basecommand:
     description: The base command permission for being able to see the RoseStacker command
@@ -78,3 +104,4 @@ permissions:
   rosestacker.killentirestack:
     description: Allows killing an entire stack of mobs at once
     default: false
+
