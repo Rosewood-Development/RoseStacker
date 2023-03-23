@@ -151,6 +151,7 @@ public final class StackerUtils {
     public static List<Material> getPossibleStackableBlockMaterials() {
         Inventory inventory = Bukkit.createInventory(null, 9);
         return Arrays.stream(Material.values())
+                .filter(x -> !x.isLegacy())
                 .filter(Material::isBlock)
                 .filter(Material::isSolid)
                 .filter(x -> !x.isInteractable() || x == Material.TNT || x == Material.BEACON || x.name().endsWith("REDSTONE_ORE"))
