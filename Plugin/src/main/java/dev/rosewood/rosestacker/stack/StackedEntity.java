@@ -12,7 +12,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -153,7 +153,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         LivingEntity oldEntity = this.entity;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
-        this.entity = NMSAdapter.getHandler().createEntityFromNBT(this.stackedEntityDataStorage.pop(), oldEntity.getLocation(), true, oldEntity.getType());
+        this.entity = this.stackedEntityDataStorage.pop().createEntity(oldEntity.getLocation(), true, oldEntity.getType());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
@@ -386,7 +386,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return true;
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        LivingEntity entity = nmsHandler.createEntityFromNBT(this.stackedEntityDataStorage.peek(), this.entity.getLocation(), false, this.entity.getType());
+        LivingEntity entity = this.stackedEntityDataStorage.peek().createEntity(this.entity.getLocation(), false, this.entity.getType());
         StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
@@ -554,10 +554,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
         }
 
-        List<StackedEntityDataEntry<?>> removed = this.stackedEntityDataStorage.pop(amount - 1);
+        List<EntityDataEntry> removed = this.stackedEntityDataStorage.pop(amount - 1);
         List<LivingEntity> entities = new ArrayList<>(removed.size());
-        for (StackedEntityDataEntry<?> entry : removed)
-            entities.add(NMSAdapter.getHandler().createEntityFromNBT(entry, this.entity.getLocation(), false, this.entity.getType()));
+        for (EntityDataEntry entry : removed)
+            entities.add(entry.createEntity(this.entity.getLocation(), false, this.entity.getType()));
 
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {

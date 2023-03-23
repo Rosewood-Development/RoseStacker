@@ -6,7 +6,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
@@ -15,7 +15,7 @@ import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SynchedEntityDataWrapper;
 import dev.rosewood.rosestacker.nms.v1_18_R2.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R2.spawner.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_18_R2.storage.NBTStackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_18_R2.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_18_R2.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.v1_18_R2.storage.SimpleStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
@@ -25,15 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.FloatTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -139,77 +134,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public StackedEntityDataEntry<CompoundTag> getEntityAsNBT(LivingEntity livingEntity) {
-        CompoundTag nbt = new CompoundTag();
-        net.minecraft.world.entity.LivingEntity nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
-        nmsEntity.save(nbt);
-        return new NBTStackedEntityDataEntry(nbt);
-    }
-
-    private void setTag(ListTag tag, int index, Tag value) {
-        if (index >= tag.size()) {
-            tag.addTag(index, value);
-        } else {
-            tag.setTag(index, value);
-        }
-    }
-
-    @Override
-    public LivingEntity createEntityFromNBT(StackedEntityDataEntry<?> serialized, Location location, boolean addToWorld, EntityType entityType) {
-        try {
-            CompoundTag nbt = (CompoundTag) serialized.get();
-
-            ListTag positionTagList = nbt.getList("Pos", Tag.TAG_DOUBLE);
-            if (positionTagList == null)
-                positionTagList = new ListTag();
-            this.setTag(positionTagList, 0, DoubleTag.valueOf(location.getX()));
-            this.setTag(positionTagList, 1, DoubleTag.valueOf(location.getY()));
-            this.setTag(positionTagList, 2, DoubleTag.valueOf(location.getZ()));
-            nbt.put("Pos", positionTagList);
-            ListTag rotationTagList = nbt.getList("Rotation", Tag.TAG_FLOAT);
-            if (rotationTagList == null)
-                rotationTagList = new ListTag();
-            this.setTag(rotationTagList, 0, FloatTag.valueOf(location.getYaw()));
-            this.setTag(rotationTagList, 1, FloatTag.valueOf(location.getPitch()));
-            nbt.put("Rotation", rotationTagList);
-            nbt.putUUID("UUID", UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
-
-            Optional<net.minecraft.world.entity.EntityType<?>> optionalEntity = net.minecraft.world.entity.EntityType.byString(entityType.getKey().getKey());
-            if (optionalEntity.isPresent()) {
-                ServerLevel world = ((CraftWorld) location.getWorld()).getHandle();
-
-                Entity entity = this.createCreature(
-                        optionalEntity.get(),
-                        world,
-                        nbt,
-                        null,
-                        null,
-                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        MobSpawnType.COMMAND
-                );
-
-                if (entity == null)
-                    throw new NullPointerException("Unable to create entity from NBT");
-
-                // Load NBT
-                entity.load(nbt);
-
-                if (addToWorld) {
-                    PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
-                    entityManager.addNewEntity(entity);
-                    entity.invulnerableTime = 0;
-                }
-
-                return (LivingEntity) entity.getBukkitEntity();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
     public LivingEntity createNewEntityUnspawned(EntityType entityType, Location location, SpawnReason spawnReason) {
         World world = location.getWorld();
         if (world == null)
@@ -237,7 +161,7 @@ public class NMSHandlerImpl implements NMSHandler {
      * Duplicate of {@link net.minecraft.world.entity.EntityType#create(ServerLevel, CompoundTag, Component, net.minecraft.world.entity.player.Player, BlockPos, MobSpawnType, boolean, boolean)}.
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
-    private <T extends Entity> T createCreature(net.minecraft.world.entity.EntityType<T> entityType, ServerLevel world, CompoundTag nbt, Component component, net.minecraft.world.entity.player.Player player, BlockPos blockPos, MobSpawnType mobSpawnType) {
+    public <T extends Entity> T createCreature(net.minecraft.world.entity.EntityType<T> entityType, ServerLevel world, CompoundTag nbt, Component component, net.minecraft.world.entity.player.Player player, BlockPos blockPos, MobSpawnType mobSpawnType) {
         T newEntity;
         if (entityType == net.minecraft.world.entity.EntityType.SPIDER) {
             newEntity = (T) new SoloEntitySpider((net.minecraft.world.entity.EntityType<? extends Spider>) entityType, world);
@@ -437,6 +361,11 @@ public class NMSHandlerImpl implements NMSHandler {
         return ((CraftLivingEntity) entity).getHandle() instanceof Raider raider && raider.getCurrentRaid() != null;
     }
 
+    @Override
+    public EntityDataEntry createEntityDataEntry(LivingEntity livingEntity) {
+        return new NBTEntityDataEntry(livingEntity);
+    }
+
     public StackedEntityDataStorage createEntityDataStorage(LivingEntity livingEntity, StackedEntityDataStorageType storageType) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity);
@@ -510,6 +439,15 @@ public class NMSHandlerImpl implements NMSHandler {
             }
         } else {
             ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(compoundTag);
+        }
+    }
+
+    public void registerEntity(ServerLevel world, Entity entity) {
+        try {
+            PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
+            entityManager.addNewEntity(entity);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
         }
     }
 

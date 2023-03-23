@@ -8,7 +8,6 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import org.bukkit.entity.Sniffer;
 
 public class SoloEntityStrider extends Strider {
 

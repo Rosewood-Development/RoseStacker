@@ -18,7 +18,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.StackedEntityDataEntry;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
@@ -153,8 +153,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
                     stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(stackedEntity.getEntity(), this.stackManager.getEntityDataStorageType()));
                     ThreadUtils.runSync(() -> {
-                        for (StackedEntityDataEntry<?> stackedEntityDataEntry : nbt.getAll())
-                            nmsHandler.createEntityFromNBT(stackedEntityDataEntry, stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
+                        for (EntityDataEntry entityDataEntry : nbt.getAll())
+                            entityDataEntry.createEntity(stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
                     });
                 }
             }

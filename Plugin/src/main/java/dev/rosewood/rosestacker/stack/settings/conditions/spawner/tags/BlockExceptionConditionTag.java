@@ -1,8 +1,8 @@
 package dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags;
 
 import dev.rosewood.rosestacker.manager.LocaleManager;
-import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
+import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.List;
