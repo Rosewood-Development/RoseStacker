@@ -104,4 +104,3 @@ permissions:
   rosestacker.killentirestack:
     description: Allows killing an entire stack of mobs at once
     default: false
-
