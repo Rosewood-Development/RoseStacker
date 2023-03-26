@@ -1,0 +1,231 @@
+# ro_RO translation by Sarah
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% Spawn Egg'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eFoloseste &b/%cmd% help &epentru ajutor'
+
+# Help command
+command-help-description: 'Deschide meniul de ajutor'
+command-help-title: '&eComenzi disponibile:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload command
+command-reload-description: 'Reincarca configuratia'
+command-reload-reloaded: '&eConfiguratia a fost reincarcata.'
+
+# Give Command
+command-give-description: 'Ofera obiecte pre-stackate'
+command-give-usage: '&cComanda: &e/rs give <block|spawner|entitate> <jucator> <tip> [dimensiuneStack] [cantitate]'
+command-give-given: '&b%player% &ea primit [%display%&e].'
+command-give-given-multiple: '&b%player% &ea primit %amount%x [%display%&e].'
+command-give-unstackable: '&cTipul pe care l-ai specificat nu este stackabil.'
+command-give-too-large: '&cCantitatea specificata depaseste dimensiunea maxima a stackarii pentru acest tip.'
+
+# Clearall Command
+command-clearall-description: 'Sterge toate entitatile'
+command-clearall-killed-entities: '&eAu fost sterse &b%amount% &eentitati.'
+command-clearall-killed-items: '&eAu fost sterse &b%amount% &eobiecte.'
+command-clearall-killed-all: '&eAu fost sterse &b%entityAmount% &eentitati si &b%itemAmount% &eobiecte.'
+
+# Stats Command
+command-stats-description: 'Arata statisticile plugin-ului'
+command-stats-header: '&aStatistici Plugin:'
+command-stats-threads: '&b%amount% &efire active de stackare.'
+command-stats-stacked-entities: '&b%stackAmount% &estack-uri de entitati incarcate, in total &b%total% &eentitati.'
+command-stats-stacked-items: '&b%stackAmount% &estack-uri de obiecte incarcate, in total &b%total% &eobiecte.'
+command-stats-stacked-blocks: '&b%stackAmount% &estack-uri de block-uri incarcate, in total &b%total% &eblock-uri.'
+command-stats-stacked-spawners: '&b%stackAmount% &estack-uri de spawnere incarcate, in total &b%total% &espawnere.'
+command-stats-active-tasks: '&b%amount% &eactive feladatok.'
+
+# Convert Command
+command-convert-description: 'Converteste datele dintr-un alt plugin'
+command-convert-converted: '&eS-a convertit data din &b%plugin% &ein {{PLUGIN_NAME}}. Plugin-ul convertit a fost dezactivat, nu uita sa stergi il din fisierul cu plugin-uri.'
+command-convert-failed: '&cConvertirea plugin-ului &b%plugin%&c a esuat, plugin-ul este dezactivat.'
+command-convert-aborted: '&cConvertirea plugin-ului &b%plugin%&c a esuat, deja ai convertit din alt plugin de stackare.'
+
+# Translate Command
+command-translate-description: 'Traduce plugin-ul'
+command-translate-loading: '&eSe descarca si aplica datele traducerii, asteapta cateva momente.'
+command-translate-failure: '&cNu s-a putut traduce, a intervenit o eroare in datele locale. Incearca mai tarziu'
+command-translate-invalid-locale: '&cNu s-a putut traduce, fisierul locale specificat este invalid.'
+command-translate-spawner-format: '&eNumele spawnerelor nu pot fi traduse cu precizie. Pentru rezolvare, poti folosi &b/rs translate en_us &3{} Spawner &epentru a facu un spawner sa apara ca "Cow Spawner". Foloseste &b{} &eca placeholder pentru numele entitatii.'
+command-translate-spawner-format-invalid: '&cTipul spawner-ului este invalid. Trebuie sa contina &b{} &cpentru plasarea numelui.'
+command-translate-success: '&aTraducerea a fost efectuata cu succes.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Ofera unui jucator stacking tool'
+command-stacktool-given: '&eAi primit stacking tool.'
+command-stacktool-given-other: '&b%player% &aa primit stacking tool.'
+command-stacktool-no-console: '&cNu puteți da stacking tool la consolă.'
+command-stacktool-no-permission: '&cNu ai permisiunea sa folosesti stacking tool.'
+command-stacktool-invalid-entity: '&cThat entity is not part of a stack, is it a custom mob?'
+command-stacktool-marked-unstackable: '&b%type% &ea fost setat ca &cnestackabil&e.'
+command-stacktool-marked-stackable: '&b%type% &ea fost setat ca &astackabil&e.'
+command-stacktool-marked-all-unstackable: '&eIntregul &b%type% &estack a fost setat ca &cnestackabl&e.'
+command-stacktool-select-1: '&b%type% &ea fost setat ca Entity #1. Selecteaza alta entitate pentru a vedea daca se pot stacka.'
+command-stacktool-unselect-1: '&b%type% &ea fost deselectat.'
+command-stacktool-select-2: '&b%type% &ea fost selectat ca Entity #2.'
+command-stacktool-can-stack: '&aEntity #1 se poate stacka cu Entity #2.'
+command-stacktool-can-not-stack: '&cEntity 1 nu se poate stacka cu Entity 2. Motiv: &b%reason%'
+command-stacktool-info: '&eStatistici stack:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eID Entitate: &b%id%'
+command-stacktool-info-custom-name: '&eNume personalizat: &r%name%'
+command-stacktool-info-location: '&eLocatie: X: &b%x% &eY: &b%y% &eZ: &b%z% &eLume: &b%world%'
+command-stacktool-info-chunk: '&eChunk: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&aadevarat'
+command-stacktool-info-false: '&cfals'
+command-stacktool-info-entity-type: '&eTip Entitate: &b%type%'
+command-stacktool-info-entity-stackable: '&eStackabil: %value%'
+command-stacktool-info-entity-has-ai: '&eAI: %value%'
+command-stacktool-info-entity-from-spawner: '&eDin Spawner: %value%'
+command-stacktool-info-item-type: '&eTip Obiect: &b%type%'
+command-stacktool-info-block-type: '&eTip Block: &b%type%'
+command-stacktool-info-spawner-type: '&eTip Spawner: &b%type%'
+command-stacktool-info-stack-size: '&eDimensiune Stack: &b%amount%'
+
+# Stacked Block GUI
+gui-stacked-block-title: 'Se editeaza %name% Stack'
+gui-stacked-block-page-back:
+  - '&ePagina precedenta (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&ePagina urmatoare (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cDistrugere Stack'
+  - '&eDistruge stack-ul si dropeaza obiectele'
+gui-stacked-block-destroy-title: 'Distrugi block-urile?'
+gui-stacked-block-destroy-confirm:
+  - '&aConfirma'
+  - '&eDa, distruge stack-ul'
+gui-stacked-block-destroy-cancel:
+  - '&cAnuleaza'
+  - '&eNu, intoarce-te la ecranul precedent'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: 'Se vizualizeaza %name%'
+gui-stacked-spawner-stats: '&6Statistici Spawner'
+gui-stacked-spawner-min-spawn-delay: '&eTimp minim de spawnare: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eTimp maxim de spawnare: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eMob AI Dezactivat: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eRaza maxima de stackare: &b%range%'
+gui-stacked-spawner-player-activation-range: '&eRaza maxima jucator-spawner: &b%range%'
+gui-stacked-spawner-spawn-range: '&eRaza maxima de spawnare: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eNumar minim de mobi spawnati: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eNumar maxim de mobi spawnati: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eNumar de mobi spawnati: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Conditii de spawnare'
+gui-stacked-spawner-time-until-next-spawn: '&eTimp pana la spawnare: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&eNumar total de mobi spawnati: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Conditii valide de spawnare'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Conditii invalide de spawnare'
+gui-stacked-spawner-entities-can-spawn: '&aMobii se pot spawna'
+gui-stacked-spawner-conditions-preventing-spawns: '&eConditii de prevenire a spawnarii:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Deasupra apei'
+spawner-condition-above-sea-level-invalid: 'Niciun loc de spawnare deasupra apei'
+spawner-condition-above-y-axis-info: 'Deasupra Axei-Y'
+spawner-condition-above-y-axis-invalid: 'Niciun loc de spawnare deasupra Axei-Y'
+spawner-condition-air-info: 'In aer liber'
+spawner-condition-air-invalid: 'Spatiu insuficient'
+spawner-condition-below-sea-level-info: 'Sub apa'
+spawner-condition-below-sea-level-invalid: 'Niciun loc de spawnare sub apa'
+spawner-condition-below-y-axis-info: 'Sub Axa-Y'
+spawner-condition-below-y-axis-invalid: 'Niciun loc de spawnare sub Axa-Y'
+spawner-condition-biome-info: 'Biome'
+spawner-condition-biome-invalid: 'Biome nepotrivit'
+spawner-condition-block-info: 'Block de spawnare'
+spawner-condition-block-invalid: 'Block de spawnare invalid'
+spawner-condition-block-exception-info: 'Exceptii de block-uri de spawnare'
+spawner-condition-block-exception-invalid: 'Block-uri de spawnare excluse'
+spawner-condition-darkness-info: 'Nivel scazut de lumina'
+spawner-condition-darkness-invalid: 'Necesita intuneric'
+spawner-condition-total-darkness-info: 'Întuneric total'
+spawner-condition-total-darkness-invalid: 'Zona nu trebuie să aibă lumină'
+spawner-condition-fluid-info: 'Necesita fluiditate'
+spawner-condition-fluid-invalid: 'Fluiditate negasita'
+spawner-condition-lightness-info: 'Nivel ridicat de lumina'
+spawner-condition-lightness-invalid: 'Necesita lumina'
+spawner-condition-max-nearby-entities-info: 'Numar maxim de mobi in preajma'
+spawner-condition-max-nearby-entities-invalid: 'Numar maxim de mobi in preajma'
+spawner-condition-no-skylight-access-info: 'Fara lumina naturala'
+spawner-condition-no-skylight-access-invalid: 'Nu sunt block-uri fara lumina naturala'
+spawner-condition-on-ground-info: 'Pe pamant'
+spawner-condition-on-ground-invalid: 'Niciun teren solid in apropiere'
+spawner-condition-skylight-access-info: 'Acces la lumina naturala'
+spawner-condition-skylight-access-invalid: 'Necesita lumina naturala'
+spawner-condition-none-invalid: 'Incercari de spawnere depasita'
+spawner-condition-not-player-placed-invalid: 'Trebuie să fie plasat de către un jucător'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cNu ai permisiunea pentru a face asta!'
+only-player: '&cAceastă comandă poate fi folosită doar de către un jucător.'
+unknown-command: '&cComandă necunoscută, utilizați &b/%cmd% help &cpentru mai multe informații.'
+unknown-command-error: '&cA apărut o eroare necunoscută; detaliile au fost tipărite în consolă. Vă rugăm să contactați un administrator de server.'
+invalid-subcommand: '&cSubcomandă invalidă.'
+invalid-argument: '&cArgument nevalabil: %message%.'
+invalid-argument-null: '&cArgument nevalabil: %name% era nul.'
+missing-arguments: '&cArgumente lipsă, &b%amount% &ceste necesar.'
+missing-arguments-extra: '&cArgumente lipsă, &b%amount%+ &ceste necesar.'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% tipul [%input%] nu există'
+argument-handler-enum-list: 'Tipul %enum% [%input%] nu există. Tipuri valide: %types%'
+argument-handler-string: 'Șirul nu poate fi gol'
+argument-handler-integer: 'Întregul [%input%] trebuie să fie un număr întreg cuprins între -2^31 și 2^31-1 inclusiv.'
+argument-handler-player: 'Niciun jucător cu numele de utilizator [%input%] nu a fost găsit online'
+argument-handler-stackplugin: 'Nu a fost găsit niciun plugin cu numele [%input%].'
+argument-handler-material: 'Nu a fost găsit niciun material cu numele [%input%].'
+argument-handler-stackamount: 'Dimensiunea stivei [%input%] nu este validă, trebuie să fie un număr mai mare decât 0'
+argument-handler-stacktype: 'Tipul de stivă [%input%] nu este valid'
+argument-handler-translationlocale: 'Locația de traducere [%input%] nu este validă'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&cSunt plugin-uri ce se afla in conflict cu {{PLUGIN_NAME}}, pentru a preveni aceste conflicte si/sau pierderea datelor, {{PLUGIN_NAME}} a dezactivat unu sau mai multe stack types. Un document a fost creat in plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} unde poti configura stack types dezactivate. Acel document, de asemenea, iti va aduce la cunostiinta ca ai citit acest avertisment si te va lasa sa il dezactivezi.'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch si/sau trebuie sa ai permisiunea de a lua spawnerele.'
+spawner-advanced-place-no-permission: '&cAtentie! &eNu ai permisiunea pentru a pune acest tip de spawner.'
+spawner-advanced-break-no-permission: '&cAtentie! &eNu ai permisiunea pentru a lua acest tip de spawner.'
+spawner-advanced-break-silktouch-no-permission: '&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch pentru a lua acest spawner.'
+spawner-convert-not-enough: '&cAtentie! &eNu s-au putut converti spawnerele folosind oua. Nu ai in mana suficiente oua pentru a efectua conversiunea.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

@@ -1,0 +1,231 @@
+# zh_Hant translation by billyovo
+# 插件訊息前缀
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# 堆疊實體顯示名稱
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% 生怪蛋'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# 基礎指令訊息
+base-command-color: '&e'
+base-command-help: '&e使用 &b/rs help &e以獲取更多資訊.'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# 協助指令
+command-help-description: '顯示指令協助選單... 對, 就是這個選單'
+command-help-title: '&e可用指令:'
+
+# 重新載入指令
+command-reload-description: '重新載入插件'
+command-reload-reloaded: '&e插件資料, 設定及語言文件已經被重新載入了。'
+
+# 給予指令
+command-give-description: '給予已預先堆疊的物品'
+command-give-usage: '&cUsage: &e/rs give <block|spawner|entity> <玩家名稱> <類別> [堆疊數量] [堆數]'
+command-give-given: '&e已給予 &b%player% &e[%display%&e]。'
+command-give-given-multiple: '&e已給予 &b%player% &e%amount%x [%display%&e]。'
+command-give-unstackable: '&c你指定的類別是無法被堆疊的。'
+command-give-too-large: '&c你指定的數量超過了該類別可堆疊的上限。'
+
+# 清除堆疊指令
+command-clearall-description: '清除一種類別的所有堆疊'
+command-clearall-killed-entities: '&e已清除 &b%amount% &e個堆疊的實體。'
+command-clearall-killed-items: '&e已清除 &b%amount% &e份堆疊的物品。'
+command-clearall-killed-all: '&e己清除 &b%entityAmount% &e個堆疊的實體及 &b%itemAmount% &e份堆疊的物品。'
+
+# 統計指令
+command-stats-description: '顯示此插件的統計數據'
+command-stats-header: '&a插件現時的統計數據:'
+command-stats-threads: '&b%amount% &e個運行中的線程。'
+command-stats-stacked-entities: '&b%stackAmount% &e個已加載的堆疊實體, 共 &b%total% &e個實體。'
+command-stats-stacked-items: '&b%stackAmount% &e份個已加載的堆疊物品, 共 &b%total% &e份物品。'
+command-stats-stacked-blocks: '&b%stackAmount% &e個已加載的堆疊方塊, 共 &b%total% &e個方塊。'
+command-stats-stacked-spawners: '&b%stackAmount% &e個已加載的生怪磚, 共 &b%total% &e個生怪磚。'
+command-stats-active-tasks: '&b%amount%&e活動任務。'
+
+# 轉換指令
+command-convert-description: '從其他堆疊插件載入資料'
+command-convert-converted: '&e已成功把 &b%plugin% 的資料 &e轉換到 {{PLUGIN_NAME}}。 轉換數據來源的插件已經被停用，請確保你已經把該插件從插件文件夾中移除。'
+command-convert-failed: '&c無法轉換 &b%plugin%&c 的資料，該插件並未啟用。'
+command-convert-aborted: '&c已中止轉換 &b%plugin%&c 的資料， 你已經正在轉換另一個堆疊插件的資料了。'
+
+# 翻譯指令
+command-translate-description: '翻譯堆疊個體的名稱。'
+command-translate-loading: '&e正在下載及使用翻譯文件，這過程可能需要一些時間。'
+command-translate-failure: '&c無法翻譯堆疊個體的名稱。一個錯誤在過程中發生了，請稍後再試。'
+command-translate-invalid-locale: '&c無法翻譯堆疊個體的名稱。你所指定的語言並非正確語言。'
+command-translate-spawner-format: '&e生怪磚的名稱無法被準確翻譯。 要解決此問題，你可以使用 &b/rs translate en_us &3{}生怪磚 &e來令生怪磚顯示成 "牛生怪磚". 使用 &b{} &e來代替生物的名稱。'
+command-translate-spawner-format-invalid: '&c你所提供的生怪磚格式並不正確。 格式必須包含 &b{} &c作為生物名稱的代替文字。'
+command-translate-success: '&a已成功翻譯堆疊顯示名稱。'
+
+# 堆疊工具指令
+command-stacktool-description: '給予玩家堆疊工具。'
+command-stacktool-given: '&e你已經獲得了堆疊工具。'
+command-stacktool-given-other: '&b%player% &a已經獲得了堆疊工具。'
+command-stacktool-no-console: '&c你不能給予控制台堆疊工具。'
+command-stacktool-no-permission: '&c你沒有使用堆疊工具的權限。'
+command-stacktool-invalid-entity: '&c該實體並不是堆疊的一部分，他是自訂實體嗎?'
+command-stacktool-marked-unstackable: '&b%type% &e類別 已經被標示為 &c無法堆疊&e。'
+command-stacktool-marked-stackable: '&b%type% &e類別 已經被標示為 &a可堆疊&e。'
+command-stacktool-marked-all-unstackable: '&e整個 &b%type% &e的堆疊 已經被標示為 &c無法堆疊&e。'
+command-stacktool-select-1: '&b%type% &e已經被選擇為 實體 #1。選擇另一個實體以測試他們可否被堆疊。'
+command-stacktool-unselect-1: '&b%type% &e已經被取消選擇。'
+command-stacktool-select-2: '&b%type% &e已經被選擇為 實體 #2。'
+command-stacktool-can-stack: '&a實體 #1可以與實體 #2堆疊。'
+command-stacktool-can-not-stack: '&c實體 #1無法與實體 #2堆疊。原因: &b%reason%'
+command-stacktool-info: '&e堆疊資訊:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&e實體 ID: &b%id%'
+command-stacktool-info-custom-name: '&e自訂顯示名稱: &r%name%'
+command-stacktool-info-location: '&e位置: X: &b%x% &eY: &b%y% &eZ: &b%z% &e世界: &b%world%'
+command-stacktool-info-chunk: '&e區塊: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&a是'
+command-stacktool-info-false: '&c否'
+command-stacktool-info-entity-type: '&e實體類別: &b%type%'
+command-stacktool-info-entity-stackable: '&e可堆疊: %value%'
+command-stacktool-info-entity-has-ai: '&e有AI: %value%'
+command-stacktool-info-entity-from-spawner: '&e從生怪磚: %value%'
+command-stacktool-info-item-type: '&e物品類別: &b%type%'
+command-stacktool-info-block-type: '&e方塊類別: &b%type%'
+command-stacktool-info-spawner-type: '&e生怪磚類別: &b%type%'
+command-stacktool-info-stack-size: '&e堆疊數量: &b%amount%'
+
+# 方塊堆疊介面
+gui-stacked-block-title: '正在編輯 %name% 的堆疊'
+gui-stacked-block-page-back:
+  - '&e上一頁 (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&e下一頁 (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&c解除堆疊狀態'
+  - '&e解除堆疊狀態並掉落物品。'
+gui-stacked-block-destroy-title: '確定要解除堆疊狀態?'
+gui-stacked-block-destroy-confirm:
+  - '&a確定'
+  - '&e是，請解除堆疊狀態'
+gui-stacked-block-destroy-cancel:
+  - '&c取消'
+  - '&e否，返回上一頁'
+
+# 生怪磚堆疊介面
+gui-stacked-spawner-title: '正在查看 %name%'
+gui-stacked-spawner-stats: '&6生怪磚資訊'
+gui-stacked-spawner-min-spawn-delay: '&e最小生成延遲: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&e最大生成延遲: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&e已關閉生物AI: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&e生物追蹤距離: &b%range%'
+gui-stacked-spawner-player-activation-range: '&e生怪磚觸發範圍: &b%range%'
+gui-stacked-spawner-spawn-range: '&e生成範圍: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&e最少生成數量: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&e最大生成數量: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&e生成數量: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6生成條件'
+gui-stacked-spawner-time-until-next-spawn: '&e距離下次生成還有: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&e生物已生成數量: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6有效的生成條件'
+gui-stacked-spawner-invalid-spawn-conditions: '&6無效的生成條件'
+gui-stacked-spawner-entities-can-spawn: '&a生物可以生成'
+gui-stacked-spawner-conditions-preventing-spawns: '&e生物無法生成的原因:'
+
+# 生成條件訊息
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: '海平面之上'
+spawner-condition-above-sea-level-invalid: '海平面上沒有可生成的範圍'
+spawner-condition-above-y-axis-info: 'Y軸以上'
+spawner-condition-above-y-axis-invalid: '指定的Y軸以上沒有可生成範圍'
+spawner-condition-air-info: '露天'
+spawner-condition-air-invalid: '沒有足夠大的露天範圍'
+spawner-condition-below-sea-level-info: '海平面之下'
+spawner-condition-below-sea-level-invalid: '海平面下沒有可生成的範圍'
+spawner-condition-below-y-axis-info: 'Y軸以下'
+spawner-condition-below-y-axis-invalid: '指定的Y軸以下沒有可生成範圍'
+spawner-condition-biome-info: '生態系'
+spawner-condition-biome-invalid: '無效的生態系'
+spawner-condition-block-info: '生成方塊'
+spawner-condition-block-invalid: '沒有有效的生成方塊'
+spawner-condition-block-exception-info: '例外生成方塊'
+spawner-condition-block-exception-invalid: '已從有效名單剔除的例外生成方塊'
+spawner-condition-darkness-info: '低亮度'
+spawner-condition-darkness-invalid: '該範圍太光了'
+spawner-condition-total-darkness-info: '完全黑暗'
+spawner-condition-total-darkness-invalid: '區域必須沒有光'
+spawner-condition-fluid-info: '要求流體'
+spawner-condition-fluid-invalid: '附近沒有流體'
+spawner-condition-lightness-info: '高亮度'
+spawner-condition-lightness-invalid: '該範圍太暗了'
+spawner-condition-max-nearby-entities-info: '附近實體上限'
+spawner-condition-max-nearby-entities-invalid: '附近太多實體了'
+spawner-condition-no-skylight-access-info: '沒有自然光'
+spawner-condition-no-skylight-access-invalid: '沒有無自然光照的方塊'
+spawner-condition-on-ground-info: '在地上'
+spawner-condition-on-ground-invalid: '附近沒有固體地面'
+spawner-condition-skylight-access-info: '自然光條件'
+spawner-condition-skylight-access-invalid: '沒有生成方塊能接觸自然光'
+spawner-condition-none-invalid: '已到達嘗試生成次數上限'
+spawner-condition-not-player-placed-invalid: '它必須由玩家放置'
+
+# 已給予的物品描述
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&c你沒有權限這樣做!'
+only-player: '&c此命令僅供玩家使用。'
+unknown-command: '&c未知的命令。使用 &b/%cmd% &c幫助獲取更多信息。'
+unknown-command-error: '&c出現未知錯誤。詳細信息已打印到控制台。請聯繫服務器管理員。'
+invalid-subcommand: '&c無效的子命令。'
+invalid-argument: '&c無效的論點: %message%.'
+invalid-argument-null: '&c無效參數：%name% 為空。'
+missing-arguments: '&c缺少參數，需要 &b%amount%&c。'
+missing-arguments-extra: '&c缺少參數，需要 &b%amount%+&c。'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% 類型 [%input%] 不存在'
+argument-handler-enum-list: '%enum% 類型 [%input%] 不存在。 有效類型：%types%'
+argument-handler-string: '字符串不能為空'
+argument-handler-integer: '整數 [%input%] 必須是介於 -2^31 和 2^31-1 之間的整數'
+argument-handler-player: '在線找不到用戶名為 [%input%] 的玩家'
+argument-handler-stackplugin: '找不到名稱為 [%input%] 的插件'
+argument-handler-material: '找不到名稱為 [%input%] 的材料'
+argument-handler-stackamount: '堆棧大小 [%input%] 無效，必須是大於 0 的數字'
+argument-handler-stacktype: '堆棧類型 [%input%] 無效'
+argument-handler-translationlocale: '翻譯語言環境 [%input%] 無效'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&c你的伺服器上有插件已知會與 {{PLUGIN_NAME}} 產生衝突。為了防止衝突發生或數據遺失, {{PLUGIN_NAME}} 已經停用了一個或更多的堆疊類別。 一個檔案於已經於 plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} 產生了，你可以在此設定已停用的堆疊類別 你亦可以於此檔案確認你已經閱讀了此警告，並停止顯示此訊息。'
+
+# 其他訊息
+spawner-silk-touch-protect: '&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬或擁有拾起生怪磚的權限。 否則你不能這樣做。'
+spawner-advanced-place-no-permission: '&c警告! &e你沒有放置該類別的生怪磚的權限。'
+spawner-advanced-break-no-permission: '&c警告! &e你沒有拾起該類別的生怪磚的權限。'
+spawner-advanced-break-silktouch-no-permission: '&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬來拾起該類別的生怪磚。'
+spawner-convert-not-enough: '&c警告! 無法使用生成蛋轉換生怪磚，你並沒有持有足夠的形怪蛋。'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

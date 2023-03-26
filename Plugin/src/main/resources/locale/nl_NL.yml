@@ -1,0 +1,231 @@
+# nl_NL translation by Suntrux
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% Spawn Egg'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eUse &b/%cmd% help &evoor commando informatie.'
+
+# Help Command
+command-help-description: 'Weergeeft het help menu... Je bent gearriveerd!'
+command-help-title: '&eBeschikbare commando''s:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload Command
+command-reload-description: 'Herlaad de plugin'
+command-reload-reloaded: '&ePlugin data, configuration, and locale files were reloaded.'
+
+# Give Command
+command-give-description: 'Geef vooraf gestackte items'
+command-give-usage: '&cUsage: &e/rs give <block|spawner|entity> <player> <type> [stackGrote] [hoeveelheid]'
+command-give-given: '&eGave &b%player% &e[%display%&e].'
+command-give-given-multiple: '&eGave &b%player% &e%amount%x [%display%&e].'
+command-give-unstackable: '&cHet type dat je hebt ingegeven is niet stackbaar.'
+command-give-too-large: '&cDe hoeveelheid dat je hebt ingegeven overschrijd de maximum stackgrootte.'
+
+# Clearall Command
+command-clearall-description: 'Wist alles van een type stack'
+command-clearall-killed-entities: '&eCleared &b%amount% &eentity stacks.'
+command-clearall-killed-items: '&eCleared &b%amount% &eitem stacks.'
+command-clearall-killed-all: '&eCleared &b%entityAmount% &eentity stacks en &b%itemAmount% &eitem stacks.'
+
+# Stats Command
+command-stats-description: 'Geef statistieken van de plugin weer'
+command-stats-header: '&aHuidige plugin statistieken:'
+command-stats-threads: '&b%amount% &eActieve stacking threads.'
+command-stats-stacked-entities: '&b%stackAmount% &eEntity stacks geladen, totaal van &b%total% &eentities.'
+command-stats-stacked-items: '&b%stackAmount% &eItem stacks geladen, totaal van &b%total% &eitems.'
+command-stats-stacked-blocks: '&b%stackAmount% &eBlok stacks geladen, totaal van &b%total% &eblocks.'
+command-stats-stacked-spawners: '&b%stackAmount% &eSpawner stacks geladen, totaal van &b%total% &espawners.'
+command-stats-active-tasks: '&b%amount% &eactieve taken.'
+
+# Convert Command
+command-convert-description: 'Converteert data van een andere plugin'
+command-convert-converted: '&eData van &b%plugin% &eto {{PLUGIN_NAME}} geconverteerd. De geconverteerde data is uigeschakeld. Zorg zeker dat je de geconverteerde plugin uit je plugin folder verwijderd.'
+command-convert-failed: '&cConverteren mislukt &b%plugin%&c, de plugin is niet ingeschakeld.'
+command-convert-aborted: '&cPogin tot converteren geanuleerd &b%plugin%&c. Je hebt al geconverteerd van een andere stack plugin.'
+
+# Translate Command
+command-translate-description: 'Vertaald de stack namen'
+command-translate-loading: '&eDownloaden en implementeren van stack vertaling data, dit kan even duren.'
+command-translate-failure: '&cStack data vertalen was niet mogelijk. Er was een probleem met het ophalen van de lokale data. Probeer het later opnieuw.'
+command-translate-invalid-locale: '&cNiet mogelijk om stack namen te vertalen. De taal die je hebt opgegeven is ongeldig.'
+command-translate-spawner-format: '&eSpawner namen kunnen niet accuraat worden vertaald. Om dit op te lossen, kan je &b/rs translate en_us &3{} Spawner &egebruiken om een spawner als "Cow Spawner" te laten verschijnen. Gebruik &b{} &eals een placeholder voor de mob.'
+command-translate-spawner-format-invalid: '&cHet spawner formaat dat je hebt ingegeven is ongeldig. Het moet &b{} &cbevatten voor de mob naam plaats.'
+command-translate-success: '&aStack namen zijn succesvol vertaald.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Geeft de speler het stack tool'
+command-stacktool-given: '&eJe hebt het stacking tool ontvangen.'
+command-stacktool-given-other: '&b%player% &aheeft het stacking tool ontvangen.'
+command-stacktool-no-console: '&cJe kan geen stack tool geven aan de console.'
+command-stacktool-no-permission: '&cJe hebt geen permissie om het stacking tool te gebruiken.'
+command-stacktool-invalid-entity: '&cDeze entity is geen deel van een stack, is het een custom mob?'
+command-stacktool-marked-unstackable: '&eDe &b%type% &eis gemarkeerd als &cunstackable&e.'
+command-stacktool-marked-stackable: '&eDe &b%type% &eIs gemarkeerd als &astackable&e.'
+command-stacktool-marked-all-unstackable: '&eDe volledige &b%type% &estack is gemarkeerd als &cunstackable&e.'
+command-stacktool-select-1: '&eDe &b%type% &eis geselecteerd als Entity #1. Selecteer een andere enitity om te kijken of het kan stacken.'
+command-stacktool-unselect-1: '&eDe &b%type% &eis gedeselecteerd.'
+command-stacktool-select-2: '&eDe &b%type% &eis geselecteerd als Entity #2.'
+command-stacktool-can-stack: '&aEntity #1 kan stacken met Entity #2.'
+command-stacktool-can-not-stack: '&cEntity 1 kan niet stacken met Entity 2. Reden: &b%reason%'
+command-stacktool-info: '&eStack Informatie:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eEntity ID: &b%id%'
+command-stacktool-info-custom-name: '&eCustom Naam: &r%name%'
+command-stacktool-info-location: '&eLocation: X: &b%x% &eY: &b%y% &eZ: &b%z% &eWereld: &b%world%'
+command-stacktool-info-chunk: '&eChunk: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&atrue'
+command-stacktool-info-false: '&cfalse'
+command-stacktool-info-entity-type: '&eEntity soort: &b%type%'
+command-stacktool-info-entity-stackable: '&eStackbaar: %value%'
+command-stacktool-info-entity-has-ai: '&eHeeft AI: %value%'
+command-stacktool-info-entity-from-spawner: '&eVan Spawner: %value%'
+command-stacktool-info-item-type: '&eItem soort: &b%type%'
+command-stacktool-info-block-type: '&eBlok soort: &b%type%'
+command-stacktool-info-spawner-type: '&eSpawner soort: &b%type%'
+command-stacktool-info-stack-size: '&eStack grootte: &b%amount%'
+
+# Stacked Block GUI
+gui-stacked-block-title: 'Wijzigen van %name% Stack'
+gui-stacked-block-page-back:
+  - '&eVorige pagina (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&eVolgende pagina (%previousPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cStack slopen'
+  - '&eDit sloopt de stack en laat de items vallen'
+gui-stacked-block-destroy-title: 'Block stack slopen?'
+gui-stacked-block-destroy-confirm:
+  - '&aBevestigen'
+  - '&eJaa, sloop de stack'
+gui-stacked-block-destroy-cancel:
+  - '&cAnnuleer'
+  - '&eNee, keer terug naar het vorige scherm'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: 'Bekijken van %name%'
+gui-stacked-spawner-stats: '&6Spawner Statistieken'
+gui-stacked-spawner-min-spawn-delay: '&eMin Spawn Vertraging: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eMax Spawn Vertraging: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eUitgeschakelde Mob AI: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eEntity Zoek Afstand: &b%range%'
+gui-stacked-spawner-player-activation-range: '&eSpeler activatie afstand: &b%range%'
+gui-stacked-spawner-spawn-range: '&eSpawn afstand: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eMin Spawn hoeveelheid: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eMax Spawn hoeveelheid: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eSpawn hoeveelheid: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Spawn Conditie'
+gui-stacked-spawner-time-until-next-spawn: '&eTijd tot de volgende spawn: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&eTotale mobs gespawnd: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Geldige spawn conditie'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Ongeldige spawn conditie'
+gui-stacked-spawner-entities-can-spawn: '&aEntities kunnen spawnen'
+gui-stacked-spawner-conditions-preventing-spawns: '&eConditie''s die spawnen voorkomen:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Boven zee level'
+spawner-condition-above-sea-level-invalid: 'Geen spawn arena boven zee level'
+spawner-condition-above-y-axis-info: 'Boven Y-Axis'
+spawner-condition-above-y-axis-invalid: 'Geen spawn arena boven nodige Y-Axis'
+spawner-condition-air-info: 'Open lucht'
+spawner-condition-air-invalid: 'Geen groot genoege open plek beschikbaar'
+spawner-condition-below-sea-level-info: 'Onder zee level'
+spawner-condition-below-sea-level-invalid: 'Geen spawn arena onder zee level'
+spawner-condition-below-y-axis-info: 'Onder Y-Axis'
+spawner-condition-below-y-axis-invalid: 'Geen spawn arena onder nodige Y-Axis'
+spawner-condition-biome-info: 'Biome'
+spawner-condition-biome-invalid: 'Foute biome'
+spawner-condition-block-info: 'Spawn Blok'
+spawner-condition-block-invalid: 'Geen geldige blocks'
+spawner-condition-block-exception-info: 'Spawn Block Uitzondering'
+spawner-condition-block-exception-invalid: 'Uitgezonderde spawn blocks'
+spawner-condition-darkness-info: 'Laag licht level'
+spawner-condition-darkness-invalid: 'Arena is te licht'
+spawner-condition-total-darkness-info: 'Totale Duisternis'
+spawner-condition-total-darkness-invalid: 'Gebied mag geen licht hebben'
+spawner-condition-fluid-info: 'Heeft vloeistof nodig'
+spawner-condition-fluid-invalid: 'Geen vloeistof in de buurt'
+spawner-condition-lightness-info: 'Hoog licht level'
+spawner-condition-lightness-invalid: 'Arena is te donker'
+spawner-condition-max-nearby-entities-info: 'Maximum entities in de buurt'
+spawner-condition-max-nearby-entities-invalid: 'Te veel entities in de buurt'
+spawner-condition-no-skylight-access-info: 'Geen toegang tot zonlicht'
+spawner-condition-no-skylight-access-invalid: 'Geen spawn blokken zonder zonlicht toegang'
+spawner-condition-on-ground-info: 'Op de grond'
+spawner-condition-on-ground-invalid: 'Geen vaste grond in de buurt'
+spawner-condition-skylight-access-info: 'Zonlicht toegang'
+spawner-condition-skylight-access-invalid: 'Geen spawn blokken met zonlicht toegang'
+spawner-condition-none-invalid: 'Maximum spawn pogingen overschreden'
+spawner-condition-not-player-placed-invalid: 'Moet geplaatst worden door een speler'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cJe hebt hier geen toestemming voor!'
+only-player: '&cDit commando kan alleen word uitgevoerd door een speler.'
+unknown-command: '&cOnbekend commando, gebruik &b/%cmd% help &cvoor meer info.'
+unknown-command-error: '&cEen onbekende error is opgetreden; details zijn naar de console gestuurd. Contacteer aub een administrator.'
+invalid-subcommand: '&cOngeldig subcommando.'
+invalid-argument: '&cOngeldig argument: %message%.'
+invalid-argument-null: '&cOngeldig argument: %name% was null.'
+missing-arguments: '&cMissende argumenten, &b%amount% &cvereist.'
+missing-arguments-extra: '&cMissende argumenten, &b%amount%+ &cvereist.'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% type [%input%] bestaat niet'
+argument-handler-enum-list: '%enum% type [%input%] bestaat niet. Geldige types: %types%'
+argument-handler-string: 'Tekenreeks mag niet leeg zijn'
+argument-handler-integer: 'Getal [%input%] moet een nummer zijn tussen -2^31 en 2^31-1 inclusief'
+argument-handler-player: 'Er is geen speler met de naam [%input%] online gevonden'
+argument-handler-stackplugin: 'Geen plugin met dezelfde [%input%] was gevonden'
+argument-handler-material: 'Geen materiaal met de naam [%input%] gevonden'
+argument-handler-stackamount: 'De stack grootte [%input%] is ongeldig, het nummer moet groter zijn dan 0'
+argument-handler-stacktype: 'Het stack type [%input%] is ongeldig'
+argument-handler-translationlocale: 'De vertaling folder [%input%] is ongeldig'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&cEr zijn plugin op je server die gekend zijn om te rotzooien met {{PLUGIN_NAME}}. Om conflicten en data verlies te voorkomen, heeft {{PLUGIN_NAME}} 1 of meerder stack soorten uitgeschakeld. Een bestand is aangemaakt in plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} waar je de uitgeschakelde stack soorten kan configureren. Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cWarning! &eJe moet een silk touch pickaxe gebruiken of je hebt geen permissie om spawner op te rapen. Anders kan je dit niet doen.'
+spawner-advanced-place-no-permission: '&cWaarschuwing! &eJe hebt geen toestemming om dit soort spawner te plaatsen.'
+spawner-advanced-break-no-permission: '&cWaarschuwing! &eJe hebt geen toestemming om dit soort spawner op te rapen.'
+spawner-advanced-break-silktouch-no-permission: '&cWaarschuwing! &eJe moet een silk touch pickaxe gebruiken om dit soort spawner op te rapen.'
+spawner-convert-not-enough: '&cWaarschuwing! &eSpawner converteren met spawn eggs niet mogelijk. Je hebt niet genoeg spawn eggs in je hand.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

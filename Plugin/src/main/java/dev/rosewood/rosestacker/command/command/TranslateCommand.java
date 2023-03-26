@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.command.type.TranslationLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import java.io.File;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.bukkit.Material;
@@ -53,10 +54,15 @@ public class TranslateCommand extends RoseCommand {
                 return;
             }
 
-            CommentedFileConfiguration blockStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getBlockSettingsFile());
-            CommentedFileConfiguration entityStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getEntitySettingsFile());
-            CommentedFileConfiguration itemStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getItemSettingsFile());
-            CommentedFileConfiguration spawnerStackConfig = CommentedFileConfiguration.loadConfiguration(stackSettingManager.getSpawnerSettingsFile());
+            File blockSettingsFile = stackSettingManager.getBlockSettingsFile();
+            File entitySettingsFile = stackSettingManager.getEntitySettingsFile();
+            File itemSettingsFile = stackSettingManager.getItemSettingsFile();
+            File spawnerSettingsFile = stackSettingManager.getSpawnerSettingsFile();
+
+            CommentedFileConfiguration blockStackConfig = CommentedFileConfiguration.loadConfiguration(blockSettingsFile);
+            CommentedFileConfiguration entityStackConfig = CommentedFileConfiguration.loadConfiguration(entitySettingsFile);
+            CommentedFileConfiguration itemStackConfig = CommentedFileConfiguration.loadConfiguration(itemSettingsFile);
+            CommentedFileConfiguration spawnerStackConfig = CommentedFileConfiguration.loadConfiguration(spawnerSettingsFile);
 
             Map<Material, String> materialValues = response.getMaterialValues();
             Map<EntityType, String> entityValues = response.getEntityValues();
@@ -85,10 +91,10 @@ public class TranslateCommand extends RoseCommand {
                 }
             }
 
-            blockStackConfig.save();
-            entityStackConfig.save();
-            itemStackConfig.save();
-            spawnerStackConfig.save();
+            blockStackConfig.save(blockSettingsFile, true);
+            entityStackConfig.save(entitySettingsFile, true);
+            itemStackConfig.save(itemSettingsFile, true);
+            spawnerStackConfig.save(spawnerSettingsFile, true);
 
             ThreadUtils.runSync(() -> {
                 this.rosePlugin.reload();

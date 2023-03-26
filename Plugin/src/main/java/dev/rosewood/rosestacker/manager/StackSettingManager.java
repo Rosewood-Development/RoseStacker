@@ -88,7 +88,6 @@ public class StackSettingManager extends Manager {
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = jsonParser.parse(entityDataReader).getAsJsonObject();
 
-
             Set<String> invalidKeys = new TreeSet<>();
             TreeSet<Map.Entry<String, JsonElement>> entries = new TreeSet<>(Entry.comparingByKey());
             entries.addAll(jsonObject.entrySet());
@@ -159,13 +158,13 @@ public class StackSettingManager extends Manager {
 
         // Save files if changes were made
         if (saveBlockSettingsFile.get())
-            blockSettingsConfiguration.save(true);
+            blockSettingsConfiguration.save(blockSettingsFile, true);
         if (saveEntitySettingsFile.get())
-            entitySettingsConfiguration.save(true);
+            entitySettingsConfiguration.save(entitySettingsFile, true);
         if (saveItemSettingsFile.get())
-            itemSettingsConfiguration.save(true);
+            itemSettingsConfiguration.save(itemSettingsFile, true);
         if (saveSpawnerSettingsFile.get())
-            spawnerSettingsConfiguration.save(true);
+            spawnerSettingsConfiguration.save(spawnerSettingsFile, true);
 
         // Register dynamic permissions on first load
         if (!this.registeredPermissions) {

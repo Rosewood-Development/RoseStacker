@@ -1,0 +1,231 @@
+# hu_HU translation by PatrikX
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% Idéző Tojás'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eHasználd a &b/%cmd% help &eparancsot segítségért.'
+
+# Help Command
+command-help-description: 'Előhozza a segítségeket... Ahova megérkeztél'
+command-help-title: '&eElérhető Parancsok:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload Command
+command-reload-description: 'Újratölti a plugint'
+command-reload-reloaded: '&ePlugin adatok, konfiguráció, és a fordítások újratöltődnek.'
+
+# Give Command
+command-give-description: 'Ad előre stackelt tárgyakat'
+command-give-usage: '&cHasználat: &e/rs give <blokk|spawner|entitás> <játékos> <típus> [stackMéret] [mennyiség]'
+command-give-given: '&eAdtál &b%player% &e[%display%&e].'
+command-give-given-multiple: '&eAdtál &b%player%-nak/nek &e%amount%x [%display%&e].'
+command-give-unstackable: '&cA típus amit megadtál nem stackelhető.'
+command-give-too-large: '&cA mennyiség amit megadtál nagyobb mint a maximum stack méret ennél a típusnál.'
+
+# Clearall Command
+command-clearall-description: 'Törli az összes stack típust'
+command-clearall-killed-entities: '&eTörölve &b%amount% &eentitás stack.'
+command-clearall-killed-items: '&eTörölve &b%amount% &etárgy stack.'
+command-clearall-killed-all: '&eTörölve &b%entityAmount% &eentitás stack és &b%itemAmount% &etárgy stack.'
+
+# Stats Command
+command-stats-description: 'Kiír statisztikákat a pluginról'
+command-stats-header: '&aJelenlegi Plugin Statisztika:'
+command-stats-threads: '&b%amount% &eaktív stackelés szál.'
+command-stats-stacked-entities: '&b%stackAmount% &ebetöltött entitás stack, összesen &b%total% &eentitás.'
+command-stats-stacked-items: '&b%stackAmount% &ebetöltött tárgy stack, összesen &b%total% &etárgy.'
+command-stats-stacked-blocks: '&b%stackAmount% &ebetöltött blokk stack, összesen &b%total% &eblokk.'
+command-stats-stacked-spawners: '&b%stackAmount% &ebetöltött spawner stack, összesen &b%total% &espawner.'
+command-stats-active-tasks: '&b%amount% &eactive feladatok.'
+
+# Convert Command
+command-convert-description: 'Adatokat konvertál másik stackelő pluginból'
+command-convert-converted: '&eAdatok konvertálva &b%plugin%-ból/ből &ea {{PLUGIN_NAME}}be. Az át konvertált plugin kikapcsolva. Legyél biztos abban hogy eltávolítod a régi stackelő plugint a plugins mappából.'
+command-convert-failed: '&cSikertelen konvertálás &b%plugin%-ból/ből&c, a plugin nincs betöltve.'
+command-convert-aborted: '&cAdatok konvertálása a &b%plugin%-ból/ből &cmegszakítva. Már konvertáltál egy másik stackelő plugint.'
+
+# Translate Command
+command-translate-description: 'Lefordítja a stack neveket'
+command-translate-loading: '&eFordítás adatok letöltése és alkalmazása, ez eltarthat egy darabig.'
+command-translate-failure: '&cNem lehet lefordítani a stack neveket. Problémák akadtak a helyi adatokkal. Kérlek próbáld újra később.'
+command-translate-invalid-locale: '&cNem lehet lefordítani a stack neveket. A nyelv amit megadtál nem érvényes.'
+command-translate-spawner-format: '&eSpawner nevek nem fordíthatók pontosan. Hogy kijavítsd ezt, használd így a parancsot &b/rs translate hu_hu &3{} Spawner &ehogy a spawner neve ez legyen "Cow Spawner". Használd a &b{} &eszörny név helyettesítéséhez.'
+command-translate-spawner-format-invalid: '&cA spawner formátum amit megadtál nem érvényes. Tartalmaznia kell a &b{} &cjelleket hogy kicserélhesse a szörny nevére.'
+command-translate-success: '&aSikeresen lefordítva a stackek nevei.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Ad a játékosnak egy stackelő eszközt'
+command-stacktool-given: '&eMegkaptad a stackelő eszközt.'
+command-stacktool-given-other: '&b%player% &amegkapta a stackelő eszközt.'
+command-stacktool-no-console: '&cNem tudod a konzolnak adni a stackelő eszközt.'
+command-stacktool-no-permission: '&cNincs jogod használni a stackelő eszközt.'
+command-stacktool-invalid-entity: '&cAz entitás nem része egy stacknek se, talán egyedi szörny?'
+command-stacktool-marked-unstackable: '&eA &b%type% &emegjelölve &cnem stackelhető &eként.'
+command-stacktool-marked-stackable: '&eA &b%type% &emegjelölve &astackelhető &eként.'
+command-stacktool-marked-all-unstackable: '&eAz egész &b%type% &estack megjelölve &cnem stackelhető &eként.'
+command-stacktool-select-1: '&eA &b%type% &ekiválasztva Entitás #1 ként. Válassz ki egy másik entitást hogy teszteld stackelhetők-e.'
+command-stacktool-unselect-1: '&eA &b%type% &ekiválasztása megszüntetve.'
+command-stacktool-select-2: '&eA &b%type% &ekiválasztva Entitás #2 ként.'
+command-stacktool-can-stack: '&aEntitás #1 tud stackelődni Entitás #2-vel.'
+command-stacktool-can-not-stack: '&cEntitás #1 nem tud stackelődni Entitás #2-vel. Oka: &b%reason%'
+command-stacktool-info: '&eStack Információ:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eEntitás ID: &b%id%'
+command-stacktool-info-custom-name: '&eEgyedi Név: &r%name%'
+command-stacktool-info-location: '&eHelyzete: X: &b%x% &eY: &b%y% &eZ: &b%z% &eVilág: &b%world%'
+command-stacktool-info-chunk: '&eChunk: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&aigaz'
+command-stacktool-info-false: '&chamis'
+command-stacktool-info-entity-type: '&eEntitás Típus: &b%type%'
+command-stacktool-info-entity-stackable: '&eStackelhető: %value%'
+command-stacktool-info-entity-has-ai: '&eVan AI: %value%'
+command-stacktool-info-entity-from-spawner: '&eSpawnerből Idéződött: %value%'
+command-stacktool-info-item-type: '&eTárgy Típus: &b%type%'
+command-stacktool-info-block-type: '&eBlokk Típus: &b%type%'
+command-stacktool-info-spawner-type: '&eSpawner Típus: &b%type%'
+command-stacktool-info-stack-size: '&eStack Méret: &b%amount%'
+
+# Stacked Block GUI
+gui-stacked-block-title: '%name% Stack Szerkesztése'
+gui-stacked-block-page-back:
+  - '&eElőző Oldal (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&eKövetkező Oldal (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cStack Törlése'
+  - '&eTörli a stacket és kidobja a tárgyakat'
+gui-stacked-block-destroy-title: 'Blokk Stack Törlése?'
+gui-stacked-block-destroy-confirm:
+  - '&aElfogad'
+  - '&eIgen, törlöm a stacket'
+gui-stacked-block-destroy-cancel:
+  - '&cMégse'
+  - '&eNem, vissza az előző képernyőre'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: '%name% Átnézés'
+gui-stacked-spawner-stats: '&6Spawner Statisztika'
+gui-stacked-spawner-min-spawn-delay: '&eMin Spawnolás Késleltetés: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eMax Spawnolás Késleltetés: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eSzörny AI Kikapcsolva: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eEntitás Keresés Hatótáv: &b%range%'
+gui-stacked-spawner-player-activation-range: '&eJátékos Aktiválási Hatótáv: &b%range%'
+gui-stacked-spawner-spawn-range: '&eSpawnolási Hatótáv: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eMin Spawnolás Mennyiség: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eMax Spawnolás Mennyiség: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eSpawnolás Mennyiség: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Spawnolás Feltételek'
+gui-stacked-spawner-time-until-next-spawn: '&eIdő a következő spawnolásig: &b%time% tick'
+gui-stacked-spawner-total-spawns: '&eÖsszesen spawnolt szörnyek: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Érvényes Spawnolási Feltételek'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Érvénytelen Spawnolási Feltételek'
+gui-stacked-spawner-entities-can-spawn: '&aEntitások tudnak spawnolni'
+gui-stacked-spawner-conditions-preventing-spawns: '&eFeltételek akadályozzák a spawnolást:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Tenger Szint Felett'
+spawner-condition-above-sea-level-invalid: 'Nincs spawnolási terület tenger szint felett'
+spawner-condition-above-y-axis-info: 'Y tengely felett'
+spawner-condition-above-y-axis-invalid: 'Nincs spawnolási terület a szükséges Y tengely felett'
+spawner-condition-air-info: 'Nyitott Tér'
+spawner-condition-air-invalid: 'Nincs elég nagy tér'
+spawner-condition-below-sea-level-info: 'Tenger Szint Alatt'
+spawner-condition-below-sea-level-invalid: 'Nincs spawnolási terület tenger szint alatt'
+spawner-condition-below-y-axis-info: 'Y tengely alatt'
+spawner-condition-below-y-axis-invalid: 'Nincs spawnolási terület a szükséges Y tengely alatt'
+spawner-condition-biome-info: 'Biome'
+spawner-condition-biome-invalid: 'Érvénytelen biome'
+spawner-condition-block-info: 'Spawn Blokk'
+spawner-condition-block-invalid: 'Nincs érvényes spawn blokk'
+spawner-condition-block-exception-info: 'Spawn Blokk Kivétel'
+spawner-condition-block-exception-invalid: 'Érvénytelen kivételes spawn blokkok'
+spawner-condition-darkness-info: 'Alacsony Fény Szint'
+spawner-condition-darkness-invalid: 'Terület túl fényes'
+spawner-condition-total-darkness-info: 'Teljes sötétség'
+spawner-condition-total-darkness-invalid: 'A területen nem lehet fény'
+spawner-condition-fluid-info: 'Folyadék Szükséges'
+spawner-condition-fluid-invalid: 'Nincs közelben folyadék'
+spawner-condition-lightness-info: 'Nagy Fény Szint'
+spawner-condition-lightness-invalid: 'Terület túl sötét'
+spawner-condition-max-nearby-entities-info: 'Max közeli entitások'
+spawner-condition-max-nearby-entities-invalid: 'Túl sok közeli entitás'
+spawner-condition-no-skylight-access-info: 'Természetes Fény Nélküli Blokk'
+spawner-condition-no-skylight-access-invalid: 'Nincs spawn blokk természetes fény nélkül'
+spawner-condition-on-ground-info: 'Földön'
+spawner-condition-on-ground-invalid: 'Nincs tömör föld a közelben'
+spawner-condition-skylight-access-info: 'Természetes Fény'
+spawner-condition-skylight-access-invalid: 'Nincs spawn blokk természetes fénnyel'
+spawner-condition-none-invalid: 'Maximum spawnolási próba száma átlépve'
+spawner-condition-not-player-placed-invalid: 'Egy játékosnak kell elhelyeznie'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cNincs jogod ehhez!'
+only-player: '&cEzt a parancsot csak játékosok tudják használni.'
+unknown-command: '&cIsmeretlen parancs, használd a &b/%cmd% help &cparancsot további információért.'
+unknown-command-error: '&cEgy ismeretlen hiba történt; a részletek a konzolba lettek írva. Kérlek lépj kapcsolatba a szerver adminisztrátorral!'
+invalid-subcommand: '&cHelytelen alparancs.'
+invalid-argument: '&cHelyetlen változó: %message%.'
+invalid-argument-null: '&cHelytelen változó: %name% hiányzik.'
+missing-arguments: '&cHiányos változók, &b%amount% &cszükséges.'
+missing-arguments-extra: '&cHiányos változók, &b%amount%+ &cszükséges.'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% típus [%input%] nem létezik'
+argument-handler-enum-list: '%enum% típus [%input%] nem létezik. Létező típusok: %types%'
+argument-handler-string: 'A szöveg nem lehet üres'
+argument-handler-integer: 'A számnak [%input%] teljes számnak kell lennie -2^31 és 2^31-1 között!'
+argument-handler-player: 'Ilyen felhasználónévvel [%input%], online játékost nincs'
+argument-handler-stackplugin: 'Ilyen névvel [%input%], nincs plugin'
+argument-handler-material: 'Ilyen névvel [%input%] nincs ismert anyag'
+argument-handler-stackamount: 'A stack méret [%input%] nem érvényes, 0-nál nagyobb számnak kell lennie'
+argument-handler-stacktype: 'Stack méret [%input%] nem érvényes'
+argument-handler-translationlocale: 'A fordítási szín [%input%] nem érvényes'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&cOlyan pluginok vannak a szervereden amikről tudjuk hogy konfliktusba fognak kerülni a {{PLUGIN_NAME}} el. Hogy megelőzzük a konfliktust és/vagy az adat vesztést, {{PLUGIN_NAME}} kikapcsolt egy vagy több stack típust. Egy fájl létre lett hozva itt plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} ahol be tudod állítani a kikapcsolt stackelés típusokat. Ez a fájl lehetővéteszi hogy megtudhasd hogy van egy ilyen figyelmeztetés és el dönthesd kikapcsolod-e ezt az üzenetet.'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra és/vagy legyen jogod felszedni anélkül a spawnert. Egyébként nem fogod tudni felszedni.'
+spawner-advanced-place-no-permission: '&cFigyelmeztetés! &eNincs jogod lerakni ezt a típusú spawnert.'
+spawner-advanced-break-no-permission: '&cFigyelmeztetés! &eNincs jogod felszedni ezt a típusú spawnert.'
+spawner-advanced-break-silktouch-no-permission: '&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra hogy felszed ezt a típusu spawnert.'
+spawner-convert-not-enough: '&cFigyelmeztetés! &eNem sikerült megváltoztatni a spawnert az Idéző Tojásokkal. Nem fogsz a kezedben elegendő mennyiségű Idéző Tojást.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

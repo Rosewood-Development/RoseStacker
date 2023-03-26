@@ -13,7 +13,6 @@ import dev.rosewood.rosestacker.stack.StackType;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -104,7 +103,7 @@ public class ConversionManager extends Manager implements Listener {
 
         this.converters.values().forEach(x -> x.configureLockFile(this.convertLockConfig));
 
-        this.convertLockConfig.save();
+        this.convertLockConfig.save(convertLockFile);
     }
 
     /**
@@ -160,18 +159,16 @@ public class ConversionManager extends Manager implements Listener {
             if (conversionHandler.shouldUseChunkEntities()) {
                 data = new HashSet<>();
                 switch (conversionHandler.getRequiredDataStackType()) {
-                    case ENTITY:
+                    case ENTITY -> {
                         for (Entity entity : chunkEntities)
                             if (entity.getType() != EntityType.DROPPED_ITEM)
                                 data.add(new ConversionData(entity));
-                        break;
-                    case ITEM:
+                    }
+                    case ITEM -> {
                         for (Entity entity : chunkEntities)
                             if (entity.getType() == EntityType.DROPPED_ITEM)
                                 data.add(new ConversionData(entity));
-                        break;
-                    default:
-                        break;
+                    }
                 }
             } else {
                 data = conversionData.get(conversionHandler.getRequiredDataStackType());
@@ -196,13 +193,6 @@ public class ConversionManager extends Manager implements Listener {
                 .filter(x -> x.getValue().canConvert())
                 .map(Entry::getKey)
                 .collect(Collectors.toSet());
-    }
-
-    /**
-     * @return a set of ConversionHandlers to run when a chunk loads
-     */
-    public Set<ConversionHandler> getEnabledHandlers() {
-        return Collections.unmodifiableSet(this.conversionHandlers);
     }
 
     /**

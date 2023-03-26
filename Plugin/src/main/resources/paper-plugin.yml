@@ -55,6 +55,7 @@ load-after:
   - name: ShopGUIPlus
   - name: ViaVersion
   - name: WildChests
+  - name: WorldGuard
 permissions:
   rosestacker.basecommand:
     description: The base command permission for being able to see the RoseStacker command

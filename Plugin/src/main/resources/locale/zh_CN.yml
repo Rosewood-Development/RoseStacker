@@ -1,0 +1,231 @@
+# zh_CN translation by ahdg
+# 插件信息前缀
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# 堆叠整体显示名称
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% 刷怪蛋'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# 基础命令信息
+base-command-color: '&e'
+base-command-help: '&e使用 &b/rs help &e来获取更多命令信息。'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# 帮助命令
+command-help-description: '&8 - &d/rs help &7- 显示命令帮助菜单... 就是您现在看着的这个'
+command-help-title: '&e可用的命令:'
+
+# 重载命令
+command-reload-description: '重新加载插件'
+command-reload-reloaded: '&e插件数据，配置文件，语言文件均已被重新加载。'
+
+# 给予命令
+command-give-description: '给予预先堆叠的物品'
+command-give-usage: '&c用法: &e/rs give <block|spawner|entity> <玩家> <类型> [堆叠量] [份数]'
+command-give-given: '&e已给予玩家 &b%player% &e[%display%&e]。'
+command-give-given-multiple: '&e已给予玩家 &b%player% &e%amount%x [%display%&e]。'
+command-give-unstackable: '&c您指定的类型是无法堆叠的。'
+command-give-too-large: '&c您指定的堆叠量超过了该类型所允许的最大堆叠量。'
+
+# 清理堆叠命令
+command-clearall-description: '清除一种堆叠类型的所有堆叠个体。'
+command-clearall-killed-entities: '&e清除了 &b%amount% &e个堆叠的实体。'
+command-clearall-killed-items: '&e清除了 &b%amount% &e份堆叠的物品。'
+command-clearall-killed-all: '&e清除了 &b%entityAmount% &e个堆叠的实体和 &b%itemAmount% &e份堆叠的物品。'
+
+# 统计命令
+command-stats-description: '显示插件的统计数据'
+command-stats-header: '&a当前插件统计数据:'
+command-stats-threads: '&b%amount% &e个活跃的堆叠线程。'
+command-stats-stacked-entities: '&b%stackAmount% &e个已加载的堆叠实体, 共计 &b%total% &e个单体实体。'
+command-stats-stacked-items: '&b%stackAmount% &e份已加载的堆叠物品, 共计 &b%total% &e个单体物品。'
+command-stats-stacked-blocks: '&b%stackAmount% &e份已加载的堆叠方块, 共计 &b%total% &e个单体方块。'
+command-stats-stacked-spawners: '&b%stackAmount% &e个已加载的堆叠刷怪笼, 共计 &b%total% &e个单体刷怪笼。'
+command-stats-active-tasks: '&b%amount%&e的活动任务。'
+
+# 转化命令
+command-convert-description: '从另一个堆叠类型的插件转化数据'
+command-convert-converted: '&e已转化插件 &b%plugin% &e的数据至 {{PLUGIN_NAME}}。拥有数据源的插件已被关闭，请确保在下次重启前将其移出插件文件夹。'
+command-convert-failed: '&c无法转化插件 &b%plugin% &c的数据, 该插件未处于运行状态。'
+command-convert-aborted: '&c已中止对插件 &b%plugin% &c进行数据转化的尝试， 您已经从另一个堆叠插件转化过数据了。'
+
+# 翻译命令
+command-translate-description: '翻译堆叠整体的显示名称'
+command-translate-loading: '&e正在下载并应用翻译数据, 这可能会花点时间。'
+command-translate-failure: '&c无法翻译堆叠整体的显示名称。在获取语言数据时发生了错误，请稍后再试一次。'
+command-translate-invalid-locale: '&c无法翻译堆叠整体的显示名称。您所指定的语言文件是无效的。'
+command-translate-spawner-format: '&e刷怪笼名称无法被精准地翻译。为了修复这个问题，您可以输入 &b/rs translate zh_cn &3{} 刷怪笼 &e以确保刷怪笼堆叠的显示名称为 "牛 刷怪笼"。请使用 &b{} &e作为生物名字的占位符变量。'
+command-translate-spawner-format-invalid: '&c您所提供的刷怪笼翻译名称格式是无效的。其必须包含 &b{} &c作为生物名字的占位符变量。'
+command-translate-success: '&a成功翻译堆叠整体的显示名称。'
+
+# 堆叠工具命令
+command-stacktool-description: '给予玩家一份堆叠工具'
+command-stacktool-given: '&e您已被给予堆叠工具。'
+command-stacktool-given-other: '&b%player% &a已被给予堆叠工具。'
+command-stacktool-no-console: '&c你不能把叠加工具交给控制台。'
+command-stacktool-no-permission: '&c您没有足够的权限去使用堆叠工具。'
+command-stacktool-invalid-entity: '&c那个实体不是堆叠的一部分，是自定义的实体吗？'
+command-stacktool-marked-unstackable: '&e类型 &b%type% &e已被标记为 &c不可堆叠&e。'
+command-stacktool-marked-stackable: '&e类型 &b%type% &e已被标记 &a可堆叠&e。'
+command-stacktool-marked-all-unstackable: '&e类型 &b%type% &e的整体堆叠已被标记为 &c不可堆叠&e。'
+command-stacktool-select-1: '&e类型 &b%type% &e已被选中为实体 #1。选择另一个实体以测试它们是否可被堆叠至整体。'
+command-stacktool-unselect-1: '&e类型 &b%type% &e不再被选中。'
+command-stacktool-select-2: '&e类型 &b%type% &e已被选中为实体 #2。'
+command-stacktool-can-stack: '&a实体 #1 能与实体 #2 进行堆叠。'
+command-stacktool-can-not-stack: '&c实体 #1 不能与实体 #2 进行堆叠。原因如下: &b%reason%'
+command-stacktool-info: '&e堆叠信息:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&e实体ID: &b%id%'
+command-stacktool-info-custom-name: '&e自定义名称: &r%name%'
+command-stacktool-info-location: '&e所处位置: X: &b%x% &eY: &b%y% &eZ: &b%z% &e世界: &b%world%'
+command-stacktool-info-chunk: '&e所处区块: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&a是'
+command-stacktool-info-false: '&c否'
+command-stacktool-info-entity-type: '&e实体类型: &b%type%'
+command-stacktool-info-entity-stackable: '&e能否堆叠: %value%'
+command-stacktool-info-entity-has-ai: '&e有无AI: %value%'
+command-stacktool-info-entity-from-spawner: '&e来自刷怪笼: %value%'
+command-stacktool-info-item-type: '&e物品类型: &b%type%'
+command-stacktool-info-block-type: '&e方块类型: &b%type%'
+command-stacktool-info-spawner-type: '&e刷怪笼类型: &b%type%'
+command-stacktool-info-stack-size: '&e所包含个体数: &b%amount%'
+
+# 堆叠方块 GUI
+gui-stacked-block-title: '编辑堆叠 %name% 中'
+gui-stacked-block-page-back:
+  - '&e上一页 (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&e下一页 (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&c销毁堆叠'
+  - '&e拆分堆叠整体为掉落物'
+gui-stacked-block-destroy-title: '确定要销毁堆叠整体?'
+gui-stacked-block-destroy-confirm:
+  - '&a确认'
+  - '&e是的，帮我拆分它'
+gui-stacked-block-destroy-cancel:
+  - '&c取消'
+  - '&e不，我想回到上一页'
+
+# 堆叠刷怪笼 GUI
+gui-stacked-spawner-title: '查看 %name% 中'
+gui-stacked-spawner-stats: '&6刷怪笼信息'
+gui-stacked-spawner-min-spawn-delay: '&e最小生成延时: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&e最大生成延时: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&e生物AI是否开启: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&e实体搜索范围: &b%range%'
+gui-stacked-spawner-player-activation-range: '&e玩家活动激活范围: &b%range%'
+gui-stacked-spawner-spawn-range: '&e生成范围: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&e最小生成数: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&e最大生成数: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&e当前生成数: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6生成限制条件'
+gui-stacked-spawner-time-until-next-spawn: '&e距下次生成还有: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&e统计已生成的实体总数: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6有效的生成条件'
+gui-stacked-spawner-invalid-spawn-conditions: '&6未满足的生成条件'
+gui-stacked-spawner-entities-can-spawn: '&a实体目前能被生成'
+gui-stacked-spawner-conditions-preventing-spawns: '&e阻碍生成的因素:'
+
+# 生成条件信息
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: '位于海平面以上'
+spawner-condition-above-sea-level-invalid: '没有生成区域范围位于海平面上'
+spawner-condition-above-y-axis-info: '位于 Y-坐标 以上'
+spawner-condition-above-y-axis-invalid: '没有生成区域范围在要求的 Y-坐标 上'
+spawner-condition-air-info: '露天'
+spawner-condition-air-invalid: '没有足够大的露天空间'
+spawner-condition-below-sea-level-info: '位于海平面以下'
+spawner-condition-below-sea-level-invalid: '没有生成区域范围位于海平面以下'
+spawner-condition-below-y-axis-info: '位于 Y-坐标 以下'
+spawner-condition-below-y-axis-invalid: '没有生成区域范围在要求的 Y-坐标 下'
+spawner-condition-biome-info: '生态群系限制'
+spawner-condition-biome-invalid: '未处于正确的生态群系'
+spawner-condition-block-info: '生成方块限制'
+spawner-condition-block-invalid: '范围中没有有效的可供生成生物的方块'
+spawner-condition-block-exception-info: '生成方块黑名单'
+spawner-condition-block-exception-invalid: '范围内有被排除的生成方块'
+spawner-condition-darkness-info: '低光限制'
+spawner-condition-darkness-invalid: '该区域目前光源充足，太亮了'
+spawner-condition-total-darkness-info: '完全黑暗'
+spawner-condition-total-darkness-invalid: '该地区必须没有光线'
+spawner-condition-fluid-info: '需要流体'
+spawner-condition-fluid-invalid: '附近没有流体'
+spawner-condition-lightness-info: '高光要求'
+spawner-condition-lightness-invalid: '该区域太暗了'
+spawner-condition-max-nearby-entities-info: '达到最大附近实体限制数'
+spawner-condition-max-nearby-entities-invalid: '过多实体靠近刷怪笼'
+spawner-condition-no-skylight-access-info: '自然光照限制'
+spawner-condition-no-skylight-access-invalid: '没有无自然光照的方块可供生物生成'
+spawner-condition-on-ground-info: '脚踏实地'
+spawner-condition-on-ground-invalid: '没有固体地面在附近'
+spawner-condition-skylight-access-info: '自然光照要求'
+spawner-condition-skylight-access-invalid: '范围内没有受到自然光照照射的方块可供生物生成'
+spawner-condition-none-invalid: '超过最大的生成尝试次数'
+spawner-condition-not-player-placed-invalid: '必须由玩家放置'
+
+# 给予物品描述(lore)
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&c您没有权限那么做!'
+only-player: '&c这个命令只能由玩家执行。'
+unknown-command: '&c未知的命令，使用&b/%cmd%&c帮助以获得更多信息。'
+unknown-command-error: '&c发生了一个未知的错误。详情已打印到控制台。请联系服务器管理员。'
+invalid-subcommand: '&c无效的子命令。'
+invalid-argument: '&c无效参数：%message%。'
+invalid-argument-null: '&c无效参数：%name%为空。'
+missing-arguments: '&c缺少参数，需要&b%amount%&c。'
+missing-arguments-extra: '&c缺少参数，需要&b%amount%+&c。'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% 类型 [%input%] 不存在'
+argument-handler-enum-list: '%enum%类型[%input%]不存在。有效类型：%types%'
+argument-handler-string: '字符串不能为空'
+argument-handler-integer: '整数[%input%]必须是在-2^31和2^31-1之间的整数，包括在内。'
+argument-handler-player: '没有发现用户名为[%input%]的玩家在线。'
+argument-handler-stackplugin: '没有找到名称为[%input%]的插件'
+argument-handler-material: '没有发现名称为[%input%]的材料。'
+argument-handler-stackamount: '堆栈大小[%input%]无效，必须是一个大于0的数字'
+argument-handler-stacktype: '堆栈类型[%input%]是无效的'
+argument-handler-translationlocale: '翻译语言[%input%] 无效'
+
+# 转化锁定信息
+convert-lock-conflictions: '&c服务器上有一些插件与{{PLUGIN_NAME}}冲突。为了防止冲突造成 数据丢失，{{PLUGIN_NAME}}禁用了一个或多个堆叠类型。 与此同时，我们在 plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} 创建了文件， 您可以在其中配置禁用的堆叠类型 该文件还允许您确认您已阅读此警告，并允许您禁用此消息。'
+
+# 杂项信息
+spawner-silk-touch-protect: '&c警告! &e您需要附魔有精准采集的稿子 并且/或 有权限拿起一个刷怪笼。否则您将不能这样做。'
+spawner-convert-not-enough: '&c警告! &e无法使用生成蛋来转换刷怪笼种类。这可能是由于您手上的刷怪蛋数量并不足以进行转换的操作。'
+spawner-advanced-place-no-permission: '&c警告! &e您没有恰当的权限来放置这种类型的刷怪笼。'
+spawner-advanced-break-no-permission: '&c警告! &e您没有恰当的权限来拾取这种类型的刷怪笼。'
+spawner-advanced-break-silktouch-no-permission: '&c警告! &e您需要用附魔有精准采集的稿子才能拿起那类刷怪笼。'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

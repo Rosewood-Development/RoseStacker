@@ -1,0 +1,230 @@
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% Spawn Egg'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eUse &b/%cmd% help &efor command information.'
+
+# Help Command
+command-help-description: 'Displays the help menu... You have arrived'
+command-help-title: '&eAvailable Commands:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload Command
+command-reload-description: 'Reloads the plugin'
+command-reload-reloaded: '&ePlugin data, configuration, and locale files were reloaded.'
+
+# Give Command
+command-give-description: 'Give pre-stacked items'
+command-give-usage: '&cUsage: &e/rs give <block|spawner|entity> <player> <type> [stackSize] [amount]'
+command-give-given: '&eGave &b%player% &e[%display%&e].'
+command-give-given-multiple: '&eGave &b%player% &e%amount%x [%display%&e].'
+command-give-unstackable: '&cThe type that you specified is not stackable.'
+command-give-too-large: '&cThe amount that you specified exceeds the max stack size for that type.'
+
+# Clearall Command
+command-clearall-description: 'Clears all of a stack type'
+command-clearall-killed-entities: '&eCleared &b%amount% &eentity stacks.'
+command-clearall-killed-items: '&eCleared &b%amount% &eitem stacks.'
+command-clearall-killed-all: '&eCleared &b%entityAmount% &eentity stacks and &b%itemAmount% &eitem stacks.'
+
+# Stats Command
+command-stats-description: 'Displays stats about the plugin'
+command-stats-header: '&aCurrent Plugin Stats:'
+command-stats-threads: '&b%amount% &eactive stacking threads.'
+command-stats-stacked-entities: '&b%stackAmount% &eloaded entity stacks, totaling &b%total% &eentities.'
+command-stats-stacked-items: '&b%stackAmount% &eloaded item stacks, totaling &b%total% &eitems.'
+command-stats-stacked-blocks: '&b%stackAmount% &eloaded block stacks, totaling &b%total% &eblocks.'
+command-stats-stacked-spawners: '&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.'
+command-stats-active-tasks: '&b%amount% &eactive tasks.'
+
+# Convert Command
+command-convert-description: 'Converts data from another stacking plugin'
+command-convert-converted: '&eConverted data from &b%plugin% &eto {{PLUGIN_NAME}}. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.'
+command-convert-failed: '&cFailed to convert &b%plugin%&c, plugin is not enabled.'
+command-convert-aborted: '&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.'
+
+# Translate Command
+command-translate-description: 'Translates the stack names'
+command-translate-loading: '&eDownloading and applying translation data, this may take a moment.'
+command-translate-failure: '&cUnable to translate the stack names. There was a problem fetching the locale data. Please try again later.'
+command-translate-invalid-locale: '&cUnable to translate the stack names. The locale that you specified is invalid.'
+command-translate-spawner-format: '&eSpawner names cannot be translated accurately. To fix this, you can use &b/rs translate en_us &3{} Spawner &eto make a spawner appear as "Cow Spawner". Use &b{} &eas the placeholder for the mob name.'
+command-translate-spawner-format-invalid: '&cThe spawner format you provided is invalid. It must contain &b{} &cfor the mob name placement.'
+command-translate-success: '&aSuccessfully translated the stack names.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Gives a player the stacking tool'
+command-stacktool-given: '&eYou have been given the stacking tool.'
+command-stacktool-given-other: '&b%player% &ahas been given the stacking tool.'
+command-stacktool-no-console: '&cYou cannot give the stacking tool to the console.'
+command-stacktool-no-permission: '&cYou do not have permission to use the stacking tool.'
+command-stacktool-invalid-entity: '&cThat entity is not part of a stack, is it a custom mob?'
+command-stacktool-marked-unstackable: '&eThe &b%type% &ehas been marked as &cunstackable&e.'
+command-stacktool-marked-stackable: '&eThe &b%type% &ehas been marked as &astackable&e.'
+command-stacktool-marked-all-unstackable: '&eThe entire &b%type% &estack has been marked as &cunstackable&e.'
+command-stacktool-select-1: '&eThe &b%type% &ehas been selected as Entity #1. Select another entity to test if they can stack.'
+command-stacktool-unselect-1: '&eThe &b%type% &ehas been unselected.'
+command-stacktool-select-2: '&eThe &b%type% &ehas been selected as Entity #2.'
+command-stacktool-can-stack: '&aEntity #1 can stack with Entity #2.'
+command-stacktool-can-not-stack: '&cEntity 1 can not stack with Entity 2. Reason: &b%reason%'
+command-stacktool-info: '&eStack Info:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eEntity ID: &b%id%'
+command-stacktool-info-custom-name: '&eCustom Name: &r%name%'
+command-stacktool-info-location: '&eLocation: X: &b%x% &eY: &b%y% &eZ: &b%z% &eWorld: &b%world%'
+command-stacktool-info-chunk: '&eChunk: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&atrue'
+command-stacktool-info-false: '&cfalse'
+command-stacktool-info-entity-type: '&eEntity Type: &b%type%'
+command-stacktool-info-entity-stackable: '&eStackable: %value%'
+command-stacktool-info-entity-has-ai: '&eHas AI: %value%'
+command-stacktool-info-entity-from-spawner: '&eFrom Spawner: %value%'
+command-stacktool-info-item-type: '&eItem Type: &b%type%'
+command-stacktool-info-block-type: '&eBlock Type: &b%type%'
+command-stacktool-info-spawner-type: '&eSpawner Type: &b%type%'
+command-stacktool-info-stack-size: '&eStack Size: &b%amount%'
+
+# Stacked Block GUI
+gui-stacked-block-title: 'Editing %name% Stack'
+gui-stacked-block-page-back:
+  - '&ePrevious Page (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&eNext Page (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cDestroy Stack'
+  - '&eDestroys the stack and drops the items'
+gui-stacked-block-destroy-title: 'Destroy Block Stack?'
+gui-stacked-block-destroy-confirm:
+  - '&aConfirm'
+  - '&eYes, destroy the stack'
+gui-stacked-block-destroy-cancel:
+  - '&cCancel'
+  - '&eNo, go back to previous screen'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: 'Viewing %name%'
+gui-stacked-spawner-stats: '&6Spawner Stats'
+gui-stacked-spawner-min-spawn-delay: '&eMin Spawn Delay: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eMax Spawn Delay: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eDisabled Mob AI: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eEntity Search Range: &b%range%'
+gui-stacked-spawner-player-activation-range: '&ePlayer Activation Range: &b%range%'
+gui-stacked-spawner-spawn-range: '&eSpawn Range: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eMin Spawn Amount: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eMax Spawn Amount: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eSpawn Amount: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Spawn Conditions'
+gui-stacked-spawner-time-until-next-spawn: '&eTime until next spawn: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&eTotal mobs spawned: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Valid Spawn Conditions'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Invalid Spawn Conditions'
+gui-stacked-spawner-entities-can-spawn: '&aEntities are able to spawn'
+gui-stacked-spawner-conditions-preventing-spawns: '&eConditions preventing spawns:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Above Sea Level'
+spawner-condition-above-sea-level-invalid: 'No spawn area above sea level'
+spawner-condition-above-y-axis-info: 'Above Y-Axis'
+spawner-condition-above-y-axis-invalid: 'No spawn area above required Y-Axis'
+spawner-condition-air-info: 'Open Air'
+spawner-condition-air-invalid: 'No large enough air spaces available'
+spawner-condition-below-sea-level-info: 'Below Sea Level'
+spawner-condition-below-sea-level-invalid: 'No spawn area below sea level'
+spawner-condition-below-y-axis-info: 'Below Y-Axis'
+spawner-condition-below-y-axis-invalid: 'No spawn area below required Y-Axis'
+spawner-condition-biome-info: 'Biome'
+spawner-condition-biome-invalid: 'Incorrect biome'
+spawner-condition-block-info: 'Spawn Block'
+spawner-condition-block-invalid: 'No valid spawn blocks'
+spawner-condition-block-exception-info: 'Spawn Block Exception'
+spawner-condition-block-exception-invalid: 'Excluded spawn blocks'
+spawner-condition-darkness-info: 'Low Light Level'
+spawner-condition-darkness-invalid: 'Area is too bright'
+spawner-condition-total-darkness-info: 'Total Darkness'
+spawner-condition-total-darkness-invalid: 'Area must have no light'
+spawner-condition-fluid-info: 'Requires Fluid'
+spawner-condition-fluid-invalid: 'No nearby fluid'
+spawner-condition-lightness-info: 'High Light Level'
+spawner-condition-lightness-invalid: 'Area is too dark'
+spawner-condition-max-nearby-entities-info: 'Max Nearby Entities'
+spawner-condition-max-nearby-entities-invalid: 'Too many nearby entities'
+spawner-condition-no-skylight-access-info: 'No Skylight Access'
+spawner-condition-no-skylight-access-invalid: 'No spawn blocks without skylight access'
+spawner-condition-on-ground-info: 'On Ground'
+spawner-condition-on-ground-invalid: 'No solid ground nearby'
+spawner-condition-skylight-access-info: 'Skylight Access'
+spawner-condition-skylight-access-invalid: 'No spawn blocks with skylight access'
+spawner-condition-none-invalid: 'Exceeded maximum spawn attempts'
+spawner-condition-not-player-placed-invalid: 'Must be placed by a player'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cYou don''t have permission for that!'
+only-player: '&cThis command can only be executed by a player.'
+unknown-command: '&cUnknown command, use &b/%cmd% help &cfor more info.'
+unknown-command-error: '&cAn unknown error occurred; details have been printed to console. Please contact a server administrator.'
+invalid-subcommand: '&cInvalid subcommand.'
+invalid-argument: '&cInvalid argument: %message%.'
+invalid-argument-null: '&cInvalid argument: %name% was null.'
+missing-arguments: '&cMissing arguments, &b%amount% &crequired.'
+missing-arguments-extra: '&cMissing arguments, &b%amount%+ &crequired.'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% type [%input%] does not exist'
+argument-handler-enum-list: '%enum% type [%input%] does not exist. Valid types: %types%'
+argument-handler-string: 'String cannot be empty'
+argument-handler-integer: 'Integer [%input%] must be a whole number between -2^31 and 2^31-1 inclusively'
+argument-handler-player: 'No Player with the username [%input%] was found online'
+argument-handler-stackplugin: 'No plugin with the name [%input%] was found'
+argument-handler-material: 'No material with the name [%input%] was found'
+argument-handler-stackamount: 'The stack size [%input%] is invalid, must be a number greater than 0'
+argument-handler-stacktype: 'The stack type [%input%] is invalid'
+argument-handler-translationlocale: 'The translation locale [%input%] is invalid'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&cThere are plugins on your server that are known to conflict with {{PLUGIN_NAME}}. In order to prevent conflictions and/or data loss, {{PLUGIN_NAME}} has disabled one or more stack types. A file has been created at plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} where you can configure the disabled stack types. That file will also allow you to acknowledge that you have read this warning and let you to disable this message.'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.'
+spawner-advanced-place-no-permission: '&cWarning! &eYou do not have permission to place that type of spawner.'
+spawner-advanced-break-no-permission: '&cWarning! &eYou do not have permission to pick up that type of spawner.'
+spawner-advanced-break-silktouch-no-permission: '&cWarning! &eYou need to use a silk touch pickaxe to pick up that type of spawner.'
+spawner-convert-not-enough: '&cWarning! &eUnable to convert spawners using spawn eggs. You are not holding enough spawn eggs to do this conversion.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

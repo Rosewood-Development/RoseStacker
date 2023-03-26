@@ -1,0 +1,231 @@
+# fil_PH translation by WesTheKing
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&c%amount%x &7%name% Spawn Egg'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eUse &b/%cmd% help &epara sa impormasyon ng utos'
+
+# Help Command
+command-help-description: 'Ipinapakita ang menu ng tulong... Nakarating kana'
+command-help-title: '&eMagagamit na mga Utos:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload Command
+command-reload-description: 'I-reload ang plugin'
+command-reload-reloaded: '&eAng data ng plugin, pagsasaayos, at mga lokal na file ay na-reload.'
+
+# Give Command
+command-give-description: 'Bigyan ang mga paunang naka-stack na item'
+command-give-usage: '&cPaggamit: &e/rs give <block|spawner|entity> <player> <type> [stackSize] [amount]'
+command-give-given: '&eNagbigay &b%player% &e[%display%&e].'
+command-give-given-multiple: '&eNagbigay &b%player% &e%amount%x [%display%&e].'
+command-give-unstackable: '&cAng uri na iyong tinukoy ay hindi mailalagay.'
+command-give-too-large: '&cAng halagang tinukoy mo ay lumampas sa laki ng max na stack para sa ganitong uri.'
+
+# Clearall Command
+command-clearall-description: 'Tinatanggal ang lahat ng uri ng stack'
+command-clearall-killed-entities: '&eTinanggal ang &b%amount% na &estacked na nilalang'
+command-clearall-killed-items: '&eTinanggal ang &b%amount% &estacked na gamit.'
+command-clearall-killed-all: '&eTinanggal ang &b%entityAmount% &estack na nilalang at &b%itemAmount% &eStacked na gamit.'
+
+# Stats Command
+command-stats-description: 'Nagpapakita ng mga istatistika tungkol sa plugin'
+command-stats-header: '&aMga Kasalukuyang Plugin Stats:'
+command-stats-threads: '&b%amount% &emga aktibong stacking thread.'
+command-stats-stacked-entities: '&b%stackAmount% &ena-load na entity stack, na kabuuan &b%total% &ena nilalang.'
+command-stats-stacked-items: '&b%stackAmount% &enaka-load na mga stack gamit, na kabuuan &b%total% &ena gamit.'
+command-stats-stacked-blocks: '&b%stackAmount% &ena-load ang mga block stack, na kabuuan &b%total% &emga bloke.'
+command-stats-stacked-spawners: '&b%stackAmount% &ena-load na mga stack ng spawner, na kabuuan &b%total% &ena spawners.'
+command-stats-active-tasks: '&b%amount% &eaktibong gawain.'
+
+# Convert Command
+command-convert-description: 'Nagko-convert ng data mula sa isa pang stacking plugin'
+command-convert-converted: '&eConverted data from &b%plugin% &eto {{PLUGIN_NAME}}. Hindi pinagana ang na-convert na plugin. Tiyaking aalisin ang na-convert na plugin mula sa iyong folder ng mga plugin.'
+command-convert-failed: '&cNabigong mag-convert &b%plugin%&c, plugin ay hindi pinagana.'
+command-convert-aborted: '&cInalis ang pagtatangkang mag-convert &b%plugin%&c. Nag-convert ka na mula sa isa pang stacking plugin.'
+
+# Translate Command
+command-translate-description: 'Isinalin ang mga pangalan ng stack'
+command-translate-loading: '&ePag-download at paglalapat ng data ng pagsasalin, maaari itong tumagal ng ilang sandali.'
+command-translate-failure: '&cHindi maisalin ang mga pangalan ng stack. Mayroong isang problema sa pagkuha ng data ng lokal. Subukang muli mamaya.'
+command-translate-invalid-locale: '&cHindi maisalin ang mga pangalan ng stack. Ang lokal na iyong tinukoy ay hindi wasto.'
+command-translate-spawner-format: '&eAng mga pangalan ng Spawner ay hindi maisasalin nang tumpak. Upang ayusin ito, maaari mong gamitin ang &b/rs translate en_us &3{} Spawner &eupang lumitaw ang isang spawner bilang "Cow Spawner". gumamit ng &b{} &ebilang isang placeholder para sa pangalan ng nagkakagulong mga tao.'
+command-translate-spawner-format-invalid: '&cAng format ng spawner na iyong ibinigay ay hindi wasto. Dapat maglaman ito ng &b{} &cpara sa pagkakalagay ng pangalan ng mob.'
+command-translate-success: '&aMatagumpay na naisalin ang mga pangalan ng stack.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Binibigyan ang isang manlalaro ng stacking tool'
+command-stacktool-given: '&eNabigyan ka ng tool sa pag-stack.'
+command-stacktool-given-other: '&b%player% &abinigyan ng stacking tool.'
+command-stacktool-no-permission: '&cWala kang pahintulot na gamitin ang tool sa pag-stack.'
+command-stacktool-invalid-entity: '&cAng entity na iyon ay hindi bahagi ng isang stack, ito ba ay isang pasadyang manggugulo?'
+command-stacktool-marked-unstackable: '&eAng &b%type% &eay minarkahan bilang &cunstackable&e.'
+command-stacktool-marked-stackable: '&eAng &b%type% &eay minarkahan bilang &astackable&e.'
+command-stacktool-marked-all-unstackable: '&eAng buong &b%type% &eang stack ay minarkahan bilang &cunstackable&e.'
+command-stacktool-select-1: '&eAng &b%type% &enapili bilang Entity # 1. Pumili ng isa pang nilalang upang subukan kung maaari silang mag-stack.'
+command-stacktool-unselect-1: '&eAng &b%type% &eay napili.'
+command-stacktool-select-2: '&eAng &b%type% &enapili bilang Entity #2.'
+command-stacktool-can-stack: '&aEntity #1 maaaring i-stack sa Entity #2.'
+command-stacktool-can-not-stack: '&cAng Entity 1 ay hindi maaaring i-stack sa Entity 2. Dahilan: &b%reason%'
+command-stacktool-info: '&eImpormasyon ng stack::'
+command-stacktool-info-id: '&eStack ID: &b%id%'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eEntity ID: &b%id%'
+command-stacktool-info-custom-name: '&ePasadyang Pangalan: &r%name%'
+command-stacktool-info-location: '&eLokasyon: X: &b%x% &eY: &b%y% &eZ: &b%z% &eMundo: &b%world%'
+command-stacktool-info-chunk: '&eChunk: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&atrue'
+command-stacktool-info-false: '&cfalse'
+command-stacktool-info-entity-type: '&eUri ng Entity: &b%type%'
+command-stacktool-info-entity-stackable: '&eStackable: %value%'
+command-stacktool-info-entity-has-ai: '&eMerong AI: %value%'
+command-stacktool-info-entity-from-spawner: '&eFrom Spawner: %value%'
+command-stacktool-info-item-type: '&eUri ng gamit: &b%type%'
+command-stacktool-info-block-type: '&eUri ng Bloke Type: &b%type%'
+command-stacktool-info-spawner-type: '&eSpawner Type: &b%type%'
+command-stacktool-info-stack-size: '&eStack Size: &b%amount%'
+
+# Stacked Block GUI
+gui-stacked-block-title: 'pag-edit ng %name% Stack'
+gui-stacked-block-page-back:
+  - '&eNakaraang pahina (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&eSusunod na pahina (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cWasakin ang Stack'
+  - '&eWinawasak ang stack at nahuhulog ang mga item'
+gui-stacked-block-destroy-title: 'Wasakin ang Block Stack?'
+gui-stacked-block-destroy-confirm:
+  - '&aKumpirmahin'
+  - '&eOo, sirain ang stack'
+gui-stacked-block-destroy-cancel:
+  - '&cKanselahin'
+  - '&eHindi, bumalik sa nakaraang screen'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: 'Pagtingin %name%'
+gui-stacked-spawner-stats: '&6Spawner Stats'
+gui-stacked-spawner-min-spawn-delay: '&eMin na Spawn Delay: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eMax na Spawn Delay: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eDisable ang Mob AI: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eSaklaw ng Paghahanap ng Entity: &b%range%'
+gui-stacked-spawner-player-activation-range: '&eSaklaw ng Pag-aktibo ng Player: &b%range%'
+gui-stacked-spawner-spawn-range: '&eSaklaw ng Spawn: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eMinimum na Halaga ng Spawn: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eMaximum na Halaga ng Spawn: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eHalaga ng Spawn: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Mga Kundisyon ng Spawn'
+gui-stacked-spawner-time-until-next-spawn: '&eOras hanggang sa susunod na itlog: &b%time% ticks'
+gui-stacked-spawner-total-spawns: '&eKabuuang mga nagkakagulong mga tao ay nagsilang: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Mga wastong Kundisyon ng Spawn'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Di-wastong Mga Kundisyon ng Spawn'
+gui-stacked-spawner-entities-can-spawn: '&aAng mga entity ay nakapag-itlog'
+gui-stacked-spawner-conditions-preventing-spawns: '&eMga kundisyon na pumipigil sa mga spawns:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Sa Itaas na Antas ng Dagat'
+spawner-condition-above-sea-level-invalid: 'Walang spawn area sa taas ng dagat'
+spawner-condition-above-y-axis-info: 'Sa Itaas Y-Axis'
+spawner-condition-above-y-axis-invalid: 'Walang spawn area sa itaas na kinakailangan ng Y-Axis'
+spawner-condition-air-info: 'Open Air'
+spawner-condition-air-invalid: 'Walang malalaking sapat na puwang ng hangin na magagamit'
+spawner-condition-below-sea-level-info: 'Sa Ibabang Antas ng Dagat'
+spawner-condition-below-sea-level-invalid: 'Walang spawn area sa ibaba ng antas ng dagat'
+spawner-condition-below-y-axis-info: 'Sa ibaba ng Y-Axis'
+spawner-condition-below-y-axis-invalid: 'Walang spawn area sa ibaba kinakailangan ng Y-Axis'
+spawner-condition-biome-info: 'Biome'
+spawner-condition-biome-invalid: 'Maling biome'
+spawner-condition-block-info: 'Spawn Block'
+spawner-condition-block-invalid: 'Walang wastong mga bloke ng itlog'
+spawner-condition-block-exception-info: 'Pagbubukod ng Spawn Block'
+spawner-condition-block-exception-invalid: 'Hindi kasama ang mga spawn block'
+spawner-condition-darkness-info: 'Mababang Antas ng Magaan'
+spawner-condition-darkness-invalid: 'Masyadong maliwanag ang lugar'
+spawner-condition-total-darkness-info: 'Ganap na Kadiliman'
+spawner-condition-total-darkness-invalid: 'Dapat walang ilaw ang lugar'
+spawner-condition-fluid-info: 'Nangangailangan ng Fluid'
+spawner-condition-fluid-invalid: 'Walang malapit na likido'
+spawner-condition-lightness-info: 'Mataas na Antas ng Magaan'
+spawner-condition-lightness-invalid: 'Masyadong madilim ang lugar'
+spawner-condition-max-nearby-entities-info: 'Max na Kalapit na Entidad'
+spawner-condition-max-nearby-entities-invalid: 'Masyadong maraming mga kalapit na entity'
+spawner-condition-no-skylight-access-info: 'Walang Skylight Access'
+spawner-condition-no-skylight-access-invalid: 'Walang mga bloke ng itlog nang walang pag-access sa skylight'
+spawner-condition-on-ground-info: 'Sa Lupa'
+spawner-condition-on-ground-invalid: 'Walang malapit na lupa sa malapit'
+spawner-condition-skylight-access-info: 'Pag-access sa Skylight'
+spawner-condition-skylight-access-invalid: 'Walang mga bloke ng itlog na may access sa skylight'
+spawner-condition-none-invalid: 'Lumagpas sa maximum na mga pagtatangka ng spawn'
+spawner-condition-not-player-placed-invalid: 'Dapat ilagay ng isang manlalaro'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cWala kang pahintulot para doon!'
+only-player: '&cAng utos na ito ay maaari lamang isagawa ng isang manlalaro.'
+unknown-command: '&cHindi kilalang command, gamitin ang &b/%cmd% help &cpara sa higit pang impormasyon.'
+unknown-command-error: '&cMay naganap na hindi kilalang error. Ang mga detalye ay na-print para sa console. Mangyaring makipag-ugnayan sa isang administrator ng server.'
+invalid-subcommand: '&cDi-wastong subcommand.'
+invalid-argument: '&cDi-wastong argumento: %message%.'
+invalid-argument-null: '&cDi-wastong argumento: %name% ay null.'
+missing-arguments: '&cMga nawawalang argumento, &b%amount% &cang kailangan.'
+missing-arguments-extra: '&cMga nawawalang argumento, &b%amount%+ &cang kailangan.'
+
+# Argument Handler Error Messages
+argument-handler-enum: '%enum% uri [%input%] ay hindi umiiral'
+argument-handler-enum-list: '%enum% uri [%input%] ay hindi umiiral. Mga wastong uri: %types%'
+argument-handler-string: 'Hindi maaaring walang laman ang string'
+argument-handler-integer: 'Ang integer [%input%] ay dapat na isang buong numero sa pagitan ng -2^31 at 2^31-1 kasama'
+argument-handler-player: 'Walang Player na may username na [%input%] ang natagpuan online'
+argument-handler-stackplugin: 'Walang nakitang plugin na may pangalang [%input%]'
+argument-handler-material: 'Walang nakitang materyal na may pangalang [%input%]'
+argument-handler-stackamount: 'Ang laki ng stack [%input%] ay di-wasto, dapat ay isang numerong mas mataas sa 0'
+argument-handler-stacktype: 'Ang uri ng stack na [%input%] ay hindi wasto'
+argument-handler-translationlocale: 'Ang lokal na pagsasalin [%input%] ay hindi wasto'
+
+# Convert Lock Messages
+convert-lock-conflictions: '&cMayroong mga plugin sa iyong server na kilalang sumasalungat sa {{PLUGIN_NAME}}. Upang mapigilan ang mga pagkakasalungatan at/o pagkawala ng data, hindi pinagana ng {{PLUGIN_NAME}} ang isa o higit pang mga uri ng stack. Ang isang file ay nilikha sa mga plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} kung saan maaari mong i-configure ang mga hindi pinagana na uri ng stack. Papayagan ka rin ng file na iyon na kilalanin na nabasa mo ang babalang ito at hahayaan kang huwag paganahin ang mensaheng ito.'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke at / o may pahintulot na kunin ang mga spawner. Hindi mo magagawa kung hindi man.'
+spawner-advanced-place-no-permission: '&cBabala! &eWala kang pahintulot na ilagay ang uri ng spawner.'
+spawner-advanced-break-no-permission: '&cBabala! &eWala kang pahintulot na kunin ang uri ng spawner.'
+spawner-advanced-break-silktouch-no-permission: '&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke upang kunin ang ganitong uri ng spawner.'
+spawner-convert-not-enough: '&cBabala! &eHindi ma-convert ang mga spawner gamit ang mga itlog ng itlog. Wala kang sapat na itlog ng itlog upang gawin ang conversion na ito.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'

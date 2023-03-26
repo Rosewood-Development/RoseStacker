@@ -5,18 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.locale.Locale;
 import dev.rosewood.rosegarden.manager.AbstractLocaleManager;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.locale.DutchLocale;
-import dev.rosewood.rosestacker.locale.EnglishLocale;
-import dev.rosewood.rosestacker.locale.FilipinoLocale;
-import dev.rosewood.rosestacker.locale.GermanLocale;
-import dev.rosewood.rosestacker.locale.HungarianLocale;
-import dev.rosewood.rosestacker.locale.RomanianLocale;
-import dev.rosewood.rosestacker.locale.SimplifiedChineseLocale;
-import dev.rosewood.rosestacker.locale.TraditionalChineseLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager.TranslationResponse.Result;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -35,6 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 public class LocaleManager extends AbstractLocaleManager {
 
@@ -47,17 +39,29 @@ public class LocaleManager extends AbstractLocaleManager {
     }
 
     @Override
-    public List<Locale> getLocales() {
-        return List.of(
-                new DutchLocale(),
-                new EnglishLocale(),
-                new FilipinoLocale(),
-                new GermanLocale(),
-                new HungarianLocale(),
-                new RomanianLocale(),
-                new SimplifiedChineseLocale(),
-                new TraditionalChineseLocale()
-        );
+    protected void injectPlaceholderConstants(StringPlaceholders.Builder builder) {
+        super.injectPlaceholderConstants(builder);
+        builder.addPlaceholder("CONVERT_LOCK_FILE", ConversionManager.FILE_NAME);
+    }
+
+    @SuppressWarnings("unchecked")
+    @NotNull
+    protected List<String> getLocaleStrings(String key) {
+        Object value = this.loadedLocale.getLocaleValues().get(key);
+        if (value instanceof String) {
+            return new ArrayList<>(Collections.singletonList((String) value));
+        } else if (value instanceof List) {
+            return (List<String>) value;
+        }
+
+        value = this.defaultLocale.getLocaleValues().get(key);
+        if (value instanceof String) {
+            return new ArrayList<>(Collections.singletonList((String) value));
+        } else if (value instanceof List) {
+            return (List<String>) value;
+        }
+
+        throw new IllegalStateException("Missing locale string: " + key);
     }
 
     /**
@@ -68,13 +72,9 @@ public class LocaleManager extends AbstractLocaleManager {
      * @return The locale messages with the given placeholders applied
      */
     public List<String> getLocaleMessages(String messageKey, StringPlaceholders stringPlaceholders) {
-        if (this.locale.isList(messageKey)) {
-            List<String> message = this.locale.getStringList(messageKey);
-            message.replaceAll(x -> HexUtils.colorify(stringPlaceholders.apply(x)));
-            return message;
-        } else {
-            return new ArrayList<>(Collections.singletonList(this.getLocaleMessage(messageKey, stringPlaceholders)));
-        }
+        return this.getLocaleStrings(messageKey).stream()
+                .map(message -> HexUtils.colorify(stringPlaceholders.apply(message)))
+                .collect(Collectors.toList());
     }
 
     public void fetchMinecraftTranslationLocales() {
