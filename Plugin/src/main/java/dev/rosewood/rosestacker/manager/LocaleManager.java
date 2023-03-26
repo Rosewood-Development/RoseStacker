@@ -36,6 +36,7 @@ public class LocaleManager extends AbstractLocaleManager {
         super(rosePlugin);
 
         this.translationLocales = new ArrayList<>();
+        this.fetchMinecraftTranslationLocales();
     }
 
     @Override

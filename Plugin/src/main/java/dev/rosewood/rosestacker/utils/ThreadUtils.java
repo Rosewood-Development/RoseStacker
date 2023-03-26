@@ -3,13 +3,12 @@ package dev.rosewood.rosestacker.utils;
 import com.google.common.base.Stopwatch;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 
 public final class ThreadUtils {
-
-    private static final boolean DEBUG = false;
 
     private static final AtomicInteger activeThreads = new AtomicInteger(0);
     private static final RosePlugin rosePlugin = RoseStacker.getInstance();
@@ -43,7 +42,7 @@ public final class ThreadUtils {
     }
 
     private static Runnable wrap(Runnable runnable) {
-        if (DEBUG) {
+        if (Debug.isLoggingEnabled()) {
             return () -> {
                 activeThreads.incrementAndGet();
                 Stopwatch stopwatch = Stopwatch.createStarted();
@@ -51,11 +50,9 @@ public final class ThreadUtils {
                     runnable.run();
                 } finally {
                     activeThreads.decrementAndGet();
-                    if (DEBUG) {
-                        double ms = stopwatch.elapsed().toNanos() / 1000000.0;
-                        if (ms > 30)
-                            rosePlugin.getLogger().warning("Thread took " + DecimalFormat.getInstance().format(ms) + "ms to complete");
-                    }
+                    double ms = stopwatch.elapsed().toNanos() / 1000000.0;
+                    if (ms > Setting.DEBUG_LOGGING_THREAD_DURATION_THRESHOLD.getDouble())
+                        Debug.log("Thread took " + DecimalFormat.getInstance().format(ms) + "ms to complete");
                 }
             };
         } else {
@@ -72,30 +69,11 @@ public final class ThreadUtils {
 
     private static boolean checkEnabled() {
         if (!rosePlugin.isEnabled()) {
-            if (DEBUG)
-                rosePlugin.getLogger().warning(String.format("(%d) [%s] Attempted to run a task while the plugin was disabled", activeThreads.get(), getCallingMethod(5)));
+            Debug.log(Setting.DEBUG_LOGGING_THREAD_DISABLED_WARNING::getBoolean, () -> String.format("(%d) Attempted to run a task while the plugin was disabled", activeThreads.get()));
             return false;
         }
 
-        if (DEBUG)
-            rosePlugin.getLogger().warning(String.format("(%d) [%s] -> %s", activeThreads.get(), getCallingMethod(5), getCallingTaskType(4)));
-
         return true;
-    }
-
-    private static String getCallingMethod(int depth) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace.length < depth)
-            return "[Unknown]";
-        String className = stackTrace[depth - 1].getClassName();
-        return String.format("%s::%s", className.substring(className.lastIndexOf('.') + 1), stackTrace[depth - 1].getMethodName());
-    }
-
-    private static String getCallingTaskType(int depth) {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace.length < depth)
-            return "[Unknown]";
-        return stackTrace[depth - 1].getMethodName();
     }
 
 }

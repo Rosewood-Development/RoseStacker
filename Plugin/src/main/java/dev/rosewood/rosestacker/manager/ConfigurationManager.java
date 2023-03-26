@@ -214,7 +214,14 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
         MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above"),
         MISC_MYTHICMOBS_ALLOW_STACKING("misc-settings.mythicmobs-allow-stacking", false, "Should mobs owned by MythicMobs be allowed to stack?", "This is recommended to keep set to false unless you specifically only change mob attributes"),
-        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break.");
+        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break."),
+
+        DEBUG_SETTINGS("debug-settings", null, "Settings that are only used for debugging purposes"),
+        DEBUG_LOGGING("debug-settings.logging", null, "Settings related to debug logging"),
+        DEBUG_LOGGING_ENABLED("debug-settings.logging.enabled", false, "Should we log debug messages to the console?"),
+        DEBUG_LOGGING_THREAD_DURATION_THRESHOLD("debug-settings.logging.thread-duration-threshold", 30, "The threshold in milliseconds to log a thread warning"),
+        DEBUG_LOGGING_THREAD_DISABLED_WARNING("debug-settings.logging.thread-disabled-warning", true, "Should we log warnings when a thread tries to run when the plugin is disabled?"),
+        ;
 
         private final String key;
         private final Object defaultValue;

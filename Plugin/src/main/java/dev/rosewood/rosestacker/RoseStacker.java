@@ -116,9 +116,6 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with WildChests
         if (Bukkit.getPluginManager().isPluginEnabled("WildChests"))
             WildChestsStackerProvider.register();
-
-        // Try fetching the translation locales
-        this.getManager(LocaleManager.class).fetchMinecraftTranslationLocales();
     }
 
     @Override
