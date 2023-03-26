@@ -33,6 +33,8 @@ dependencies:
     required: false
   - name: RoseLoot
     required: false
+  - name: ShopGUIPlus
+    required: false
   - name: Shopkeepers
     required: false
   - name: StackMob
@@ -48,9 +50,9 @@ dependencies:
   - name: WorldGuard
     required: false
 load-after:
+  - name: Clearlag
   - name: PlaceholderAPI
   - name: ShopGUIPlus
-  - name: Clearlag
   - name: ViaVersion
   - name: WildChests
 permissions:

@@ -36,7 +36,7 @@ dependencies {
     // Misc other
     compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'me.minebuilders:clearlag:3.1.6'
-    compileOnly 'net.brcdev:shopgui:1.36.0'
+    compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0'
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
