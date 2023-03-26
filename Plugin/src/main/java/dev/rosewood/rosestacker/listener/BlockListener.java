@@ -130,8 +130,15 @@ public class BlockListener implements Listener {
                 return;
 
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
-            if (stackedSpawner == null)
+            if (stackedSpawner == null) {
+                // Check if the spawner type is disabled, if it is just ignore the rest of the event, otherwise create a new stacked spawner
+                CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
+                SpawnerStackSettings spawnerStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(creatureSpawner);
+                if (spawnerStackSettings == null || !spawnerStackSettings.isStackingEnabled())
+                    return;
+
                 stackedSpawner = stackManager.createSpawnerStack(block, 1, false);
+            }
 
             SpawnerType spawnerType = stackedSpawner.getSpawnerTile().getSpawnerType();
             boolean breakEverything = Setting.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.getBoolean() && player.isSneaking();
