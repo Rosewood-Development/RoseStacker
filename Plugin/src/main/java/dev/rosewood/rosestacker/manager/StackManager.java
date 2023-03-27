@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -614,7 +615,10 @@ public class StackManager extends Manager implements StackingLogic {
     /**
      * @return the current entity data storage type for newly created entity stacks
      */
-    public StackedEntityDataStorageType getEntityDataStorageType() {
+    public StackedEntityDataStorageType getEntityDataStorageType(EntityType entityType) {
+        EntityStackSettings entityStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
+        if (entityStackSettings != null && entityStackSettings.getStackedEntityDataStorageType() != null)
+            return entityStackSettings.getStackedEntityDataStorageType();
         return this.entityDataStorageType;
     }
 

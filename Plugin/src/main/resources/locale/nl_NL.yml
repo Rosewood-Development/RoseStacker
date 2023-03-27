@@ -110,6 +110,7 @@ command-stacktool-info-item-type: '&eItem soort: &b%type%'
 command-stacktool-info-block-type: '&eBlok soort: &b%type%'
 command-stacktool-info-spawner-type: '&eSpawner soort: &b%type%'
 command-stacktool-info-stack-size: '&eStack grootte: &b%amount%'
+command-stacktool-info-data-storage-type: '&eType gegevensopslag: &b%type%'
 
 # Stacked Block GUI
 gui-stacked-block-title: 'Wijzigen van %name% Stack'

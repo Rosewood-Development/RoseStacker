@@ -110,6 +110,7 @@ command-stacktool-info-item-type: '&eTip Obiect: &b%type%'
 command-stacktool-info-block-type: '&eTip Block: &b%type%'
 command-stacktool-info-spawner-type: '&eTip Spawner: &b%type%'
 command-stacktool-info-stack-size: '&eDimensiune Stack: &b%amount%'
+command-stacktool-info-data-storage-type: '&eTipul de stocare a datelor: &b%type%'
 
 # Stacked Block GUI
 gui-stacked-block-title: 'Se editeaza %name% Stack'

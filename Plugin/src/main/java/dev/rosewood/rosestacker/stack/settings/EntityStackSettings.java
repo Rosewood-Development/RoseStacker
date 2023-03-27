@@ -9,6 +9,7 @@ import dev.rosewood.rosegarden.utils.RoseGardenUtils;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.conditions.entity.StackConditions;
@@ -67,6 +68,7 @@ public class EntityStackSettings extends StackSettings {
     private final Boolean killEntireStackOnDeath;
     private final double mergeRadius;
     private final Boolean onlyStackFromSpawners;
+    private final StackedEntityDataStorageType dataStorageTypeOverride;
 
     public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration, JsonObject jsonObject, EntityType entityType) {
         super(settingsFileConfiguration);
@@ -123,6 +125,8 @@ public class EntityStackSettings extends StackSettings {
         this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
         this.mergeRadius = this.settingsConfiguration.getDouble("merge-radius");
         this.onlyStackFromSpawners = this.settingsConfiguration.getDefaultedBoolean("only-stack-from-spawners");
+        String dataStorageTypeValue = this.settingsConfiguration.getString("data-storage-type", "default");
+        this.dataStorageTypeOverride = dataStorageTypeValue.equalsIgnoreCase("default") ? null : StackedEntityDataStorageType.fromName(dataStorageTypeValue);
 
         this.stackConditions.forEach(StackConditionEntry::load);
         this.extraSettings.values().forEach(EntitySetting::load);
@@ -148,6 +152,7 @@ public class EntityStackSettings extends StackSettings {
         this.setIfNotExists("kill-entire-stack-on-death", "default");
         this.setIfNotExists("merge-radius", -1);
         this.setIfNotExists("only-stack-from-spawners", "default");
+        this.setIfNotExists("data-storage-type", "default");
 
         this.stackConditions.forEach(StackConditionEntry::setDefaults);
         this.extraSettings.values().forEach(EntitySetting::setDefaults);
@@ -248,6 +253,10 @@ public class EntityStackSettings extends StackSettings {
         if (this.onlyStackFromSpawners != null)
             return this.onlyStackFromSpawners;
         return Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean();
+    }
+
+    public StackedEntityDataStorageType getStackedEntityDataStorageType() {
+        return this.dataStorageTypeOverride;
     }
 
     /**

@@ -161,6 +161,7 @@ public class StackToolListener implements Listener {
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.single("id", StackerUtils.formatNumber(entity.getEntityId())));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-type", StringPlaceholders.single("type", entity.getType().name()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.single("amount", StackerUtils.formatNumber(stackedEntity.getStackSize())));
+            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-data-storage-type", StringPlaceholders.single("type", stackedEntity.getDataStorage().getType().name()));
             if (entity.getCustomName() != null)
                 this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.single("name", entity.getCustomName()));
             this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.single("value", PersistentDataUtils.isUnstackable(entity) ? falseStr : trueStr));

@@ -110,6 +110,7 @@ command-stacktool-info-item-type: '&e物品类型: &b%type%'
 command-stacktool-info-block-type: '&e方块类型: &b%type%'
 command-stacktool-info-spawner-type: '&e刷怪笼类型: &b%type%'
 command-stacktool-info-stack-size: '&e所包含个体数: &b%amount%'
+command-stacktool-info-data-storage-type: '&e数据存储类型: &b%type%'
 
 # 堆叠方块 GUI
 gui-stacked-block-title: '编辑堆叠 %name% 中'

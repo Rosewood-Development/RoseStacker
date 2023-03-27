@@ -73,7 +73,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public StackedEntity(LivingEntity entity) {
-        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
+        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())));
     }
 
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
@@ -172,7 +172,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         PersistentDataUtils.applyDisabledAi(this.entity);
 
         DataUtils.clearStackedEntityData(oldEntity);
-        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createEntityDataStorage(oldEntity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
+        return new StackedEntity(oldEntity, NMSAdapter.getHandler().createEntityDataStorage(oldEntity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(oldEntity.getType())));
     }
 
     /**
@@ -387,7 +387,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         LivingEntity entity = this.stackedEntityDataStorage.peek().createEntity(this.entity.getLocation(), false, this.entity.getType());
-        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType()));
+        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())));
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 

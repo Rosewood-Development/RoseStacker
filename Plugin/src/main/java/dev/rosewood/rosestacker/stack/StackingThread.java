@@ -143,7 +143,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isEntityUnstackingTemporarilyDisabled()) {
             boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
             for (StackedEntity stackedEntity : this.stackedEntities.values()) {
-                if (!stackedEntity.shouldStayStacked() && stackedEntity.getEntity().isValid()) {
+                LivingEntity entity = stackedEntity.getEntity();
+                if (!stackedEntity.shouldStayStacked() && entity.isValid()) {
                     ThreadUtils.runSync(() -> {
                         if (stackedEntity.getStackSize() > 1)
                             this.splitEntityStack(stackedEntity);
@@ -151,10 +152,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
                     NMSHandler nmsHandler = NMSAdapter.getHandler();
                     StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
-                    stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(stackedEntity.getEntity(), this.stackManager.getEntityDataStorageType()));
+                    stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
                     ThreadUtils.runSync(() -> {
                         for (EntityDataEntry entityDataEntry : nbt.getAll())
-                            entityDataEntry.createEntity(stackedEntity.getLocation(), true, stackedEntity.getEntity().getType());
+                            entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
                     });
                 }
             }
@@ -646,7 +647,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             }
 
             Set<StackedEntity> newStackedEntities = new HashSet<>();
-            switch (this.stackManager.getEntityDataStorageType()) {
+            switch (this.stackManager.getEntityDataStorageType(entityType)) {
                 case NBT -> {
                     for (int i = 0; i < amount; i++) {
                         StackedEntity newStack = this.createNewEntity(nmsHandler, entityType, location, spawnReason, removeAi);
@@ -810,7 +811,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 if (!(entity instanceof LivingEntity livingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
                     continue;
 
-                StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity, this.stackManager.getEntityDataStorageType());
+                StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity, this.stackManager.getEntityDataStorageType(entity.getType()));
                 if (stackedEntity != null) {
                     this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
                 } else {

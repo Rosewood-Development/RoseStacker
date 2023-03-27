@@ -110,6 +110,7 @@ command-stacktool-info-item-type: '&e物品類別: &b%type%'
 command-stacktool-info-block-type: '&e方塊類別: &b%type%'
 command-stacktool-info-spawner-type: '&e生怪磚類別: &b%type%'
 command-stacktool-info-stack-size: '&e堆疊數量: &b%amount%'
+command-stacktool-info-data-storage-type: '&e資料儲存類別: &b%type%'
 
 # 方塊堆疊介面
 gui-stacked-block-title: '正在編輯 %name% 的堆疊'

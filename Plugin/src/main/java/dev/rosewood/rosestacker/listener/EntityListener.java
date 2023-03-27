@@ -512,7 +512,7 @@ public class EntityListener implements Listener {
             try {
                 stackedEntity.getDataStorage().forEach(internal -> {
                     Sheep sheep = (Sheep) internal;
-                    if (!sheep.isSheared() || stackManager.getEntityDataStorageType() == StackedEntityDataStorageType.SIMPLE) {
+                    if (!sheep.isSheared() || stackManager.getEntityDataStorageType(sheep.getType()) == StackedEntityDataStorageType.SIMPLE) {
                         sheep.setSheared(true);
                         drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
                     }

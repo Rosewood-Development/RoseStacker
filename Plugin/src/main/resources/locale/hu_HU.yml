@@ -110,6 +110,7 @@ command-stacktool-info-item-type: '&eTárgy Típus: &b%type%'
 command-stacktool-info-block-type: '&eBlokk Típus: &b%type%'
 command-stacktool-info-spawner-type: '&eSpawner Típus: &b%type%'
 command-stacktool-info-stack-size: '&eStack Méret: &b%amount%'
+command-stacktool-info-data-storage-type: '&eAdattárolás típusa: &b%type%'
 
 # Stacked Block GUI
 gui-stacked-block-title: '%name% Stack Szerkesztése'

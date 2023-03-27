@@ -203,7 +203,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 if (location == null)
                     break;
 
-                switch (stackManager.getEntityDataStorageType()) {
+                switch (stackManager.getEntityDataStorageType(this.entityType)) {
                     case NBT -> {
                         StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, entityStackSettings);
                         Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
