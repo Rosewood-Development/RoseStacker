@@ -4,7 +4,6 @@ import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.hologram.HologramLine;
 import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SynchedEntityDataWrapper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,7 @@ import org.bukkit.entity.Player;
 
 public class HologramImpl extends Hologram {
 
-    private static final List<SynchedEntityData.DataItem<?>> DATA_ITEMS = Arrays.asList(
+    private static final List<SynchedEntityData.DataItem<?>> DATA_ITEMS = List.of(
             new SynchedEntityData.DataItem<>(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
             new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(10), true),
             new SynchedEntityData.DataItem<>(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))

@@ -4,7 +4,6 @@ import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.hologram.HologramLine;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.DataWatcherWrapper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,7 @@ import org.bukkit.entity.Player;
 
 public class HologramImpl extends Hologram {
 
-    private static final List<DataWatcher.Item<?>> DATA_ITEMS = Arrays.asList(
+    private static final List<DataWatcher.Item<?>> DATA_ITEMS = List.of(
             new DataWatcher.Item<>(DataWatcherRegistry.c.a(7), 0.5F),
             new DataWatcher.Item<>(DataWatcherRegistry.i.a(9), true),
             new DataWatcher.Item<>(DataWatcherRegistry.j.a(10), new ParticleParamBlock(Particles.BLOCK, Blocks.AIR.getBlockData()))

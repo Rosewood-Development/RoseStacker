@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_19_R2.hologram;
+package dev.rosewood.rosestacker.nms.v1_19_R3.hologram;
 
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.hologram.HologramLine;
@@ -20,11 +20,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
-public class HologramImpl extends Hologram {
+public class AreaEffectCloudHologramImpl extends Hologram {
     
     private static final List<SynchedEntityData.DataValue<?>> DATA_VALUES = List.of(
             SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
@@ -32,7 +32,7 @@ public class HologramImpl extends Hologram {
             SynchedEntityData.DataValue.create(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))
     );
 
-    public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
+    public AreaEffectCloudHologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
         super(text, location, entityIdSupplier);
     }
 

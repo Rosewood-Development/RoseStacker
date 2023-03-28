@@ -12,7 +12,8 @@ import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_19_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_19_R3.entity.SoloEntityStrider;
-import dev.rosewood.rosestacker.nms.v1_19_R3.hologram.HologramImpl;
+import dev.rosewood.rosestacker.nms.v1_19_R3.hologram.AreaEffectCloudHologramImpl;
+import dev.rosewood.rosestacker.nms.v1_19_R3.hologram.TextDisplayHologramImpl;
 import dev.rosewood.rosestacker.nms.v1_19_R3.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_19_R3.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_19_R3.storage.NBTStackedEntityDataStorage;
@@ -36,6 +37,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -56,6 +58,7 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
@@ -119,6 +122,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_Entity_spawnedViaMobSpawner; // Field to get the spawnedViaMobSpawner of an Entity, added by Paper, normally public
 
+    private static boolean supportsDisplayEntities;
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -155,6 +160,13 @@ public class NMSHandlerImpl implements NMSHandler {
 
             if (NMSAdapter.isPaper())
                 field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
+
+            try {
+                Class.forName("org.bukkit.entity.TextDisplay");
+                supportsDisplayEntities = MinecraftServer.getServer().getWorldData().enabledFeatures().contains(FeatureFlags.UPDATE_1_20);
+            } catch (ClassNotFoundException e) {
+                supportsDisplayEntities = false;
+            }
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -423,7 +435,11 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public Hologram createHologram(Location location, List<String> text) {
-        return new HologramImpl(text, location, entityCounter::incrementAndGet);
+        if (supportsDisplayEntities) {
+            return new TextDisplayHologramImpl(text, location, entityCounter::incrementAndGet);
+        } else {
+            return new AreaEffectCloudHologramImpl(text, location, entityCounter::incrementAndGet);
+        }
     }
 
     @Override
