@@ -39,12 +39,6 @@ public class LocaleManager extends AbstractLocaleManager {
         this.fetchMinecraftTranslationLocales();
     }
 
-    @Override
-    protected void injectPlaceholderConstants(StringPlaceholders.Builder builder) {
-        super.injectPlaceholderConstants(builder);
-        builder.addPlaceholder("CONVERT_LOCK_FILE", ConversionManager.FILE_NAME);
-    }
-
     @SuppressWarnings("unchecked")
     @NotNull
     protected List<String> getLocaleStrings(String key) {
@@ -80,16 +74,8 @@ public class LocaleManager extends AbstractLocaleManager {
 
     public void fetchMinecraftTranslationLocales() {
         ThreadUtils.runAsync(() -> {
-            DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-
-            String version = StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
-            List<String> locales = dataManager.getTranslationLocales(version);
-            if (!locales.isEmpty()) {
-                this.translationLocales = locales;
-                return;
-            }
-
-            String queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + version;
+            List<String> locales = new ArrayList<>();
+            String queryLink = "https://api.github.com/repos/InventivetalentDev/minecraft-assets/contents/assets/minecraft/lang?ref=" + StackerUtils.MAX_SUPPORTED_LOCALE_VERSION;
 
             try {
                 URL url = new URL(queryLink);
@@ -108,11 +94,7 @@ public class LocaleManager extends AbstractLocaleManager {
             } catch (Exception ignored) { }
 
             locales.sort(String::compareTo);
-
             this.translationLocales = locales;
-
-            dataManager.saveTranslationLocales(version, locales);
-
             this.rosePlugin.getLogger().info("Fetched " + locales.size() + " translation locales.");
         });
     }

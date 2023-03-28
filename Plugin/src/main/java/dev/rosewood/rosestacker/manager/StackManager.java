@@ -15,9 +15,6 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
-import dev.rosewood.rosestacker.utils.PersistentDataUtils;
-import dev.rosewood.rosestacker.utils.ThreadUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -38,17 +35,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
- * Manages StackingThreads
+ * Manages {@link StackingThread} and chunk processing
  */
 public class StackManager extends Manager implements StackingLogic {
 
     private final Map<UUID, StackingThread> stackingThreads;
-    private final ConversionManager conversionManager;
 
-    private BukkitTask pendingChunkTask, autosaveTask;
-    private final Map<Chunk, Long> pendingLoadChunks;
-    private volatile boolean processingChunks;
-    private long processingChunksTime;
+    private BukkitTask autosaveTask;
 
     private boolean isEntityStackingTemporarilyDisabled;
     private boolean isEntityUnstackingTemporarilyDisabled;
@@ -59,8 +52,6 @@ public class StackManager extends Manager implements StackingLogic {
         super(rosePlugin);
 
         this.stackingThreads = new ConcurrentHashMap<>();
-        this.conversionManager = this.rosePlugin.getManager(ConversionManager.class);
-        this.pendingLoadChunks = new ConcurrentHashMap<>();
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -72,11 +63,6 @@ public class StackManager extends Manager implements StackingLogic {
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
-        if (Setting.LEGACY_DATA_MIGRATION.getBoolean())
-            this.pendingChunkTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::processPendingChunks, 0L, 3L);
-        this.processingChunks = false;
-        this.processingChunksTime = System.currentTimeMillis();
-
         // Kick off autosave task if enabled
         long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
         if (autosaveFrequency > 0) {
@@ -87,23 +73,10 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void disable() {
-        if (this.pendingChunkTask != null) {
-            this.pendingChunkTask.cancel();
-            this.pendingChunkTask = null;
-        }
-
         if (this.autosaveTask != null) {
             this.autosaveTask.cancel();
             this.autosaveTask = null;
         }
-
-        DataManager dataManager = this.rosePlugin.getManager(DataManager.class);
-        if (!dataManager.isConnected()) {
-            this.stackingThreads.clear();
-            return;
-        }
-
-        this.pendingLoadChunks.clear();
 
         // Save anything that's loaded
         this.saveAllData(true);
@@ -374,11 +347,8 @@ public class StackManager extends Manager implements StackingLogic {
     @Override
     public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
         StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
-        if (stackingThread != null) {
+        if (stackingThread != null)
             stackingThread.loadChunkEntities(chunk, entities);
-            if (Setting.LEGACY_DATA_MIGRATION.getBoolean() && this.conversionManager.hasConversions())
-                this.pendingLoadChunks.put(chunk, System.nanoTime());
-        }
     }
 
     @Override
@@ -408,19 +378,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     public boolean isEntityStackingEnabled() {
-        return Setting.ENTITY_STACKING_ENABLED.getBoolean() && !this.conversionManager.isEntityStackingLocked();
+        return Setting.ENTITY_STACKING_ENABLED.getBoolean();
     }
 
     public boolean isItemStackingEnabled() {
-        return Setting.ITEM_STACKING_ENABLED.getBoolean() && !this.conversionManager.isItemStackingLocked();
+        return Setting.ITEM_STACKING_ENABLED.getBoolean();
     }
 
     public boolean isBlockStackingEnabled() {
-        return Setting.BLOCK_STACKING_ENABLED.getBoolean() && !this.conversionManager.isBlockStackingLocked();
+        return Setting.BLOCK_STACKING_ENABLED.getBoolean();
     }
 
     public boolean isSpawnerStackingEnabled() {
-        return Setting.SPAWNER_STACKING_ENABLED.getBoolean() && !this.conversionManager.isSpawnerStackingLocked();
+        return Setting.SPAWNER_STACKING_ENABLED.getBoolean();
     }
 
     /**
@@ -531,46 +501,6 @@ public class StackManager extends Manager implements StackingLogic {
 
         DataUtils.writeStackedItem(stackedItem);
         fromThread.transferExistingEntityStack(entityUUID, stackedItem, toThread);
-    }
-
-    /**
-     * Processes chunks that are either pending load or unload
-     */
-    private void processPendingChunks() {
-        // This is here just for safety, it should hopefully never be used
-        if (this.processingChunks && System.currentTimeMillis() - this.processingChunksTime >= 10000)
-            this.processingChunks = false;
-
-        if (this.processingChunks)
-            return;
-
-        if (!this.pendingLoadChunks.isEmpty()) {
-            List<Chunk> convertChunks = new ArrayList<>();
-            List<Entity> convertChunkEntities = new ArrayList<>();
-
-            for (Chunk chunk : this.pendingLoadChunks.keySet()) {
-                if (!chunk.isLoaded() || !this.conversionManager.hasConversions() || PersistentDataUtils.isChunkConverted(chunk))
-                    continue;
-
-                convertChunks.add(chunk);
-                convertChunkEntities.addAll(List.of(chunk.getEntities()));
-                PersistentDataUtils.setChunkConverted(chunk);
-            }
-
-            if (convertChunks.isEmpty())
-                return;
-
-            this.processingChunks = true;
-            this.processingChunksTime = System.currentTimeMillis();
-
-            ThreadUtils.runAsync(() -> {
-                if (!convertChunkEntities.isEmpty())
-                    this.conversionManager.convertChunkEntities(convertChunkEntities);
-                this.processingChunks = false;
-            });
-
-            this.pendingLoadChunks.clear();
-        }
     }
 
     public void processNametags() {

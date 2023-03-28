@@ -64,12 +64,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &ena-load ang mga block stack, na
 command-stats-stacked-spawners: '&b%stackAmount% &ena-load na mga stack ng spawner, na kabuuan &b%total% &ena spawners.'
 command-stats-active-tasks: '&b%amount% &eaktibong gawain.'
 
-# Convert Command
-command-convert-description: 'Nagko-convert ng data mula sa isa pang stacking plugin'
-command-convert-converted: '&eConverted data from &b%plugin% &eto {{PLUGIN_NAME}}. Hindi pinagana ang na-convert na plugin. Tiyaking aalisin ang na-convert na plugin mula sa iyong folder ng mga plugin.'
-command-convert-failed: '&cNabigong mag-convert &b%plugin%&c, plugin ay hindi pinagana.'
-command-convert-aborted: '&cInalis ang pagtatangkang mag-convert &b%plugin%&c. Nag-convert ka na mula sa isa pang stacking plugin.'
-
 # Translate Command
 command-translate-description: 'Isinalin ang mga pangalan ng stack'
 command-translate-loading: '&ePag-download at paglalapat ng data ng pagsasalin, maaari itong tumagal ng ilang sandali.'
@@ -218,9 +212,6 @@ argument-handler-material: 'Walang nakitang materyal na may pangalang [%input%]'
 argument-handler-stackamount: 'Ang laki ng stack [%input%] ay di-wasto, dapat ay isang numerong mas mataas sa 0'
 argument-handler-stacktype: 'Ang uri ng stack na [%input%] ay hindi wasto'
 argument-handler-translationlocale: 'Ang lokal na pagsasalin [%input%] ay hindi wasto'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cMayroong mga plugin sa iyong server na kilalang sumasalungat sa {{PLUGIN_NAME}}. Upang mapigilan ang mga pagkakasalungatan at/o pagkawala ng data, hindi pinagana ng {{PLUGIN_NAME}} ang isa o higit pang mga uri ng stack. Ang isang file ay nilikha sa mga plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} kung saan maaari mong i-configure ang mga hindi pinagana na uri ng stack. Papayagan ka rin ng file na iyon na kilalanin na nabasa mo ang babalang ito at hahayaan kang huwag paganahin ang mensaheng ito.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cBabala! &eKailangan mong gumamit ng isang sutla na pick picke at / o may pahintulot na kunin ang mga spawner. Hindi mo magagawa kung hindi man.'

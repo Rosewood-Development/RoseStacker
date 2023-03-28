@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
-import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -25,17 +24,6 @@ public final class PersistentDataUtils {
     private static final String NO_AI_METADATA_NAME = "no_ai";
     private static final String SPAWNED_FROM_SPAWNER_METADATA_NAME = "spawner_spawned";
     private static final String TOTAL_SPAWNS_METADATA_NAME = "total_spawns";
-    public static final NamespacedKey CONVERTED_KEY = new NamespacedKey(RoseStacker.getInstance(), "converted");
-
-    public static boolean isChunkConverted(Chunk chunk) {
-        PersistentDataContainer pdc = chunk.getPersistentDataContainer();
-        return pdc.has(CONVERTED_KEY, PersistentDataType.INTEGER);
-    }
-
-    public static void setChunkConverted(Chunk chunk) {
-        PersistentDataContainer pdc = chunk.getPersistentDataContainer();
-        pdc.set(CONVERTED_KEY, PersistentDataType.INTEGER, 1);
-    }
 
     public static void setUnstackable(Entity entity, boolean unstackable) {
         RosePlugin rosePlugin = RoseStacker.getInstance();

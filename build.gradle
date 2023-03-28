@@ -69,6 +69,9 @@ shadowJar {
 
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
     relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
+
+    exclude 'dev/rosewood/rosegarden/lib/hikaricp/**/*.class'
+    exclude 'dev/rosewood/rosegarden/lib/slf4j/**/*.class'
 }
 
 publishing {

@@ -63,12 +63,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &eGeladene Block stacks, insgesam
 command-stats-stacked-spawners: '&b%stackAmount% &eGeladene Spawner-Stacks, insgesamt &b%total% &eSpawner.'
 command-stats-active-tasks: '&b%amount% &eaktive Prozesse.'
 
-# Convert Command
-command-convert-description: 'Daten von anderem Plugin Konvertieren'
-command-convert-converted: '&eDaten von &b%plugin% &ezu {{PLUGIN_NAME}} Konvertiert. Das Konvertierte Plugin wurde Deaktiviert. Stelle sicher das Konvertierte Plugin vom Plugins Ordner zu Entfernen.'
-command-convert-failed: '&cFehler beim Konvertieren von &b%plugin%&c, Plugin ist nicht aktiv.'
-command-convert-aborted: '&cKonvertierung des Plugins &b%plugin%&c abgebrochen. Du hast schon von einem anderen Stack-Plugin Konvertiert.'
-
 # Translate Command
 command-translate-description: 'Übersetzt die Stack-Namen'
 command-translate-loading: '&eHerunterladen und anwenden der Übersetzungs-Daten, dies kann einen Moment dauern.'
@@ -217,9 +211,6 @@ argument-handler-material: 'Kein Material mit dem Namen [%input%] gefunden'
 argument-handler-stackamount: 'Die größe vom Stack [%input%] ist nicht gültig. Die Zahl muss größer als 0 sein'
 argument-handler-stacktype: 'Der Stack Typ [%input%] ist nicht gültig'
 argument-handler-translationlocale: 'Die Übersetzung [%input%] ist nicht gültig'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cAuf deinem Server gibt es Plugins die dafür bekannt sind probleme mit {{PLUGIN_NAME}} aufzubringen. Um konflikte und/oder Datenverlust zu verhindern hat {{PLUGIN_NAME}} ein oder mehrere Stack-Typen deaktiviert. Eine Datei wurde erstellt im verzeichnis: plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} Wo du deine Deaktivierten Stack-Typen Konfigurieren kannst. Diese Datei wird dir ebenso die möglichkeit geben zu bestätigen dass du diese Warnung gelesen hast und somit diese Warnmeldung deaktivieren.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cWarnung! &eDu musst eine Spitzhacke mit Behutsamkeit nutzen und/oder die berechtigung Spawner aufzuheben. Andernfalls wird es nicht möglich sein'

@@ -63,12 +63,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &eloaded block stacks, totaling &
 command-stats-stacked-spawners: '&b%stackAmount% &eloaded spawner stacks, totaling &b%total% &espawners.'
 command-stats-active-tasks: '&b%amount% &eactive tasks.'
 
-# Convert Command
-command-convert-description: 'Converts data from another stacking plugin'
-command-convert-converted: '&eConverted data from &b%plugin% &eto {{PLUGIN_NAME}}. The converted plugin has been disabled. Make sure to remove the converted plugin from your plugins folder.'
-command-convert-failed: '&cFailed to convert &b%plugin%&c, plugin is not enabled.'
-command-convert-aborted: '&cAborted attempting to convert &b%plugin%&c. You have already converted from another stacking plugin.'
-
 # Translate Command
 command-translate-description: 'Translates the stack names'
 command-translate-loading: '&eDownloading and applying translation data, this may take a moment.'
@@ -217,9 +211,6 @@ argument-handler-material: 'No material with the name [%input%] was found'
 argument-handler-stackamount: 'The stack size [%input%] is invalid, must be a number greater than 0'
 argument-handler-stacktype: 'The stack type [%input%] is invalid'
 argument-handler-translationlocale: 'The translation locale [%input%] is invalid'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cThere are plugins on your server that are known to conflict with {{PLUGIN_NAME}}. In order to prevent conflictions and/or data loss, {{PLUGIN_NAME}} has disabled one or more stack types. A file has been created at plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} where you can configure the disabled stack types. That file will also allow you to acknowledge that you have read this warning and let you to disable this message.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cWarning! &eYou need to use a silk touch pickaxe and/or have the permission to pick up spawners. You will be unable to do so otherwise.'

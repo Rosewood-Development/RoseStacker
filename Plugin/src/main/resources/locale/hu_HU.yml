@@ -64,12 +64,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &ebetöltött blokk stack, össze
 command-stats-stacked-spawners: '&b%stackAmount% &ebetöltött spawner stack, összesen &b%total% &espawner.'
 command-stats-active-tasks: '&b%amount% &eactive feladatok.'
 
-# Convert Command
-command-convert-description: 'Adatokat konvertál másik stackelő pluginból'
-command-convert-converted: '&eAdatok konvertálva &b%plugin%-ból/ből &ea {{PLUGIN_NAME}}be. Az át konvertált plugin kikapcsolva. Legyél biztos abban hogy eltávolítod a régi stackelő plugint a plugins mappából.'
-command-convert-failed: '&cSikertelen konvertálás &b%plugin%-ból/ből&c, a plugin nincs betöltve.'
-command-convert-aborted: '&cAdatok konvertálása a &b%plugin%-ból/ből &cmegszakítva. Már konvertáltál egy másik stackelő plugint.'
-
 # Translate Command
 command-translate-description: 'Lefordítja a stack neveket'
 command-translate-loading: '&eFordítás adatok letöltése és alkalmazása, ez eltarthat egy darabig.'
@@ -218,9 +212,6 @@ argument-handler-material: 'Ilyen névvel [%input%] nincs ismert anyag'
 argument-handler-stackamount: 'A stack méret [%input%] nem érvényes, 0-nál nagyobb számnak kell lennie'
 argument-handler-stacktype: 'Stack méret [%input%] nem érvényes'
 argument-handler-translationlocale: 'A fordítási szín [%input%] nem érvényes'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cOlyan pluginok vannak a szervereden amikről tudjuk hogy konfliktusba fognak kerülni a {{PLUGIN_NAME}} el. Hogy megelőzzük a konfliktust és/vagy az adat vesztést, {{PLUGIN_NAME}} kikapcsolt egy vagy több stack típust. Egy fájl létre lett hozva itt plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} ahol be tudod állítani a kikapcsolt stackelés típusokat. Ez a fájl lehetővéteszi hogy megtudhasd hogy van egy ilyen figyelmeztetés és el dönthesd kikapcsolod-e ezt az üzenetet.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cFigyelmeztetés! &eSzükséged van egy Gyengéd Érintéses csákányra és/vagy legyen jogod felszedni anélkül a spawnert. Egyébként nem fogod tudni felszedni.'

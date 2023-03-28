@@ -64,12 +64,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &estack-uri de block-uri incarcat
 command-stats-stacked-spawners: '&b%stackAmount% &estack-uri de spawnere incarcate, in total &b%total% &espawnere.'
 command-stats-active-tasks: '&b%amount% &eactive feladatok.'
 
-# Convert Command
-command-convert-description: 'Converteste datele dintr-un alt plugin'
-command-convert-converted: '&eS-a convertit data din &b%plugin% &ein {{PLUGIN_NAME}}. Plugin-ul convertit a fost dezactivat, nu uita sa stergi il din fisierul cu plugin-uri.'
-command-convert-failed: '&cConvertirea plugin-ului &b%plugin%&c a esuat, plugin-ul este dezactivat.'
-command-convert-aborted: '&cConvertirea plugin-ului &b%plugin%&c a esuat, deja ai convertit din alt plugin de stackare.'
-
 # Translate Command
 command-translate-description: 'Traduce plugin-ul'
 command-translate-loading: '&eSe descarca si aplica datele traducerii, asteapta cateva momente.'
@@ -218,9 +212,6 @@ argument-handler-material: 'Nu a fost găsit niciun material cu numele [%input%]
 argument-handler-stackamount: 'Dimensiunea stivei [%input%] nu este validă, trebuie să fie un număr mai mare decât 0'
 argument-handler-stacktype: 'Tipul de stivă [%input%] nu este valid'
 argument-handler-translationlocale: 'Locația de traducere [%input%] nu este validă'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cSunt plugin-uri ce se afla in conflict cu {{PLUGIN_NAME}}, pentru a preveni aceste conflicte si/sau pierderea datelor, {{PLUGIN_NAME}} a dezactivat unu sau mai multe stack types. Un document a fost creat in plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} unde poti configura stack types dezactivate. Acel document, de asemenea, iti va aduce la cunostiinta ca ai citit acest avertisment si te va lasa sa il dezactivezi.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cAtentie! &eAi nevoie de un tarnacop cu Silk Touch si/sau trebuie sa ai permisiunea de a lua spawnerele.'

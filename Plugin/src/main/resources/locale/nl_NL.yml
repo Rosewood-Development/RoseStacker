@@ -64,12 +64,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &eBlok stacks geladen, totaal van
 command-stats-stacked-spawners: '&b%stackAmount% &eSpawner stacks geladen, totaal van &b%total% &espawners.'
 command-stats-active-tasks: '&b%amount% &eactieve taken.'
 
-# Convert Command
-command-convert-description: 'Converteert data van een andere plugin'
-command-convert-converted: '&eData van &b%plugin% &eto {{PLUGIN_NAME}} geconverteerd. De geconverteerde data is uigeschakeld. Zorg zeker dat je de geconverteerde plugin uit je plugin folder verwijderd.'
-command-convert-failed: '&cConverteren mislukt &b%plugin%&c, de plugin is niet ingeschakeld.'
-command-convert-aborted: '&cPogin tot converteren geanuleerd &b%plugin%&c. Je hebt al geconverteerd van een andere stack plugin.'
-
 # Translate Command
 command-translate-description: 'Vertaald de stack namen'
 command-translate-loading: '&eDownloaden en implementeren van stack vertaling data, dit kan even duren.'
@@ -218,9 +212,6 @@ argument-handler-material: 'Geen materiaal met de naam [%input%] gevonden'
 argument-handler-stackamount: 'De stack grootte [%input%] is ongeldig, het nummer moet groter zijn dan 0'
 argument-handler-stacktype: 'Het stack type [%input%] is ongeldig'
 argument-handler-translationlocale: 'De vertaling folder [%input%] is ongeldig'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&cEr zijn plugin op je server die gekend zijn om te rotzooien met {{PLUGIN_NAME}}. Om conflicten en data verlies te voorkomen, heeft {{PLUGIN_NAME}} 1 of meerder stack soorten uitgeschakeld. Een bestand is aangemaakt in plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} waar je de uitgeschakelde stack soorten kan configureren. Dat bestand zal ook doorhebben dat je dit heb gelezen en stoppen met dit bericht weer te geven.'
 
 # Misc Messages
 spawner-silk-touch-protect: '&cWarning! &eJe moet een silk touch pickaxe gebruiken of je hebt geen permissie om spawner op te rapen. Anders kan je dit niet doen.'

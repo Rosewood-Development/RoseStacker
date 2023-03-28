@@ -64,12 +64,6 @@ command-stats-stacked-blocks: '&b%stackAmount% &e個已加載的堆疊方塊, �
 command-stats-stacked-spawners: '&b%stackAmount% &e個已加載的生怪磚, 共 &b%total% &e個生怪磚。'
 command-stats-active-tasks: '&b%amount%&e活動任務。'
 
-# 轉換指令
-command-convert-description: '從其他堆疊插件載入資料'
-command-convert-converted: '&e已成功把 &b%plugin% 的資料 &e轉換到 {{PLUGIN_NAME}}。 轉換數據來源的插件已經被停用，請確保你已經把該插件從插件文件夾中移除。'
-command-convert-failed: '&c無法轉換 &b%plugin%&c 的資料，該插件並未啟用。'
-command-convert-aborted: '&c已中止轉換 &b%plugin%&c 的資料， 你已經正在轉換另一個堆疊插件的資料了。'
-
 # 翻譯指令
 command-translate-description: '翻譯堆疊個體的名稱。'
 command-translate-loading: '&e正在下載及使用翻譯文件，這過程可能需要一些時間。'
@@ -218,9 +212,6 @@ argument-handler-material: '找不到名稱為 [%input%] 的材料'
 argument-handler-stackamount: '堆棧大小 [%input%] 無效，必須是大於 0 的數字'
 argument-handler-stacktype: '堆棧類型 [%input%] 無效'
 argument-handler-translationlocale: '翻譯語言環境 [%input%] 無效'
-
-# Convert Lock Messages
-convert-lock-conflictions: '&c你的伺服器上有插件已知會與 {{PLUGIN_NAME}} 產生衝突。為了防止衝突發生或數據遺失, {{PLUGIN_NAME}} 已經停用了一個或更多的堆疊類別。 一個檔案於已經於 plugins/{{PLUGIN_NAME}}/{{CONVERT_LOCK_FILE}} 產生了，你可以在此設定已停用的堆疊類別 你亦可以於此檔案確認你已經閱讀了此警告，並停止顯示此訊息。'
 
 # 其他訊息
 spawner-silk-touch-protect: '&c警告! &e你需要使用擁有絲綢之觸附魔的十字鎬或擁有拾起生怪磚的權限。 否則你不能這樣做。'
