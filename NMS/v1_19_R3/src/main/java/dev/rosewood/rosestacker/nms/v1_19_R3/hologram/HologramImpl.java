@@ -20,14 +20,14 @@ import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_19_R3.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
-public class TextDisplayHologramImpl extends Hologram {
+public class HologramImpl extends Hologram {
 
     private static final List<SynchedEntityData.DataValue<?>> DATA_VALUES = List.of(
             SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(14), (byte) 3), // Billboard Constraint (Center)
             SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(16), 1.0F)     // Visibility, always visible since these are hidden behind walls
     );
 
-    public TextDisplayHologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
+    public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
         super(text, location, entityIdSupplier);
     }
 
