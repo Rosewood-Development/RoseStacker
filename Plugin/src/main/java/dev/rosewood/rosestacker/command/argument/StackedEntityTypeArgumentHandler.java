@@ -5,7 +5,7 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.StackedEntityType;
+import dev.rosewood.rosestacker.command.argument.StackedEntityTypeArgumentHandler.StackedEntityType;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import java.util.Arrays;
 import java.util.List;
@@ -36,5 +36,7 @@ public class StackedEntityTypeArgumentHandler extends RoseCommandArgumentHandler
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }
+
+    public record StackedEntityType(EntityType entityType) { }
 
 }

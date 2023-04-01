@@ -5,7 +5,7 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.StackedBlockMaterial;
+import dev.rosewood.rosestacker.command.argument.StackedBlockMaterialArgumentHandler.StackedBlockMaterial;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import java.util.Arrays;
 import java.util.List;
@@ -36,5 +36,7 @@ public class StackedBlockMaterialArgumentHandler extends RoseCommandArgumentHand
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }
+
+    public record StackedBlockMaterial(Material material) { }
 
 }

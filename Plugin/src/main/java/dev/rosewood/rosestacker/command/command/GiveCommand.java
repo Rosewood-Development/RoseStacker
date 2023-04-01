@@ -10,12 +10,12 @@ import dev.rosewood.rosegarden.command.framework.annotation.Optional;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.command.type.StackedBlockAmount;
-import dev.rosewood.rosestacker.command.type.StackedBlockMaterial;
-import dev.rosewood.rosestacker.command.type.StackedEntityAmount;
-import dev.rosewood.rosestacker.command.type.StackedEntityType;
-import dev.rosewood.rosestacker.command.type.StackedSpawnerAmount;
-import dev.rosewood.rosestacker.command.type.StackedSpawnerType;
+import dev.rosewood.rosestacker.command.argument.StackedBlockAmountArgumentHandler.StackedBlockAmount;
+import dev.rosewood.rosestacker.command.argument.StackedBlockMaterialArgumentHandler.StackedBlockMaterial;
+import dev.rosewood.rosestacker.command.argument.StackedEntityAmountArgumentHandler.StackedEntityAmount;
+import dev.rosewood.rosestacker.command.argument.StackedEntityTypeArgumentHandler.StackedEntityType;
+import dev.rosewood.rosestacker.command.argument.StackedSpawnerAmountArgumentHandler.StackedSpawnerAmount;
+import dev.rosewood.rosestacker.command.argument.StackedSpawnerTypeArgumentHandler.StackedSpawnerType;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
@@ -76,13 +76,13 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedBlockMaterial material, StackedBlockAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material.get());
+            BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material.material());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
-            if (stackSize.get() > stackSettings.getMaxStackSize()) {
+            if (stackSize.amount() > stackSettings.getMaxStackSize()) {
                 localeManager.sendMessage(context.getSender(), "command-give-too-large");
                 return;
             }
@@ -90,10 +90,10 @@ public class GiveCommand extends RoseCommand {
             if (amount == null || amount < 1)
                 amount = 1;
 
-            ItemStack item = ItemUtils.getBlockAsStackedItemStack(material.get(), stackSize.get());
+            ItemStack item = ItemUtils.getBlockAsStackedItemStack(material.material(), stackSize.amount());
             giveDuplicates(target, item, amount);
 
-            String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
+            String displayString = localeManager.getLocaleMessage("block-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.amount()))
                     .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", target.getName())
@@ -124,13 +124,13 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedSpawnerType spawnerType, StackedSpawnerAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType.get());
+            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType.spawnerType());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
-            if (stackSize.get() > stackSettings.getMaxStackSize()) {
+            if (stackSize.amount() > stackSettings.getMaxStackSize()) {
                 localeManager.sendMessage(context.getSender(), "command-give-too-large");
                 return;
             }
@@ -138,15 +138,15 @@ public class GiveCommand extends RoseCommand {
             if (amount == null || amount < 1)
                 amount = 1;
 
-            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(spawnerType.get(), stackSize.get());
+            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(spawnerType.spawnerType(), stackSize.amount());
             giveDuplicates(target, item, amount);
 
             String displayString;
-            if (stackSize.get() == 1) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
+            if (stackSize.amount() == 1) {
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.amount()))
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.amount()))
                         .addPlaceholder("name", stackSettings.getDisplayName()).build());
             }
 
@@ -178,13 +178,13 @@ public class GiveCommand extends RoseCommand {
         @RoseExecutable
         public void execute(@Inject CommandContext context, Player target, StackedEntityType entityType, StackedEntityAmount stackSize, @Optional Integer amount) {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
-            EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType.get());
+            EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType.entityType());
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
                 localeManager.sendMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
-            if (stackSize.get() > stackSettings.getMaxStackSize()) {
+            if (stackSize.amount() > stackSettings.getMaxStackSize()) {
                 localeManager.sendMessage(context.getSender(), "command-give-too-large");
                 return;
             }
@@ -192,7 +192,7 @@ public class GiveCommand extends RoseCommand {
             if (amount == null || amount < 1)
                 amount = 1;
 
-            ItemStack item = ItemUtils.getEntityAsStackedItemStack(entityType.get(), stackSize.get());
+            ItemStack item = ItemUtils.getEntityAsStackedItemStack(entityType.entityType(), stackSize.amount());
             if (item == null) {
                 this.rosePlugin.getManager(LocaleManager.class).sendMessage(context.getSender(), "command-give-usage");
                 return;
@@ -200,7 +200,7 @@ public class GiveCommand extends RoseCommand {
 
             giveDuplicates(target, item, amount);
 
-            String displayString = localeManager.getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.get()))
+            String displayString = localeManager.getLocaleMessage("entity-stack-display-spawn-egg", StringPlaceholders.builder("amount", StackerUtils.formatNumber(stackSize.amount()))
                     .addPlaceholder("name", stackSettings.getDisplayName()).build());
 
             StringPlaceholders placeholders = StringPlaceholders.builder("player", target.getName())

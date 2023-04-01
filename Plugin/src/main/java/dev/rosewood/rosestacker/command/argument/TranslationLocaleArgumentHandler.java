@@ -5,7 +5,7 @@ import dev.rosewood.rosegarden.command.framework.ArgumentParser;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentHandler;
 import dev.rosewood.rosegarden.command.framework.RoseCommandArgumentInfo;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.command.type.TranslationLocale;
+import dev.rosewood.rosestacker.command.argument.TranslationLocaleArgumentHandler.TranslationLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import java.util.List;
 
@@ -30,5 +30,7 @@ public class TranslationLocaleArgumentHandler extends RoseCommandArgumentHandler
         argumentParser.next();
         return this.rosePlugin.getManager(LocaleManager.class).getPossibleTranslationLocales();
     }
+
+    public record TranslationLocale(String name) { }
 
 }

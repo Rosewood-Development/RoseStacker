@@ -8,7 +8,7 @@ import dev.rosewood.rosegarden.command.framework.annotation.Optional;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.command.framework.types.GreedyString;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.command.type.TranslationLocale;
+import dev.rosewood.rosestacker.command.argument.TranslationLocaleArgumentHandler.TranslationLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -43,7 +43,7 @@ public class TranslateCommand extends RoseCommand {
         localeManager.sendMessage(context.getSender(), "command-translate-loading");
 
         String finalSpawnerFormat = format;
-        localeManager.getMinecraftTranslationValues(locale.get(), response -> {
+        localeManager.getMinecraftTranslationValues(locale.name(), response -> {
             if (response.getResult() == LocaleManager.TranslationResponse.Result.FAILURE) {
                 localeManager.sendMessage(context.getSender(), "command-translate-failure");
                 return;
