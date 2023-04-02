@@ -312,7 +312,7 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public void preStackItems(Collection<ItemStack> items, Location location) {
+    public void preStackItems(Collection<ItemStack> items, Location location, boolean dropNaturally) {
         World world = location.getWorld();
         if (world == null)
             return;
@@ -321,7 +321,7 @@ public class StackManager extends Manager implements StackingLogic {
         if (stackingThread == null)
             return;
 
-        stackingThread.preStackItems(items, location);
+        stackingThread.preStackItems(items, location, dropNaturally);
     }
 
     @Override

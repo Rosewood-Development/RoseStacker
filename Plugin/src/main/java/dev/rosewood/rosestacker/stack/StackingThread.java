@@ -710,7 +710,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
-    public void preStackItems(Collection<ItemStack> items, Location location) {
+    public void preStackItems(Collection<ItemStack> items, Location location, boolean dropNaturally) {
         if (location.getWorld() == null)
             return;
 
@@ -737,7 +737,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     amount -= stackSize;
                     ItemStack toDrop = itemStack.clone();
                     toDrop.setAmount(stackSize);
-                    location.getWorld().dropItemNaturally(location, toDrop);
+                    if (dropNaturally) {
+                        location.getWorld().dropItemNaturally(location, toDrop);
+                    } else {
+                        location.getWorld().dropItem(location, toDrop);
+                    }
                 }
             }
             return;
@@ -750,7 +754,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (entry.getValue() <= 0)
                 continue;
 
-            Item item = location.getWorld().dropItemNaturally(location, entry.getKey());
+            Item item;
+            if (dropNaturally) {
+                item = location.getWorld().dropItemNaturally(location, entry.getKey());
+            } else {
+                item = location.getWorld().dropItem(location, entry.getKey());
+            }
+
             StackedItem stackedItem = new StackedItem(entry.getValue(), item);
             this.addItemStack(stackedItem);
             stackedItem.updateDisplay();

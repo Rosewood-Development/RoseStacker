@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
@@ -518,7 +519,9 @@ public class EntityListener implements Listener {
                     }
                 });
 
-                ThreadUtils.runSync(() -> stackManager.preStackItems(drops, sheepEntity.getLocation()));
+                Location location = sheepEntity.getLocation();
+                location.add(0, sheepEntity.getEyeHeight(), 0);
+                ThreadUtils.runSync(() -> stackManager.preStackItems(drops, location, false));
             } finally {
                 stackManager.setEntityUnstackingTemporarilyDisabled(false);
             }

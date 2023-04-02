@@ -248,7 +248,18 @@ public interface StackingLogic {
      * @param items the items to stack and spawn
      * @param location the location to spawn at
      */
-    void preStackItems(Collection<ItemStack> items, Location location);
+    default void preStackItems(Collection<ItemStack> items, Location location) {
+        this.preStackItems(items, location, true);
+    }
+
+    /**
+     * Pre-stacks a collection of ItemStacks and spawns StackedItems at the given location
+     *
+     * @param items the items to stack and spawn
+     * @param location the location to spawn at
+     * @param dropNaturally true to drop naturally, false otherwise
+     */
+    void preStackItems(Collection<ItemStack> items, Location location, boolean dropNaturally);
 
     /**
      * Drops a StackedItem at the given Location with a specified ItemStack and amount
