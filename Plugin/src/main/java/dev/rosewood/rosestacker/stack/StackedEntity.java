@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.stack;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
@@ -265,7 +267,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean isSlime = thisEntity instanceof Slime;
             boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
 
-            Map<LivingEntity, EntityStackMultipleDeathEvent.EntityDrops> entityDrops = new LinkedHashMap<>(internalEntities.size());
+            Multimap<LivingEntity, EntityStackMultipleDeathEvent.EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
             if (callEvents) {
                 if (existingLoot != null)
                     loot.addAll(existingLoot);
@@ -317,13 +319,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                         if (killedByWither)
                             entityLootList.add(new ItemStack(Material.WITHER_ROSE));
 
-                        if (entityDrops.containsKey(entity)) {
-                            EntityStackMultipleDeathEvent.EntityDrops drops = entityDrops.get(entity);
-                            drops.setExperience(drops.getExperience() + desiredExp);
-                            drops.getDrops().addAll(entityLootList);
-                        } else {
-                            entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
-                        }
+                        entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
                     }
                 }
 

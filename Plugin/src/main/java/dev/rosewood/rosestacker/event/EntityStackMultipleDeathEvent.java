@@ -1,9 +1,9 @@
 package dev.rosewood.rosestacker.event;
 
+import com.google.common.collect.Multimap;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.util.List;
-import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
@@ -22,13 +22,13 @@ public class EntityStackMultipleDeathEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final StackedEntity stackedEntity;
-    private final Map<LivingEntity, EntityDrops> entityDrops;
+    private final Multimap<LivingEntity, EntityDrops> entityDrops;
 
     /**
      * @param stackedEntity The entity being killed
      * @param entityDrops A Map of the entities being killed and their drops
      */
-    public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity, @NotNull Map<LivingEntity, EntityDrops> entityDrops) {
+    public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity, @NotNull Multimap<LivingEntity, EntityDrops> entityDrops) {
         super(!Bukkit.isPrimaryThread());
 
         this.stackedEntity = stackedEntity;
@@ -47,7 +47,7 @@ public class EntityStackMultipleDeathEvent extends Event {
      * @return a Multimap of the entities being killed and their drops
      */
     @NotNull
-    public Map<LivingEntity, EntityDrops> getEntityDrops() {
+    public Multimap<LivingEntity, EntityDrops> getEntityDrops() {
         return this.entityDrops;
     }
 
