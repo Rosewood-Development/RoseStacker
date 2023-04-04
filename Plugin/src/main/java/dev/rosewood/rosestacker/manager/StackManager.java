@@ -552,4 +552,13 @@ public class StackManager extends Manager implements StackingLogic {
         return this.entityDataStorageType;
     }
 
+    /**
+     * @return the current entity data storage type for newly created entity stacks
+     * @deprecated use {@link #getEntityDataStorageType(EntityType)} as this can now be changed per entity type
+     */
+    @Deprecated
+    public StackedEntityDataStorageType getEntityDataStorageType() {
+        return this.entityDataStorageType;
+    }
+
 }
