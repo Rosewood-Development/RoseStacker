@@ -34,7 +34,9 @@ public interface NMSHandler {
 
     List<String> UNSAFE_NBT_KEYS = List.of(
             "ArmorItems", "HandItems", "Items", "ChestedHorse", "Saddle",
-            "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health"
+            "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health",
+            "Attributes", "ActiveEffects", "ArmorDropChances", "HandDropChances", "Brain",
+            "LeftHanded", "Team"
     );
 
     /**
