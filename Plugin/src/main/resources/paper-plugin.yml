@@ -37,6 +37,8 @@ dependencies:
     required: false
   - name: Shopkeepers
     required: false
+  - name: SimplePets
+    required: false
   - name: StackMob
     required: false
   - name: UltimateStacker
