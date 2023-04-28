@@ -25,6 +25,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -193,7 +194,9 @@ public class StackedBlockGui {
         // No longer any players viewing
         this.guiContainer = null;
 
-        int newStackSize = items.stream().mapToInt(ItemStack::getAmount).sum();
+        int newStackSize = items.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(ItemStack::getAmount).sum();
         if (newStackSize == this.stackedBlock.getStackSize())
             return;
 

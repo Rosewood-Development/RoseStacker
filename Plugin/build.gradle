@@ -49,7 +49,7 @@ dependencies {
 
     // Dependencies that will be shaded into the jar
     api 'dev.rosewood:rosegarden:1.2.1'
-    api 'dev.rosewood:guiframework:1.1.2-SNAPSHOT'
+    api 'dev.rosewood:guiframework:1.1.3.10-SNAPSHOT'
 }
 
 processResources {
