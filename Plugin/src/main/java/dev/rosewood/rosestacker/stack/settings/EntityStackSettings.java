@@ -126,7 +126,7 @@ public class EntityStackSettings extends StackSettings {
         this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
         this.mergeRadius = this.settingsConfiguration.getDouble("merge-radius");
         this.onlyStackFromSpawners = this.settingsConfiguration.getDefaultedBoolean("only-stack-from-spawners");
-        this.dontStackCustomNamed = this.settingsConfiguration.getBoolean("dont-stack-custom-named");
+        this.dontStackCustomNamed = this.settingsConfiguration.getDefaultedBoolean("dont-stack-custom-named");
         String dataStorageTypeValue = this.settingsConfiguration.getString("data-storage-type", "default");
         this.dataStorageTypeOverride = dataStorageTypeValue.equalsIgnoreCase("default") ? null : StackedEntityDataStorageType.fromName(dataStorageTypeValue);
 
@@ -154,7 +154,7 @@ public class EntityStackSettings extends StackSettings {
         this.setIfNotExists("kill-entire-stack-on-death", "default");
         this.setIfNotExists("merge-radius", -1);
         this.setIfNotExists("only-stack-from-spawners", "default");
-        this.setIfNotExists("dont-stack-if-custom-named", "default");
+        this.setIfNotExists("dont-stack-custom-named", "default");
         this.setIfNotExists("data-storage-type", "default");
 
         this.stackConditions.forEach(StackConditionEntry::setDefaults);

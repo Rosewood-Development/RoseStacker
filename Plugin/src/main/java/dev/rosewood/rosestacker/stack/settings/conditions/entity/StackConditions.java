@@ -94,7 +94,7 @@ public final class StackConditions {
             if (PersistentDataUtils.isUnstackable(entity1) || PersistentDataUtils.isUnstackable(entity2))
                 return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
-            if (!stackSettings.dontStackCustomNamed() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
+            if (stackSettings.dontStackCustomNamed() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
                     && entity1.getType() != EntityType.SNOWMAN) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
                 return EntityStackComparisonResult.CUSTOM_NAMED;
 
