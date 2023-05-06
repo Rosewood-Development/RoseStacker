@@ -68,6 +68,7 @@ public class EntityStackSettings extends StackSettings {
     private final Boolean killEntireStackOnDeath;
     private final double mergeRadius;
     private final Boolean onlyStackFromSpawners;
+    private final Boolean dontStackCustomNamed;
     private final StackedEntityDataStorageType dataStorageTypeOverride;
 
     public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration, JsonObject jsonObject, EntityType entityType) {
@@ -125,6 +126,7 @@ public class EntityStackSettings extends StackSettings {
         this.killEntireStackOnDeath = this.settingsConfiguration.getDefaultedBoolean("kill-entire-stack-on-death");
         this.mergeRadius = this.settingsConfiguration.getDouble("merge-radius");
         this.onlyStackFromSpawners = this.settingsConfiguration.getDefaultedBoolean("only-stack-from-spawners");
+        this.dontStackCustomNamed = this.settingsConfiguration.getBoolean("dont-stack-custom-named");
         String dataStorageTypeValue = this.settingsConfiguration.getString("data-storage-type", "default");
         this.dataStorageTypeOverride = dataStorageTypeValue.equalsIgnoreCase("default") ? null : StackedEntityDataStorageType.fromName(dataStorageTypeValue);
 
@@ -152,6 +154,7 @@ public class EntityStackSettings extends StackSettings {
         this.setIfNotExists("kill-entire-stack-on-death", "default");
         this.setIfNotExists("merge-radius", -1);
         this.setIfNotExists("only-stack-from-spawners", "default");
+        this.setIfNotExists("dont-stack-if-custom-named", "default");
         this.setIfNotExists("data-storage-type", "default");
 
         this.stackConditions.forEach(StackConditionEntry::setDefaults);
@@ -253,6 +256,12 @@ public class EntityStackSettings extends StackSettings {
         if (this.onlyStackFromSpawners != null)
             return this.onlyStackFromSpawners;
         return Setting.ENTITY_ONLY_STACK_FROM_SPAWNERS.getBoolean();
+    }
+
+    public boolean dontStackCustomNamed() {
+        if (this.dontStackCustomNamed != null)
+            return this.dontStackCustomNamed;
+        return Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean();
     }
 
     public StackedEntityDataStorageType getStackedEntityDataStorageType() {
