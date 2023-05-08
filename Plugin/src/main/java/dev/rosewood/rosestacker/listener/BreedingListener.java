@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
@@ -96,6 +97,9 @@ public class BreedingListener implements Listener {
                 });
 
             StackerUtils.dropExperience(animal.getLocation(), totalChildren, 7 * totalChildren, totalChildren);
+
+            // Increment statistic
+            player.incrementStatistic(Statistic.ANIMALS_BRED, totalChildren);
         }, 30);
     }
 
