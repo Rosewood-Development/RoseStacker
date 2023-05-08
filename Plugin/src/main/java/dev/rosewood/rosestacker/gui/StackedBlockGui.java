@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class StackedBlockGui {
@@ -42,6 +43,7 @@ public class StackedBlockGui {
 
     private final GuiFramework guiFramework;
     private GuiContainer guiContainer;
+    private Material stackType;
 
     public StackedBlockGui(StackedBlock stackedBlock) {
         this.rosePlugin = RoseStacker.getInstance();
@@ -66,6 +68,8 @@ public class StackedBlockGui {
             view.setViewingPage(view.getViewingScreen().getMaximumPageNumber() - 1);
             player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
         }
+
+        this.stackType = this.stackedBlock.getBlock().getType();
     }
 
     /**
@@ -108,7 +112,7 @@ public class StackedBlockGui {
         GuiStringHelper confirmDestroyString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-confirm", StringPlaceholders.empty()));
         GuiStringHelper confirmCancelString = new GuiStringHelper(localeManager.getLocaleMessages("gui-stacked-block-destroy-cancel", StringPlaceholders.empty()));
 
-        List<ItemStack> stackItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), this.stackedBlock.getStackSize());
+        List<ItemStack> stackItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, this.stackedBlock.getStackSize());
         int pages = (int) Math.ceil((double) stackItems.size() / paginatedSlots.size()) + 1;
         while (stackItems.size() < pages * paginatedSlots.size())
             stackItems.add(new ItemStack(Material.AIR));
@@ -117,7 +121,7 @@ public class StackedBlockGui {
                 .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
                 .setEditableSection(editableSection, stackItems, this::updateStackedBlock)
                 .setEditFilters(GuiFactory.createScreenEditFilters()
-                        .setWhitelist(this.stackedBlock.getBlock().getType())
+                        .setWhitelist(this.stackType)
                         .setAllowModified(false))
                 .addButtonAt(47, GuiFactory.createButton()
                         .setIcon(Material.PAPER)
@@ -205,7 +209,7 @@ public class StackedBlockGui {
             BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference, false);
             Bukkit.getPluginManager().callEvent(blockStackEvent);
             if (blockStackEvent.isCancelled()) {
-                ItemUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), difference));
+                ItemUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackType, difference));
                 return;
             }
 
@@ -230,7 +234,7 @@ public class StackedBlockGui {
             stackManager.removeBlockStack(this.stackedBlock);
             this.stackedBlock.getBlock().setType(Material.AIR);
         } else if (newStackSize > maxStackSize) {
-            List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), newStackSize - maxStackSize);
+            List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, newStackSize - maxStackSize);
             ItemUtils.dropItemsToPlayer(player, overflowItems);
             this.stackedBlock.setStackSize(maxStackSize);
         }
@@ -243,22 +247,22 @@ public class StackedBlockGui {
      * @param amount The number of items to take
      */
     private void takeFromPlayer(Player player, int amount) {
-        int toRemove = amount;
-        Inventory playerInventory = player.getInventory();
-        int slot = 0;
-        while (toRemove > 0 && slot < playerInventory.getSize()) {
-            ItemStack item = playerInventory.getItem(slot);
-            if (item == null || item.getType() != this.stackedBlock.getBlock().getType())
+        PlayerInventory playerInventory = player.getInventory();
+        ItemStack[] contents = playerInventory.getContents();
+
+        for (ItemStack itemStack : contents) {
+            if (itemStack == null || itemStack.getType() != this.stackType)
                 continue;
 
-            if (toRemove >= item.getAmount()) {
-                toRemove -= item.getAmount();
-                playerInventory.setItem(slot, null);
-            } else {
-                toRemove = 0;
-                item.setAmount(item.getAmount() - toRemove);
-            }
+            int amountToTake = Math.min(amount, itemStack.getAmount());
+            itemStack.setAmount(itemStack.getAmount() - amountToTake);
+            amount -= amountToTake;
+
+            if (amount == 0)
+                break;
         }
+
+        playerInventory.setContents(contents);
     }
 
     /**
@@ -278,9 +282,9 @@ public class StackedBlockGui {
 
             List<ItemStack> itemsToDrop;
             if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
-                itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount());
+                itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, blockUnstackEvent.getDecreaseAmount());
             } else {
-                itemsToDrop = List.of(ItemUtils.getBlockAsStackedItemStack(this.stackedBlock.getBlock().getType(), blockUnstackEvent.getDecreaseAmount()));
+                itemsToDrop = List.of(ItemUtils.getBlockAsStackedItemStack(this.stackType, blockUnstackEvent.getDecreaseAmount()));
             }
 
             if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
