@@ -104,21 +104,17 @@ public class StackedSpawnerGui {
 
             ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(spawnerType)
                     .getEntityTypeData().getSkullItem();
-            ItemMeta skullMeta = skull.getItemMeta();
-            if (skullMeta != null) {
-                String displayString;
-                if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
-                    displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
-                            .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
-                } else {
-                    displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
-                            .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
-                }
-                skullMeta.setDisplayName(displayString);
-                skull.setItemMeta(skullMeta);
+
+            String skullDisplayName;
+            if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+                skullDisplayName = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
+                        .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
+            } else {
+                skullDisplayName = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
+                        .addPlaceholder("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
             }
 
-            mainScreen.addButtonAt(4, GuiFactory.createButton(skull));
+            mainScreen.addButtonAt(4, GuiFactory.createButton(skull).setName(skullDisplayName));
             mainScreen.addButtonAt(11, GuiFactory.createButton()
                     .setIcon(info)
                     .setName(this.getString("stats"))
