@@ -646,6 +646,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     nearbyStackedEntities.add(stackedEntity);
             }
 
+            Set<StackedEntity> updatedEntities = new HashSet<>();
             Set<StackedEntity> newStackedEntities = new HashSet<>();
             switch (this.stackManager.getEntityDataStorageType(entityType)) {
                 case NBT -> {
@@ -655,6 +656,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                                 stackSettings.testCanStackWith(x, newStack, false, true)).findFirst();
                         if (matchingEntity.isPresent()) {
                             matchingEntity.get().increaseStackSize(newStack.getEntity(), false);
+                            updatedEntities.add(matchingEntity.get());
                         } else {
                             nearbyStackedEntities.add(newStack);
                             newStackedEntities.add(newStack);
@@ -669,6 +671,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                             // Increase stack size by as much as we can
                             int amountToIncrease = Math.min(i, stackSettings.getMaxStackSize() - matchingEntity.get().getStackSize());
                             matchingEntity.get().increaseStackSize(amountToIncrease, false);
+                            updatedEntities.add(matchingEntity.get());
                             i -= amountToIncrease;
                         } else {
                             StackedEntity newStack = this.createNewEntity(nmsHandler, entityType, location, spawnReason, removeAi);
@@ -678,6 +681,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     }
                 }
             }
+
+            updatedEntities.forEach(StackedEntity::updateDisplay);
 
             ThreadUtils.runSync(() -> {
                 this.stackManager.setEntityStackingTemporarilyDisabled(true);
