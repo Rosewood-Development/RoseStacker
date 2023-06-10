@@ -206,9 +206,6 @@ public final class EntityUtils {
         if (cachedBoundingBoxes == null)
             cachedBoundingBoxes = new HashMap<>();
 
-        if (entityType == EntityType.SLIME || entityType == EntityType.MAGMA_CUBE)
-            return new BoundingBox(-2.5, 0, -2.5, 2.5, 2.5, 2.5);
-
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
             if (entityType == EntityType.ENDER_DRAGON) {
