@@ -7,7 +7,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.5.7'
+    version = '1.5.8'
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -16,6 +16,10 @@ allprojects {
     repositories {
         mavenCentral()
 
+        maven { url = 'https://repo.rosewooddev.io/repository/public/' }
+        maven { url = 'https://libraries.minecraft.net' }
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://repo.bg-software.com/repository/api/' }
         maven { url = 'https://bitbucket.org/kangarko/libraries/raw/master' }
         maven { url = 'https://maven.enginehub.org/repo/' }
@@ -26,10 +30,6 @@ allprojects {
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.viaversion.com/' }
         maven { url = 'https://jitpack.io' }
-        maven { url = 'https://libraries.minecraft.net' }
-        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 
         maven {
             url = 'https://repo.rosewooddev.io/repository/maven-public'
