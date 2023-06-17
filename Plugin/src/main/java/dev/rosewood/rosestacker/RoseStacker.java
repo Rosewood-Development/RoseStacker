@@ -108,7 +108,7 @@ public class RoseStacker extends RosePlugin {
             pluginManager.registerEvents(new ClearlagListener(this), this);
 
         // Try to hook with ViaVersion
-        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion"))
+        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion") && NMSUtil.getVersionNumber() < 20)
             ViaVersionHook.suppressMetadataErrors();
 
         // Try to hook with WildChests
