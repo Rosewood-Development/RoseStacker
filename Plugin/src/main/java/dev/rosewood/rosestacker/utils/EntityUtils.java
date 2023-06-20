@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
@@ -182,6 +183,8 @@ public final class EntityUtils {
         if (world == null || location.getBlockY() < world.getMinHeight() || location.getBlockY() >= world.getMaxHeight())
             return Material.AIR;
 
+        // TODO: Account for the maximum size of slimes and magma cubes
+
         try {
             ChunkLocation pair = new ChunkLocation(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
             return chunkSnapshotCache.get(pair, () -> {
@@ -205,6 +208,9 @@ public final class EntityUtils {
     public static BoundingBox getBoundingBox(EntityType entityType, Location location) {
         if (cachedBoundingBoxes == null)
             cachedBoundingBoxes = new HashMap<>();
+
+        if (entityType == EntityType.SLIME || entityType == EntityType.MAGMA_CUBE)
+            return new BoundingBox(-2.1, 0, -2.1, 2.1, 2.1, 2.1).shift(location.clone().subtract(0.5, 0, 0.5));
 
         BoundingBox boundingBox = cachedBoundingBoxes.get(entityType);
         if (boundingBox == null) {
