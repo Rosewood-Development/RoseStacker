@@ -61,6 +61,7 @@ public class StackedBlockGui {
     public void openFor(Player player) {
         if (this.isInvalid())
             this.buildGui();
+
         this.guiContainer.openFor(player);
         // TODO: Add support for switching the currently viewed page directly to GuiFramework instead, this works for now
         FrameworkView view = (FrameworkView) this.guiContainer.getCurrentViewers().get(player.getUniqueId());
@@ -68,14 +69,13 @@ public class StackedBlockGui {
             view.setViewingPage(view.getViewingScreen().getMaximumPageNumber() - 1);
             player.openInventory(view.getViewingScreen().getInventory(view.getViewingPage()));
         }
-
-        this.stackType = this.stackedBlock.getBlock().getType();
     }
 
     /**
      * Builds the GUI from scratch
      */
     private void buildGui() {
+        this.stackType = this.stackedBlock.getBlock().getType();
         this.guiContainer = GuiFactory.createContainer();
 
         List<Integer> paginatedSlots = new ArrayList<>();
