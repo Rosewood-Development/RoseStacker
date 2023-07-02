@@ -46,7 +46,6 @@ public final class ItemUtils {
 
     private final static Map<String, ItemStack> skullCache = new HashMap<>();
     private static Field field_SkullMeta_profile;
-
     private static ItemStack cachedStackingTool;
 
     public static Material getWoolMaterial(DyeColor dyeColor) {
@@ -188,6 +187,9 @@ public final class ItemUtils {
         }
 
         itemMeta.setDisplayName(displayString);
+
+        if (ConfigurationManager.Setting.SPAWNER_HIDE_VANILLA_ITEM_LORE.getBoolean())
+            itemMeta.addItemFlags(ItemFlag.values());
 
         // Set the lore, if defined
         List<String> lore = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("stack-item-lore-spawner", placeholders);
