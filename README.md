@@ -15,3 +15,7 @@ RoseStacker is compatible with Spigot and any forks. We recommend using [Paper](
 We support Minecraft versions **1.16.5** and newer running **Java 17**.
 
 If you wish to use this plugin on a 1.16.5 server (newer versions do not need this), you will need to use [Paper](https://papermc.io/) (or a fork of Paper), Java 17, and add the flag `-DPaper.IgnoreJavaVersion=true` to your server's startup parameters.
+
+### Development Builds
+
+You can find the latest stable development builds of this plugin [here](https://jenkins.rosewooddev.io/job/Rosewood%20Development/job/RoseStacker/lastStableBuild/).
