@@ -453,7 +453,7 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODE4Y2Q0NTdmYmFmMzI3ZmEzOWYxMGI1YjM2MTY2ZmQwMTgyNjQwMzY4NjUxNjRjMDJkOWU1ZmY1M2Y0NSJ9fX0=",
     "breeding_materials": [
-      "HAY_BALE"
+      "HAY_BLOCK"
     ],
     "spawn_category": "ANIMAL",
     "standard_equipment": []
@@ -861,7 +861,9 @@
       "lightness"
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODQyNDc4MGIzYzVjNTM1MWNmNDlmYjViZjQxZmNiMjg5NDkxZGY2YzQzMDY4M2M4NGQ3ODQ2MTg4ZGI0Zjg0ZCJ9fX0=",
-    "breeding_materials": [],
+    "breeding_materials": [
+      "HAY_BLOCK"
+    ],
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
@@ -873,9 +875,6 @@
       "fluid:water"
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDZkZDVlNmFkZGI1NmFjYmM2OTRlYTRiYTU5MjNiMWIyNTY4ODE3OGZlZmZhNzIyOTAyOTllMjUwNWM5NzI4MSJ9fX0=",
-    "breeding_materials": [
-      "HAY_BLOCK"
-    ],
     "spawn_category": "WATER_AMBIENT",
     "standard_equipment": []
   },
