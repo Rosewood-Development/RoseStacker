@@ -156,7 +156,7 @@ public class BlockListener implements Listener {
                 BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     stackedSpawner.setStackSize(0);
-                    ThreadUtils.runSync(() -> block.setType(Material.AIR));
+                    block.setType(Material.AIR);
                 } else {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
@@ -211,7 +211,7 @@ public class BlockListener implements Listener {
             BlockLoggingHook.recordBlockBreak(player, block);
             if (breakAmount == stackedBlock.getStackSize()) {
                 stackedBlock.setStackSize(0);
-                ThreadUtils.runSync(() -> block.setType(Material.AIR));
+                block.setType(Material.AIR);
             } else {
                 stackedBlock.increaseStackSize(-1);
             }

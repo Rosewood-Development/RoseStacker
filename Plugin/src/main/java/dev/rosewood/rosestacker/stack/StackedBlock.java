@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 public class StackedBlock extends Stack<BlockStackSettings> {
 
     private int size;
-    private Block block;
+    private final Block block;
     private StackedBlockGui stackedBlockGui;
 
     private BlockStackSettings stackSettings;
