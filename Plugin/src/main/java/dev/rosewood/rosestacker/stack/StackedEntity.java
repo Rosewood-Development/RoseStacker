@@ -527,7 +527,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         Player killer = this.entity.getKiller();
-        if (killer != null && this.getStackSize() - 1 > 0)
+        if (killer != null && this.getStackSize() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
 
         RoseStacker.getInstance().getManager(StackManager.class).removeEntityStack(this);
@@ -583,7 +583,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.decreaseStackSize();
 
         Player killer = this.entity.getKiller();
-        if (killer != null && this.getStackSize() - 1 > 0)
+        if (killer != null && this.getStackSize() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
     }
 
