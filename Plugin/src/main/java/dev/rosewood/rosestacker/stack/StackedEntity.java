@@ -341,7 +341,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             // Multiply loot
             Collection<ItemStack> finalEntityLoot;
             if (multiplier != 1) {
-                finalEntityLoot = ItemUtils.getMultipliedItemStacks(loot, multiplier);
+                finalEntityLoot = ItemUtils.getMultipliedItemStacks(loot, multiplier, true);
             } else {
                 finalEntityLoot = loot;
             }

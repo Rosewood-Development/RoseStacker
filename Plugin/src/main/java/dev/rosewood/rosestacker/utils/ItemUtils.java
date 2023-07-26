@@ -361,7 +361,7 @@ public final class ItemUtils {
         return getStackingTool().isSimilar(item);
     }
 
-    public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier) {
+    public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier, boolean reduce) {
         // Reduce and multiple counts
         Map<ItemStack, Integer> counts = reduceItemsByCounts(itemStacks).entrySet()
                 .stream()
@@ -372,7 +372,13 @@ public final class ItemUtils {
         for (Map.Entry<ItemStack, Integer> entry : counts.entrySet()) {
             ItemStack itemStack = entry.getKey();
             int amount = entry.getValue();
-            items.addAll(splitItemStack(itemStack, amount));
+            if (reduce) {
+                ItemStack clone = itemStack.clone();
+                clone.setAmount(amount);
+                items.add(clone);
+            } else {
+                items.addAll(splitItemStack(itemStack, amount));
+            }
         }
 
         return items;
