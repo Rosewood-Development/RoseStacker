@@ -533,14 +533,6 @@ public class BlockListener implements Listener {
         if (replacedType.isSolid() && !replacedType.name().equals("SCULK_VEIN")) // For whatever reason SCULK_VEIN blocks are marked as solid even though they can be replaced??
             return;
 
-        if (block.getType() == Material.SPAWNER) {
-            if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(((CreatureSpawner) block.getState()).getSpawnedType()))
-                return;
-        } else {
-            if (!stackManager.isBlockStackingEnabled() || !stackManager.isBlockTypeStackable(block))
-                return;
-        }
-
         Block against = event.getBlockAgainst();
         if (against.equals(block))
             against = against.getRelative(BlockFace.DOWN);
@@ -558,6 +550,21 @@ public class BlockListener implements Listener {
         boolean isAdditiveStack = against.getType() == block.getType();
         SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : SpawnerType.empty();
         int stackAmount = ItemUtils.getStackedItemStackAmount(placedItem);
+
+        if (block.getType() == Material.SPAWNER) {
+            if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(spawnerType))
+                return;
+
+            if (block.getState() instanceof CreatureSpawner creatureSpawner) {
+                spawnerType.get().ifPresent(x -> {
+                    creatureSpawner.setSpawnedType(x);
+                    creatureSpawner.update();
+                });
+            }
+        } else {
+            if (!stackManager.isBlockStackingEnabled() || !stackManager.isBlockTypeStackable(block))
+                return;
+        }
 
         // See if we can stack the spawner (if applicable) into one nearby
         int autoStackRange = Setting.SPAWNER_AUTO_STACK_RANGE.getInt();
@@ -625,9 +632,6 @@ public class BlockListener implements Listener {
 
         if (isAdditiveStack && ((!player.isSneaking() || (Setting.SPAWNER_STACK_ENTIRE_HAND_WHEN_SNEAKING.getBoolean() && placedItem.getType() == Material.SPAWNER)) || against.getType().isInteractable() || isDistanceStack)) {
             if (block.getType() == Material.SPAWNER) {
-                if (!stackManager.isSpawnerTypeStackable(spawnerType))
-                    return;
-
                 // Handle spawner stacking
                 if (againstSpawner == null)
                     againstSpawner = stackManager.getStackedSpawner(against);
