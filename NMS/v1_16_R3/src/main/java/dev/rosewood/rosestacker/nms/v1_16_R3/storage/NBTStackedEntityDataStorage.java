@@ -16,6 +16,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -164,6 +165,33 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
             NBTTagCompound compoundTag = iterator.next();
             LivingEntity entity = new NBTEntityDataEntry(this.rebuild(compoundTag)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
             consumer.accept(entity);
+        }
+    }
+
+    @Override
+    public void forEachTransforming(Function<LivingEntity, Boolean> function) {
+        LivingEntity thisEntity = this.entity.get();
+        if (thisEntity == null)
+            return;
+
+        synchronized (this.data) {
+            List<NBTTagCompound> data = new ArrayList<>(this.data);
+            ListIterator<NBTTagCompound> dataIterator = data.listIterator();
+            while (dataIterator.hasNext()) {
+                NBTTagCompound compoundTag = dataIterator.next();
+                LivingEntity entity = new NBTEntityDataEntry(this.rebuild(compoundTag)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
+                if (function.apply(entity)) {
+                    NBTTagCompound replacementTag = new NBTTagCompound();
+                    ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(entity, replacementTag);
+                    this.stripUnneeded(replacementTag);
+                    this.stripAttributeUuids(replacementTag);
+                    this.removeDuplicates(replacementTag);
+                    dataIterator.set(replacementTag);
+                }
+            }
+
+            this.data.clear();
+            this.data.addAll(data);
         }
     }
 

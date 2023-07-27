@@ -190,6 +190,8 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         // Handle the entity type changing
         SpawnerType spawnerType = this.spawnerTile.getSpawnerType();
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
+        if (this.stackSettings == null)
+            return;
 
         if (!spawnerType.isEmpty()) {
             if (this.stackSettings.getSpawnCountStackSizeMultiplier() != -1) this.spawnerTile.setSpawnCount(this.size * this.stackSettings.getSpawnCountStackSizeMultiplier());

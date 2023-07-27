@@ -25,9 +25,7 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -373,7 +371,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @return true if this entity should stay stacked, otherwise false
      */
     public boolean shouldStayStacked() {
-        if (this.entity == null || this.stackedEntityDataStorage.isEmpty())
+        if (this.entity == null || this.stackSettings == null || this.stackedEntityDataStorage.isEmpty())
             return true;
 
         // Ender dragons call an EnderDragonChangePhaseEvent upon entity construction

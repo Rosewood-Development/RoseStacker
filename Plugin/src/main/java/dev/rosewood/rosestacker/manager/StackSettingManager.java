@@ -301,21 +301,21 @@ public class StackSettingManager extends Manager {
     /**
      * Gets the SpawnerStackSettings for a spawner entity type
      *
-     * @param entityType The spawner entity type to get the settings of
-     * @return The SpawnerStackSettings for the spawner entity type
-     */
-    public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
-        return this.spawnerSettings.get(SpawnerType.of(entityType));
-    }
-
-    /**
-     * Gets the SpawnerStackSettings for a spawner entity type
-     *
      * @param spawnerType The spawner type to get the settings of
      * @return The SpawnerStackSettings for the spawner entity type
      */
     public SpawnerStackSettings getSpawnerStackSettings(SpawnerType spawnerType) {
         return this.spawnerSettings.get(spawnerType);
+    }
+
+    /**
+     * Gets the SpawnerStackSettings for a spawner entity type
+     *
+     * @param entityType The spawner entity type to get the settings of
+     * @return The SpawnerStackSettings for the spawner entity type
+     */
+    public SpawnerStackSettings getSpawnerStackSettings(EntityType entityType) {
+        return this.getSpawnerStackSettings(SpawnerType.of(entityType));
     }
 
     /**

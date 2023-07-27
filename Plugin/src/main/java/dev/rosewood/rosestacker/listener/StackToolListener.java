@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -86,7 +87,10 @@ public class StackToolListener implements Listener {
             this.localeManager.sendMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.single("type", stackedEntity.getStackSettings().getDisplayName()));
         } else {
             PersistentDataUtils.setUnstackable(entity, true);
-            stackedEntity.getDataStorage().forEach(x -> PersistentDataUtils.setUnstackable(x, true));
+            ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(x -> {
+                PersistentDataUtils.setUnstackable(x, true);
+                return true;
+            }));
             this.localeManager.sendMessage(player, "command-stacktool-marked-all-unstackable", StringPlaceholders.single("type", stackedEntity.getStackSettings().getDisplayName()));
         }
     }

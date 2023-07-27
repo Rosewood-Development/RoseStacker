@@ -483,40 +483,42 @@ public class EntityListener implements Listener {
         handleSheepShear(this.rosePlugin, event.getEntity());
     }
 
-    public static boolean handleSheepShear(RosePlugin rosePlugin, Entity entity) {
+    public static void handleSheepShear(RosePlugin rosePlugin, Entity entity) {
         if (entity.getType() != EntityType.SHEEP)
-            return false;
+            return;
 
         StackManager stackManager = rosePlugin.getManager(StackManager.class);
         if (stackManager.isWorldDisabled(entity.getWorld()))
-            return false;
+            return;
 
         if (!stackManager.isEntityStackingEnabled())
-            return false;
+            return;
 
         Sheep sheepEntity = (Sheep) entity;
         StackedEntity stackedEntity = stackManager.getStackedEntity(sheepEntity);
         if (stackedEntity == null)
-            return false;
+            return;
 
         if (!stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.SHEEP_SHEAR_ALL_SHEEP_IN_STACK).getBoolean()) {
             ThreadUtils.runSync(() -> {
                 if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
                     stackManager.splitEntityStack(stackedEntity);
             });
-            return false;
+            return;
         }
 
         List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);
         ThreadUtils.runAsync(() -> {
             try {
-                stackedEntity.getDataStorage().forEach(internal -> {
+                stackedEntity.getDataStorage().forEachTransforming(internal -> {
                     Sheep sheep = (Sheep) internal;
                     if (!sheep.isSheared() || stackManager.getEntityDataStorageType(sheep.getType()) == StackedEntityDataStorageType.SIMPLE) {
                         sheep.setSheared(true);
                         drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
+                        return true;
                     }
+                    return false;
                 });
 
                 Location location = sheepEntity.getLocation();
@@ -526,8 +528,6 @@ public class EntityListener implements Listener {
                 stackManager.setEntityUnstackingTemporarilyDisabled(false);
             }
         });
-
-        return true;
     }
 
     /**
@@ -562,10 +562,13 @@ public class EntityListener implements Listener {
             return;
 
         AtomicInteger regrowRemaining = new AtomicInteger(regrowAmount);
-        ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEach(internal -> {
+        ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(internal -> {
             Sheep sheep = (Sheep) internal;
-            if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0)
+            if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0) {
                 sheep.setSheared(true);
+                return true;
+            }
+            return false;
         }));
     }
 

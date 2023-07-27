@@ -133,6 +133,16 @@ public abstract class StackedEntityDataStorage {
     public abstract void forEachCapped(int count, Consumer<LivingEntity> consumer);
 
     /**
+     * Calls the given function for each element in this storage.
+     * Default implementation acts the same as {@link #forEach(Consumer)}.
+     *
+     * @param function The function to call for each element, returning true will re-serialize the element
+     */
+    public void forEachTransforming(Function<LivingEntity, Boolean> function) {
+        this.forEach(function::apply);
+    }
+
+    /**
      * Calls the given function for each element in this storage and removes any element where the function returns true
      *
      * @param function The function to call for each element
