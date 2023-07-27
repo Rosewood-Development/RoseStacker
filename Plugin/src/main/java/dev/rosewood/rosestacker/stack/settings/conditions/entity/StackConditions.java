@@ -50,6 +50,7 @@ import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Sniffer;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Strider;
 import org.bukkit.entity.Tameable;
@@ -163,9 +164,13 @@ public final class StackConditions {
             return tamer1 != null && tamer2 != null && !tamer1.getUniqueId().equals(tamer2.getUniqueId());
         });
         registerConfig(Animals.class, "breeding", false, EntityStackComparisonResult.BREEDING, (entity1, entity2) -> {
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            boolean hasEgg = entity1.getType() == EntityType.TURTLE && (nmsHandler.isTurtlePregnant((Turtle) entity1) || nmsHandler.isTurtlePregnant((Turtle) entity2));
-            return (entity1.isLoveMode() || entity2.isLoveMode() || (!entity1.canBreed() && entity1.isAdult()) || (!entity2.canBreed() && entity2.isAdult()) || hasEgg);
+            if (entity1.getType() == EntityType.TURTLE) {
+                Turtle turtle1 = (Turtle) entity1;
+                Turtle turtle2 = (Turtle) entity2;
+                if (turtle1.hasEgg() || turtle1.isLayingEgg() || turtle2.hasEgg() || turtle2.isLayingEgg())
+                    return true;
+            }
+            return entity1.isLoveMode() || entity2.isLoveMode() || (!entity1.canBreed() && entity1.isAdult()) || (!entity2.canBreed() && entity2.isAdult());
         });
         registerConfig(Ageable.class, "different-age", true, EntityStackComparisonResult.DIFFERENT_AGES, (entity1, entity2) -> entity1.isAdult() != entity2.isAdult());
         registerConfig(Ageable.class, "baby", false, EntityStackComparisonResult.BABY, (entity1, entity2) -> !entity1.isAdult() || !entity2.isAdult());

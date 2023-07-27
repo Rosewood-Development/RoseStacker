@@ -278,11 +278,6 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public boolean isTurtlePregnant(Turtle turtle) {
-        return ((CraftTurtle) turtle).getHandle().hasEgg();
-    }
-
-    @Override
     public void removeEntityGoals(LivingEntity livingEntity) {
         EntityLiving nmsEntity = ((CraftLivingEntity) livingEntity).getHandle();
         if (!(nmsEntity instanceof EntityInsentient))

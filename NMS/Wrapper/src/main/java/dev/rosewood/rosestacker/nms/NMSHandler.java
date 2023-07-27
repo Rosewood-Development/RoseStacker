@@ -99,14 +99,6 @@ public interface NMSHandler {
     void unigniteCreeper(Creeper creeper);
 
     /**
-     * Used to check if a turtle is pregnant (has an egg to lay)
-     *
-     * @param turtle the turtle
-     * @return true if the turtle is trying to lay an egg, false otherwise
-     */
-    boolean isTurtlePregnant(Turtle turtle);
-
-    /**
      * Removes entity goals and movement
      *
      * @param livingEntity The entity to remove goals and movement from
