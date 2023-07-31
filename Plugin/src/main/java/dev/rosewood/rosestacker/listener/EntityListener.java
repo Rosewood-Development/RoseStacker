@@ -558,14 +558,14 @@ public class EntityListener implements Listener {
             regrowAmount--;
         }
 
-        if (regrowAmount < 1)
+        if (regrowAmount <= 1)
             return;
 
         AtomicInteger regrowRemaining = new AtomicInteger(regrowAmount);
         ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(internal -> {
             Sheep sheep = (Sheep) internal;
-            if (!sheep.isSheared() && regrowRemaining.getAndDecrement() > 0) {
-                sheep.setSheared(true);
+            if (sheep.isSheared() && regrowRemaining.getAndDecrement() > 0) {
+                sheep.setSheared(false);
                 return true;
             }
             return false;
