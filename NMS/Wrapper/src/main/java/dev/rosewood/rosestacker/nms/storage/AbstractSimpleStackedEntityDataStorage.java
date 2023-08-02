@@ -39,8 +39,8 @@ public abstract class AbstractSimpleStackedEntityDataStorage extends StackedEnti
     }
 
     @Override
-    public void addAll(List<EntityDataEntry> entityDataEntry) {
-        this.size += entityDataEntry.size();
+    public void addAll(StackedEntityDataStorage stackedEntityDataStorage) {
+        this.size += stackedEntityDataStorage.size();
     }
 
     @Override

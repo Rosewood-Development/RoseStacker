@@ -67,8 +67,8 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
-    public void addAll(List<EntityDataEntry> entityDataEntry) {
-        entityDataEntry.forEach(entry -> {
+    public void addAll(StackedEntityDataStorage stackedEntityDataStorage) {
+        stackedEntityDataStorage.getAll().forEach(entry -> {
             CompoundTag compoundTag = ((NBTEntityDataEntry) entry).get();
             this.stripUnneeded(compoundTag);
             this.stripAttributeUuids(compoundTag);

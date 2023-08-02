@@ -53,11 +53,11 @@ public abstract class StackedEntityDataStorage {
     public abstract void add(LivingEntity entity);
 
     /**
-     * Adds all given entries
+     * Adds all given entries from another storage
      *
-     * @param entityDataEntry The StackedEntityDataEntry entries to add
+     * @param stackedEntityDataStorage The storage to add from
      */
-    public abstract void addAll(List<EntityDataEntry> entityDataEntry);
+    public abstract void addAll(StackedEntityDataStorage stackedEntityDataStorage);
 
     /**
      * Adds a number of clones to the data storage

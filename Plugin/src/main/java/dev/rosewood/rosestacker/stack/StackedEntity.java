@@ -136,7 +136,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     }
 
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
-        this.stackedEntityDataStorage.addAll(serializedStackedEntities.getAll());
+        this.stackedEntityDataStorage.addAll(serializedStackedEntities);
         this.updateDisplay();
     }
 
