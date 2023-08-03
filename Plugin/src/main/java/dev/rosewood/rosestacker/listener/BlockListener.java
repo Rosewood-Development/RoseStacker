@@ -588,9 +588,11 @@ public class BlockListener implements Listener {
                     }
                 }
             } else {
-                Chunk chunk = block.getChunk();
+                int blockChunkX = block.getLocation().getBlockX() >> 4;
+                int blockChunkZ = block.getLocation().getBlockZ() >> 4;
                 for (StackedSpawner spawner : spawners) {
-                    if (chunk == spawner.getBlock().getChunk()) {
+                    Block spawnerBlock = spawner.getBlock();
+                    if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ) {
                         boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
                         anyNearby |= Setting.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.getBoolean() || sameType;
                         if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
