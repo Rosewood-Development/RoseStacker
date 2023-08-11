@@ -13,6 +13,7 @@ softdepend:
   - EliteMobs
   - EpicBosses
   - EpicSpawners
+  - Insights
   - Jobs
   - LogBlock
   - mcMMO

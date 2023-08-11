@@ -19,6 +19,8 @@ dependencies:
     required: false
   - name: EpicSpawners
     required: false
+  - name: Insights
+    required: false
   - name: Jobs
     required: false
   - name: LogBlock
