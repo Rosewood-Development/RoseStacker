@@ -9,11 +9,6 @@ compileJava {
 dependencies {
     // Other modules
     compileOnly project(':NMS:Wrapper')
-    compileOnly project(':Hook:Hook-Wrapper')
-    compileOnly project(':Hook:mcMMO-New')
-    compileOnly project(':Hook:mcMMO-Old')
-    compileOnly project(':Hook:MythicMobs-New')
-    compileOnly project(':Hook:MythicMobs-Old')
 
     // Referenced dependencies
     compileOnly "io.papermc.paper:paper-api:$spigotVersion-R0.1-SNAPSHOT"
