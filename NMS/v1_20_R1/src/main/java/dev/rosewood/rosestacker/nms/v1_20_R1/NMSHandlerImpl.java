@@ -104,8 +104,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_LivingEntity_brain; // Field to get the brain of a living entity, normally protected
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
-    private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's new chunk system
-    private static Method method_EntityLookup_addNewEntity; // Method to add a new entity which is part of paper's new chunk system
+    private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's chunk system
+    private static Method method_EntityLookup_addNewEntity; // Method to add a new entity which is part of paper's chunk system
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
     private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
@@ -130,11 +130,10 @@ public class NMSHandlerImpl implements NMSHandler {
             field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
 
             try {
-                // Handle Paper's new chunk system
+                // Handle Paper's chunk system
                 field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             } catch (IllegalStateException e) {
                 field_ServerLevel_entityManager = null;
-                sendInfoConsoleMessage("Paper's new chunk system detected, using it to spawn entities");
                 field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(ServerLevel.class, "entityLookup");
             }
 
@@ -432,10 +431,8 @@ public class NMSHandlerImpl implements NMSHandler {
         if (!(level.random instanceof LegacyRandomSource))
             return;
 
-        if (!hijackedAnyRandomSources) {
+        if (!hijackedAnyRandomSources)
             hijackedAnyRandomSources = true;
-            sendInfoConsoleMessage("Hijacking world RandomSources to allow async mob creation...");
-        }
 
         try {
             LegacyRandomSource originalRandomSource = (LegacyRandomSource) level.random;
@@ -487,10 +484,6 @@ public class NMSHandlerImpl implements NMSHandler {
             case SPAWNER -> MobSpawnType.SPAWNER;
             default -> MobSpawnType.COMMAND;
         };
-    }
-
-    private static void sendInfoConsoleMessage(String message) {
-        Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info(message);
     }
 
     public void saveEntityToTag(LivingEntity livingEntity, CompoundTag compoundTag) {
