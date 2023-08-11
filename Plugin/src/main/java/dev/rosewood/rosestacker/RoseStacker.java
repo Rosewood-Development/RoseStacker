@@ -5,12 +5,10 @@ import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
-import dev.rosewood.rosestacker.hook.ViaVersionHook;
 import dev.rosewood.rosestacker.hook.WildChestsStackerProvider;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
-import dev.rosewood.rosestacker.listener.BlockShearListener;
 import dev.rosewood.rosestacker.listener.BreedingListener;
 import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntitiesLoadListener;
@@ -76,7 +74,6 @@ public class RoseStacker extends RosePlugin {
         pluginManager.registerEvents(new ItemListener(this), this);
         pluginManager.registerEvents(new StackToolListener(this), this);
         pluginManager.registerEvents(new BreedingListener(this), this);
-        pluginManager.registerEvents(new BlockShearListener(this), this);
         pluginManager.registerEvents(new BeeListener(this), this);
 
         if (NMSUtil.getVersionNumber() >= 17) {
@@ -105,10 +102,6 @@ public class RoseStacker extends RosePlugin {
         // Try to hook with Clearlag
         if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
             pluginManager.registerEvents(new ClearlagListener(this), this);
-
-        // Try to hook with ViaVersion
-//        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion") && NMSUtil.getVersionNumber() < 20)
-//            ViaVersionHook.suppressMetadataErrors();
 
         // Try to hook with WildChests
         if (Bukkit.getPluginManager().isPluginEnabled("WildChests"))

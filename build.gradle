@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.0' apply false
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
     id 'maven-publish'
 }
 
@@ -28,7 +28,7 @@ allprojects {
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
-        maven { url = 'https://repo.viaversion.com/' }
+        maven { url = 'https://repo.fvdh.dev/releases' }
         maven { url = 'https://jitpack.io' }
 
         maven {
@@ -58,11 +58,6 @@ dependencies {
     implementation project(path: ':NMS:v1_19_R2', configuration: 'remapped')
     implementation project(path: ':NMS:v1_19_R3', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R1', configuration: 'remapped')
-    implementation project(':Hook:Hook-Wrapper')
-    implementation project(':Hook:mcMMO-New')
-    implementation project(':Hook:mcMMO-Old')
-    implementation project(':Hook:MythicMobs-New')
-    implementation project(':Hook:MythicMobs-Old')
 }
 
 shadowJar {

@@ -1,5 +1,0 @@
-dependencies {
-    compileOnly project(':Hook:Hook-Wrapper')
-    compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
-    compileOnly 'com.gmail.nossr50:mcmmo:2.1.198'
-}

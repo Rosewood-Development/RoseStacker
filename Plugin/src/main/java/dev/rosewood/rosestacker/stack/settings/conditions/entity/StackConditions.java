@@ -50,7 +50,6 @@ import org.bukkit.entity.Raider;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Slime;
-import org.bukkit.entity.Sniffer;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Strider;
 import org.bukkit.entity.Tameable;

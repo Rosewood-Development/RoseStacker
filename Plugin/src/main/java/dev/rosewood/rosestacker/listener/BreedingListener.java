@@ -32,10 +32,7 @@ public class BreedingListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBreed(PlayerInteractEntityEvent event) {
         Entity entity = event.getRightClicked();
-        if (!Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean() || !(entity instanceof Animals animal))
-            return;
-
-        if (!animal.canBreed())
+        if (!(entity instanceof Animals animal) || !animal.canBreed())
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
@@ -56,6 +53,9 @@ public class BreedingListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
+        if (!Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean())
+            return;
 
         int stackSize = stackedEntity.getStackSize();
         if (stackSize < 2)

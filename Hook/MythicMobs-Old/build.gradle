@@ -1,5 +1,0 @@
-dependencies {
-    compileOnly project(':Hook:Hook-Wrapper')
-    compileOnly "org.spigotmc:spigot-api:$spigotVersion-R0.1-SNAPSHOT"
-    compileOnly 'io.lumine:Mythic-Dist:4.14.2'
-}

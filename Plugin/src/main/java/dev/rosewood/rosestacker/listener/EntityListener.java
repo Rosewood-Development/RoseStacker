@@ -49,6 +49,7 @@ import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockShearEntityEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityCombustByBlockEvent;
@@ -480,10 +481,15 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerShearSheep(PlayerShearEntityEvent event) {
-        handleSheepShear(this.rosePlugin, event.getEntity());
+        this.handleSheepShear(this.rosePlugin, event.getEntity());
     }
 
-    public static void handleSheepShear(RosePlugin rosePlugin, Entity entity) {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockShearSheep(BlockShearEntityEvent event) {
+        this.handleSheepShear(this.rosePlugin, event.getEntity());
+    }
+
+    private void handleSheepShear(RosePlugin rosePlugin, Entity entity) {
         if (entity.getType() != EntityType.SHEEP)
             return;
 

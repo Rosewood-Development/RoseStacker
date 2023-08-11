@@ -5,6 +5,7 @@ import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
+import io.lumine.mythic.bukkit.MythicBukkit;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -12,7 +13,6 @@ import simplepets.brainsynder.api.plugin.SimplePets;
 
 public class NPCsHook {
 
-    private static MythicMobsHook mythicMobsHook;
     private static Boolean mythicMobsEnabled;
 
     private static Boolean citizensEnabled;
@@ -51,18 +51,7 @@ public class NPCsHook {
         if (mythicMobsEnabled != null)
             return mythicMobsEnabled;
 
-        mythicMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("MythicMobs");
-
-        if (mythicMobsEnabled) {
-            try {
-                Class.forName("io.lumine.mythic.bukkit.MythicBukkit");
-                mythicMobsHook = new NewMythicMobsHook();
-            } catch (ReflectiveOperationException ignored) {
-                mythicMobsHook = new OldMythicMobsHook();
-            }
-        }
-
-        return mythicMobsEnabled;
+        return mythicMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("MythicMobs");
     }
 
     /**
@@ -152,8 +141,8 @@ public class NPCsHook {
         if (!npc && shopkeepersEnabled() && ShopkeepersAPI.isEnabled())
             npc = ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity);
 
-        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean() && mythicMobsHook != null)
-            npc = mythicMobsHook.isMythicMob(entity);
+        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean())
+            npc = MythicBukkit.inst().getAPIHelper().isMythicMob(entity);
 
         if (!npc && epicBossesEnabled())
             npc = EpicBosses.getInstance().getBossEntityManager().getActiveBossHolder(entity) != null;

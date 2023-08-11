@@ -43,8 +43,6 @@ dependencies:
     required: false
   - name: UltimateStacker
     required: false
-  - name: ViaVersion
-    required: false
   - name: WildChests
     required: false
   - name: WildStacker
@@ -55,7 +53,6 @@ load-after:
   - name: Clearlag
   - name: PlaceholderAPI
   - name: ShopGUIPlus
-  - name: ViaVersion
   - name: WildChests
   - name: WorldGuard
 permissions:

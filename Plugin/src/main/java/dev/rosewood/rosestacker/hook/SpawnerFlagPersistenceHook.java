@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.hook;
 
-import dev.rosewood.rosegarden.utils.RoseGardenUtils;
+import com.gmail.nossr50.mcMMO;
+import com.gmail.nossr50.metadata.MobMetaFlagType;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -14,7 +15,6 @@ import org.bukkit.plugin.Plugin;
 public class SpawnerFlagPersistenceHook {
 
     private static Boolean mcMMOEnabled;
-    private static McMMOHook mcMMOHookHandler;
     private static Boolean jobsEnabled;
     private static Boolean roseLootEnabled;
 
@@ -25,10 +25,7 @@ public class SpawnerFlagPersistenceHook {
         if (mcMMOEnabled != null)
             return mcMMOEnabled;
         Plugin plugin = Bukkit.getPluginManager().getPlugin("mcMMO");
-        mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
-        if (mcMMOEnabled)
-            mcMMOHookHandler = RoseGardenUtils.isUpdateAvailable("2.1.210", plugin.getDescription().getVersion()) ? new OldMcMMOHook() : new NewMcMMOHook();
-        return mcMMOEnabled;
+        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
     }
 
     /**
@@ -59,7 +56,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (mcMMOEnabled())
-            mcMMOHookHandler.flagSpawnerMetadata(entity, true);
+            mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
@@ -78,7 +75,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (mcMMOEnabled())
-            mcMMOHookHandler.flagSpawnerMetadata(entity, false);
+            mcMMO.getMetadataService().getMobMetadataService().removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
