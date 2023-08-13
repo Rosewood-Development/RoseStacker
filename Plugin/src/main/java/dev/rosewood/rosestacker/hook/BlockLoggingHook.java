@@ -3,12 +3,6 @@ package dev.rosewood.rosestacker.hook;
 import de.diddiz.LogBlock.Actor;
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
-import dev.frankheijden.insights.Insights;
-import dev.frankheijden.insights.api.InsightsPlugin;
-import dev.frankheijden.insights.api.concurrent.storage.ChunkStorage;
-import dev.frankheijden.insights.api.concurrent.storage.WorldStorage;
-import dev.frankheijden.insights.api.objects.wrappers.ScanObject;
-import dev.frankheijden.insights.api.utils.ChunkUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
@@ -28,7 +22,6 @@ public class BlockLoggingHook {
     private static Consumer logBlockConsumer;
 
     private static Boolean insightsEnabled;
-    private static InsightsPlugin insightsPlugin;
 
     /**
      * @return true if CoreProtect is enabled, false otherwise
@@ -78,13 +71,7 @@ public class BlockLoggingHook {
         if (insightsEnabled != null)
             return insightsEnabled;
 
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("Insights");
-        if (plugin != null) {
-            insightsPlugin = Insights.getInstance();
-            return insightsEnabled = true;
-        } else {
-            return insightsEnabled = false;
-        }
+        return insightsEnabled = Bukkit.getPluginManager().getPlugin("Insights") != null;
     }
 
     /**
@@ -107,11 +94,8 @@ public class BlockLoggingHook {
         if (logBlockEnabled())
             logBlockConsumer.queueBlockPlace(new Actor(player.getName(), player.getUniqueId()), block.getState());
 
-        if (insightsEnabled()) {
-            ChunkStorage chunkStorage = insightsPlugin.getWorldStorage().getWorld(block.getWorld().getUID());
-            long chunkKey = ChunkUtils.getKey(block.getLocation());
-            chunkStorage.get(chunkKey).ifPresent(chunk -> chunk.modify(ScanObject.of(block.getType()), 1));
-        }
+        if (insightsEnabled())
+            InsightsHook.modifyBlockAmount(block, 1);
     }
 
     /**
@@ -134,11 +118,8 @@ public class BlockLoggingHook {
         if (logBlockEnabled())
             logBlockConsumer.queueBlockBreak(new Actor(player.getName(), player.getUniqueId()), block.getState());
 
-        if (insightsEnabled()) {
-            ChunkStorage chunkStorage = insightsPlugin.getWorldStorage().getWorld(block.getWorld().getUID());
-            long chunkKey = ChunkUtils.getKey(block.getLocation());
-            chunkStorage.get(chunkKey).ifPresent(chunk -> chunk.modify(ScanObject.of(block.getType()), -1));
-        }
+        if (insightsEnabled())
+            InsightsHook.modifyBlockAmount(block, -1);
     }
 
 }
