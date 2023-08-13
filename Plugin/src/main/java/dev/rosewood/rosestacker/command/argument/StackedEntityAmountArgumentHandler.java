@@ -25,7 +25,7 @@ public class StackedEntityAmountArgumentHandler extends RoseCommandArgumentHandl
         try {
             return new StackedEntityAmount(Integer.parseInt(input));
         } catch (Exception e) {
-            throw new HandledArgumentException("argument-handler-stackamount", StringPlaceholders.single("input", input));
+            throw new HandledArgumentException("argument-handler-stackamount", StringPlaceholders.of("input", input));
         }
     }
 

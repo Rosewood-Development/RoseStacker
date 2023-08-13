@@ -99,7 +99,7 @@ public final class ConditionTags {
     public static String getErrorMessage(Class<? extends ConditionTag> tagClass, LocaleManager localeManager) {
         String prefix = ConditionTags.getPrefix(tagClass);
         return localeManager.getLocaleMessage("spawner-condition-invalid",
-                StringPlaceholders.single("message", localeManager.getLocaleMessage("spawner-condition-" + prefix + "-invalid")));
+                StringPlaceholders.of("message", localeManager.getLocaleMessage("spawner-condition-" + prefix + "-invalid")));
     }
 
 }

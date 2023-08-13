@@ -100,7 +100,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
         }
 
         List<String> displayStrings = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("block-hologram-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+                .add("name", this.stackSettings.getDisplayName()).build());
 
         hologramManager.createOrUpdateHologram(location, displayStrings);
     }

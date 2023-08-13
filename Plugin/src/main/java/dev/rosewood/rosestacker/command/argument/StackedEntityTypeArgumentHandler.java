@@ -25,7 +25,7 @@ public class StackedEntityTypeArgumentHandler extends RoseCommandArgumentHandler
                 .filter(x -> x.name().equalsIgnoreCase(input))
                 .map(StackedEntityType::new)
                 .findFirst()
-                .orElseThrow(() -> new HandledArgumentException("argument-handler-stacktype", StringPlaceholders.single("input", input)));
+                .orElseThrow(() -> new HandledArgumentException("argument-handler-stacktype", StringPlaceholders.of("input", input)));
     }
 
     @Override

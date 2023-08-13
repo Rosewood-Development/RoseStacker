@@ -22,7 +22,7 @@ public class TranslationLocaleArgumentHandler extends RoseCommandArgumentHandler
                 .filter(x -> x.equalsIgnoreCase(input))
                 .map(TranslationLocale::new)
                 .findFirst()
-                .orElseThrow(() -> new HandledArgumentException("argument-handler-translationlocale", StringPlaceholders.single("input", input)));
+                .orElseThrow(() -> new HandledArgumentException("argument-handler-translationlocale", StringPlaceholders.of("input", input)));
     }
 
     @Override

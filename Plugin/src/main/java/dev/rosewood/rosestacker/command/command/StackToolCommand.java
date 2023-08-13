@@ -34,7 +34,7 @@ public class StackToolCommand extends RoseCommand {
             target.getInventory().addItem(ItemUtils.getStackingTool());
             localeManager.sendMessage(target, "command-stacktool-given");
             if (context.getSender() != target)
-                localeManager.sendMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.single("player", target.getName()));
+                localeManager.sendMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.of("player", target.getName()));
         }
     }
 

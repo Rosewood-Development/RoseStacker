@@ -414,10 +414,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             String displayString;
             if (customName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .addPlaceholder("name", customName).build());
+                        .add("name", customName).build());
             } else {
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .addPlaceholder("name", this.stackSettings.getDisplayName()).build());
+                        .add("name", this.stackSettings.getDisplayName()).build());
             }
 
             this.displayNameVisible = !Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean();

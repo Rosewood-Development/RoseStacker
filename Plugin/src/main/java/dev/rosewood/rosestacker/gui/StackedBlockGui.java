@@ -117,7 +117,7 @@ public class StackedBlockGui {
             stackItems.add(new ItemStack(Material.AIR));
 
         GuiScreen mainScreen = GuiFactory.createScreen(this.guiContainer, GuiSize.ROWS_SIX)
-                .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
+                .setTitle(localeManager.getLocaleMessage("gui-stacked-block-title", StringPlaceholders.of("name", stackSettings.getDisplayName())))
                 .setEditableSection(editableSection, stackItems, this::updateStackedBlock)
                 .setEditFilters(GuiFactory.createScreenEditFilters()
                         .setWhitelist(this.stackType)
@@ -146,7 +146,7 @@ public class StackedBlockGui {
             mainScreen.addItemStackAt(slot, borderItem);
 
         GuiScreen confirmScreen = GuiFactory.createScreen(this.guiContainer, GuiSize.ROWS_THREE)
-                .setTitle(localeManager.getLocaleMessage("gui-stacked-block-destroy-title", StringPlaceholders.single("name", stackSettings.getDisplayName())))
+                .setTitle(localeManager.getLocaleMessage("gui-stacked-block-destroy-title", StringPlaceholders.of("name", stackSettings.getDisplayName())))
                 .addButtonAt(12, GuiFactory.createButton()
                         .setIcon(Material.EMERALD_BLOCK)
                         .setName(confirmDestroyString.getName())

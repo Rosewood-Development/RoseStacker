@@ -85,14 +85,14 @@ public abstract class ConditionTag {
 
         String info = localeManager.getLocaleMessage("spawner-condition-" + prefix + "-info");
         if (values.size() == 0) {
-            messages.add(localeManager.getLocaleMessage("spawner-condition-info", StringPlaceholders.single("condition", info)));
+            messages.add(localeManager.getLocaleMessage("spawner-condition-info", StringPlaceholders.of("condition", info)));
         } else if (values.size() == 1) {
-            StringPlaceholders placeholders = StringPlaceholders.builder("condition", info).addPlaceholder("value", values.get(0)).build();
+            StringPlaceholders placeholders = StringPlaceholders.builder("condition", info).add("value", values.get(0)).build();
             messages.add(localeManager.getLocaleMessage("spawner-condition-single", placeholders));
         } else {
-            messages.add(localeManager.getLocaleMessage("spawner-condition-list", StringPlaceholders.single("condition", info)));
+            messages.add(localeManager.getLocaleMessage("spawner-condition-list", StringPlaceholders.of("condition", info)));
             for (String value : values) {
-                StringPlaceholders placeholders = StringPlaceholders.builder("condition", info).addPlaceholder("message", value).build();
+                StringPlaceholders placeholders = StringPlaceholders.builder("condition", info).add("message", value).build();
                 messages.add(localeManager.getLocaleMessage("spawner-condition-list-item", placeholders));
             }
         }

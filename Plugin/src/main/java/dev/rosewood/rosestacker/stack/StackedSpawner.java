@@ -165,11 +165,11 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private StringPlaceholders getPlaceholders() {
         int delay = this.spawnerTile.getDelay();
         return StringPlaceholders.builder("name", this.stackSettings.getDisplayName())
-                .addPlaceholder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                .addPlaceholder("max_amount", StackerUtils.formatNumber(this.getStackSettings().getMaxStackSize()))
-                .addPlaceholder("time_remaining", StackerUtils.formatTicksAsTime(delay))
-                .addPlaceholder("ticks_remaining", StackerUtils.formatNumber(delay))
-                .addPlaceholder("total_spawned", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.spawnerTile)))
+                .add("amount", StackerUtils.formatNumber(this.getStackSize()))
+                .add("max_amount", StackerUtils.formatNumber(this.getStackSettings().getMaxStackSize()))
+                .add("time_remaining", StackerUtils.formatTicksAsTime(delay))
+                .add("ticks_remaining", StackerUtils.formatNumber(delay))
+                .add("total_spawned", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.spawnerTile)))
                 .build();
     }
 

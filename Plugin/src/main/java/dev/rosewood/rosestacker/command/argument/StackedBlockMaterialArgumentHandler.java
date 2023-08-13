@@ -25,7 +25,7 @@ public class StackedBlockMaterialArgumentHandler extends RoseCommandArgumentHand
                 .filter(x -> x.name().equalsIgnoreCase(input))
                 .map(StackedBlockMaterial::new)
                 .findFirst()
-                .orElseThrow(() -> new HandledArgumentException("argument-handler-material", StringPlaceholders.single("input", input)));
+                .orElseThrow(() -> new HandledArgumentException("argument-handler-material", StringPlaceholders.of("input", input)));
     }
 
     @Override

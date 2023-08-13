@@ -25,7 +25,7 @@ public class StackedBlockAmountArgumentHandler extends RoseCommandArgumentHandle
         try {
             return new StackedBlockAmount(Integer.parseInt(input));
         } catch (Exception e) {
-            throw new HandledArgumentException("argument-handler-stackamount", StringPlaceholders.single("input", input));
+            throw new HandledArgumentException("argument-handler-stackamount", StringPlaceholders.of("input", input));
         }
     }
 

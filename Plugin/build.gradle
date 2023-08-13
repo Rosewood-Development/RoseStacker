@@ -41,7 +41,7 @@ dependencies {
     compileOnly 'simplepets.brainsynder:simplepets:5.0-BUILD-176'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
-    compileOnly 'dev.rosewood:roseloot:1.0.0-SNAPSHOT'
+    compileOnly 'dev.rosewood:roseloot:1.2.0'
 
     // Dependencies that will be shaded into the jar
     api 'dev.rosewood:rosegarden:1.2.4'

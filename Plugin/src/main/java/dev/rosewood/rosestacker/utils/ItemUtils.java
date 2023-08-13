@@ -143,7 +143,7 @@ public final class ItemUtils {
             return itemStack;
 
         BlockStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(material);
-        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).add("name", stackSettings.getDisplayName()).build();
         String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("block-stack-display", placeholders);
 
         itemMeta.setDisplayName(displayString);
@@ -178,7 +178,7 @@ public final class ItemUtils {
             return itemStack;
 
         SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
-        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).add("name", stackSettings.getDisplayName()).build();
         String displayString;
         if (amount == 1) {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", placeholders);
@@ -228,7 +228,7 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).addPlaceholder("name", stackSettings.getDisplayName()).build();
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).add("name", stackSettings.getDisplayName()).build();
         String displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-spawn-egg", placeholders);
 
         itemMeta.setDisplayName(displayString);

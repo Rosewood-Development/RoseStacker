@@ -25,16 +25,16 @@ public class ClearallCommand extends RoseCommand {
         switch (type) {
             case ENTITY -> {
                 amount = stackManager.removeAllEntityStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.single("amount", StackerUtils.formatNumber(amount)));
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
             }
             case ITEM -> {
                 amount = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.single("amount", StackerUtils.formatNumber(amount)));
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
             }
             case ALL -> {
                 int entities = stackManager.removeAllEntityStacks();
                 int items = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", StackerUtils.formatNumber(entities)).addPlaceholder("itemAmount", StackerUtils.formatNumber(items)).build());
+                localeManager.sendMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", StackerUtils.formatNumber(entities)).add("itemAmount", StackerUtils.formatNumber(items)).build());
             }
         }
     }

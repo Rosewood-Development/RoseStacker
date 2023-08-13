@@ -31,7 +31,7 @@ public class StackedSpawnerTypeArgumentHandler extends RoseCommandArgumentHandle
                 .map(SpawnerType::of)
                 .map(StackedSpawnerType::new)
                 .findFirst()
-                .orElseThrow(() -> new HandledArgumentException("argument-handler-stacktype", StringPlaceholders.single("input", input)));
+                .orElseThrow(() -> new HandledArgumentException("argument-handler-stacktype", StringPlaceholders.of("input", input)));
     }
 
     @Override
