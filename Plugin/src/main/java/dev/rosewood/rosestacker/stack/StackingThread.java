@@ -636,7 +636,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         ThreadUtils.runAsync(() -> {
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             NMSHandler nmsHandler = NMSAdapter.getHandler();
-            boolean removeAi = Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean();
+            boolean removeAi = stackSettings.isMobAIDisabled();
 
             Collection<Entity> nearbyEntities = this.entityCacheManager.getNearbyEntities(location, stackSettings.getMergeRadius(), x -> x.getType() == entityType);
             Set<StackedEntity> nearbyStackedEntities = new HashSet<>();

@@ -69,6 +69,7 @@ public class EntityStackSettings extends StackSettings {
     private final double mergeRadius;
     private final Boolean onlyStackFromSpawners;
     private final StackedEntityDataStorageType dataStorageTypeOverride;
+    private final Boolean disableAllMobAI;
 
     public EntityStackSettings(CommentedFileConfiguration settingsFileConfiguration, JsonObject jsonObject, EntityType entityType) {
         super(settingsFileConfiguration);
@@ -127,6 +128,7 @@ public class EntityStackSettings extends StackSettings {
         this.onlyStackFromSpawners = this.settingsConfiguration.getDefaultedBoolean("only-stack-from-spawners");
         String dataStorageTypeValue = this.settingsConfiguration.getString("data-storage-type", "default");
         this.dataStorageTypeOverride = dataStorageTypeValue.equalsIgnoreCase("default") ? null : StackedEntityDataStorageType.fromName(dataStorageTypeValue);
+        this.disableAllMobAI = this.settingsConfiguration.getDefaultedBoolean("disable-all-mob-ai");
 
         this.stackConditions.forEach(StackConditionEntry::load);
         this.extraSettings.values().forEach(EntitySetting::load);
@@ -153,6 +155,7 @@ public class EntityStackSettings extends StackSettings {
         this.setIfNotExists("merge-radius", -1);
         this.setIfNotExists("only-stack-from-spawners", "default");
         this.setIfNotExists("data-storage-type", "default");
+        this.setIfNotExists("disable-all-mob-ai", "default");
 
         this.stackConditions.forEach(StackConditionEntry::setDefaults);
         this.extraSettings.values().forEach(EntitySetting::setDefaults);
@@ -257,6 +260,12 @@ public class EntityStackSettings extends StackSettings {
 
     public StackedEntityDataStorageType getStackedEntityDataStorageType() {
         return this.dataStorageTypeOverride;
+    }
+
+    public boolean isMobAIDisabled() {
+        if (this.disableAllMobAI != null)
+            return this.disableAllMobAI;
+        return Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean();
     }
 
     /**

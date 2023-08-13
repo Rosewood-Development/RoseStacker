@@ -3,9 +3,11 @@ package dev.rosewood.rosestacker.utils;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
+import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -87,7 +89,7 @@ public final class PersistentDataUtils {
     }
 
     public static void applyDisabledAi(LivingEntity entity) {
-        if (isAiDisabled(entity) || Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean()) {
+        if (isAiDisabled(entity)) {
             if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.getBoolean()) {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 nmsHandler.removeEntityGoals(entity);
@@ -114,7 +116,8 @@ public final class PersistentDataUtils {
     }
 
     public static boolean isAiDisabled(LivingEntity entity) {
-        if (Setting.ENTITY_DISABLE_ALL_MOB_AI.getBoolean())
+        EntityStackSettings entityStackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(entity.getType());
+        if (entityStackSettings != null && entityStackSettings.isMobAIDisabled())
             return true;
 
         RosePlugin rosePlugin = RoseStacker.getInstance();
