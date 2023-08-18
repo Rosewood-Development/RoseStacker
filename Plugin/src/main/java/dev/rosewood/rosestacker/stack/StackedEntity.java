@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -150,6 +151,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return null;
 
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
+        EntityCacheManager entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         LivingEntity oldEntity = this.entity;
 
         stackManager.setEntityStackingTemporarilyDisabled(true);
@@ -157,6 +159,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this.entity);
+        entityCacheManager.preCacheEntity(this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
 
         // Attempt to prevent adult entities from going into walls when a baby entity gets unstacked
