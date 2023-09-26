@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.hook;
 
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -25,7 +26,7 @@ public class SpawnerFlagPersistenceHook {
         if (mcMMOEnabled != null)
             return mcMMOEnabled;
         Plugin plugin = Bukkit.getPluginManager().getPlugin("mcMMO");
-        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2");
+        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2") && NMSUtil.getVersionNumber() >= 18;
     }
 
     /**

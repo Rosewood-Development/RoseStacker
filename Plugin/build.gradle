@@ -15,12 +15,6 @@ dependencies {
     compileOnly 'me.clip:placeholderapi:2.10.9'
     compileOnly 'org.jetbrains:annotations:23.1.0'
 
-    // Stacker plugins
-    compileOnly 'com.bgsoftware:wildstacker:3.1.1'
-    compileOnly 'com.songoda:epicspawners:6.4'
-    compileOnly 'com.songoda:ultimatestacker:2.0.8'
-    compileOnly 'uk.antiperson:stackmob:5.2.2'
-
     // Mojang dependencies
     compileOnly 'com.mojang:authlib:1.5.21'
 

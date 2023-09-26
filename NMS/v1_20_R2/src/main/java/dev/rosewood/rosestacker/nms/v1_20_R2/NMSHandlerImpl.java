@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_19_R1;
+package dev.rosewood.rosestacker.nms.v1_20_R2;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -10,14 +10,13 @@ import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
-import dev.rosewood.rosestacker.nms.v1_19_R1.entity.SoloEntitySpider;
-import dev.rosewood.rosestacker.nms.v1_19_R1.entity.SoloEntityStrider;
-import dev.rosewood.rosestacker.nms.v1_19_R1.entity.SynchedEntityDataWrapper;
-import dev.rosewood.rosestacker.nms.v1_19_R1.hologram.HologramImpl;
-import dev.rosewood.rosestacker.nms.v1_19_R1.spawner.StackedSpawnerTileImpl;
-import dev.rosewood.rosestacker.nms.v1_19_R1.storage.NBTEntityDataEntry;
-import dev.rosewood.rosestacker.nms.v1_19_R1.storage.NBTStackedEntityDataStorage;
-import dev.rosewood.rosestacker.nms.v1_19_R1.storage.SimpleStackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.v1_20_R2.entity.SoloEntitySpider;
+import dev.rosewood.rosestacker.nms.v1_20_R2.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_20_R2.hologram.HologramImpl;
+import dev.rosewood.rosestacker.nms.v1_20_R2.spawner.StackedSpawnerTileImpl;
+import dev.rosewood.rosestacker.nms.v1_20_R2.storage.NBTEntityDataEntry;
+import dev.rosewood.rosestacker.nms.v1_20_R2.storage.NBTStackedEntityDataStorage;
+import dev.rosewood.rosestacker.nms.v1_20_R2.storage.SimpleStackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -28,8 +27,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -71,15 +71,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftAbstractVillager;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftCreeper;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftAbstractVillager;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftCreeper;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
@@ -102,8 +102,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_LivingEntity_brain; // Field to get the brain of a living entity, normally protected
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
-    private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's new chunk system
-    private static Method method_EntityLookup_addNewEntity; // Method to add a new entity which is part of paper's new chunk system
+    private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's chunk system
+    private static Method method_EntityLookup_addNewEntity; // Method to add a new entity which is part of paper's chunk system
 
     private static Field field_Entity_spawnReason; // Spawn reason field (only on Paper servers, will be null for Spigot)
     private static AtomicInteger entityCounter; // Atomic integer to generate unique entity IDs, normally private
@@ -114,6 +114,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_LegacyRandomSource_seed; // Field to get the seed of a LegacyRandomSource, normally private
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
+
+    private static Field field_Entity_spawnedViaMobSpawner; // Field to get the spawnedViaMobSpawner of an Entity, added by Paper, normally public
 
     static {
         try {
@@ -126,11 +128,10 @@ public class NMSHandlerImpl implements NMSHandler {
             field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
 
             try {
-                // Handle Paper's new chunk system
+                // Handle Paper's chunk system
                 field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             } catch (IllegalStateException e) {
                 field_ServerLevel_entityManager = null;
-                sendInfoConsoleMessage("Paper's new chunk system detected, using it to spawn entities");
                 field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(ServerLevel.class, "entityLookup");
             }
 
@@ -148,6 +149,9 @@ public class NMSHandlerImpl implements NMSHandler {
             field_LegacyRandomSource_seed = ReflectionUtils.getFieldByPositionAndType(LegacyRandomSource.class, 0, AtomicLong.class);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
+
+            if (NMSAdapter.isPaper())
+                field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -163,12 +167,10 @@ public class NMSHandlerImpl implements NMSHandler {
         if (entityClass == null || !LivingEntity.class.isAssignableFrom(entityClass))
             throw new IllegalArgumentException("EntityType must be of a LivingEntity");
 
-        net.minecraft.world.entity.EntityType<? extends Entity> nmsEntityType = Registry.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(entityType.getKey()));
+        net.minecraft.world.entity.EntityType<? extends Entity> nmsEntityType = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(entityType.getKey()));
         Entity nmsEntity = this.createCreature(
                 nmsEntityType,
                 ((CraftWorld) world).getHandle(),
-                null,
-                null,
                 null,
                 new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
                 this.toNmsSpawnReason(spawnReason)
@@ -178,10 +180,10 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     /**
-     * Duplicate of {@link net.minecraft.world.entity.EntityType#create(ServerLevel, CompoundTag, Component, net.minecraft.world.entity.player.Player, BlockPos, MobSpawnType, boolean, boolean)}.
+     * Duplicate of {@link net.minecraft.world.entity.EntityType#create(ServerLevel, CompoundTag, Consumer, BlockPos, MobSpawnType, boolean, boolean)}.
      * Contains a patch to prevent chicken jockeys from spawning and to not play the mob sound upon creation.
      */
-    public <T extends Entity> T createCreature(net.minecraft.world.entity.EntityType<T> entityType, ServerLevel world, CompoundTag nbt, Component component, net.minecraft.world.entity.player.Player player, BlockPos blockPos, MobSpawnType mobSpawnType) {
+    public <T extends Entity> T createCreature(net.minecraft.world.entity.EntityType<T> entityType, ServerLevel world, CompoundTag nbt, BlockPos blockPos, MobSpawnType mobSpawnType) {
         T newEntity;
         if (entityType == net.minecraft.world.entity.EntityType.SPIDER) {
             newEntity = (T) new SoloEntitySpider((net.minecraft.world.entity.EntityType<? extends Spider>) entityType, world);
@@ -218,10 +220,7 @@ public class NMSHandlerImpl implements NMSHandler {
             mob.finalizeSpawn(world, world.getCurrentDifficultyAt(mob.blockPosition()), mobSpawnType, groupDataEntity, nbt);
         }
 
-        if (component != null && newEntity instanceof Mob)
-            newEntity.setCustomName(component);
-
-        net.minecraft.world.entity.EntityType.updateCustomEntityTag(world, player, newEntity, nbt);
+        net.minecraft.world.entity.EntityType.updateCustomEntityTag(world, null, newEntity, nbt);
 
         return newEntity;
     }
@@ -247,12 +246,12 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void updateEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, String customName, boolean customNameVisible) {
         try {
-            List<SynchedEntityData.DataItem<?>> dataItems = new ArrayList<>();
+            List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>();
             Optional<Component> nameComponent = Optional.ofNullable(CraftChatMessage.fromStringOrNull(customName));
-            dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), nameComponent));
-            dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), customNameVisible));
+            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), nameComponent));
+            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), customNameVisible));
 
-            ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket(entity.getEntityId(), new SynchedEntityDataWrapper(dataItems), false);
+            ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket(entity.getEntityId(), dataValues);
             ((CraftPlayer) player).getHandle().connection.send(entityDataPacket);
         } catch (Exception e) {
             e.printStackTrace();
@@ -262,8 +261,8 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void updateEntityNameTagVisibilityForPlayer(Player player, org.bukkit.entity.Entity entity, boolean customNameVisible) {
         try {
-            List<SynchedEntityData.DataItem<?>> dataItems = Lists.newArrayList(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), customNameVisible));
-            ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket(entity.getEntityId(), new SynchedEntityDataWrapper(dataItems), false);
+            List<SynchedEntityData.DataValue<?>> dataValues = Lists.newArrayList(SynchedEntityData.DataValue.create(EntityDataSerializers.BOOLEAN.createAccessor(3), customNameVisible));
+            ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket(entity.getEntityId(), dataValues);
             ((CraftPlayer) player).getHandle().connection.send(entityDataPacket);
         } catch (Exception e) {
             e.printStackTrace();
@@ -372,7 +371,7 @@ public class NMSHandlerImpl implements NMSHandler {
         net.minecraft.world.entity.LivingEntity nmsEntity1 = ((CraftLivingEntity) entity1).getHandle();
         Vec3 vec3d = new Vec3(nmsEntity1.getX(), nmsEntity1.getEyeY(), nmsEntity1.getZ());
         Vec3 target = new Vec3(location.getX(), location.getY(), location.getZ());
-        return nmsEntity1.level.clip(new ClipContext(vec3d, target, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
+        return nmsEntity1.level().clip(new ClipContext(vec3d, target, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, nmsEntity1)).getType() == HitResult.Type.MISS;
     }
 
     @Override
@@ -420,21 +419,36 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
+    public boolean supportsEmptySpawners() {
+        return true;
+    }
+
+    @Override
     public void hijackRandomSource(World world) {
         ServerLevel level = ((CraftWorld) world).getHandle();
         if (!(level.random instanceof LegacyRandomSource))
             return;
 
-        if (!hijackedAnyRandomSources) {
+        if (!hijackedAnyRandomSources)
             hijackedAnyRandomSources = true;
-            sendInfoConsoleMessage("Hijacking world RandomSources to allow async mob creation...");
-        }
 
         try {
             LegacyRandomSource originalRandomSource = (LegacyRandomSource) level.random;
             AtomicLong seed = (AtomicLong) field_LegacyRandomSource_seed.get(originalRandomSource);
             RandomSource hijackedRandomSource = new ThreadSafeLegacyRandomSource(seed.get());
             unsafe.putObject(level, field_Level_random_offset, hijackedRandomSource);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setPaperFromMobSpawner(org.bukkit.entity.Entity entity) {
+        if (field_Entity_spawnedViaMobSpawner == null)
+            return;
+
+        try {
+            field_Entity_spawnedViaMobSpawner.set(((CraftEntity) entity).getHandle(), true);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -468,10 +482,6 @@ public class NMSHandlerImpl implements NMSHandler {
             case SPAWNER -> MobSpawnType.SPAWNER;
             default -> MobSpawnType.COMMAND;
         };
-    }
-
-    private static void sendInfoConsoleMessage(String message) {
-        Bukkit.getPluginManager().getPlugin("RoseStacker").getLogger().info(message);
     }
 
     public void saveEntityToTag(LivingEntity livingEntity, CompoundTag compoundTag) {

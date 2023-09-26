@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_19_R1.spawner;
+package dev.rosewood.rosestacker.nms.v1_20_R2.spawner;
 
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;

@@ -1,8 +1,8 @@
-package dev.rosewood.rosestacker.nms.v1_19_R1.storage;
+package dev.rosewood.rosestacker.nms.v1_20_R2.storage;
 
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
-import dev.rosewood.rosestacker.nms.v1_19_R1.NMSHandlerImpl;
+import dev.rosewood.rosestacker.nms.v1_20_R2.NMSHandlerImpl;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
@@ -65,8 +65,6 @@ public class NBTEntityDataEntry implements EntityDataEntry {
                         optionalEntity.get(),
                         world,
                         nbt,
-                        null,
-                        null,
                         new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
                         MobSpawnType.COMMAND
                 );

@@ -1,16 +1,12 @@
-package dev.rosewood.rosestacker.nms.v1_19_R1.hologram;
+package dev.rosewood.rosestacker.nms.v1_20_R2.hologram;
 
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.hologram.HologramLine;
-import dev.rosewood.rosestacker.nms.v1_19_R1.entity.SynchedEntityDataWrapper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -18,19 +14,17 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
 public class HologramImpl extends Hologram {
-    
-    private static final List<SynchedEntityData.DataItem<?>> DATA_ITEMS = List.of(
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.FLOAT.createAccessor(8), 0.5F),
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(10), true),
-            new SynchedEntityData.DataItem<>(EntityDataSerializers.PARTICLE.createAccessor(11), new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AIR.defaultBlockState()))
+
+    private static final List<SynchedEntityData.DataValue<?>> DATA_VALUES = List.of(
+            SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(14), (byte) 3), // Billboard Constraint (Center)
+            SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(16), 1.0F)     // Visibility, always visible since these are hidden behind walls
     );
 
     public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
@@ -44,11 +38,11 @@ public class HologramImpl extends Hologram {
                     line.getEntityId(),
                     UUID.randomUUID(),
                     line.getLocation().getX(),
-                    line.getLocation().getY(),
+                    line.getLocation().getY() + 0.75,
                     line.getLocation().getZ(),
                     90,
                     0,
-                    EntityType.AREA_EFFECT_CLOUD,
+                    EntityType.TEXT_DISPLAY,
                     1,
                     Vec3.ZERO,
                     0
@@ -64,19 +58,16 @@ public class HologramImpl extends Hologram {
             if (!force && !line.checkDirty())
                 continue;
 
-            List<SynchedEntityData.DataItem<?>> dataItems = new ArrayList<>(DATA_ITEMS);
-            Optional<Component> chatMessage = Optional.of(CraftChatMessage.fromStringOrNull(line.getText()));
-            dataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.OPTIONAL_COMPONENT.createAccessor(2), chatMessage));
+            List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(DATA_VALUES);
+            Component chatMessage = CraftChatMessage.fromStringOrNull(line.getText());
+            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.COMPONENT.createAccessor(22), chatMessage));
 
             for (Player player : players) {
                 Boolean visible = this.watchers.get(player);
                 if (visible == null)
                     return;
 
-                List<SynchedEntityData.DataItem<?>> allDataItems = new ArrayList<>(dataItems);
-                allDataItems.add(new SynchedEntityData.DataItem<>(EntityDataSerializers.BOOLEAN.createAccessor(3), visible));
-
-                ((CraftPlayer) player).getHandle().connection.send(new ClientboundSetEntityDataPacket(line.getEntityId(), new SynchedEntityDataWrapper(allDataItems), false));
+                ((CraftPlayer) player).getHandle().connection.send(new ClientboundSetEntityDataPacket(line.getEntityId(), dataValues));
             }
         }
     }

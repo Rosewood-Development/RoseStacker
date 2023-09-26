@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.nms.spawner;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -109,7 +110,7 @@ public final class SpawnerType {
      * @return a SpawnerType with one or more EntityTypes
      */
     public static SpawnerType of(EntityType... entityTypes) {
-        return new SpawnerType(List.of(entityTypes));
+        return new SpawnerType(Arrays.asList(entityTypes));
     }
 
     /**

@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_19_R1.entity;
+package dev.rosewood.rosestacker.nms.v1_20_R2.entity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;

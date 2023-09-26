@@ -12,7 +12,6 @@ softdepend:
   - CoreProtect
   - EliteMobs
   - EpicBosses
-  - EpicSpawners
   - Insights
   - Jobs
   - LogBlock
@@ -23,10 +22,7 @@ softdepend:
   - RoseLoot
   - Shopkeepers
   - SimplePets
-  - StackMob
-  - UltimateStacker
   - WildChests
-  - WildStacker
   - WorldGuard
 permissions:
   rosestacker.basecommand:

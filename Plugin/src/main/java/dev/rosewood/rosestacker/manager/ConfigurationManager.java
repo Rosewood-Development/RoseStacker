@@ -16,11 +16,13 @@ public class ConfigurationManager extends AbstractConfigurationManager {
 
     public enum Setting implements RoseSetting {
         DISABLED_WORLDS("disabled-worlds", List.of("disabled_world_name"), "A list of worlds that the plugin is disabled in"),
-        STACK_FREQUENCY("stack-frequency", 100, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "If you are having issues with TPS, increase this value", "Values are in ticks, do not set lower than 1"),
+        STACK_FREQUENCY("stack-frequency", 100, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "Values are in ticks, do not set lower than 1"),
+        UNSTACK_FREQUENCY("unstack-frequency", 50, "How often should we try to unstack entities that are no longer compatible with their stack?", "Values are in ticks, set to -1 to disable"),
         ITEM_STACK_FREQUENCY("item-stack-frequency", 20, "How often should we try to stack nearby items?", "Values are in ticks, do not set lower than 1"),
-        NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 30, "How often should we update stacked entity nametags?"),
+        NAMETAG_UPDATE_FREQUENCY("nametag-update-frequency", 30, "How often should we update stacked entity nametags?", "Values are in ticks, do not set lower than 1"),
         HOLOGRAM_UPDATE_FREQUENCY("hologram-update-frequency", 20, "How often should we update stacked block/spawner holograms?"),
         AUTOSAVE_FREQUENCY("autosave-frequency", 15, "How often should we autosave all loaded stack data?", "Value is measured in minutes, set to -1 to disable"),
+        ENTITY_RESCAN_FREQUENCY("entity-rescan-frequency", 1000, "How often should we scan the world for missed entities?", "Sometimes entities can spawn and be missed by the plugin for unknown reasons, this fixes that", "Values are in ticks, set to -1 to disable"),
 
         GLOBAL_ENTITY_SETTINGS("global-entity-settings", null, "Global entity settings", "Changed values in entity_settings.yml will override these values"),
         ENTITY_STACKING_ENABLED("global-entity-settings.stacking-enabled", true, "Should entity stacking be enabled at all?"),

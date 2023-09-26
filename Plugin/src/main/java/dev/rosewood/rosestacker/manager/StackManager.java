@@ -15,6 +15,7 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -372,7 +373,7 @@ public class StackManager extends Manager implements StackingLogic {
         for (StackingThread stackingThread : this.stackingThreads.values()) {
             for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
                 stackingThread.saveChunkBlocks(chunk, clearStored);
-                stackingThread.saveChunkEntities(chunk, List.of(chunk.getEntities()), clearStored);
+                stackingThread.saveChunkEntities(chunk, Arrays.asList(chunk.getEntities()), clearStored);
             }
         }
     }

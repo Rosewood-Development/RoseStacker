@@ -28,14 +28,24 @@ public interface NMSHandler {
             "UUID", "Pos", "Rotation", "WorldUUIDMost", "WorldUUIDLeast",
             "Motion", "OnGround", "FallDistance", "Leash", "Spigot.ticksLived",
             "Paper.OriginWorld", "Paper.Origin", "Patrolling", "PatrolTarget",
-            "RaidId", "Wave", "AngryAt", "AngerTime", "Pose", "LastPoseTick"
+            "RaidId", "Wave", "AngryAt", "AngerTime", "Pose", "LastPoseTick",
+
+            "uuid", "pos", "rotation", "world_uuid_most", "world_uuid_least",
+            "motion", "on_ground", "fall_distance", "leash", "patrolling",
+            "patrol_target", "raid_id", "wave", "angry_at", "anger_time", "pose",
+            "last_pose_tick"
     );
 
     List<String> UNSAFE_NBT_KEYS = List.of(
             "ArmorItems", "HandItems", "Items", "ChestedHorse", "Saddle",
             "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health",
             "Attributes", "ActiveEffects", "ArmorDropChances", "HandDropChances", "Brain",
-            "LeftHanded", "Team"
+            "LeftHanded", "Team",
+
+            "armor_items", "hand_items", "items", "chested_horse", "saddle",
+            "decor_item", "inventory", "carried_block_state", "death_time", "health",
+            "attributes", "active_effects", "armor_drop_chances", "hand_drop_chances", "brain",
+            "left_handed", "team"
     );
 
     /**

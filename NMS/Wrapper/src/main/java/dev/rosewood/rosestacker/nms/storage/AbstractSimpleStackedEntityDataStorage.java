@@ -67,7 +67,7 @@ public abstract class AbstractSimpleStackedEntityDataStorage extends StackedEnti
         this.size -= amount;
         EntityDataEntry[] popped = new EntityDataEntry[amount];
         Arrays.fill(popped, this.copy());
-        return List.of(popped);
+        return Arrays.asList(popped);
     }
 
     @Override
@@ -84,7 +84,7 @@ public abstract class AbstractSimpleStackedEntityDataStorage extends StackedEnti
     public List<EntityDataEntry> getAll() {
         EntityDataEntry[] entries = new EntityDataEntry[this.size];
         Arrays.fill(entries, this.copy());
-        return List.of(entries);
+        return Arrays.asList(entries);
     }
 
     @Override

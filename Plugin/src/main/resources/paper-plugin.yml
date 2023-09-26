@@ -17,8 +17,6 @@ dependencies:
     required: false
   - name: EpicBosses
     required: false
-  - name: EpicSpawners
-    required: false
   - name: Insights
     required: false
   - name: Jobs
@@ -41,13 +39,7 @@ dependencies:
     required: false
   - name: SimplePets
     required: false
-  - name: StackMob
-    required: false
-  - name: UltimateStacker
-    required: false
   - name: WildChests
-    required: false
-  - name: WildStacker
     required: false
   - name: WorldGuard
     required: false
