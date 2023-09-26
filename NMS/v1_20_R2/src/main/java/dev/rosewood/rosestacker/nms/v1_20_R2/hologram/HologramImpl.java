@@ -23,8 +23,8 @@ import org.bukkit.entity.Player;
 public class HologramImpl extends Hologram {
 
     private static final List<SynchedEntityData.DataValue<?>> DATA_VALUES = List.of(
-            SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(14), (byte) 3), // Billboard Constraint (Center)
-            SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(16), 1.0F)     // Visibility, always visible since these are hidden behind walls
+            SynchedEntityData.DataValue.create(EntityDataSerializers.BYTE.createAccessor(15), (byte) 3), // Billboard Constraint (Center)
+            SynchedEntityData.DataValue.create(EntityDataSerializers.FLOAT.createAccessor(17), 1.0F)     // Visibility, always visible since these are hidden behind walls
     );
 
     public HologramImpl(List<String> text, Location location, Supplier<Integer> entityIdSupplier) {
@@ -60,7 +60,7 @@ public class HologramImpl extends Hologram {
 
             List<SynchedEntityData.DataValue<?>> dataValues = new ArrayList<>(DATA_VALUES);
             Component chatMessage = CraftChatMessage.fromStringOrNull(line.getText());
-            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.COMPONENT.createAccessor(22), chatMessage));
+            dataValues.add(SynchedEntityData.DataValue.create(EntityDataSerializers.COMPONENT.createAccessor(23), chatMessage));
 
             for (Player player : players) {
                 Boolean visible = this.watchers.get(player);
