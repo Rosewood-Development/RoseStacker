@@ -45,8 +45,11 @@ public class BreedingListener implements Listener {
 
         Player player = event.getPlayer();
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
+        if(stackSettings == null) {
+            return;
+        }
         ItemStack breedingItem = player.getInventory().getItem(event.getHand());
-        if (breedingItem == null || !stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
+        if (breedingItem.getType().isAir() || !stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
             return;
 
         if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {
