@@ -7,7 +7,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.5.12'
+    version = '1.5.13'
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
