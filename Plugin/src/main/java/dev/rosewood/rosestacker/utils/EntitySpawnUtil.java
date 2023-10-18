@@ -33,12 +33,7 @@ public class EntitySpawnUtil {
             return world.spawn(location, clazz, function);
 
         try {
-            return (T) method.invoke(world, location, clazz, new org.bukkit.util.Consumer<T>() {
-                @Override
-                public void accept(T t) {
-                    function.accept(t);
-                }
-            });
+            return (T) method.invoke(world, location, clazz, (org.bukkit.util.Consumer<T>) function::accept);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }

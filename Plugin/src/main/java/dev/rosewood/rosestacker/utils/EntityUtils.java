@@ -72,17 +72,17 @@ public final class EntityUtils {
      * Gets the approximate amount of experience that an entity of a certain type would drop.
      * This is only an incredibly rough estimate and isn't 1:1 with vanilla.
      *
-     * @param type The entity type
+     * @param entity The entity
      * @return The amount of experience that the entity would probably drop
      */
-    public static int getApproximateExperience(Class<? extends Entity> type) {
-        if (type == null || NPC.class.isAssignableFrom(type) || Golem.class.isAssignableFrom(type) || type == Bat.class) {
+    public static int getApproximateExperience(LivingEntity entity) {
+        if (entity == null || entity.getKiller() == null || entity instanceof NPC || entity instanceof Golem || entity instanceof Bat) {
             return 0;
-        } else if (Animals.class.isAssignableFrom(type)) {
+        } else if (entity instanceof Animals) {
             return StackerUtils.randomInRange(1, 3);
-        } else if (type == Wither.class) {
+        } else if (entity instanceof Wither) {
             return 50;
-        } else if (type == Blaze.class || Guardian.class.isAssignableFrom(type)) {
+        } else if (entity instanceof Blaze || entity instanceof Guardian) {
             return 10;
         } else {
             return 5;

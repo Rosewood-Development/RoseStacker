@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
-import dev.rosewood.rosestacker.nms.v1_20_R2.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v1_20_R2.NMSHandlerImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -201,13 +200,29 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         if (thisEntity == null)
             return removedEntries;
 
-        this.data.removeIf(x -> {
-            LivingEntity entity = new NBTEntityDataEntry(this.rebuild(x)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
-            boolean removed = function.apply(entity);
-            if (removed) removedEntries.add(entity);
-            return removed;
-        });
-        return removedEntries;
+        synchronized (this.data) {
+            List<CompoundTag> data = new ArrayList<>(this.data);
+            ListIterator<CompoundTag> dataIterator = data.listIterator();
+            while (dataIterator.hasNext()) {
+                CompoundTag compoundTag = dataIterator.next();
+                LivingEntity entity = new NBTEntityDataEntry(this.rebuild(compoundTag)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
+                if (function.apply(entity)) {
+                    removedEntries.add(entity);
+                    dataIterator.remove();
+                } else {
+                    CompoundTag replacementTag = new CompoundTag();
+                    ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(entity, replacementTag);
+                    this.stripUnneeded(replacementTag);
+                    this.stripAttributeUuids(replacementTag);
+                    this.removeDuplicates(replacementTag);
+                    dataIterator.set(replacementTag);
+                }
+            }
+
+            this.data.clear();
+            this.data.addAll(data);
+            return removedEntries;
+        }
     }
 
     private void removeDuplicates(CompoundTag compoundTag) {

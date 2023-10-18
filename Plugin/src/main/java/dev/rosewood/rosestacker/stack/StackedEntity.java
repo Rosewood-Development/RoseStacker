@@ -506,7 +506,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param event The event that caused the entity to die, nullable
      */
     public void killEntireStack(@Nullable EntityDeathEvent event) {
-        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
+        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
             if (this.entity.getType() == EntityType.SLIME) {
                 ((Slime) this.entity).setSize(1);
@@ -560,7 +560,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         for (EntityDataEntry entry : removed)
             entities.add(entry.createEntity(this.entity.getLocation(), false, this.entity.getType()));
 
-        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.stackSettings.getEntityType().getEntityClass());
+        int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
             if (this.entity.getType() == EntityType.SLIME) {
                 ((Slime) this.entity).setSize(1);

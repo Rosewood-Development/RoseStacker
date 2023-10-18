@@ -269,7 +269,7 @@ public class EntityListener implements Listener {
 
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
-            stackedEntity.dropPartialStackLoot(killedEntities, 1, new ArrayList<>(), EntityUtils.getApproximateExperience(stackedEntity.getStackSettings().getEntityType().getEntityClass()));
+            stackedEntity.dropPartialStackLoot(killedEntities, 1, new ArrayList<>(), EntityUtils.getApproximateExperience(entity));
 
             Player killer = entity.getKiller();
             if (killer != null && killedEntities.size() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())

@@ -202,13 +202,29 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         if (thisEntity == null)
             return removedEntries;
 
-        this.data.removeIf(x -> {
-            LivingEntity entity = new NBTEntityDataEntry(this.rebuild(x)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
-            boolean removed = function.apply(entity);
-            if (removed) removedEntries.add(entity);
-            return removed;
-        });
-        return removedEntries;
+        synchronized (this.data) {
+            List<NBTTagCompound> data = new ArrayList<>(this.data);
+            ListIterator<NBTTagCompound> dataIterator = data.listIterator();
+            while (dataIterator.hasNext()) {
+                NBTTagCompound compoundTag = dataIterator.next();
+                LivingEntity entity = new NBTEntityDataEntry(this.rebuild(compoundTag)).createEntity(thisEntity.getLocation(), false, thisEntity.getType());
+                if (function.apply(entity)) {
+                    removedEntries.add(entity);
+                    dataIterator.remove();
+                } else {
+                    NBTTagCompound replacementTag = new NBTTagCompound();
+                    ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(entity, replacementTag);
+                    this.stripUnneeded(replacementTag);
+                    this.stripAttributeUuids(replacementTag);
+                    this.removeDuplicates(replacementTag);
+                    dataIterator.set(replacementTag);
+                }
+            }
+
+            this.data.clear();
+            this.data.addAll(data);
+            return removedEntries;
+        }
     }
 
     private void removeDuplicates(NBTTagCompound compoundTag) {
