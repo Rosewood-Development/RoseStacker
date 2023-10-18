@@ -234,7 +234,7 @@ public final class StackConditions {
         registerConfig(Rabbit.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getRabbitType() != entity2.getRabbitType());
         registerConfig(Sheep.class, "sheared", false, EntityStackComparisonResult.SHEARED, (entity1, entity2) -> entity1.isSheared() || entity2.isSheared());
         registerConfig(Sheep.class, "different-shear-state", false, EntityStackComparisonResult.SHEARED_STATE_DIFFERENT, (entity1, entity2) -> entity1.isSheared() != entity2.isSheared());
-        registerConfig(Slime.class, "different-size", false, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getSize() != entity2.getSize());
+        registerConfig(Slime.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getSize() != entity2.getSize());
         registerConfig(Snowman.class, "no-pumpkin", false, EntityStackComparisonResult.NO_PUMPKIN, (entity1, entity2) -> entity1.isDerp() || entity2.isDerp());
         registerConfig(Strider.class, "shivering", false, EntityStackComparisonResult.SHIVERING, (entity1, entity2) -> entity1.isShivering() || entity2.isShivering());
         registerConfig(Strider.class, "saddled", false, EntityStackComparisonResult.SADDLED, (entity1, entity2) -> entity1.hasSaddle() || entity2.hasSaddle());
