@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
+import dev.rosewood.rosestacker.utils.EntitySpawnUtil;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -521,7 +522,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             }
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
-                this.entity.getWorld().spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
+                EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
                 event.setDroppedExp(experience * this.getStackSize());
             }
@@ -575,7 +576,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             }
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
-                this.entity.getWorld().spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
+                EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
                 event.setDroppedExp(experience * this.getStackSize());
             }

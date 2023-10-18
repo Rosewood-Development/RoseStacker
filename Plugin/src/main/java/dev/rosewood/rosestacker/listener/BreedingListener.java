@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.utils.EntitySpawnUtil;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -89,7 +90,7 @@ public class BreedingListener implements Listener {
         int f_totalChildren = totalChildren;
         ThreadUtils.runSyncDelayed(() -> {
             for (int i = 0; i < f_totalChildren; i++)
-                animal.getWorld().spawn(animal.getLocation(), entityClass, x -> {
+                EntitySpawnUtil.spawn(animal.getLocation(), entityClass, x -> {
                     Ageable baby = (Ageable) x;
                     baby.setBaby();
                     if (disableAi)

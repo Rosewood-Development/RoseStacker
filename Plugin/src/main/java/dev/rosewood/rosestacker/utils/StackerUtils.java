@@ -135,13 +135,13 @@ public final class StackerUtils {
 
         int chunkAmount = Math.max(2, step); // Prevent infinite loops and always use at minimum a step of 2
         while (experience > chunkAmount) {
-            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(chunkAmount));
+            EntitySpawnUtil.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(chunkAmount));
             experience -= chunkAmount;
         }
 
         if (experience > 0) {
             int fExperience = experience;
-            world.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
+            EntitySpawnUtil.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
         }
     }
 
