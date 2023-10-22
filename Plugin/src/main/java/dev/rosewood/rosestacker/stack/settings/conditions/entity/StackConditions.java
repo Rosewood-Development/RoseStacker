@@ -224,7 +224,7 @@ public final class StackConditions {
         registerConfig(Panda.class, "different-main-gene", false, EntityStackComparisonResult.DIFFERENT_MAIN_GENES, (entity1, entity2) -> entity1.getMainGene() != entity2.getMainGene());
         registerConfig(Panda.class, "different-recessive-gene", false, EntityStackComparisonResult.DIFFERENT_RECESSIVE_GENES, (entity1, entity2) -> entity1.getHiddenGene() != entity2.getHiddenGene());
         registerConfig(Parrot.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
-        registerConfig(Phantom.class, "different-size", false, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getSize() != entity2.getSize());
+        registerConfig(Phantom.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getSize() != entity2.getSize());
         registerConfig(PiglinAbstract.class, "converting", false, EntityStackComparisonResult.CONVERTING, (entity1, entity2) -> entity1.isConverting() || entity2.isConverting());
         registerConfig(PiglinAbstract.class, "immune-to-zombification", false, EntityStackComparisonResult.IMMUNE_TO_ZOMBIFICATION, (entity1, entity2) -> entity1.isImmuneToZombification() != entity2.isImmuneToZombification());
         registerConfig(Piglin.class, "unable-to-hunt", false, EntityStackComparisonResult.UNABLE_TO_HUNT, (entity1, entity2) -> !entity1.isAbleToHunt() || !entity2.isAbleToHunt());
