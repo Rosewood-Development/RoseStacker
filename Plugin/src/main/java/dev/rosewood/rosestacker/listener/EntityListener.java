@@ -348,6 +348,10 @@ public class EntityListener implements Listener {
                     }
                 }
 
+                Player killer = entity.getKiller();
+                if (killer != null && killAmount - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+                    killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killAmount - 1);
+
                 stackedEntity.killPartialStack(event, killAmount);
             } else {
                 // Decrease stack size by 1
