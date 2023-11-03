@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.utils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import dev.rosewood.rosegarden.utils.HexUtils;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
@@ -16,7 +17,10 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
@@ -40,6 +45,8 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.ApiStatus;
 
 public final class ItemUtils {
@@ -113,18 +120,33 @@ public final class ItemUtils {
         if (skullMeta == null)
             return skull;
 
-        GameProfile profile = new GameProfile(UUID.randomUUID(), "");
-        profile.getProperties().put("textures", new Property("textures", texture));
+        if (NMSUtil.getVersionNumber() >= 18) {
+            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+            PlayerTextures textures = profile.getTextures();
 
-        try {
-            if (field_SkullMeta_profile == null) {
-                field_SkullMeta_profile = skullMeta.getClass().getDeclaredField("profile");
-                field_SkullMeta_profile.setAccessible(true);
+            String decodedTextureJson = new String(Base64.getDecoder().decode(texture));
+            String decodedTextureUrl = decodedTextureJson.substring(28, decodedTextureJson.length() - 4);
+
+            try {
+                textures.setSkin(new URL(decodedTextureUrl));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
+            skullMeta.setOwnerProfile(profile);
+        } else {
+            GameProfile profile = new GameProfile(UUID.randomUUID(), "");
+            profile.getProperties().put("textures", new Property("textures", texture));
 
-            field_SkullMeta_profile.set(skullMeta, profile);
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
+            try {
+                if (field_SkullMeta_profile == null) {
+                    field_SkullMeta_profile = skullMeta.getClass().getDeclaredField("profile");
+                    field_SkullMeta_profile.setAccessible(true);
+                }
+
+                field_SkullMeta_profile.set(skullMeta, profile);
+            } catch (ReflectiveOperationException ex) {
+                ex.printStackTrace();
+            }
         }
 
         skull.setItemMeta(skullMeta);
