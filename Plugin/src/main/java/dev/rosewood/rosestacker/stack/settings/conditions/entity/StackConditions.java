@@ -72,7 +72,7 @@ public final class StackConditions {
     private static final NMSHandler NMS_HANDLER = NMSAdapter.getHandler();
 
     static {
-        CLASS_STACK_EVALUATION_MAP = MultimapBuilder.hashKeys().arrayListValues().build();
+        CLASS_STACK_EVALUATION_MAP = MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
         // Register base Entity conditions
         register(Entity.class, (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions) -> {
