@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.RoseGardenUtils;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -371,7 +372,17 @@ public class EntityStackSettings extends StackSettings {
                                                  boolean ignorePositions) {
             if (!this.enabled)
                 return EntityStackComparisonResult.CAN_STACK;
-            return this.condition.function().apply(stackSettings, stack1, stack2, (T) entity1, (T) entity2, comparingForUnstack, ignorePositions);
+
+            // TODO: No clue why this is needed. Somehow the case breaks because the entity types aren't the same. What?
+            if (entity1.getClass() != entity2.getClass())
+                return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+
+            try {
+                return this.condition.function().apply(stackSettings, stack1, stack2, (T) entity1, (T) entity2, comparingForUnstack, ignorePositions);
+            } catch (ClassCastException e) {
+                RoseStacker.getInstance().getLogger().warning(String.format("Failed to cast entities [%s, %s]", entity1.getClass().getSimpleName(), entity2.getClass().getSimpleName()));
+                return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+            }
         }
 
         public void setDefaults() {
