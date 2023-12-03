@@ -457,6 +457,11 @@ public class NMSHandlerImpl implements NMSHandler {
         }
     }
 
+    @Override
+    public void setCustomNameUncapped(org.bukkit.entity.Entity entity, String customName) {
+        ((CraftEntity) entity).getHandle().setCustomName(CraftChatMessage.fromStringOrNull(customName));
+    }
+
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
         if (field_ServerLevel_entityManager != null) {
             PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);

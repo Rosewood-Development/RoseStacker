@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Bukkit;
@@ -108,7 +109,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
         this.item.setCustomNameVisible((this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName)) &&
                 (this.size > itemStack.getMaxStackSize() || !Setting.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.getBoolean()));
-        this.item.setCustomName(displayString);
+        NMSAdapter.getHandler().setCustomNameUncapped(this.item, displayString);
     }
 
     @Override

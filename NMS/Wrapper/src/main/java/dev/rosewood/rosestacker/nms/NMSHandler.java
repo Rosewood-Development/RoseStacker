@@ -260,4 +260,13 @@ public interface NMSHandler {
 
     }
 
+    /**
+     * Sets the entity custom name bypassing the 256 character limit set by Bukkit.
+     * Why is this character limit still a thing? Names have supported it for ages.
+     *
+     * @param entity The entity to change the custom name of
+     * @param customName The custom name to set
+     */
+    void setCustomNameUncapped(Entity entity, String customName);
+
 }

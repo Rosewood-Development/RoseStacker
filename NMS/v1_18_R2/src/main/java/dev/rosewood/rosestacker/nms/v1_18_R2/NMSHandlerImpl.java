@@ -393,6 +393,11 @@ public class NMSHandlerImpl implements NMSHandler {
         return new HologramImpl(text, location, entityCounter::incrementAndGet);
     }
 
+    @Override
+    public void setCustomNameUncapped(org.bukkit.entity.Entity entity, String customName) {
+        ((CraftEntity) entity).getHandle().setCustomName(CraftChatMessage.fromStringOrNull(customName));
+    }
+
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {
         return switch (mobSpawnType) {
             case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;
