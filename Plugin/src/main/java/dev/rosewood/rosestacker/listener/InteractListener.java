@@ -52,52 +52,56 @@ public class InteractListener implements Listener {
         if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
             return;
 
-        if (stackManager.isSpawnerStackingEnabled()) {
-            // Handle spawner conversion before we try to spawn entities
-            if (clickedBlock.getType() == Material.SPAWNER
-                    && ItemUtils.isSpawnEgg(item.getType())
-                    && ItemUtils.getStackedItemStackAmount(item) == 1) {
+        // Handle spawner conversion before we try to spawn entities
+        if (stackManager.isSpawnerStackingEnabled()
+                && clickedBlock.getType() == Material.SPAWNER
+                && ItemUtils.isSpawnEgg(item.getType())
+                && ItemUtils.getStackedItemStackAmount(item) == 1) {
 
-                EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
-                if (stackSettings == null) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-                if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-                if (stackedSpawner == null) // Let vanilla handle the interaction instead
-                    return;
-
-                if (SpawnerType.of(stackSettings.getEntityType()).equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
-                    // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
-                    event.setCancelled(true);
-                    return;
-                }
-
-                if (Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean()
-                        && item.getAmount() < stackedSpawner.getStackSize()
-                        && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
-                    event.setCancelled(true);
-                    this.rosePlugin.getManager(LocaleManager.class).sendMessage(event.getPlayer(), "spawner-convert-not-enough");
-                    return;
-                }
-
-                ThreadUtils.runSync(() -> {
-                    // Make sure spawners convert and update their display properly
-                    stackedSpawner.updateSpawnerProperties(false);
-                    stackedSpawner.updateDisplay();
-
-                    if (stackedSpawner.getStackSize() != 1 && event.getPlayer().getGameMode() != GameMode.CREATIVE)
-                        item.setAmount(item.getAmount() - stackedSpawner.getStackSize() + 1);
-                });
-
+            EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(item.getType());
+            if (stackSettings == null) {
+                event.setCancelled(true);
                 return;
             }
+
+            if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+                event.setCancelled(true);
+                return;
+            }
+
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
+            if (stackedSpawner == null) // Let vanilla handle the interaction instead
+                return;
+
+            SpawnerType newType = SpawnerType.of(stackSettings.getEntityType());
+            if (newType.equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
+                // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
+                event.setCancelled(true);
+                return;
+            }
+
+            boolean consumesItems = event.getPlayer().getGameMode() != GameMode.CREATIVE;
+            boolean consumesMultipleItems = Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean();
+            if (consumesMultipleItems
+                    && item.getAmount() < stackedSpawner.getStackSize()
+                    && consumesItems) {
+                event.setCancelled(true);
+                this.rosePlugin.getManager(LocaleManager.class).sendMessage(event.getPlayer(), "spawner-convert-not-enough");
+                return;
+            }
+
+            event.setCancelled(true);
+
+            stackedSpawner.getSpawnerTile().setSpawnerType(newType);
+            stackedSpawner.updateSpawnerProperties(false);
+            stackedSpawner.updateDisplay();
+
+            if (!consumesItems)
+                return;
+
+            int itemsToConsume = !consumesMultipleItems ? 1 : stackedSpawner.getStackSize();
+            item.setAmount(item.getAmount() - itemsToConsume);
+            return;
         }
 
         Location spawnLocation = clickedBlock.getRelative(event.getBlockFace()).getLocation();
