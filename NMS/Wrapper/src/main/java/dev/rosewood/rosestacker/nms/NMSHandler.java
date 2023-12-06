@@ -153,6 +153,16 @@ public interface NMSHandler {
     int getItemStackNBTInt(ItemStack itemStack, String key);
 
     /**
+     * Gets a String value from an ItemStack's NBT compound
+     *
+     * @param itemStack The ItemStack
+     * @param compoundKey The key the compound is stored at on the item
+     * @param valueKey The key the value is stored at in the compound
+     * @return The value stored on the ItemStack, or an empty String if none found
+     */
+    String getItemStackNBTStringFromCompound(ItemStack itemStack, String compoundKey, String valueKey);
+
+    /**
      * Sets the LivingEntity's lastHurtByPlayer value to the given Player
      *
      * @param livingEntity The LivingEntity

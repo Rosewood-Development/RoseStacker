@@ -350,6 +350,16 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
+    public String getItemStackNBTStringFromCompound(ItemStack itemStack, String compoundKey, String valueKey) {
+        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tagCompound = nmsItem.getOrCreateTag();
+        NBTTagCompound targetCompound = tagCompound.getCompound(compoundKey);
+        if (targetCompound == null)
+            return "";
+        return targetCompound.getString(valueKey);
+    }
+
+    @Override
     public void setLastHurtBy(LivingEntity livingEntity, Player player) {
         if (player != null)
             ((CraftLivingEntity) livingEntity).getHandle().killer = ((CraftPlayer) player).getHandle();

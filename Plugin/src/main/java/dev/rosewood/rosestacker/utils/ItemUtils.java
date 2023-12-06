@@ -300,6 +300,10 @@ public final class ItemUtils {
         // Purpur servers
         entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "Purpur.mob_type");
 
+        // SilkSpawners
+        if (entityTypeName.isEmpty())
+            entityTypeName = nmsHandler.getItemStackNBTStringFromCompound(itemStack, "SilkSpawners", "entity");
+
         // EpicSpawners Pre-v7
         if (entityTypeName.isEmpty())
             entityTypeName = nmsHandler.getItemStackNBTString(itemStack, "type").toUpperCase().replace(' ', '_');
