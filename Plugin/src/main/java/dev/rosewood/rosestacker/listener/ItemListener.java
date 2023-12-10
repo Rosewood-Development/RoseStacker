@@ -1,10 +1,12 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -66,6 +68,11 @@ public class ItemListener implements Listener {
 
         if (!this.stackManager.isItemStackingEnabled())
             return;
+
+        if (ConfigurationManager.Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ITEM_PICKUP.getBoolean() && PersistentDataUtils.isAiDisabled(event.getEntity())) {
+            event.setCancelled(true);
+            return;
+        }
 
         StackedItem stackedItem = this.stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
