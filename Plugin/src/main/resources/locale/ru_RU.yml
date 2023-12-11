@@ -1,0 +1,222 @@
+# Plugin Message Prefix
+prefix: '&7[<g:#8A2387:#E94057:#F27121>{{PLUGIN_NAME}}&7] '
+
+# Stack Display Tags
+entity-stack-display: '&c%amount%x &7%name%'
+entity-stack-display-custom-name: '%name% &7[&c%amount%x&7]'
+entity-stack-display-spawn-egg: '&7Яйцо призыва &c%amount%x &7%name%'
+item-stack-display: '&c%amount%x &7%name%'
+item-stack-display-single: '&7%name%'
+block-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display: '&c%amount%x &7%name%'
+spawner-stack-display-single: '&7%name%'
+
+# Hologram Display Tags
+# Available spawner placeholders: %name%, %amount%, %max_amount%, %time_remaining%, %ticks_remaining%, %total_spawned%
+# Multiple lines are supported
+block-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-single:
+  - '&7%name%'
+spawner-hologram-display-empty:
+  - '&c%amount%x &7%name%'
+spawner-hologram-display-empty-single:
+  - '&7%name%'
+
+# Base Command Message
+base-command-color: '&e'
+base-command-help: '&eВоспользуйтесь &b/%cmd% help&e, чтобы узнать больше.'
+
+# Help Command
+command-help-description: 'Выводит меню помощи... А вот и ты'
+command-help-title: '&eДоступные команды:'
+command-help-list-description: '&8 - &d/%cmd% %subcmd% %args% &7- %desc%'
+command-help-list-description-no-args: '&8 - &d/%cmd% %subcmd% &7- %desc%'
+
+# Reload Command
+command-reload-description: 'Перезагружает плагин'
+command-reload-reloaded: '&eДанные плагина, его конфигурация и файлы локализации были перезагружены.'
+
+# Give Command
+command-give-description: 'Выдает предметы стаками'
+command-give-usage: '&cСинтаксис: &e/rs give <block|spawner|entity> <игрок> <тип> [размер стака] [кол-во]'
+command-give-given: '&eИгроку &b%player% &eвыдано [%display%&e].'
+command-give-given-multiple: '&eИгроку &b%player% &eвыдано %amount%x [%display%&e].'
+command-give-unstackable: '&cУказанный тип не стакается.'
+command-give-too-large: '&cУказанное кол-во превышает максимум для этого типа.'
+
+# Clearall Command
+command-clearall-description: 'Очищает все стаки'
+command-clearall-killed-entities: '&eУдалено &b%amount% &eстаков существ.'
+command-clearall-killed-items: '&eУдалено &b%amount% &eстаков животных.'
+command-clearall-killed-all: '&eУдалено &b%entityAmount% &eстаков существ и &b%itemAmount% &eстаков предметов.'
+
+# Stats Command
+command-stats-description: 'Выводит статистику о плагине'
+command-stats-header: '&aСтатистика плагина:'
+command-stats-threads: '&b%amount% &eработающих стакающих потоков.'
+command-stats-stacked-entities: '&b%stackAmount% &eстаков существ, всего &b%total% &eсуществ.'
+command-stats-stacked-items: '&b%stackAmount% &eстаков предметов, всего &b%total% &eпредметов.'
+command-stats-stacked-blocks: '&b%stackAmount% &eстаков блоков, всего &b%total% &eблоков.'
+command-stats-stacked-spawners: '&b%stackAmount% &eстаков спавнеров, всего &b%total% &eспавнеров.'
+command-stats-active-tasks: '&b%amount% &eactive tasks.'
+
+# Translate Command
+command-translate-description: 'Переводит названия стаков'
+command-translate-loading: '&eСкачивается и применяется информация для переводов. Это займет некоторое время.'
+command-translate-failure: '&cНе удается перевести названия стаков. Во время получения информации локализации произошла ошибка. Попробуйте позже.'
+command-translate-invalid-locale: '&cНе удается перевести названия стаков. Указанная локализация не найдена.'
+command-translate-spawner-format: '&eНазвания спавнеров не могут быть переведены четко. Чтобы это исправить, воспользуйтесь &b/rs translate ru_ru &3{} Спавнер&e, чтобы спавнер был показан как "Спавнер Коровы". Используйте &b{} &eкак плейсхолдер для названия моба.'
+command-translate-spawner-format-invalid: '&cПредоставленный формат спавнера некорректен. Он должен содержать &b{} &cдля названия моба.'
+command-translate-success: '&aНазвания стаков успешно переведены.'
+
+# Stacking Tool Command
+command-stacktool-description: 'Выдает игроку инструмент для создания стаков'
+command-stacktool-given: '&eВам выдали инструмент для создания стаков.'
+command-stacktool-given-other: '&b%player% &aполучил инструмент для создания стаков.'
+command-stacktool-no-console: '&cКонсоль не может получить инструмент для создания стаков.'
+command-stacktool-no-permission: '&cУ вас нет прав на использование инструмента для создания стаков.'
+command-stacktool-invalid-entity: '&cСущество - не часть стака. Это пользовательский моб?'
+command-stacktool-marked-unstackable: '&eТип &b%type% &eпомечен как &cне стакающийся&e.'
+command-stacktool-marked-stackable: '&eТип &b%type% &eпомечен как &aстакающийся&e.'
+command-stacktool-marked-all-unstackable: '&eВесь стак &b%type% &eпомечен как &cне стакающийся&e.'
+command-stacktool-select-1: '&eТип &b%type% &eвыбран как существо #1. Выберите второе существо, чтобы проверить, стакаются ли они.'
+command-stacktool-unselect-1: '&eТип &b%type% &eбольше не выбран.'
+command-stacktool-select-2: '&eТип &b%type% &eвыбран как существо #2.'
+command-stacktool-can-stack: '&aСущество #1 может стакаться с существом #2.'
+command-stacktool-can-not-stack: '&cСущество #1 не может стакаться с существом #2. Причина: &b%reason%'
+command-stacktool-info: '&eИнформация о стаке:'
+command-stacktool-info-uuid: '&eUUID: &b%uuid%'
+command-stacktool-info-entity-id: '&eID существа: &b%id%'
+command-stacktool-info-custom-name: '&eИмя: &r%name%'
+command-stacktool-info-location: '&eМестоположение: X: &b%x% &eY: &b%y% &eZ: &b%z% &eWorld: &b%world%'
+command-stacktool-info-chunk: '&eЧанк: &b%x%&e, &b%z%'
+command-stacktool-info-true: '&aда'
+command-stacktool-info-false: '&cнет'
+command-stacktool-info-entity-type: '&eТип существа: &b%type%'
+command-stacktool-info-entity-stackable: '&eСтакается: %value%'
+command-stacktool-info-entity-has-ai: '&eИмеет ИИ: %value%'
+command-stacktool-info-entity-from-spawner: '&eИз спавнера: %value%'
+command-stacktool-info-item-type: '&eТип предмета: &b%type%'
+command-stacktool-info-block-type: '&eТип блока: &b%type%'
+command-stacktool-info-spawner-type: '&eТип спавнера: &b%type%'
+command-stacktool-info-stack-size: '&eРазмер стака: &b%amount%'
+command-stacktool-info-data-storage-type: '&eТип хранения данных: &b%type%'
+
+# Stacked Block GUI
+gui-stacked-block-title: 'Редактирование стака %name%'
+gui-stacked-block-page-back:
+  - '&eНазад (%previousPage%/%maxPage%)'
+gui-stacked-block-page-forward:
+  - '&eВперед (%nextPage%/%maxPage%)'
+gui-stacked-block-destroy:
+  - '&cУничтожить стак'
+  - '&eУничтожает стак и выбрасывает предметы'
+gui-stacked-block-destroy-title: 'Уничтожить стак блока?'
+gui-stacked-block-destroy-confirm:
+  - '&aПодтвердить'
+  - '&eДа, уничтожить стак'
+gui-stacked-block-destroy-cancel:
+  - '&cОтменить'
+  - '&eНет, вернуться на предыдущий экран'
+
+# Stacked Spawner GUI
+gui-stacked-spawner-title: 'Просмотр %name%'
+gui-stacked-spawner-stats: '&6Статистика спавна'
+gui-stacked-spawner-min-spawn-delay: '&eМинимальная задержка спавна: &b%delay%'
+gui-stacked-spawner-max-spawn-delay: '&eМаксимальная задержка спавна: &b%delay%'
+gui-stacked-spawner-disabled-mob-ai: '&eИИ мобов отключен: &b%disabled%'
+gui-stacked-spawner-entity-search-range: '&eРасстояние спавна существ: &b%range%'
+gui-stacked-spawner-player-activation-range: '&eРасстояние активации игроком: &b%range%'
+gui-stacked-spawner-spawn-range: '&eРасстояние спавна: &b%range%'
+gui-stacked-spawner-min-spawn-amount: '&eМинимальное количество спавна: &b%amount%'
+gui-stacked-spawner-max-spawn-amount: '&eМаксимальное количество спавна: &b%amount%'
+gui-stacked-spawner-spawn-amount: '&eКоличество спавна: &b%amount%'
+gui-stacked-spawner-spawn-conditions: '&6Условия спавна'
+gui-stacked-spawner-time-until-next-spawn: '&eВремя до следующего спавна: &b%time% тактов'
+gui-stacked-spawner-total-spawns: '&eВсего мобов появилось: &b%amount%'
+gui-stacked-spawner-valid-spawn-conditions: '&6Корректные условия спавна'
+gui-stacked-spawner-invalid-spawn-conditions: '&6Некорректные условия спавна'
+gui-stacked-spawner-entities-can-spawn: '&aСущества могут появляться'
+gui-stacked-spawner-conditions-preventing-spawns: '&eУсловие, предотвращающие спавн:'
+
+# Spawn Condition Messages
+spawner-condition-invalid: '&7 - &c%message%'
+spawner-condition-info: '&e%condition%'
+spawner-condition-single: '&e%condition%: &b%value%'
+spawner-condition-list: '&e%condition%:'
+spawner-condition-list-item: '&7 - &b%message%'
+spawner-condition-above-sea-level-info: 'Над уровнем моря'
+spawner-condition-above-sea-level-invalid: 'Нет зоны спавна над уровнем моря'
+spawner-condition-above-y-axis-info: 'Над координатой Y'
+spawner-condition-above-y-axis-invalid: 'Нет зоны спавна над координатой Y'
+spawner-condition-air-info: 'Открытый воздух'
+spawner-condition-air-invalid: 'Не найдено достаточно больших мест на открытом воздухе'
+spawner-condition-below-sea-level-info: 'Ниже уровня моря'
+spawner-condition-below-sea-level-invalid: 'Нет зоны спавна ниже уровня моря'
+spawner-condition-below-y-axis-info: 'Ниже координаты Y'
+spawner-condition-below-y-axis-invalid: 'Нет зоны спавна ниже координаты Y'
+spawner-condition-biome-info: 'Биом'
+spawner-condition-biome-invalid: 'Неверный биом'
+spawner-condition-block-info: 'Блок спавна'
+spawner-condition-block-invalid: 'Не найдено блоков спавна'
+spawner-condition-block-exception-info: 'Исключение блоков спавна'
+spawner-condition-block-exception-invalid: 'Исключенные блоки спавна'
+spawner-condition-darkness-info: 'Низкий уровень освещения'
+spawner-condition-darkness-invalid: 'Слишком светло'
+spawner-condition-total-darkness-info: 'Полная темнота'
+spawner-condition-total-darkness-invalid: 'В зоне должна быть полная темнота'
+spawner-condition-fluid-info: 'Требуется жидкость'
+spawner-condition-fluid-invalid: 'Нет жидкости поблизости'
+spawner-condition-lightness-info: 'Высокий уровень освещения'
+spawner-condition-lightness-invalid: 'Слишком темно'
+spawner-condition-max-nearby-entities-info: 'Максимум существ поблизости'
+spawner-condition-max-nearby-entities-invalid: 'Слишком много существ поблизости'
+spawner-condition-no-skylight-access-info: 'Без доступа к свету солнца'
+spawner-condition-no-skylight-access-invalid: 'Нет блоков спавна без доступа к солнцу'
+spawner-condition-on-ground-info: 'На поверхности'
+spawner-condition-on-ground-invalid: 'Нет поверхности поблизости'
+spawner-condition-skylight-access-info: 'Доступ к свету солнца'
+spawner-condition-skylight-access-invalid: 'Нет блоков спавна с доступом к солнцу'
+spawner-condition-none-invalid: 'Потрачены все попытки спавна'
+spawner-condition-not-player-placed-invalid: 'Должно быть поставлено игроком'
+
+# Given Stack Item Lore
+# Note: This will appear in the lore of the items given from the '/rs give' command
+stack-item-lore-spawner: []
+stack-item-lore-block: []
+stack-item-lore-entity: []
+
+# Generic Command Messages
+no-permission: '&cНедостаточно прав!'
+only-player: '&cДанную команду может выполнить только игрок.'
+unknown-command: '&cНеизвестная команда, воспользуйтесь &b/%cmd% help&c, чтобы узнать больше.'
+unknown-command-error: '&cПроизошла ошибка. Подробности находятся в консоли. Свяжитесь с администратором сервера.'
+invalid-subcommand: '&cНеизвестная подкоманда.'
+invalid-argument: '&cНекорректный параметр: %message%.'
+invalid-argument-null: '&cНекорректный параметр: %name% - null.'
+missing-arguments: '&cНе хватает параметров, требуется &b%amount%&c.'
+missing-arguments-extra: '&cНе хватает параметров, требуется &b%amount%+&c.'
+
+# Argument Handler Error Messages
+argument-handler-enum: 'Тип %enum% [%input%] не существует'
+argument-handler-enum-list: 'Тип %enum% [%input%] не существует. Существуют такие типы: %types%'
+argument-handler-string: 'Строка не может быть пустой'
+argument-handler-integer: 'Число [%input%] должно быть целом в пределах от -2^31 до 2^31-1 включительно'
+argument-handler-player: 'Игрок [%input%] не в сети'
+argument-handler-stackplugin: 'Не найден плагин [%input%]'
+argument-handler-material: 'Не найден материал [%input%]'
+argument-handler-stackamount: 'Размер стака [%input%] неверен, требуется число больше 0'
+argument-handler-stacktype: 'Тип стака [%input%] некорректен'
+argument-handler-translationlocale: 'Локаль [%input%] некорректна'
+
+# Misc Messages
+spawner-silk-touch-protect: '&cВнимание! &eВам необходимо использовать кирку с Шелковым касанием и/или иметь права на поднятие спавнеров. Иначе у вас ничего не получится.'
+spawner-advanced-place-no-permission: '&cВнимание! &eУ вас нет прав на то, чтобы ставить такой спавнер.'
+spawner-advanced-break-no-permission: '&cВнимание! &eУ вас нет прав на то, чтобы поднимать такой спавнер.'
+spawner-advanced-break-silktouch-no-permission: '&cВнимание! &eВам необходимо использовать кирку с Шелковым касанием, чтобы поднять такой спавнер.'
+spawner-convert-not-enough: '&cВнимание! &eНе удается преобразовать спавнеры, используя яйца призыва. Вы не держите достаточно яиц для выполнения преобразования.'
+number-separator: ','
+silktouch-chance-placeholder: '%chance%%'
