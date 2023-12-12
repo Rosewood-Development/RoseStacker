@@ -335,19 +335,40 @@ public final class ItemUtils {
         if (creatureSpawner.getSpawnedType() != EntityType.PIG)
             return creatureSpawner.getSpawnedType();
 
-        // Use the name to determine the type, name must be colored
+        // Use the name to determine the type, must be colored
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
         if (!name.equals(itemMeta.getDisplayName())) {
-            try {
-                // This tries to support other spawner plugins by checking the item name
-                name = name.toUpperCase();
-                int spawnerIndex = name.indexOf("SPAWNER");
-                String entityName = name.substring(0, spawnerIndex).trim();
-                return EntityType.valueOf(entityName.replaceAll(" ", "_"));
-            } catch (Exception ignored) { }
+            EntityType entityType = getEntityTypeFromName(name);
+            if (entityType != null)
+                return entityType;
+        }
+
+        // Try the lore
+        List<String> lore = itemMeta.getLore();
+        if (lore != null) {
+            for (String line : lore) {
+                name = ChatColor.stripColor(line);
+                if (!name.equals(line)) {
+                    EntityType entityType = getEntityTypeFromName(name);
+                    if (entityType != null)
+                        return entityType;
+                }
+            }
         }
 
         return null;
+    }
+
+    private static EntityType getEntityTypeFromName(String name) {
+        try {
+            name = name.toUpperCase();
+            int spawnerIndex = name.indexOf("SPAWNER");
+            if (spawnerIndex != -1)
+                name = name.substring(0, spawnerIndex).trim();
+            return EntityType.valueOf(name.replaceAll(" ", "_"));
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public static SpawnerType getStackedItemSpawnerType(ItemStack itemStack) {
