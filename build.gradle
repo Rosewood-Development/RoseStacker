@@ -7,7 +7,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.5.15'
+    version = '1.5.16'
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(17))
@@ -58,6 +58,7 @@ dependencies {
     implementation project(path: ':NMS:v1_19_R3', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R2', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_20_R3', configuration: 'remapped')
 }
 
 shadowJar {
