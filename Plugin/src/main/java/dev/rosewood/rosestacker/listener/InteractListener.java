@@ -136,7 +136,7 @@ public class InteractListener implements Listener {
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
-                case COD, SALMON, PUFFERFISH, TROPICAL_FISH, AXOLOTL -> {
+                case COD, SALMON, PUFFERFISH, TROPICAL_FISH, AXOLOTL, TADPOLE -> {
                     if (stackedEntity.getStackSize() != 1)
                         ThreadUtils.runSync(stackedEntity::decreaseStackSize);
                 }
