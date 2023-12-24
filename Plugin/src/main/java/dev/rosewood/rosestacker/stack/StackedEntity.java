@@ -1,12 +1,13 @@
 package dev.rosewood.rosestacker.stack;
 
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
+import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
@@ -15,7 +16,6 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
-import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -28,6 +28,7 @@ import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,6 +48,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class StackedEntity extends Stack<EntityStackSettings> implements Comparable<StackedEntity> {
@@ -225,134 +227,45 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropStackLoot(Collection<ItemStack> existingLoot, int droppedExp) {
-        ThreadUtils.runAsync(() -> {
-            List<LivingEntity> internalEntities = new ArrayList<>();
-
-            int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
-            int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
-            if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && this.getStackSize() > threshold) {
-                this.stackedEntityDataStorage.forEachCapped(approximationAmount - 1, internalEntities::add);
-                this.dropPartialStackLoot(internalEntities, this.getStackSize() / (double) approximationAmount, existingLoot, droppedExp);
-            } else {
-                this.stackedEntityDataStorage.forEach(internalEntities::add);
-                this.dropPartialStackLoot(internalEntities, 1, existingLoot, droppedExp);
-            }
-        });
+        this.dropPartialStackLoot(this.getStackSize(), existingLoot, droppedExp);
     }
 
     /**
      * Drops loot for entities that are part of the stack.
-     * Does not include loot for the current entity (except for nether stars for withers).
+     * Does not include loot for the current entity.
      *
-     * @param internalEntities The entities which should be part of this stack
-     * @param multiplier The multiplier for the loot drops
      * @param existingLoot The loot from this.entity, nullable
      * @param droppedExp The exp dropped from this.entity
      */
-    public void dropPartialStackLoot(List<LivingEntity> internalEntities, double multiplier, Collection<ItemStack> existingLoot, int droppedExp) {
-        // Cache the current entity just in case it somehow changes while we are processing the loot
-        LivingEntity thisEntity = this.entity;
-        Collection<ItemStack> loot = new ArrayList<>();
+    public void dropPartialStackLoot(int count, Collection<ItemStack> existingLoot, int droppedExp) {
+        this.calculateAndDropPartialStackLoot(() -> {
+            EntityDrops drops = this.calculateEntityDrops(new ArrayList<>(), count - 1, false, droppedExp);
+            drops.getDrops().addAll(existingLoot);
+            drops.setExperience(drops.getExperience() + droppedExp);
+            return drops;
+        });
+    }
 
+    /**
+     * @deprecated this should be static, it doesn't really use the stacked entity state at all
+     */
+    @Deprecated
+    public void dropPartialStackLoot(Collection<LivingEntity> internalEntities) {
+        this.calculateAndDropPartialStackLoot(() -> this.calculateEntityDrops(internalEntities, 0, false, EntityUtils.getApproximateExperience(this.entity)));
+    }
+
+    private void calculateAndDropPartialStackLoot(Supplier<EntityDrops> calculator) {
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
         boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
         Runnable mainTask = () -> {
-            boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
-            int totalExp = 0;
-            NMSHandler nmsHandler = NMSAdapter.getHandler();
-            boolean isAnimal = thisEntity instanceof Animals;
-            boolean isWither = thisEntity.getType() == EntityType.WITHER;
-            boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent
-                    && (((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER
-                    || ((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER_SKULL);
-            boolean isSlime = thisEntity instanceof Slime;
-            boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
+            EntityDrops drops = calculator.get();
 
-            Multimap<LivingEntity, EntityStackMultipleDeathEvent.EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
-            if (callEvents) {
-                if (existingLoot != null)
-                    loot.addAll(existingLoot);
-                totalExp += droppedExp;
-            } else {
-                entityDrops.put(thisEntity, new EntityStackMultipleDeathEvent.EntityDrops(new ArrayList<>(existingLoot), droppedExp));
-            }
-
-            for (LivingEntity entity : internalEntities) {
-                // Propagate fire ticks and last damage cause
-                entity.setFireTicks(thisEntity.getFireTicks());
-                entity.setLastDamageCause(thisEntity.getLastDamageCause());
-                nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
-
-                int iterations = 1;
-                if (isSlime) {
-                    Slime slime = (Slime) entity;
-                    if (isAccurateSlime) {
-                        int totalSlimes = 1;
-                        int size = slime.getSize();
-                        while (size > 1) {
-                            size /= 2;
-                            int currentSlimes = totalSlimes;
-                            totalSlimes = StackerUtils.randomInRange(currentSlimes * 2, currentSlimes * 4);
-                        }
-                        iterations = totalSlimes;
-                    }
-                    slime.setSize(slime.getType() == EntityType.SLIME ? 1 : 2); // Slimes require size 1 to drop items, magma cubes require > size 1
-                }
-
-                boolean isBaby = isAnimal && !((Animals) entity).isAdult();
-                int desiredExp = isBaby ? 0 : droppedExp;
-                for (int i = 0; i < iterations; i++) {
-                    Collection<ItemStack> entityLoot = isBaby ? List.of() : EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation());
-                    if (callEvents) {
-                        EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, new ArrayList<>(entityLoot), desiredExp);
-                        Bukkit.getPluginManager().callEvent(deathEvent);
-                        totalExp += deathEvent.getDroppedExp();
-                        loot.addAll(deathEvent.getDrops());
-                        // Withers always drop nether stars on death, however this isn't in the actual wither loot table for some reason
-                        if (isWither)
-                            loot.add(new ItemStack(Material.NETHER_STAR));
-                        if (killedByWither)
-                            loot.add(new ItemStack(Material.WITHER_ROSE));
-                    } else {
-                        List<ItemStack> entityLootList = new ArrayList<>(entityLoot);
-                        if (isWither)
-                            entityLootList.add(new ItemStack(Material.NETHER_STAR));
-                        if (killedByWither)
-                            entityLootList.add(new ItemStack(Material.WITHER_ROSE));
-
-                        entityDrops.put(entity, new EntityStackMultipleDeathEvent.EntityDrops(entityLootList, desiredExp));
-                    }
-                }
-
-                // Prevent magma cubes from splitting
-                if (isSlime && entity.getType() == EntityType.MAGMA_CUBE)
-                    ((MagmaCube) entity).setSize(1);
-            }
-
-            // Call the EntityStackMultipleDeathEvent if enabled
-            if (!callEvents) {
-                EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops);
-                Bukkit.getPluginManager().callEvent(event);
-                for (EntityStackMultipleDeathEvent.EntityDrops value : event.getEntityDrops().values()) {
-                    loot.addAll(value.getDrops());
-                    totalExp += value.getExperience();
-                }
-            }
-
-            // Multiply loot
-            Collection<ItemStack> finalEntityLoot;
-            if (multiplier != 1) {
-                finalEntityLoot = ItemUtils.getMultipliedItemStacks(loot, multiplier, true);
-            } else {
-                finalEntityLoot = loot;
-            }
-
-            int finalTotalExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
             Runnable finishTask = () -> {
-                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(finalEntityLoot, thisEntity.getLocation());
-                if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalTotalExp > 0)
-                    StackerUtils.dropExperience(thisEntity.getLocation(), finalTotalExp, finalTotalExp, finalTotalExp / 2);
+                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), this.entity.getLocation());
+                int finalDroppedExp = drops.getExperience();
+                if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalDroppedExp > 0)
+                    StackerUtils.dropExperience(this.entity.getLocation(), finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
             };
 
             if (!Bukkit.isPrimaryThread()) {
@@ -369,6 +282,124 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         } else {
             mainTask.run();
         }
+    }
+
+    /**
+     * Calculates the entity drops. May be called async or sync.
+     *
+     * @param internalEntities The entities to calculate drops for
+     * @param count The number of entities to drop items for
+     * @param includeMainEntity Whether to include the main entity in the calculation
+     * @param entityExpValue The exp value of the entity
+     * @return The calculated entity drops
+     */
+    @ApiStatus.Internal
+    public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue) {
+        // Cache the current entity just in case it somehow changes while we are processing the loot
+        LivingEntity thisEntity = this.entity;
+
+        count = Math.min(count, this.getStackSize());
+
+        boolean useCount = internalEntities.isEmpty();
+
+        if (includeMainEntity)
+            internalEntities.add(thisEntity);
+
+        double multiplier = 1;
+        if (useCount) {
+            int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
+            int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
+            if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && count > threshold) {
+                this.stackedEntityDataStorage.forEachCapped(approximationAmount - internalEntities.size(), internalEntities::add);
+                multiplier = count / (double) approximationAmount;
+            } else {
+                this.stackedEntityDataStorage.forEachCapped(count, internalEntities::add);
+            }
+        }
+
+        boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
+        boolean isAnimal = thisEntity instanceof Animals;
+        boolean isWither = thisEntity.getType() == EntityType.WITHER;
+        boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent
+                && (((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER
+                || ((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER_SKULL);
+        boolean isSlime = thisEntity instanceof Slime;
+        boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
+
+        ListMultimap<LivingEntity, EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+        int totalExp = 0;
+
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        for (LivingEntity entity : internalEntities) {
+            // Propagate fire ticks and last damage cause
+            entity.setFireTicks(thisEntity.getFireTicks());
+            entity.setLastDamageCause(thisEntity.getLastDamageCause());
+            nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
+
+            int iterations = 1;
+            if (isSlime) {
+                Slime slime = (Slime) entity;
+                if (isAccurateSlime) {
+                    int totalSlimes = 1;
+                    int size = slime.getSize();
+                    while (size > 1) {
+                        size /= 2;
+                        int currentSlimes = totalSlimes;
+                        totalSlimes = StackerUtils.randomInRange(currentSlimes * 2, currentSlimes * 4);
+                    }
+                    iterations = totalSlimes;
+                }
+                slime.setSize(slime.getType() == EntityType.SLIME ? 1 : 2); // Slimes require size 1 to drop items, magma cubes require > size 1
+            }
+
+            boolean isBaby = isAnimal && !((Animals) entity).isAdult();
+            int desiredExp = isBaby ? 0 : entityExpValue;
+            for (int i = 0; i < iterations; i++) {
+                List<ItemStack> entityItems = isBaby ? new ArrayList<>() : new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+
+                if (isWither)
+                    entityItems.add(new ItemStack(Material.NETHER_STAR));
+                if (killedByWither)
+                    entityItems.add(new ItemStack(Material.WITHER_ROSE));
+
+                int entityExperience;
+                if (callEvents) {
+                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, entityItems, desiredExp);
+                    Bukkit.getPluginManager().callEvent(deathEvent);
+                    entityExperience = deathEvent.getDroppedExp();
+                } else {
+                    entityExperience = desiredExp;
+                }
+
+                entityDrops.put(entity, new EntityDrops(entityItems, entityExperience));
+            }
+
+            // Prevent magma cubes from splitting
+            if (isSlime && entity.getType() == EntityType.MAGMA_CUBE)
+                ((MagmaCube) entity).setSize(1);
+        }
+
+        // Call the EntityStackMultipleDeathEvent if enabled
+        if (!callEvents) {
+            EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops);
+            Bukkit.getPluginManager().callEvent(event);
+        }
+
+        List<ItemStack> finalEntityLoot = new ArrayList<>();
+        int finalEntityExp = totalExp;
+
+        for (EntityDrops drops : entityDrops.values()) {
+            finalEntityLoot.addAll(drops.getDrops());
+            finalEntityExp += drops.getExperience();
+        }
+
+        // Multiply loot
+        if (multiplier > 1) {
+            finalEntityLoot = ItemUtils.getMultipliedItemStacks(finalEntityLoot, multiplier, true);
+            finalEntityExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
+        }
+
+        return new EntityDrops(finalEntityLoot, finalEntityExp);
     }
 
     /**
@@ -555,19 +586,16 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
         }
 
-        List<EntityDataEntry> removed = this.stackedEntityDataStorage.pop(amount - 1);
-        List<LivingEntity> entities = new ArrayList<>(removed.size());
-        for (EntityDataEntry entry : removed)
-            entities.add(entry.createEntity(this.entity.getLocation(), false, this.entity.getType()));
-
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
             if (event == null) {
-                this.dropPartialStackLoot(entities, 1, new ArrayList<>(), experience);
+                this.dropPartialStackLoot(amount, new ArrayList<>(), experience);
             } else {
-                this.dropPartialStackLoot(entities, 1, new ArrayList<>(event.getDrops()), experience);
+                this.dropPartialStackLoot(amount, new ArrayList<>(event.getDrops()), experience);
                 event.getDrops().clear();
             }
+
+            this.stackedEntityDataStorage.pop(amount - 1);
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));

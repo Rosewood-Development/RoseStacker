@@ -409,7 +409,7 @@ public final class ItemUtils {
     }
 
     public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier, boolean reduce) {
-        // Reduce and multiple counts
+        // Reduce and multiply counts
         Map<ItemStack, Integer> counts = reduceItemsByCounts(itemStacks).entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) (entry.getValue() * multiplier)));
@@ -431,6 +431,14 @@ public final class ItemUtils {
         return items;
     }
 
+    /**
+     * Creates copies of an ItemStack totalling to the specified amount.
+     * Returns a Collection of ItemStacks with each stack having a max stack size of the ItemStack Material.
+     *
+     * @param itemStack the ItemStack to clone
+     * @param amount the amount of items
+     * @return the cloned items totalling to the specified amount
+     */
     public static Collection<? extends ItemStack> splitItemStack(ItemStack itemStack, int amount) {
         List<ItemStack> items = new ArrayList<>();
         int maxStackSize = itemStack.getMaxStackSize();
@@ -449,6 +457,12 @@ public final class ItemUtils {
         return items;
     }
 
+    /**
+     * Reduces a collection of items of various counts into a single count
+     *
+     * @param items the items
+     * @return the reduced items reduced by counts
+     */
     public static Map<ItemStack, Integer> reduceItemsByCounts(Collection<ItemStack> items) {
         Map<ItemStack, Integer> itemStackAmounts = new HashMap<>();
         for (ItemStack itemStack : items) {

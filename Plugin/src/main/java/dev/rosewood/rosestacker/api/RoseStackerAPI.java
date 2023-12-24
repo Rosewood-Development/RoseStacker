@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.api;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
+import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -14,6 +15,9 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.EntityUtils;
+import dev.rosewood.rosestacker.utils.ItemUtils;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -667,6 +671,30 @@ public final class RoseStackerAPI {
         return this.stackManager.getStackedSpawners().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
                 .toList();
+    }
+
+    //endregion
+
+    //region Loot Generation
+
+    /**
+     * Gets an entity's loot as if all entities were killed.
+     * Note: The drops returned by {@link EntityDrops#getDrops()} can contain ItemStacks larger than 64.
+     *       If you want to count all items, see {@link ItemUtils#reduceItemsByCounts(Collection)}.
+     *       Also see {@link ItemUtils#splitItemStack(ItemStack, int)} to split the items by their max stack size.
+     *
+     * @param stackedEntity the StackedEntity
+     * @return the entity's drops
+     */
+    public EntityDrops getStackedEntityLoot(@NotNull StackedEntity stackedEntity) {
+        Objects.requireNonNull(stackedEntity);
+
+        return stackedEntity.calculateEntityDrops(
+                new ArrayList<>(),
+                stackedEntity.getStackSize(),
+                true,
+                EntityUtils.getApproximateExperience(stackedEntity.getEntity())
+        );
     }
 
     //endregion

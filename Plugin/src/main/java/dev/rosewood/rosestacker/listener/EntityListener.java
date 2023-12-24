@@ -16,7 +16,6 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
-import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -269,7 +268,7 @@ public class EntityListener implements Listener {
 
         // Only try dropping loot if something actually died
         if (!killedEntities.isEmpty()) {
-            stackedEntity.dropPartialStackLoot(killedEntities, 1, new ArrayList<>(), EntityUtils.getApproximateExperience(entity));
+            stackedEntity.dropPartialStackLoot(killedEntities);
 
             Player killer = entity.getKiller();
             if (killer != null && killedEntities.size() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
