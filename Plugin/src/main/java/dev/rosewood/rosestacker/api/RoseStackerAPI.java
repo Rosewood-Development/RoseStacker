@@ -721,6 +721,33 @@ public final class RoseStackerAPI {
         );
     }
 
+    /**
+     * Gets an entity's loot as if some entities were killed.
+     * Allows specifying a looting value to override the killer value.
+     * Note: The drops returned by {@link EntityDrops#getDrops()} can contain ItemStacks larger than 64.
+     *       If you want to count all items, see {@link ItemUtils#reduceItemsByCounts(Collection)}.
+     *       Also see {@link ItemUtils#splitItemStack(ItemStack, int)} to split the items by their max stack size.
+     *
+     * @param stackedEntity the StackedEntity
+     * @param count The number of entities in the stack to drop items for
+     * @param includeMainEntity Whether to include the main entity in the drops, contributes towards the count
+     * @param lootingModifier The looting modifier
+     * @return the entity's drops
+     */
+    public EntityDrops getStackedEntityLoot(@NotNull StackedEntity stackedEntity, int count, boolean includeMainEntity, int lootingModifier) {
+        Objects.requireNonNull(stackedEntity);
+        Preconditions.checkArgument(count > 0, "count must be greater than 0");
+        Preconditions.checkArgument(lootingModifier > 0, "lootingModifier must be greater than 0");
+
+        return stackedEntity.calculateEntityDrops(
+                new ArrayList<>(),
+                count,
+                includeMainEntity,
+                EntityUtils.getApproximateExperience(stackedEntity.getEntity()),
+                lootingModifier
+        );
+    }
+
     //endregion
 
 }

@@ -295,6 +295,21 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     @ApiStatus.Internal
     public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue) {
+        return this.calculateEntityDrops(internalEntities, count, includeMainEntity, entityExpValue, null);
+    }
+
+    /**
+     * Calculates the entity drops. May be called async or sync.
+     *
+     * @param internalEntities The entities to calculate drops for
+     * @param count The number of entities to drop items for
+     * @param includeMainEntity Whether to include the main entity in the calculation
+     * @param entityExpValue The exp value of the entity
+     * @param lootingModifier The looting modifier, nullable
+     * @return The calculated entity drops
+     */
+    @ApiStatus.Internal
+    public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier) {
         // Cache the current entity just in case it somehow changes while we are processing the loot
         LivingEntity thisEntity = this.entity;
 
@@ -355,7 +370,16 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             boolean isBaby = isAnimal && !((Animals) entity).isAdult();
             int desiredExp = isBaby ? 0 : entityExpValue;
             for (int i = 0; i < iterations; i++) {
-                List<ItemStack> entityItems = isBaby ? new ArrayList<>() : new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+                List<ItemStack> entityItems;
+                if (isBaby) {
+                    entityItems = new ArrayList<>();
+                } else {
+                    if (lootingModifier != null) {
+                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation(), lootingModifier));
+                    } else {
+                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+                    }
+                }
 
                 if (isWither)
                     entityItems.add(new ItemStack(Material.NETHER_STAR));

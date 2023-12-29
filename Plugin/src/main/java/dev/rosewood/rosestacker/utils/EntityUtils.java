@@ -69,6 +69,32 @@ public final class EntityUtils {
     }
 
     /**
+     * Get loot for a given entity with a looting modifier
+     *
+     * @param entity The entity to drop loot for
+     * @param killer The player who is killing that entity
+     * @param lootedLocation The location the entity is being looted at
+     * @param lootingModifier The looting modifier to use
+     * @return The loot
+     */
+    public static Collection<ItemStack> getEntityLoot(LivingEntity entity, Player killer, Location lootedLocation, int lootingModifier) {
+        if (entity instanceof Lootable lootable) {
+            if (lootable.getLootTable() == null)
+                return Set.of();
+
+            LootContext lootContext = new LootContext.Builder(lootedLocation)
+                    .lootedEntity(entity)
+                    .killer(killer)
+                    .lootingModifier(lootingModifier)
+                    .build();
+
+            return lootable.getLootTable().populateLoot(RANDOM, lootContext);
+        }
+
+        return Set.of();
+    }
+
+    /**
      * Gets the approximate amount of experience that an entity of a certain type would drop.
      * This is only an incredibly rough estimate and isn't 1:1 with vanilla.
      *
