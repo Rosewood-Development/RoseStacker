@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.api;
 
+import com.google.common.base.Preconditions;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
@@ -693,6 +694,29 @@ public final class RoseStackerAPI {
                 new ArrayList<>(),
                 stackedEntity.getStackSize(),
                 true,
+                EntityUtils.getApproximateExperience(stackedEntity.getEntity())
+        );
+    }
+
+    /**
+     * Gets an entity's loot as if some entities were killed.
+     * Note: The drops returned by {@link EntityDrops#getDrops()} can contain ItemStacks larger than 64.
+     *       If you want to count all items, see {@link ItemUtils#reduceItemsByCounts(Collection)}.
+     *       Also see {@link ItemUtils#splitItemStack(ItemStack, int)} to split the items by their max stack size.
+     *
+     * @param stackedEntity the StackedEntity
+     * @param count The number of entities in the stack to drop items for
+     * @param includeMainEntity Whether to include the main entity in the drops, contributes towards the count
+     * @return the entity's drops
+     */
+    public EntityDrops getStackedEntityLoot(@NotNull StackedEntity stackedEntity, int count, boolean includeMainEntity) {
+        Objects.requireNonNull(stackedEntity);
+        Preconditions.checkArgument(count > 0, "count must be greater than 0");
+
+        return stackedEntity.calculateEntityDrops(
+                new ArrayList<>(),
+                count,
+                includeMainEntity,
                 EntityUtils.getApproximateExperience(stackedEntity.getEntity())
         );
     }
