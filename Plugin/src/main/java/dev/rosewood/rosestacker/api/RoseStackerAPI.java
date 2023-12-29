@@ -737,7 +737,6 @@ public final class RoseStackerAPI {
     public EntityDrops getStackedEntityLoot(@NotNull StackedEntity stackedEntity, int count, boolean includeMainEntity, int lootingModifier) {
         Objects.requireNonNull(stackedEntity);
         Preconditions.checkArgument(count > 0, "count must be greater than 0");
-        Preconditions.checkArgument(lootingModifier > 0, "lootingModifier must be greater than 0");
 
         return stackedEntity.calculateEntityDrops(
                 new ArrayList<>(),
