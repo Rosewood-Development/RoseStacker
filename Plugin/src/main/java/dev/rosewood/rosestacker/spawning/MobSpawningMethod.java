@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.spawning;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.event.PreStackedSpawnerSpawnEvent;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -190,6 +191,13 @@ public class MobSpawningMethod implements SpawningMethod {
         if (this.entityType.getEntityClass() == null)
             return 0;
 
+        PreStackedSpawnerSpawnEvent event = new PreStackedSpawnerSpawnEvent(stackedSpawner, spawnAmount);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return 0;
+
+        spawnAmount = event.getSpawnAmount();
+
         int successfulSpawns = 0;
         if (this.useNearbyEntitiesForStacking(stackManager, entityStackSettings)) {
             List<StackedEntity> newStacks = new ArrayList<>();
@@ -279,9 +287,10 @@ public class MobSpawningMethod implements SpawningMethod {
         } else {
             successfulSpawns = Math.min(spawnAmount, possibleLocations.size());
 
+            int finalSpawnAmount = spawnAmount;
             ThreadUtils.runSync(() -> {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
-                for (int i = 0; i < spawnAmount; i++) {
+                for (int i = 0; i < finalSpawnAmount; i++) {
                     if (possibleLocations.isEmpty())
                         break;
 
