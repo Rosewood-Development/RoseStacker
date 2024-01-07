@@ -28,6 +28,7 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -269,6 +270,10 @@ public final class StackerUtils {
         double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt());
         chance += ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_LUCK_CHANCE_INCREASE.getInt() * StackerUtils.getLuckLevel(player);
         return chance;
+    }
+
+    public static boolean isVanished(Player player) {
+        return player.getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
     }
 
 }

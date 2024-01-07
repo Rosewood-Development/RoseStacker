@@ -142,7 +142,7 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpawnerSpawn(SpawnerSpawnEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity entity))
+        if (!(event.getEntity() instanceof LivingEntity entity) || event.getSpawner() == null)
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);

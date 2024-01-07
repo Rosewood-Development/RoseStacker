@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -80,6 +81,11 @@ public class ItemListener implements Listener {
 
         Inventory inventory;
         if (event.getEntity() instanceof Player player) {
+            if (StackerUtils.isVanished(player)) {
+                event.setCancelled(true);
+                return;
+            }
+
             inventory = player.getInventory();
         } else if (event.getEntity() instanceof Villager villager) {
             inventory = villager.getInventory();
