@@ -458,9 +458,8 @@ public class BlockListener implements Listener {
                     ThreadUtils.runSync(() -> {
                         List<ItemStack> items;
                         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
-                            items = new ArrayList<>();
-                            for (int i = 0; i < newStackSize; i++)
-                                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1));
+                            ItemStack spawnerItem = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);
+                            items = new ArrayList<>(ItemUtils.getMultipliedItemStacks(List.of(spawnerItem), newStackSize, true));
                         } else {
                             items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, newStackSize));
                         }
