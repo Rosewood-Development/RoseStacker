@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -254,6 +256,23 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.calculateAndDropPartialStackLoot(() -> this.calculateEntityDrops(internalEntities, 0, false, EntityUtils.getApproximateExperience(this.entity)));
     }
 
+    /**
+     * @deprecated this should be static, it doesn't really use the stacked entity state at all
+     */
+    @Deprecated
+    public void dropPartialStackLoot(Collection<EntityDataEntry> internalEntityData, Collection<ItemStack> existingLoot, int droppedExp) {
+        Entity thisEntity = this.entity;
+        this.calculateAndDropPartialStackLoot(() -> {
+            Collection<LivingEntity> internalEntities = internalEntityData.stream()
+                    .map(x -> x.createEntity(thisEntity.getLocation(), false, thisEntity.getType()))
+                    .toList();
+            EntityDrops drops = this.calculateEntityDrops(internalEntities, 0, false, droppedExp);
+            drops.getDrops().addAll(existingLoot);
+            drops.setExperience(drops.getExperience() + droppedExp);
+            return drops;
+        });
+    }
+
     private void calculateAndDropPartialStackLoot(Supplier<EntityDrops> calculator) {
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
@@ -335,9 +354,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
         boolean isAnimal = thisEntity instanceof Animals;
         boolean isWither = thisEntity.getType() == EntityType.WITHER;
-        boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent
-                && (((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER
-                || ((EntityDamageByEntityEvent) thisEntity.getLastDamageCause()).getDamager().getType() == EntityType.WITHER_SKULL);
+        boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent
+                && (damageEvent.getDamager().getType() == EntityType.WITHER || damageEvent.getDamager().getType() == EntityType.WITHER_SKULL);
         boolean isSlime = thisEntity instanceof Slime;
         boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
 
@@ -612,14 +630,13 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+            List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
             if (event == null) {
-                this.dropPartialStackLoot(amount, new ArrayList<>(), experience);
+                this.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
             } else {
-                this.dropPartialStackLoot(amount, new ArrayList<>(event.getDrops()), experience);
+                this.dropPartialStackLoot(killedEntities, new ArrayList<>(event.getDrops()), experience);
                 event.getDrops().clear();
             }
-
-            this.stackedEntityDataStorage.pop(amount - 1);
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
