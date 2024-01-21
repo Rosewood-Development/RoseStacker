@@ -261,12 +261,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     @Deprecated
     public void dropPartialStackLoot(Collection<EntityDataEntry> internalEntityData, Collection<ItemStack> existingLoot, int droppedExp) {
-        Entity thisEntity = this.entity;
+        LivingEntity thisEntity = this.entity;
         this.calculateAndDropPartialStackLoot(() -> {
             Collection<LivingEntity> internalEntities = internalEntityData.stream()
                     .map(x -> x.createEntity(thisEntity.getLocation(), false, thisEntity.getType()))
                     .toList();
-            EntityDrops drops = this.calculateEntityDrops(internalEntities, 0, false, droppedExp);
+            EntityDrops drops = this.calculateEntityDrops(internalEntities, 0, false, droppedExp, null, thisEntity);
             drops.getDrops().addAll(existingLoot);
             drops.setExperience(drops.getExperience() + droppedExp);
             return drops;
@@ -329,15 +329,32 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     @ApiStatus.Internal
     public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier) {
+        return this.calculateEntityDrops(internalEntities, count, includeMainEntity, entityExpValue, lootingModifier, null);
+    }
+
+    /**
+     * Calculates the entity drops. May be called async or sync.
+     *
+     * @param internalEntities The entities to calculate drops for
+     * @param count The number of entities to drop items for
+     * @param includeMainEntity Whether to include the main entity in the calculation
+     * @param entityExpValue The exp value of the entity
+     * @param lootingModifier The looting modifier, nullable
+     * @param mainEntity The main entity to use for loot calculations, primarily used to copy entity properties such as the killer
+     * @return The calculated entity drops
+     */
+    @ApiStatus.Internal
+    public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier, LivingEntity mainEntity) {
         // Cache the current entity just in case it somehow changes while we are processing the loot
-        LivingEntity thisEntity = this.entity;
+        if (mainEntity == null)
+            mainEntity = this.entity;
 
         count = Math.min(count, this.getStackSize());
 
         boolean useCount = internalEntities.isEmpty();
 
         if (includeMainEntity)
-            internalEntities.add(thisEntity);
+            internalEntities.add(mainEntity);
 
         double multiplier = 1;
         if (useCount) {
@@ -352,11 +369,11 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
-        boolean isAnimal = thisEntity instanceof Animals;
-        boolean isWither = thisEntity.getType() == EntityType.WITHER;
-        boolean killedByWither = thisEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent
+        boolean isAnimal = mainEntity instanceof Animals;
+        boolean isWither = mainEntity.getType() == EntityType.WITHER;
+        boolean killedByWither = mainEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent
                 && (damageEvent.getDamager().getType() == EntityType.WITHER || damageEvent.getDamager().getType() == EntityType.WITHER_SKULL);
-        boolean isSlime = thisEntity instanceof Slime;
+        boolean isSlime = mainEntity instanceof Slime;
         boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
 
         ListMultimap<LivingEntity, EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
@@ -365,9 +382,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         for (LivingEntity entity : internalEntities) {
             // Propagate fire ticks and last damage cause
-            entity.setFireTicks(thisEntity.getFireTicks());
-            entity.setLastDamageCause(thisEntity.getLastDamageCause());
-            nmsHandler.setLastHurtBy(entity, thisEntity.getKiller());
+            entity.setFireTicks(mainEntity.getFireTicks());
+            entity.setLastDamageCause(mainEntity.getLastDamageCause());
+            nmsHandler.setLastHurtBy(entity, mainEntity.getKiller());
 
             int iterations = 1;
             if (isSlime) {
@@ -393,9 +410,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     entityItems = new ArrayList<>();
                 } else {
                     if (lootingModifier != null) {
-                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation(), lootingModifier));
+                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, mainEntity.getKiller(), mainEntity.getLocation(), lootingModifier));
                     } else {
-                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, thisEntity.getKiller(), thisEntity.getLocation()));
+                        entityItems = new ArrayList<>(EntityUtils.getEntityLoot(entity, mainEntity.getKiller(), mainEntity.getLocation()));
                     }
                 }
 
@@ -645,7 +662,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             }
         }
 
-        Entity originalEntity = this.entity;
+        LivingEntity originalEntity = this.entity;
 
         this.decreaseStackSize();
 
@@ -653,9 +670,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (originalEntity instanceof Slime slime)
             slime.setSize(1);
 
-        Player killer = this.entity.getKiller();
-        if (killer != null && this.getStackSize() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
-            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
+        Player killer = originalEntity.getKiller();
+        if (killer != null && amount - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), amount - 1);
     }
 
 }

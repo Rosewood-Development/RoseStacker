@@ -315,6 +315,7 @@ public class EntityStackSettings extends StackSettings {
         SpawnerFlagPersistenceHook.setPersistence(stacked);
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
+        NMSAdapter.getHandler().setLastHurtBy(unstacked, stacked.getKiller());
 
         if (Setting.ENTITY_KILL_TRANSFER_FIRE.getBoolean())
             stacked.setFireTicks(unstacked.getFireTicks());
