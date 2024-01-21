@@ -281,7 +281,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             EntityDrops drops = calculator.get();
 
             Runnable finishTask = () -> {
-                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), this.entity.getLocation());
+                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), this.entity.getLocation(), false);
                 int finalDroppedExp = drops.getExperience();
                 if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalDroppedExp > 0)
                     StackerUtils.dropExperience(this.entity.getLocation(), finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
