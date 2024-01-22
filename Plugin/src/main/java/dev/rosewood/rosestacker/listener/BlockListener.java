@@ -312,19 +312,15 @@ public class BlockListener implements Listener {
         if (amount <= 0)
             return true;
 
-        List<ItemStack> items;
-        if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
-            items = new ArrayList<>();
-            for (int i = 0; i < amount; i++)
-                items.add(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1));
-        } else {
-            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, amount));
-        }
+        if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean())
+            dropLocation = player.getLocation().add(0, 1, 0);
 
-        if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean()) {
-            ItemUtils.dropItemsToPlayer(player, items);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+            ItemStack spawnerItem = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);
+            stackManager.dropItemStack(spawnerItem, amount, dropLocation, true);
         } else {
-            this.rosePlugin.getManager(StackManager.class).preStackItems(items, dropLocation);
+            stackManager.preStackItems(List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, amount)), dropLocation);
         }
 
         return true;
@@ -456,14 +452,12 @@ public class BlockListener implements Listener {
                     SpawnerType spawnerType = stackedSpawner.getSpawnerTile().getSpawnerType();
                     block.setType(Material.AIR);
                     ThreadUtils.runSync(() -> {
-                        List<ItemStack> items;
                         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
                             ItemStack spawnerItem = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);
-                            items = new ArrayList<>(ItemUtils.getMultipliedItemStacks(List.of(spawnerItem), newStackSize, true));
+                            stackManager.dropItemStack(spawnerItem, newStackSize, block.getLocation(), true);
                         } else {
-                            items = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, newStackSize));
+                            stackManager.preStackItems(List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, newStackSize)), block.getLocation());
                         }
-                        stackManager.preStackItems(items, block.getLocation().clone());
                     });
                 }
             }
