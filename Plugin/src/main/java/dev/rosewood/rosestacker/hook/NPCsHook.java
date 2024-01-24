@@ -108,7 +108,17 @@ public class NPCsHook {
         if (simplePetsEnabled != null)
             return simplePetsEnabled;
 
-        return simplePetsEnabled = Bukkit.getPluginManager().isPluginEnabled("SimplePets");
+        boolean enabled = Bukkit.getPluginManager().isPluginEnabled("SimplePets");
+        if (!enabled)
+            return simplePetsEnabled = false;
+
+        try {
+            Class.forName("simplepets.brainsynder.api.plugin.SimplePets");
+        } catch (ClassNotFoundException e) {
+            return simplePetsEnabled = false;
+        }
+
+        return simplePetsEnabled = true;
     }
 
     /**
