@@ -444,21 +444,19 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             Bukkit.getPluginManager().callEvent(event);
         }
 
-        List<ItemStack> finalEntityLoot = new ArrayList<>();
-        int finalEntityExp = totalExp;
-
+        List<ItemStack> finalItems = new ArrayList<>();
         for (EntityDrops drops : entityDrops.values()) {
-            finalEntityLoot.addAll(drops.getDrops());
-            finalEntityExp += drops.getExperience();
+            finalItems.addAll(drops.getDrops());
+            totalExp += drops.getExperience();
         }
 
         // Multiply loot
         if (multiplier > 1) {
-            finalEntityLoot = ItemUtils.getMultipliedItemStacks(finalEntityLoot, multiplier, true);
-            finalEntityExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
+            finalItems = ItemUtils.getMultipliedItemStacks(finalItems, multiplier, true);
+            totalExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
         }
 
-        return new EntityDrops(finalEntityLoot, finalEntityExp);
+        return new EntityDrops(finalItems, totalExp);
     }
 
     /**
