@@ -578,7 +578,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         return this.stackSettings.shouldKillEntireStackOnDeath()
                 || (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.getBoolean() && PersistentDataUtils.isAiDisabled(this.entity))
                 || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))
-                || (overrideKiller != null && overrideKiller.hasPermission("rosestacker.killentirestack"));
+                || (overrideKiller != null && Setting.ENTITY_KILL_ENTIRE_STACK_ON_DEATH_PERMISSION.getBoolean() && overrideKiller.hasPermission("rosestacker.killentirestack"));
     }
 
     /**

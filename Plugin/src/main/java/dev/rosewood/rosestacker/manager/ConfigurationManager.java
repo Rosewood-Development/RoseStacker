@@ -39,6 +39,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_DISPLAY_TAGS_HOVER("global-entity-settings.display-tags-hover", false, "Do stacks need to be hovered over for their tags to be visible?"),
         ENTITY_DISPLAY_TAGS_CUSTOM_NAME("global-entity-settings.display-tags-custom-name", true, "Should the entity custom name be visible with the stack size?"),
         ENTITY_KILL_ENTIRE_STACK_ON_DEATH("global-entity-settings.kill-entire-stack-on-death", false, "Should the entire stack of entities always be killed when the main entity dies?"),
+        ENTITY_KILL_ENTIRE_STACK_ON_DEATH_PERMISSION("global-entity-settings.kill-entire-stack-on-death-permission", false, "Enabling this will cause players with the permission rosestacker.killentirestack to kill an entire stack at once"),
         ENTITY_KILL_ENTIRE_STACK_CONDITIONS("global-entity-settings.kill-entire-stack-on-death-conditions", List.of("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"),
         ENTITY_MULTIKILL_OPTIONS("global-entity-settings.multikill-options", null, "Allows killing multiple mobs at once, does not work with kill-entire-stack-on-death settings"),
         ENTITY_MULTIKILL_ENABLED("global-entity-settings.multikill-options.multikill-enabled", false, "Should multikill be enabled?"),
