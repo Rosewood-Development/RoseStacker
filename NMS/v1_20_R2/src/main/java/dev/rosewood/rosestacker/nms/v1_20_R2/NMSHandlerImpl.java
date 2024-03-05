@@ -77,6 +77,7 @@ import org.bukkit.craftbukkit.v1_20_R2.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftItem;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
@@ -85,6 +86,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import sun.misc.Unsafe;
@@ -116,6 +118,8 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
 
     private static Field field_Entity_spawnedViaMobSpawner; // Field to get the spawnedViaMobSpawner of an Entity, added by Paper, normally public
+
+    private static Field field_ItemEntity_despawnRate; // Field to get the despawn rate of an ItemEntity
 
     static {
         try {
@@ -152,6 +156,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
             if (NMSAdapter.isPaper())
                 field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
+
+            field_ItemEntity_despawnRate = ReflectionUtils.getFieldByName(net.minecraft.world.entity.item.ItemEntity.class, "despawnRate");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -467,6 +473,16 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void setCustomNameUncapped(org.bukkit.entity.Entity entity, String customName) {
         ((CraftEntity) entity).getHandle().setCustomName(CraftChatMessage.fromStringOrNull(customName));
+    }
+
+    @Override
+    public int getItemDespawnRate(Item item) {
+        try {
+            return (int) field_ItemEntity_despawnRate.get(((CraftItem) item).getHandle());
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Unable to get item despawn rate");
+        }
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {

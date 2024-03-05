@@ -60,6 +60,10 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         this.updateDisplay();
     }
 
+    public int getAge() {
+        return this.item.getTicksLived();
+    }
+
     @Override
     public int getStackSize() {
         return this.size;
@@ -99,12 +103,19 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             displayName = this.stackSettings.getDisplayName();
         }
 
+        int despawnRate = NMSAdapter.getHandler().getItemDespawnRate(this.item);
+        int ticksLeft = despawnRate - this.getAge();
+        int secondsLeft = ticksLeft / 20;
+
+        String timer = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
+
         String displayString;
         if (this.getStackSize() > 1) {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                    .add("name", displayName).build());
+                    .add("name", displayName).add("timer", timer).build());
         } else {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", StringPlaceholders.of("name", displayName));
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", StringPlaceholders.builder("name", displayName)
+                    .add("timer", timer).build());
         }
 
         this.item.setCustomNameVisible((this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName)) &&

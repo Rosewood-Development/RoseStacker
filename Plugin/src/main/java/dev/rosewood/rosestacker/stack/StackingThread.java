@@ -205,6 +205,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 continue;
             }
 
+            stackedItem.updateDisplay();
+
             this.tryStackItem(stackedItem);
         }
     }
