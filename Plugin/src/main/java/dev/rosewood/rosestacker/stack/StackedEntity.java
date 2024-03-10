@@ -163,7 +163,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.entity = this.stackedEntityDataStorage.pop().createEntity(oldEntity.getLocation(), true, oldEntity.getType());
         stackManager.setEntityStackingTemporarilyDisabled(false);
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
-        stackManager.updateStackedEntityKey(oldEntity, this.entity);
+        stackManager.updateStackedEntityKey(oldEntity, this);
         entityCacheManager.preCacheEntity(this.entity);
         this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
 

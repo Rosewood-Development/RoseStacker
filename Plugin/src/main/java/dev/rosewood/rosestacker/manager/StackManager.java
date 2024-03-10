@@ -216,10 +216,10 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey) {
-        StackingThread stackingThread = this.getStackingThread(newKey.getWorld());
+    public void updateStackedEntityKey(LivingEntity oldKey, StackedEntity stackedEntity) {
+        StackingThread stackingThread = this.getStackingThread(stackedEntity.getWorld());
         if (stackingThread != null)
-            stackingThread.updateStackedEntityKey(oldKey, newKey);
+            stackingThread.updateStackedEntityKey(oldKey, stackedEntity);
     }
 
     @Override

@@ -151,9 +151,9 @@ public interface StackingLogic {
      * This is used for when the head of a StackedEntity becomes a different LivingEntity
      *
      * @param oldKey the LivingEntity at the old head of the stack
-     * @param newKey the LivingEntity at the new head of the stack
+     * @param stackedEntity the StackedEntity being updated
      */
-    void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey);
+    void updateStackedEntityKey(LivingEntity oldKey, StackedEntity stackedEntity);
 
     /**
      * Splits the top entity off the StackedEntity
