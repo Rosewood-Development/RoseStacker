@@ -221,6 +221,10 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         MISC_MYTHICMOBS_ALLOW_STACKING("misc-settings.mythicmobs-allow-stacking", false, "Should mobs owned by MythicMobs be allowed to stack?", "This is recommended to keep set to false unless you specifically only change mob attributes"),
         MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break."),
         MISC_STACK_STATISTICS("misc-settings.stack-statistics", true, "Should statistics be accurately tracked for stacked entities?", "This can cause issues if you expect players to kill multiple billion mobs"),
+        PERFORMANCE_SETTINGS("performance-settings", null, "Plugin behavior based on server performance, and other performance tweaks"),
+        PERFORMANCE_TPS_TOGGLE("performance-settings.tps-toggle.enabled", false, "Should stacking be automatically disabled or enabled based on server TPS?", "Stacks created during periods of low TPS will remain stacked"),
+        PERFORMANCE_TPS_ENABLE_BELOW("performance-settings.tps-toggle.enable-below", 16D, "When should we enable the stacking?", "Should be lower than re-enable-above. Stacking will remain enabled until disable-above is reached"),
+        PERFORMANCE_TPS_DISABLE_ABOVE("performance-settings.tps-toggle.disable-above", 18D, "When should we disable the stacking?"),
         ;
 
         private final String key;

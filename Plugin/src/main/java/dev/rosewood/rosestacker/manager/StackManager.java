@@ -15,13 +15,10 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -46,6 +43,8 @@ public class StackManager extends Manager implements StackingLogic {
 
     private boolean isEntityStackingTemporarilyDisabled;
     private boolean isEntityUnstackingTemporarilyDisabled;
+    private boolean isEntityStackingEnabledForPerformance;
+    private boolean stackingBasedOnPerformance;
 
     private StackedEntityDataStorageType entityDataStorageType;
 
@@ -55,6 +54,8 @@ public class StackManager extends Manager implements StackingLogic {
         this.stackingThreads = new ConcurrentHashMap<>();
 
         this.isEntityStackingTemporarilyDisabled = false;
+        this.isEntityStackingEnabledForPerformance = false;
+        this.stackingBasedOnPerformance = false;
     }
 
     @Override
@@ -69,6 +70,30 @@ public class StackManager extends Manager implements StackingLogic {
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
             this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, () -> this.saveAllData(false), interval, interval);
+        }
+
+        this.stackingBasedOnPerformance = ConfigurationManager.Setting.PERFORMANCE_TPS_TOGGLE.getBoolean();
+        if(this.stackingBasedOnPerformance){
+            Bukkit.getServer().getScheduler().runTaskAsynchronously(rosePlugin, new Runnable() {
+                @Override
+                public void run() {
+                    if(ConfigurationManager.Setting.PERFORMANCE_TPS_TOGGLE.getBoolean()){
+                        Bukkit.getScheduler().runTaskTimerAsynchronously(rosePlugin, () -> {
+                            double[] tps = Bukkit.getServer().getTPS();
+                            if(tps.length == 0) return;
+                            double lastTPS = tps[0];
+                            // hysteresis
+                            if(isEntityStackingEnabledForPerformance && lastTPS >= Setting.PERFORMANCE_TPS_DISABLE_ABOVE.getDouble()){
+                                // stacking was enabled due to performance, the TPS increased, we can turn it off again
+                                isEntityStackingEnabledForPerformance=false;
+                            } else if(!isEntityStackingEnabledForPerformance && lastTPS <= Setting.PERFORMANCE_TPS_ENABLE_BELOW.getDouble()) {
+                                // stacking was disabled because the performance was above the low bound, but they have decreased past that
+                                isEntityStackingEnabledForPerformance=true;
+                            }
+                        }, 0L, 20L*30L);
+                    }
+                }
+            });
         }
     }
 
@@ -533,7 +558,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if instant entity stacking is temporarily disabled, otherwise false
      */
     public boolean isEntityStackingTemporarilyDisabled() {
-        return this.isEntityStackingTemporarilyDisabled;
+        return this.isEntityStackingTemporarilyDisabled || (this.stackingBasedOnPerformance && !this.isEntityStackingEnabledForPerformance);
     }
 
     /**
