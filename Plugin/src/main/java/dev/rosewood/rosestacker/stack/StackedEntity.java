@@ -240,12 +240,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param droppedExp The exp dropped from this.entity
      */
     public void dropPartialStackLoot(int count, Collection<ItemStack> existingLoot, int droppedExp) {
-        this.calculateAndDropPartialStackLoot(() -> {
-            EntityDrops drops = this.calculateEntityDrops(new ArrayList<>(), count - 1, false, droppedExp);
-            drops.getDrops().addAll(existingLoot);
-            drops.setExperience(drops.getExperience() + droppedExp);
-            return drops;
-        });
+        this.calculateAndDropPartialStackLoot(() -> this.calculateEntityDrops(new ArrayList<>(), count - 1, false, droppedExp, null, null, new EntityDrops(new ArrayList<>(existingLoot), droppedExp)));
     }
 
     /**
@@ -266,10 +261,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             Collection<LivingEntity> internalEntities = internalEntityData.stream()
                     .map(x -> x.createEntity(thisEntity.getLocation(), false, thisEntity.getType()))
                     .toList();
-            EntityDrops drops = this.calculateEntityDrops(internalEntities, 0, false, droppedExp, null, thisEntity);
-            drops.getDrops().addAll(existingLoot);
-            drops.setExperience(drops.getExperience() + droppedExp);
-            return drops;
+            return this.calculateEntityDrops(internalEntities, 0, false, droppedExp, null, thisEntity, new EntityDrops(new ArrayList<>(existingLoot), droppedExp));
         });
     }
 
@@ -329,7 +321,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     @ApiStatus.Internal
     public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier) {
-        return this.calculateEntityDrops(internalEntities, count, includeMainEntity, entityExpValue, lootingModifier, null);
+        return this.calculateEntityDrops(internalEntities, count, includeMainEntity, entityExpValue, lootingModifier, null, null);
     }
 
     /**
@@ -339,17 +331,19 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param count The number of entities to drop items for
      * @param includeMainEntity Whether to include the main entity in the calculation
      * @param entityExpValue The exp value of the entity
-     * @param lootingModifier The looting modifier, nullable
-     * @param mainEntity The main entity to use for loot calculations, primarily used to copy entity properties such as the killer
+     * @param lootingModifier The looting modifier, nullable, defaults to the killer's looting value
+     * @param mainEntity The main entity to use for loot calculations, primarily used to copy entity properties such as the killer, nullable, defaults to the stack entity
+     * @param mainEntityDrops The main entity drops to include in the loot calculations, nullable
      * @return The calculated entity drops
      */
     @ApiStatus.Internal
-    public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier, LivingEntity mainEntity) {
+    public EntityDrops calculateEntityDrops(Collection<LivingEntity> internalEntities, int count, boolean includeMainEntity, int entityExpValue, Integer lootingModifier, LivingEntity mainEntity, EntityDrops mainEntityDrops) {
         // Cache the current entity just in case it somehow changes while we are processing the loot
         if (mainEntity == null)
             mainEntity = this.entity;
 
-        count = Math.min(count, this.getStackSize());
+        int extraDropsOffset = mainEntityDrops == null ? 1 : 0;
+        count = Math.min(count, this.getStackSize()) + extraDropsOffset;
 
         boolean useCount = internalEntities.isEmpty();
 
@@ -377,7 +371,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
 
         ListMultimap<LivingEntity, EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
-        int totalExp = 0;
+        if (mainEntityDrops != null)
+            entityDrops.put(mainEntity, mainEntityDrops);
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         for (LivingEntity entity : internalEntities) {
@@ -445,18 +440,19 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         List<ItemStack> finalItems = new ArrayList<>();
+        int finalExp = 0;
         for (EntityDrops drops : entityDrops.values()) {
             finalItems.addAll(drops.getDrops());
-            totalExp += drops.getExperience();
+            finalExp += drops.getExperience();
         }
 
         // Multiply loot
         if (multiplier > 1) {
             finalItems = ItemUtils.getMultipliedItemStacks(finalItems, multiplier, true);
-            totalExp = (int) Math.min(Math.round(totalExp * multiplier), Integer.MAX_VALUE);
+            finalExp = (int) Math.min(Math.round(finalExp * multiplier), Integer.MAX_VALUE);
         }
 
-        return new EntityDrops(finalItems, totalExp);
+        return new EntityDrops(finalItems, finalExp);
     }
 
     /**
