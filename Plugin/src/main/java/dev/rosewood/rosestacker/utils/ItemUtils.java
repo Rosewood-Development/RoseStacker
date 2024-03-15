@@ -213,8 +213,26 @@ public final class ItemUtils {
         if (ConfigurationManager.Setting.SPAWNER_HIDE_VANILLA_ITEM_LORE.getBoolean())
             itemMeta.addItemFlags(ItemFlag.values());
 
-        // Set the lore, if defined
-        List<String> lore = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessages("stack-item-lore-spawner", placeholders);
+        // Set the lore
+        LocaleManager localeManager = RoseStacker.getInstance().getManager(LocaleManager.class);
+        List<String> globalLore, typeLore;
+        if (amount == 1) {
+            globalLore = localeManager.getLocaleMessages("stack-item-lore-spawner", placeholders);
+            typeLore = stackSettings.getItemLoreSingular(placeholders);
+        } else {
+            globalLore = localeManager.getLocaleMessages("stack-item-lore-spawner-plural", placeholders);
+            typeLore = stackSettings.getItemLorePlural(placeholders);
+        }
+
+        List<String> lore = new ArrayList<>(globalLore.size() + typeLore.size());
+        if (ConfigurationManager.Setting.MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST.getBoolean()) {
+            lore.addAll(globalLore);
+            lore.addAll(typeLore);
+        } else {
+            lore.addAll(typeLore);
+            lore.addAll(globalLore);
+        }
+
         if (!lore.isEmpty())
             itemMeta.setLore(lore);
 
