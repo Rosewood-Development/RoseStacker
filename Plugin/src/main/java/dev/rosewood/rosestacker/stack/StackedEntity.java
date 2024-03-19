@@ -352,6 +352,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         count = Math.min(count, this.getStackSize());
 
+        if (mainEntityDrops != null)
+            count++;
+
         boolean useCount = internalEntities.isEmpty();
 
         if (includeMainEntity && mainEntityDrops == null)
@@ -362,8 +365,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
             int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
             if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && count > threshold) {
-                internalEntities.clear();
-                this.stackedEntityDataStorage.forEachCapped(approximationAmount, internalEntities::add);
+                int offset = internalEntities.size() + (mainEntityDrops != null ? 1 : 0);
+                this.stackedEntityDataStorage.forEachCapped(approximationAmount - offset, internalEntities::add);
                 multiplier = count / (double) approximationAmount;
             } else {
                 this.stackedEntityDataStorage.forEachCapped(count, internalEntities::add);
@@ -385,6 +388,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         boolean isAccurateSlime = isSlime && this.stackSettings.getSettingValue(EntityStackSettings.SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH).getBoolean();
 
         ListMultimap<LivingEntity, EntityDrops> entityDrops = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+        if (mainEntityDrops != null)
+            entityDrops.put(mainEntity, mainEntityDrops);
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         for (LivingEntity entity : internalEntities) {
@@ -464,13 +469,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             finalExp = (int) Math.min(Math.round(finalExp * multiplier), Integer.MAX_VALUE);
         }
 
-        EntityDrops finalDrops = new EntityDrops(finalItems, finalExp);
-        if (mainEntityDrops != null) {
-            finalDrops.getDrops().addAll(mainEntityDrops.getDrops());
-            finalDrops.setExperience(finalDrops.getExperience() + mainEntityDrops.getExperience());
-        }
-
-        return finalDrops;
+        return new EntityDrops(finalItems, finalExp);
     }
 
     /**
