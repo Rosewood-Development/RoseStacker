@@ -4,29 +4,29 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.inventory.ItemStack;
+import dev.rosewood.rosestacker.stack.StackedItem;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemPickupEvent extends EntityEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final ItemStack item;
+    private final StackedItem stackedItem;
     private boolean cancelled;
 
     /**
      * @param entity The entity picking up item
-     * @param item   The item being picking up from stacked dropped items
+     * @param stackedItem The StackedItem being picking up from stacked dropped items
      */
-    public ItemPickupEvent(@NotNull final LivingEntity entity, @NotNull final ItemStack item) {
+    public ItemPickupEvent(@NotNull final LivingEntity entity, @NotNull final StackedItem stackedItem) {
         super(entity);
-        this.item = item;
+        this.stackedItem = stackedItem;
     }
 
     /**
      * Gets the entity picking up items.
      *
-     * @return the entity
+     * @return the entity try to pick up item
      */
     @NotNull
     @Override
@@ -35,13 +35,13 @@ public class ItemPickupEvent extends EntityEvent implements Cancellable {
     }
 
     /**
-     * Gets the items being picking up.
+     * Gets the StackedItem being picking up.
      *
-     * @return the itemStack being picking up
+     * @return the StackedItem being picking up
      */
     @NotNull
-    public ItemStack getItem() {
-        return this.item;
+    public StackedItem getStackedItem() {
+        return this.stackedItem;
     }
 
     @Override

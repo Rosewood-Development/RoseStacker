@@ -83,6 +83,14 @@ public class ItemListener implements Listener {
         if (stackedItem == null)
             return;
 
+        // Fire the event to allow other plugins to manipulate the items before we pick up items from stacked item
+        ItemPickupEvent pickupEvent = new ItemPickupEvent(event.getEntity(), stackedItem);
+        Bukkit.getPluginManager().callEvent(pickupEvent);
+        if (pickupEvent.isCancelled()) {
+            event.setCancelled(true);
+            return;
+        }
+
         Inventory inventory;
         if (event.getEntity() instanceof Player player) {
             if (StackerUtils.isVanished(player)) {
@@ -168,12 +176,6 @@ public class ItemListener implements Listener {
 
         boolean willPickupAll = inventorySpace >= stackedItem.getStackSize();
         int amount = willPickupAll ? stackedItem.getStackSize() - target.getAmount() : inventorySpace;
-
-        // Fire the event to allow other plugins to manipulate the items before we pick up partial items from stacked item
-        ItemPickupEvent event = new ItemPickupEvent((LivingEntity) eventEntity, target);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
-            return false;
 
         this.addItemStackAmountToInventory(inventory, target, amount);
 
