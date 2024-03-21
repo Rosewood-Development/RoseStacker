@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.event.ItemPickupEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -10,11 +11,14 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -164,6 +168,12 @@ public class ItemListener implements Listener {
 
         boolean willPickupAll = inventorySpace >= stackedItem.getStackSize();
         int amount = willPickupAll ? stackedItem.getStackSize() - target.getAmount() : inventorySpace;
+
+        // Fire the event to allow other plugins to manipulate the items before we pick up partial items from stacked item
+        ItemPickupEvent event = new ItemPickupEvent((LivingEntity) eventEntity, target);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return false;
 
         this.addItemStackAmountToInventory(inventory, target, amount);
 
