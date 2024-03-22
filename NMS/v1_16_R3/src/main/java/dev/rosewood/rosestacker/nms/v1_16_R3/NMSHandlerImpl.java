@@ -85,8 +85,10 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -110,6 +112,9 @@ public class NMSHandlerImpl implements NMSHandler {
     private static long field_SpawnerBlockEntity_spawner_offset; // Field offset for modifying SpawnerBlockEntity's spawner field
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
+
+    private static Field field_Level_spigotConfig;
+    private static Field field_SpigotWorldConfig_itemDespawnRate;
 
     static {
         try {
@@ -136,6 +141,9 @@ public class NMSHandlerImpl implements NMSHandler {
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByName(EntityVillagerAbstract.class, "trades");
+
+            field_Level_spigotConfig = ReflectionUtils.getFieldByName(net.minecraft.server.v1_16_R3.World.class, "spigotConfig");
+            field_SpigotWorldConfig_itemDespawnRate = ReflectionUtils.getFieldByName(SpigotWorldConfig.class, "itemDespawnRate");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -185,7 +193,7 @@ public class NMSHandlerImpl implements NMSHandler {
             if (field_Entity_spawnReason != null) {
                 try {
                     field_Entity_spawnReason.set(newEntity, this.toBukkitSpawnReason(enummobspawn));
-                } catch (IllegalAccessException ignored) { }
+                } catch (IllegalAccessException ignored) {}
             }
 
             newEntity.setPositionRotation(blockposition.getX() + 0.5D, blockposition.getY(), blockposition.getZ() + 0.5D, MathHelper.g(worldserver.random.nextFloat() * 360.0F), 0.0F);
@@ -212,7 +220,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
             try {
                 EntityTypes.a(worldserver, entityhuman, newEntity, nbttagcompound);
-            } catch (Throwable ignored) { }
+            } catch (Throwable ignored) {}
 
             return newEntity;
         }
@@ -303,14 +311,14 @@ public class NMSHandlerImpl implements NMSHandler {
 
             // Remove controllers
             field_EntityInsentient_lookController.set(insentient, new ControllerLook(insentient) {
-                public void a() { }
+                public void a() {}
             });
             field_EntityInsentient_moveController.set(insentient, new ControllerMove(insentient) {
-                public void a() { }
+                public void a() {}
             });
             if (!(insentient instanceof EntityRabbit)) {
                 field_EntityInsentient_jumpController.set(insentient, new ControllerJump(insentient) {
-                    public void b() { }
+                    public void b() {}
                 });
             }
             field_EntityLiving_behaviorController.set(insentient, new BehaviorController(List.of(), List.of(), ImmutableList.of(), () -> BehaviorController.b(List.of(), List.of())));
@@ -420,6 +428,16 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void setCustomNameUncapped(org.bukkit.entity.Entity entity, String customName) {
         ((CraftEntity) entity).getHandle().setCustomName(CraftChatMessage.fromStringOrNull(customName));
+    }
+
+    @Override
+    public int getItemDespawnRate(Item item) {
+        try {
+            return field_SpigotWorldConfig_itemDespawnRate.getInt(field_Level_spigotConfig.get(((CraftWorld) item.getWorld()).getHandle()));
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Unable to get item despawn rate");
+        }
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

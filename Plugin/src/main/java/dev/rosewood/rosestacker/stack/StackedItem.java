@@ -60,6 +60,10 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         this.updateDisplay();
     }
 
+    public int getAge() {
+        return this.item.getTicksLived();
+    }
+
     @Override
     public int getStackSize() {
         return this.size;
@@ -99,12 +103,23 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             displayName = this.stackSettings.getDisplayName();
         }
 
+        StringPlaceholders.Builder placeholdersBuilder = StringPlaceholders.builder()
+                .add("amount", StackerUtils.formatNumber(this.getStackSize()))
+                .add("name", displayName);
+
+        if (Setting.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.getBoolean()) {
+            int despawnRate = NMSAdapter.getHandler().getItemDespawnRate(this.item);
+            int ticksLeft = despawnRate - this.getAge();
+            int secondsLeft = ticksLeft / 20;
+            String timer = String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60);
+            placeholdersBuilder.add("timer", timer);
+        }
+
         String displayString;
         if (this.getStackSize() > 1) {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                    .add("name", displayName).build());
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", placeholdersBuilder.build());
         } else {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", StringPlaceholders.of("name", displayName));
+            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", placeholdersBuilder.build());
         }
 
         this.item.setCustomNameVisible((this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName)) &&

@@ -87,6 +87,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ITEM_DISPLAY_CUSTOM_NAMES("global-item-settings.display-custom-names", true, "Should items with custom names be shown on their tags?"),
         ITEM_DISPLAY_CUSTOM_NAMES_COLOR("global-item-settings.display-custom-names-color", true, "Should the color of custom names be shown on their tags?"),
         ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS("global-item-settings.display-custom-names-always", true, "Should items with a custom name always display their tags?", "This mirrors vanilla behavior"),
+        ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER("global-item-settings.display-despawn-timer-placeholder", false, "Should the %timer% placeholder be available in item display tags?", "You will need to add the %timer% placeholder to the item display tag in your locale file manually", "Placeholder updates will occur at the same frequency as item-stack-frequency"),
         ITEM_RESET_DESPAWN_TIMER_ON_MERGE("global-item-settings.reset-despawn-timer-on-merge", true, "Should the item despawn timer be reset when an item is merged into it?"),
         ITEM_MERGE_INTO_NEWEST("global-item-settings.merge-into-newest", false, "Should items be merged into the newest stack?"),
 

@@ -8,11 +8,7 @@ import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
@@ -278,5 +274,7 @@ public interface NMSHandler {
      * @param customName The custom name to set
      */
     void setCustomNameUncapped(Entity entity, String customName);
+
+    int getItemDespawnRate(Item item);
 
 }

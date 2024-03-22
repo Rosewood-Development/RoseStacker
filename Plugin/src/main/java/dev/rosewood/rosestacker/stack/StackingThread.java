@@ -197,6 +197,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!itemStackingEnabled)
             return;
 
+        boolean updateItemNametags = Setting.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.getBoolean();
+
         // Auto stack items
         for (StackedItem stackedItem : this.stackedItems.values()) {
             Item item = stackedItem.getItem();
@@ -204,6 +206,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 this.removeItemStack(stackedItem);
                 continue;
             }
+
+            if (updateItemNametags)
+                stackedItem.updateDisplay();
 
             this.tryStackItem(stackedItem);
         }

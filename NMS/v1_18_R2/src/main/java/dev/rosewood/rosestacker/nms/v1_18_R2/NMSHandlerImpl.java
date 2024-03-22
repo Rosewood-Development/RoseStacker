@@ -56,6 +56,7 @@ import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
@@ -75,12 +76,14 @@ import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftNamespacedKey;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -104,6 +107,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
 
+    private static Field field_Level_spigotConfig;
+    private static Field field_SpigotWorldConfig_itemDespawnRate;
+
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -126,6 +132,9 @@ public class NMSHandlerImpl implements NMSHandler {
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
+
+            field_Level_spigotConfig = ReflectionUtils.getFieldByName(Level.class, "spigotConfig");
+            field_SpigotWorldConfig_itemDespawnRate = ReflectionUtils.getFieldByName(SpigotWorldConfig.class, "itemDespawnRate");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -406,6 +415,16 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public void setCustomNameUncapped(org.bukkit.entity.Entity entity, String customName) {
         ((CraftEntity) entity).getHandle().setCustomName(CraftChatMessage.fromStringOrNull(customName));
+    }
+
+    @Override
+    public int getItemDespawnRate(Item item) {
+        try {
+            return field_SpigotWorldConfig_itemDespawnRate.getInt(field_Level_spigotConfig.get(((CraftWorld) item.getWorld()).getHandle()));
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Unable to get item despawn rate");
+        }
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {
