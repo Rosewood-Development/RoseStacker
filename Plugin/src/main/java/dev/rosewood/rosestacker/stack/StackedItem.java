@@ -107,7 +107,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         int ticksLeft = despawnRate - this.getAge();
         int secondsLeft = ticksLeft / 20;
 
-        String timer = String.format("%02d:%02d", secondsLeft / 60, secondsLeft % 60);
+        String timer = String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60);
 
         String displayString;
         if (this.getStackSize() > 1) {
