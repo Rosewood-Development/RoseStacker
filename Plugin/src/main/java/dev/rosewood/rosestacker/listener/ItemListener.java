@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosestacker.event.ItemPickupEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -10,11 +11,14 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -78,6 +82,14 @@ public class ItemListener implements Listener {
         StackedItem stackedItem = this.stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
             return;
+
+        // Fire the event to allow other plugins to manipulate the items before we pick up items from stacked item
+        ItemPickupEvent pickupEvent = new ItemPickupEvent(event.getEntity(), stackedItem);
+        Bukkit.getPluginManager().callEvent(pickupEvent);
+        if (pickupEvent.isCancelled()) {
+            event.setCancelled(true);
+            return;
+        }
 
         Inventory inventory;
         if (event.getEntity() instanceof Player player) {
