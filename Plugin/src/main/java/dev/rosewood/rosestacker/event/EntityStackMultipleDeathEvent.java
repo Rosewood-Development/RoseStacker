@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Only called when trigger-death-event-for-entire-stack-kill is disabled in the config.
  * This can be checked with {@link RoseStackerAPI#isEntityStackMultipleDeathEventCalled()}
- * Called when an entire stack of entities is killed at once.
+ * Called when multiple entities in a stack are killed at the same time.
  * May be called async depending on the value of the death-event-trigger-async config setting.
  */
 public class EntityStackMultipleDeathEvent extends Event {
@@ -23,16 +23,25 @@ public class EntityStackMultipleDeathEvent extends Event {
 
     private final StackedEntity stackedEntity;
     private final Multimap<LivingEntity, EntityDrops> entityDrops;
+    private final int originalStackSize;
+    private final int entityKillCount;
+
 
     /**
      * @param stackedEntity The entity being killed
      * @param entityDrops A Map of the entities being killed and their drops
+     * @param originalStackSize The original stack size
+     * @param entityKillCount The number of entities being killed
      */
-    public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity, @NotNull Multimap<LivingEntity, EntityDrops> entityDrops) {
+    public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity,
+                                         @NotNull Multimap<LivingEntity, EntityDrops> entityDrops,
+                                         int originalStackSize, int entityKillCount) {
         super(!Bukkit.isPrimaryThread());
 
         this.stackedEntity = stackedEntity;
         this.entityDrops = entityDrops;
+        this.originalStackSize = originalStackSize;
+        this.entityKillCount = entityKillCount;
     }
 
     /**
@@ -49,6 +58,20 @@ public class EntityStackMultipleDeathEvent extends Event {
     @NotNull
     public Multimap<LivingEntity, EntityDrops> getEntityDrops() {
         return this.entityDrops;
+    }
+
+    /**
+     * @return the original stack size
+     */
+    public int getOriginalStackSize() {
+        return this.originalStackSize;
+    }
+
+    /**
+     * @return the number of entities being killed
+     */
+    public int getEntityKillCount() {
+        return this.entityKillCount;
     }
 
     @Override

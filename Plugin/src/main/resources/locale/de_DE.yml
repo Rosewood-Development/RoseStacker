@@ -186,6 +186,7 @@ spawner-condition-not-player-placed-invalid: 'Muss von einem Spieler platziert w
 # Given Stack Item Lore
 # Note: This will appear in the lore of the items given from the '/rs give' command
 stack-item-lore-spawner: []
+stack-item-lore-spawner-plural: []
 stack-item-lore-block: []
 stack-item-lore-entity: []
 

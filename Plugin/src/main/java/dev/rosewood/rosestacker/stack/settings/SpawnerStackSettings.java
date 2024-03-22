@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.utils.HexUtils;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -27,6 +29,8 @@ public class SpawnerStackSettings extends StackSettings {
     private final int playerActivationRange;
     private final int spawnRange;
     private final List<ConditionTag> spawnRequirements;
+    private final List<String> itemLoreSingular;
+    private final List<String> itemLorePlural;
 
     public SpawnerStackSettings(CommentedFileConfiguration settingsConfiguration, SpawnerType spawnerType) {
         super(settingsConfiguration);
@@ -74,6 +78,9 @@ public class SpawnerStackSettings extends StackSettings {
             this.spawnRange = -1;
             this.spawnRequirements = List.of();
         }
+
+        this.itemLoreSingular = this.settingsConfiguration.getStringList("item-lore-singular");
+        this.itemLorePlural = this.settingsConfiguration.getStringList("item-lore-plural");
     }
 
     @Override
@@ -97,6 +104,9 @@ public class SpawnerStackSettings extends StackSettings {
             List<String> defaultSpawnRequirements = new ArrayList<>(entityStackSettings.getEntityTypeData().defaultSpawnRequirements());
             this.setIfNotExists("spawn-requirements", defaultSpawnRequirements);
         });
+
+        this.setIfNotExists("item-lore-singular", List.of());
+        this.setIfNotExists("item-lore-plural", List.of());
     }
 
     @Override
@@ -182,6 +192,18 @@ public class SpawnerStackSettings extends StackSettings {
         if (this.spawnRange != -1)
             return Math.max(this.spawnRange, 1);
         return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_RANGE.getInt(), 1);
+    }
+
+    public List<String> getItemLoreSingular(StringPlaceholders stringPlaceholders) {
+        return this.itemLoreSingular.stream()
+                .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
+                .toList();
+    }
+
+    public List<String> getItemLorePlural(StringPlaceholders stringPlaceholders) {
+        return this.itemLorePlural.stream()
+                .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
+                .toList();
     }
 
     private int maxIfNotNegativeOne(int value, int max) {

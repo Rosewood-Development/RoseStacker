@@ -479,12 +479,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     @Override
-    public void updateStackedEntityKey(LivingEntity oldKey, LivingEntity newKey) {
-        StackedEntity stackedEntity = this.stackedEntities.get(oldKey.getUniqueId());
-        if (stackedEntity != null) {
-            this.stackedEntities.remove(oldKey.getUniqueId());
-            this.stackedEntities.put(newKey.getUniqueId(), stackedEntity);
-        }
+    public void updateStackedEntityKey(LivingEntity oldKey, StackedEntity stackedEntity) {
+        this.stackedEntities.remove(oldKey.getUniqueId());
+        this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
     }
 
     @Override
