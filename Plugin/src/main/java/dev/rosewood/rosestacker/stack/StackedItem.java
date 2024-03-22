@@ -1,5 +1,6 @@
 package dev.rosewood.rosestacker.stack;
 
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -108,10 +109,15 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
                 .add("name", displayName);
 
         if (Setting.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.getBoolean()) {
-            int despawnRate = NMSAdapter.getHandler().getItemDespawnRate(this.item);
-            int ticksLeft = despawnRate - this.getAge();
-            int secondsLeft = ticksLeft / 20;
-            String timer = String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60);
+            String timer;
+            if (NMSUtil.getVersionNumber() >= 18 && this.item.isUnlimitedLifetime()) {
+                timer = "∞";
+            } else {
+                int despawnRate = NMSAdapter.getHandler().getItemDespawnRate(this.item);
+                int ticksLeft = despawnRate - this.getAge();
+                int secondsLeft = ticksLeft / 20;
+                timer = String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60);
+            }
             placeholdersBuilder.add("timer", timer);
         }
 
