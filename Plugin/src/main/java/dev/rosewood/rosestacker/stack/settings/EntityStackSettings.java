@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
@@ -362,10 +363,12 @@ public class EntityStackSettings extends StackSettings {
 
         private final StackConditions.StackCondition<T> condition;
         private boolean enabled;
+        private boolean displayedWarning;
 
         public StackConditionEntry(StackConditions.StackCondition<T> condition) {
             this.condition = condition;
             this.enabled = true;
+            this.displayedWarning = false;
         }
 
         public EntityStackComparisonResult apply(EntityStackSettings stackSettings, StackedEntity stack1,
@@ -374,16 +377,29 @@ public class EntityStackSettings extends StackSettings {
             if (!this.enabled)
                 return EntityStackComparisonResult.CAN_STACK;
 
-            // TODO: No clue why this is needed. Somehow the case breaks because the entity types aren't the same. What?
-            if (entity1.getClass() != entity2.getClass())
+            Class<?> requiredClass = this.condition.clazz();
+            if (!requiredClass.isAssignableFrom(entity1.getClass()) || !requiredClass.isAssignableFrom(entity2.getClass())) {
+                this.printWarning(entity1, entity2);
                 return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
+            }
 
             try {
                 return this.condition.function().apply(stackSettings, stack1, stack2, (T) entity1, (T) entity2, comparingForUnstack, ignorePositions);
             } catch (ClassCastException e) {
-                RoseStacker.getInstance().getLogger().warning(String.format("Failed to cast entities [%s, %s]", entity1.getClass().getSimpleName(), entity2.getClass().getSimpleName()));
+                this.printWarning(entity1, entity2);
                 return EntityStackComparisonResult.DIFFERENT_ENTITY_TYPES;
             }
+        }
+
+        private void printWarning(Entity entity1, Entity entity2) {
+            if (this.displayedWarning)
+                return;
+
+            RoseStacker.getInstance().getLogger().severe(String.format("An error occurred while apply entity stack condition: {key=%s, class=%s}. " +
+                    "Entity classes: [%s, %s]. This condition will always fail. Please report this to the plugin author. A stacktrace will be printed below.",
+                    this.condition.configProperties().key(), this.condition.clazz().getName(), entity1.getClass().getName(), entity2.getClass().getName()));
+            new RuntimeException("Stack condition apply error").printStackTrace();
+            this.displayedWarning = true;
         }
 
         public void setDefaults() {

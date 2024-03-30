@@ -277,12 +277,12 @@ public final class StackConditions {
     }
 
     private static <T, P extends StackValidationFunction<T>> void registerInternal(Class<T> assignableClass, ConfigProperties configProperties, P validationFunction) {
-        CLASS_STACK_EVALUATION_MAP.put(assignableClass, new StackCondition<>(configProperties, validationFunction));
+        CLASS_STACK_EVALUATION_MAP.put(assignableClass, new StackCondition<>(assignableClass, configProperties, validationFunction));
     }
 
     public record ConfigProperties(String key, boolean defaultValue) { }
 
-    public record StackCondition<T>(ConfigProperties configProperties, StackValidationFunction<T> function) { }
+    public record StackCondition<T>(Class<T> clazz, ConfigProperties configProperties, StackValidationFunction<T> function) { }
 
     @FunctionalInterface
     public interface StackValidationFunction<T> {
