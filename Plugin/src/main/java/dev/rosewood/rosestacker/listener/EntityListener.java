@@ -30,6 +30,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Enderman;
@@ -70,6 +71,7 @@ import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
@@ -239,6 +241,32 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
+
+        if (event.getEntity() instanceof Item item && item.getItemStack().getType().toString().contains("SHULKER_BOX")) {
+            StackedItem stackedItem = this.stackManager.getStackedItem(item);
+            if (stackedItem == null)
+                return;
+
+            final int amount = stackedItem.getStackSize();
+
+            if (amount > 1 && event.getFinalDamage() >= item.getHealth()) {
+                final List<ItemStack> contents = getContents(item.getItemStack());
+                final List<ItemStack> totalContents = new ArrayList<>();
+                final Location location = item.getLocation();
+
+                item.remove();
+
+                for (int i = amount; i > 0; i--) {
+                    totalContents.addAll(contents);
+                }
+
+                this.stackManager.preStackItems(totalContents, location);
+
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         if (!(event.getEntity() instanceof LivingEntity entity) || event.getEntity().getType() == EntityType.ARMOR_STAND || event.getEntity().getType() == EntityType.PLAYER)
             return;
 
@@ -274,6 +302,21 @@ public class EntityListener implements Listener {
             if (killer != null && killedEntities.size() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
                 killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killedEntities.size() - 1);
         }
+    }
+
+    public List<ItemStack> getContents(ItemStack item) {
+        if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return null;
+
+        if (!(meta.getBlockState() instanceof ShulkerBox box)) return null;
+
+        List<ItemStack> contents = new ArrayList<>();
+        for (ItemStack content : box.getInventory().getContents()) {
+            if (content == null || content.getType().isAir()) continue;
+
+            contents.add(content);
+        }
+
+        return contents;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
