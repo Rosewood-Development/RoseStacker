@@ -277,4 +277,6 @@ public interface NMSHandler {
 
     int getItemDespawnRate(Item item);
 
+    List<ItemStack> getBoxContents(ItemStack item);
+
 }

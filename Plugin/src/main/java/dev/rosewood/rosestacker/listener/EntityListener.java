@@ -8,6 +8,8 @@ import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -241,30 +243,9 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
-
-        if (event.getEntity() instanceof Item item && item.getItemStack().getType().toString().contains("SHULKER_BOX")) {
-            StackedItem stackedItem = this.stackManager.getStackedItem(item);
-            if (stackedItem == null)
-                return;
-
-            final int amount = stackedItem.getStackSize();
-
-            if (amount > 1 && event.getFinalDamage() >= item.getHealth()) {
-                final List<ItemStack> contents = getContents(item.getItemStack());
-                final List<ItemStack> totalContents = new ArrayList<>();
-                final Location location = item.getLocation();
-
-                item.remove();
-
-                for (int i = amount; i > 0; i--) {
-                    totalContents.addAll(contents);
-                }
-
-                this.stackManager.preStackItems(totalContents, location);
-
-                event.setCancelled(true);
-                return;
-            }
+        if (event.getEntity() instanceof Item item && item.getItemStack().getType().toString().contains("SHULKER_BOX") && unpackShulkerBox(item, event.getFinalDamage())) {
+            event.setCancelled(true);
+            return;
         }
 
         if (!(event.getEntity() instanceof LivingEntity entity) || event.getEntity().getType() == EntityType.ARMOR_STAND || event.getEntity().getType() == EntityType.PLAYER)
@@ -304,16 +285,48 @@ public class EntityListener implements Listener {
         }
     }
 
-    public List<ItemStack> getContents(ItemStack item) {
-        if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return null;
+    private boolean unpackShulkerBox(Item item, double damage) {
+        StackedItem stackedItem = this.stackManager.getStackedItem(item);
+        if (stackedItem == null)
+            return false;
 
-        if (!(meta.getBlockState() instanceof ShulkerBox box)) return null;
+        final int amount = stackedItem.getStackSize();
 
+        if (amount > 1 && damage >= item.getHealth()) {
+            final List<ItemStack> contents = getContents(item.getItemStack());
+            final List<ItemStack> totalContents = new ArrayList<>();
+            final Location location = item.getLocation();
+
+            item.remove();
+
+            for (int i = amount; i > 0; i--) {
+                totalContents.addAll(contents);
+            }
+
+            this.stackManager.preStackItems(totalContents, location);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private List<ItemStack> getContents(ItemStack item) {
         List<ItemStack> contents = new ArrayList<>();
-        for (ItemStack content : box.getInventory().getContents()) {
-            if (content == null || content.getType().isAir()) continue;
 
-            contents.add(content);
+        if (Setting.ITEM_UNPACK_BOX_AS_VANILLA.getBoolean()) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            contents = nmsHandler.getBoxContents(item);
+        } else {
+            if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return contents;
+
+            if (!(meta.getBlockState() instanceof ShulkerBox box)) return contents;
+
+            for (ItemStack content : box.getInventory().getContents()) {
+                if (content == null || content.getType().isAir()) continue;
+
+                contents.add(content);
+            }
         }
 
         return contents;

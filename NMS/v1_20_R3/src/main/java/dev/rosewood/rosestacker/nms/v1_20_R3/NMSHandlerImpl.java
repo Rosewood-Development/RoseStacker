@@ -56,6 +56,7 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
@@ -485,6 +486,21 @@ public class NMSHandlerImpl implements NMSHandler {
             e.printStackTrace();
             throw new IllegalStateException("Unable to get item despawn rate");
         }
+    }
+
+    @Override
+    public List<ItemStack> getBoxContents(ItemStack item) {
+        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(CraftItemStack.asNMSCopy(item));
+
+        if (nbttagcompound != null && nbttagcompound.contains("Items", 9)) {
+            return nbttagcompound.getList("Items", 10).stream()
+                    .map(CompoundTag.class::cast)
+                    .map(net.minecraft.world.item.ItemStack::of)
+                    .map(CraftItemStack::asBukkitCopy)
+                    .toList();
+        }
+
+        return new ArrayList<>();
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
