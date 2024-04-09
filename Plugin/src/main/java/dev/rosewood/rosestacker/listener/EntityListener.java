@@ -303,7 +303,18 @@ public class EntityListener implements Listener {
                 totalContents.addAll(contents);
             }
 
-            this.stackManager.preStackItems(totalContents, location);
+            final int maxStackSize = Setting.ITEM_MAX_STACK_SIZE.getInt();
+
+            for (;;) {
+                if (totalContents.size() > maxStackSize) {
+                    List<ItemStack> stack = new ArrayList<>(totalContents.subList(0, maxStackSize));
+                    totalContents.subList(0, maxStackSize).clear();
+                    this.stackManager.preStackItems(stack, location);
+                } else {
+                    this.stackManager.preStackItems(totalContents, location);
+                    break;
+                }
+            }
 
             return true;
         }
