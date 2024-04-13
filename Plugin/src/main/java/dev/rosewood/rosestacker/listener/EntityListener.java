@@ -123,7 +123,6 @@ public class EntityListener implements Listener {
             return;
 
         Runnable task = () -> {
-            PersistentDataUtils.setEntitySpawnReason(entity, event.getSpawnReason());
             this.entityCacheManager.preCacheEntity(entity);
 
             // Try to immediately stack everything except bees from hives and built entities due to them duplicating

@@ -137,35 +137,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private void stackEntities() {
-        boolean itemStackingEnabled = this.stackManager.isItemStackingEnabled();
         boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
-        if (!entityStackingEnabled)
+        if (!entityStackingEnabled || this.stackManager.isEntityStackingTemporarilyDisabled())
             return;
 
-        // Auto unstack entities
-        if (!this.stackManager.isEntityUnstackingTemporarilyDisabled()) {
-            boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
-            for (StackedEntity stackedEntity : this.stackedEntities.values()) {
-                LivingEntity entity = stackedEntity.getEntity();
-                if (!stackedEntity.shouldStayStacked() && entity.isValid()) {
-                    ThreadUtils.runSync(() -> {
-                        if (stackedEntity.getStackSize() > 1)
-                            this.splitEntityStack(stackedEntity);
-                    });
-                } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
-                    NMSHandler nmsHandler = NMSAdapter.getHandler();
-                    StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
-                    stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
-                    ThreadUtils.runSync(() -> {
-                        for (EntityDataEntry entityDataEntry : nbt.getAll())
-                            entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
-                    });
-                }
-            }
-        }
-    }
-
-    private void unstackEntities() {
         for (StackedEntity stackedEntity : this.stackedEntities.values()) {
             LivingEntity livingEntity = stackedEntity.getEntity();
             if (this.isRemoved(livingEntity)) {
@@ -174,6 +149,31 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             }
 
             this.tryStackEntity(stackedEntity);
+        }
+    }
+
+    private void unstackEntities() {
+        boolean entityStackingEnabled = this.stackManager.isEntityStackingEnabled();
+        if (!entityStackingEnabled || this.stackManager.isEntityUnstackingTemporarilyDisabled())
+            return;
+
+        boolean minSplitIfLower = Setting.ENTITY_MIN_SPLIT_IF_LOWER.getBoolean();
+        for (StackedEntity stackedEntity : this.stackedEntities.values()) {
+            LivingEntity entity = stackedEntity.getEntity();
+            if (!stackedEntity.shouldStayStacked() && entity.isValid()) {
+                ThreadUtils.runSync(() -> {
+                    if (stackedEntity.getStackSize() > 1)
+                        this.splitEntityStack(stackedEntity);
+                });
+            } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
+                NMSHandler nmsHandler = NMSAdapter.getHandler();
+                StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
+                stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
+                ThreadUtils.runSync(() -> {
+                    for (EntityDataEntry entityDataEntry : nbt.getAll())
+                        entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
+                });
+            }
         }
     }
 
@@ -493,6 +493,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         Bukkit.getPluginManager().callEvent(entityUnstackEvent);
         if (entityUnstackEvent.isCancelled())
             return null;
+
+        LivingEntity oldEntity = stackedEntity.getEntity();
+        if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_REENABLE_AI_ON_SPLIT.getBoolean())
+            PersistentDataUtils.reenableEntityAi(oldEntity);
 
         StackedEntity newlySplit = stackedEntity.decreaseStackSize();
         this.stackedEntities.put(newlySplit.getEntity().getUniqueId(), newlySplit);
