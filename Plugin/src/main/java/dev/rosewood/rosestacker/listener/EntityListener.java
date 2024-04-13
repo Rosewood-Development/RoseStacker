@@ -325,7 +325,7 @@ public class EntityListener implements Listener {
     private List<ItemStack> getContents(ItemStack item) {
         List<ItemStack> contents = new ArrayList<>();
 
-        if (Setting.ITEM_UNPACK_BOX_AS_VANILLA.getBoolean()) {
+        if (Setting.ITEM_UNPACK_BOX_LIKE_VANILLA.getBoolean()) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             contents = nmsHandler.getBoxContents(item);
         } else {
