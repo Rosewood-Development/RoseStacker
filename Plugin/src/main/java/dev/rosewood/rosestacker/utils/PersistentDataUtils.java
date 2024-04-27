@@ -83,10 +83,10 @@ public final class PersistentDataUtils {
             }
 
             if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ZOMBIFICATION.getBoolean()) {
-                if (entity instanceof PiglinAbstract) {
-                    ((PiglinAbstract) entity).setImmuneToZombification(disable);
-                } else if (entity instanceof Hoglin) {
-                    ((Hoglin) entity).setImmuneToZombification(disable);
+                if (entity instanceof PiglinAbstract piglin) {
+                    piglin.setImmuneToZombification(disable);
+                } else if (entity instanceof Hoglin hoglin) {
+                    hoglin.setImmuneToZombification(disable);
                 }
             }
         }

@@ -32,6 +32,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -288,10 +289,10 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof Creeper creeper))
             return;
 
-        this.handleEntityDeath(null, (LivingEntity) event.getEntity());
+        this.handleEntityDeath(null, creeper);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
