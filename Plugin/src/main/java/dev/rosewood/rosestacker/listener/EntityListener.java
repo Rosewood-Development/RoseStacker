@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -416,7 +417,7 @@ public class EntityListener implements Listener {
             event.setCancelled(true);
 
             // Handle mooshroom shearing
-            if (event.getEntityType() == EntityType.MUSHROOM_COW) {
+            if (event.getEntityType() == VersionUtils.MOOSHROOM) {
                 EntityStackSettings stackSettings = stackedEntity.getStackSettings();
                 int mushroomsDropped = 5;
                 if (stackSettings.getSettingValue(EntityStackSettings.MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK).getBoolean())

@@ -414,8 +414,8 @@ public final class ItemUtils {
 
         meta.setDisplayName(name);
         meta.setLore(lore);
-        meta.addItemFlags(ItemFlag.values());
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        meta.addEnchant(VersionUtils.INFINITY, 1, true);
 
         item.setItemMeta(meta);
         cachedStackingTool = item;

@@ -1,14 +1,11 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
-import dev.rosewood.rosegarden.command.framework.RoseCommand;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
-import dev.rosewood.rosegarden.command.framework.annotation.Optional;
+import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
-import dev.rosewood.rosegarden.command.framework.types.GreedyString;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.command.argument.TranslationLocaleArgumentHandler.TranslationLocale;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -18,32 +15,35 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
-public class TranslateCommand extends RoseCommand {
+public class TranslateCommand extends BaseRoseCommand {
 
-    public TranslateCommand(RosePlugin rosePlugin, RoseCommandWrapper parent) {
-        super(rosePlugin, parent);
+    private final RosePlugin rosePlugin;
+
+    public TranslateCommand(RosePlugin rosePlugin) {
+        super(rosePlugin);
+
+        this.rosePlugin = rosePlugin;
     }
 
     @RoseExecutable
-    public void execute(CommandContext context, TranslationLocale locale, @Optional GreedyString spawnerFormat) {
+    public void execute(CommandContext context, String locale, String spawnerFormat) {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
         StackSettingManager stackSettingManager = this.rosePlugin.getManager(StackSettingManager.class);
 
-        String format = spawnerFormat == null ? null : spawnerFormat.get();
-        if (format == null) {
-            format = "{}";
+        if (spawnerFormat == null) {
+            spawnerFormat = "{}";
             localeManager.sendMessage(context.getSender(), "command-translate-spawner-format");
         }
 
-        if (!format.contains("{}")) {
+        if (!spawnerFormat.contains("{}")) {
             localeManager.sendMessage(context.getSender(), "command-translate-spawner-format-invalid");
             return;
         }
 
         localeManager.sendMessage(context.getSender(), "command-translate-loading");
 
-        String finalSpawnerFormat = format;
-        localeManager.getMinecraftTranslationValues(locale.name(), response -> {
+        String finalSpawnerFormat = spawnerFormat;
+        localeManager.getMinecraftTranslationValues(locale, response -> {
             if (response.getResult() == LocaleManager.TranslationResponse.Result.FAILURE) {
                 localeManager.sendMessage(context.getSender(), "command-translate-failure");
                 return;
@@ -104,18 +104,11 @@ public class TranslateCommand extends RoseCommand {
     }
 
     @Override
-    protected String getDefaultName() {
-        return "translate";
-    }
-
-    @Override
-    public String getDescriptionKey() {
-        return "command-translate-description";
-    }
-
-    @Override
-    public String getRequiredPermission() {
-        return "rosestacker.translate";
+    protected CommandInfo createCommandInfo() {
+        return CommandInfo.builder("translate")
+                .descriptionKey("command-translate-description")
+                .permission("rosestacker.translate")
+                .build();
     }
 
 }

@@ -1,10 +1,9 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
-import dev.rosewood.rosegarden.command.framework.RoseCommand;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
-import dev.rosewood.rosegarden.command.framework.annotation.Optional;
+import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
@@ -12,14 +11,18 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import org.bukkit.entity.Player;
 
-public class StackToolCommand extends RoseCommand {
+public class StackToolCommand extends BaseRoseCommand {
 
-    public StackToolCommand(RosePlugin rosePlugin, RoseCommandWrapper parent) {
-        super(rosePlugin, parent);
+    private final RosePlugin rosePlugin;
+
+    public StackToolCommand(RosePlugin rosePlugin) {
+        super(rosePlugin);
+
+        this.rosePlugin = rosePlugin;
     }
 
     @RoseExecutable
-    public void execute(CommandContext context, @Optional Player target) {
+    public void execute(CommandContext context, Player target) {
         LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
 
         if (target == null) {
@@ -39,18 +42,11 @@ public class StackToolCommand extends RoseCommand {
     }
 
     @Override
-    protected String getDefaultName() {
-        return "stacktool";
-    }
-
-    @Override
-    public String getDescriptionKey() {
-        return "command-stacktool-description";
-    }
-
-    @Override
-    public String getRequiredPermission() {
-        return "rosestacker.stacktool";
+    protected CommandInfo createCommandInfo() {
+        return CommandInfo.builder("stacktool")
+                .descriptionKey("command-stacktool-description")
+                .permission("rosestacker.stacktool")
+                .build();
     }
 
 }

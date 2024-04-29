@@ -28,6 +28,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -184,7 +185,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
             if (entity instanceof LivingEntity livingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER && !this.isEntityStacked(livingEntity)) {
                 this.createEntityStack(livingEntity, false);
-            } else if (entity.getType() == EntityType.DROPPED_ITEM) {
+            } else if (entity.getType() == VersionUtils.ITEM) {
                 Item item = (Item) entity;
                 if (!this.isItemStacked(item))
                     this.createItemStack(item, false);
@@ -251,7 +252,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 if (entity.getType() == EntityType.PLAYER)
                     continue;
 
-                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.ARMOR_STAND)
+                if ((entity.getType() == VersionUtils.ITEM || entity.getType() == EntityType.ARMOR_STAND)
                         && (entity.getCustomName() == null || !entity.isCustomNameVisible()))
                     continue;
 
@@ -266,7 +267,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     continue;
 
                 boolean visible;
-                if (this.dynamicItemTags && entity.getType() == EntityType.DROPPED_ITEM) {
+                if (this.dynamicItemTags && entity.getType() == VersionUtils.ITEM) {
                     visible = distanceSqrd < this.itemDynamicViewRangeSqrd;
                     if (this.itemDynamicWallDetection)
                         visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
@@ -290,7 +291,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                         } else {
                             dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;
                         }
-                        player.spawnParticle(Particle.REDSTONE, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
+                        player.spawnParticle(VersionUtils.DUST, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
                     }
                 } else {
                     nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
@@ -836,7 +837,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.stackManager.isItemStackingEnabled()) {
             for (Entity entity : entities) {
-                if (entity.getType() != EntityType.DROPPED_ITEM)
+                if (entity.getType() != VersionUtils.ITEM)
                     continue;
 
                 Item item = (Item) entity;
@@ -889,7 +890,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.stackManager.isItemStackingEnabled()) {
             List<StackedItem> stackedItems = entities.stream()
-                    .filter(x -> x.getType() == EntityType.DROPPED_ITEM)
+                    .filter(x -> x.getType() == VersionUtils.ITEM)
                     .map(x -> this.stackedItems.get(x.getUniqueId()))
                     .filter(Objects::nonNull)
                     .toList();
@@ -1014,7 +1015,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (this.isRemoved(item))
             return;
 
-        Predicate<Entity> predicate = x -> x.getType() == EntityType.DROPPED_ITEM;
+        Predicate<Entity> predicate = x -> x.getType() == VersionUtils.ITEM;
         Set<Item> nearbyItems = this.entityCacheManager.getNearbyEntities(stackedItem.getLocation(), Setting.ITEM_MERGE_RADIUS.getDouble(), predicate)
                 .stream()
                 .map(x -> (Item) x)

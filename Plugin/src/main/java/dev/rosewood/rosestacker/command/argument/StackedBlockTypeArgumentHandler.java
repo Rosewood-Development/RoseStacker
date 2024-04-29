@@ -7,40 +7,34 @@ import dev.rosewood.rosegarden.command.framework.CommandContext;
 import dev.rosewood.rosegarden.command.framework.InputIterator;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
-import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Material;
 
-public class StackedSpawnerTypeArgumentHandler extends ArgumentHandler<SpawnerType> {
+public class StackedBlockTypeArgumentHandler extends ArgumentHandler<Material> {
 
     private final RosePlugin rosePlugin;
 
-    public StackedSpawnerTypeArgumentHandler(RosePlugin rosePlugin) {
-        super(SpawnerType.class);
+    public StackedBlockTypeArgumentHandler(RosePlugin rosePlugin) {
+        super(Material.class);
 
         this.rosePlugin = rosePlugin;
     }
 
     @Override
-    public SpawnerType handle(CommandContext context, Argument argument, InputIterator inputIterator) throws HandledArgumentException {
+    public Material handle(CommandContext context, Argument argument, InputIterator inputIterator) throws HandledArgumentException {
         String input = inputIterator.next();
-        if (NMSAdapter.getHandler().supportsEmptySpawners() && input.equalsIgnoreCase("empty"))
-            return SpawnerType.empty();
-
-        return Arrays.stream(EntityType.values())
+        return Arrays.stream(Material.values())
                 .filter(x -> x.name().equalsIgnoreCase(input))
-                .map(SpawnerType::of)
                 .findFirst()
-                .orElseThrow(() -> new HandledArgumentException("argument-handler-stacktype", StringPlaceholders.of("input", input)));
+                .orElseThrow(() -> new HandledArgumentException("argument-handler-material", StringPlaceholders.of("input", input)));
     }
 
     @Override
     public List<String> suggest(CommandContext context, Argument argument, String[] args) {
-        return this.rosePlugin.getManager(StackSettingManager.class).getStackableSpawnerTypes().stream()
-                .map(SpawnerType::getEnumName)
+        return this.rosePlugin.getManager(StackSettingManager.class).getStackableBlockTypes().stream()
+                .map(Enum::name)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }

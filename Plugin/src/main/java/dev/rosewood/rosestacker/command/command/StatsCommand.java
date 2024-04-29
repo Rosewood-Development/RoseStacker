@@ -1,9 +1,9 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
-import dev.rosewood.rosegarden.command.framework.RoseCommand;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
+import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -12,10 +12,14 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 
-public class StatsCommand extends RoseCommand {
+public class StatsCommand extends BaseRoseCommand {
 
-    public StatsCommand(RosePlugin rosePlugin, RoseCommandWrapper parent) {
-        super(rosePlugin, parent);
+    private final RosePlugin rosePlugin;
+
+    public StatsCommand(RosePlugin rosePlugin) {
+        super(rosePlugin);
+
+        this.rosePlugin = rosePlugin;
     }
 
     @RoseExecutable
@@ -45,18 +49,11 @@ public class StatsCommand extends RoseCommand {
     }
 
     @Override
-    protected String getDefaultName() {
-        return "stats";
-    }
-
-    @Override
-    public String getDescriptionKey() {
-        return "command-stats-description";
-    }
-
-    @Override
-    public String getRequiredPermission() {
-        return "rosestacker.stats";
+    protected CommandInfo createCommandInfo() {
+        return CommandInfo.builder("stats")
+                .descriptionKey("command-stats-description")
+                .permission("rosestacker.stats")
+                .build();
     }
 
 }

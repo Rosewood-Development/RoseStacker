@@ -1,11 +1,11 @@
 package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
+import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.manager.AbstractCommandManager;
-import dev.rosewood.rosestacker.command.StackerCommandWrapper;
-import java.util.Collections;
+import dev.rosewood.rosestacker.command.command.BaseCommand;
 import java.util.List;
+import java.util.function.Function;
 
 public class CommandManager extends AbstractCommandManager {
 
@@ -14,13 +14,8 @@ public class CommandManager extends AbstractCommandManager {
     }
 
     @Override
-    public List<Class<? extends RoseCommandWrapper>> getRootCommands() {
-        return Collections.singletonList(StackerCommandWrapper.class);
-    }
-
-    @Override
-    public List<String> getArgumentHandlerPackages() {
-        return Collections.singletonList("dev.rosewood.rosestacker.command.argument");
+    public List<Function<RosePlugin, BaseRoseCommand>> getRootCommands() {
+        return List.of(BaseCommand::new);
     }
 
 }
