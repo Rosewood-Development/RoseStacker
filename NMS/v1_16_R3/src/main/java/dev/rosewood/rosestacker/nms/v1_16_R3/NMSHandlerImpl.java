@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_16_R3;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
@@ -130,7 +130,7 @@ public class NMSHandlerImpl implements NMSHandler {
             field_EntityInsentient_jumpController = ReflectionUtils.getFieldByName(EntityInsentient.class, "bi");
             field_EntityLiving_behaviorController = ReflectionUtils.getFieldByName(EntityLiving.class, "bg");
 
-            if (NMSAdapter.isPaper())
+            if (NMSUtil.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByName(Entity.class, "entityCount").get(null);
 

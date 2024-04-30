@@ -15,7 +15,7 @@ public final class NMSAdapter {
             } else { // We started not having these identifiers with Paper starting 1.20.5
                 int major = NMSUtil.getVersionNumber();
                 int minor = NMSUtil.getMinorVersionNumber();
-                if (major == 20 && minor == 5) {
+                if (major == 20 && (minor == 5 || minor == 6)) {
                     name = "v1_20_R4";
                 }
             }
@@ -36,18 +36,6 @@ public final class NMSAdapter {
      */
     public static NMSHandler getHandler() {
         return nmsHandler;
-    }
-
-    /**
-     * @return true if the server is running Paper or a fork of Paper, false otherwise
-     */
-    public static boolean isPaper() {
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
 }
