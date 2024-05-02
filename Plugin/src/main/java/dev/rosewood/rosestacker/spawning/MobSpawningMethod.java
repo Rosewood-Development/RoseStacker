@@ -21,6 +21,7 @@ import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.NotPlayer
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -171,7 +172,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 if (!onlyCheckConditions) {
                     // Spawn particles indicating the spawn did not occur
-                    stackedSpawner.getWorld().spawnParticle(Particle.SMOKE_NORMAL, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                    stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                 }
             } else if (!onlyCheckConditions) {
                 // Spawn particles indicating the spawn occurred
@@ -281,7 +282,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     entity.updateDisplay();
                     World world = entity.getLocation().getWorld();
                     if (world != null)
-                        world.spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                        world.spawnParticle(VersionUtils.POOF, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
                 }
             });
         } else {
@@ -314,7 +315,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
                     // Spawn Particles
                     if (entity.isValid())
-                        entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                        entity.getWorld().spawnParticle(VersionUtils.POOF, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
                 }
             });
         }

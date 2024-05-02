@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.NotPlayer
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -113,7 +114,7 @@ public class ItemSpawningMethod implements SpawningMethod {
                     amountLeft -= amount;
                     for (ItemStack itemStack : GuiUtil.getMaterialAmountAsItemStacks(this.itemType, amount))
                         stackedSpawner.getWorld().dropItemNaturally(location.clone().add(0.5, 0.5, 0.5), itemStack);
-                    stackedSpawner.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, location.clone().add(0, 0.75, 0), 2, 0.25, 0.25, 0.25, 0.01);
+                    stackedSpawner.getWorld().spawnParticle(VersionUtils.POOF, location.clone().add(0, 0.75, 0), 2, 0.25, 0.25, 0.25, 0.01);
                 }
             });
 
@@ -129,7 +130,7 @@ public class ItemSpawningMethod implements SpawningMethod {
                 }
 
                 // Spawn particles indicating the spawn did not occur
-                stackedSpawner.getWorld().spawnParticle(Particle.SMOKE_NORMAL, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
             } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);

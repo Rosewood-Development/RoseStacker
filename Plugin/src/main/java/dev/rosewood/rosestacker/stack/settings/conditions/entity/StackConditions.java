@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
@@ -17,9 +18,12 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Armadillo;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Bee;
+import org.bukkit.entity.Bogged;
+import org.bukkit.entity.Breeze;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
@@ -95,7 +99,7 @@ public final class StackConditions {
                 return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
             if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
-                    && entity1.getType() != EntityType.SNOWMAN) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
+                    && entity1.getType() != VersionUtils.SNOW_GOLEM) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
                 return EntityStackComparisonResult.CUSTOM_NAMED;
 
             if (!comparingForUnstack && !ignorePositions && !stackSettings.getEntityTypeData().swimmingMob() && !stackSettings.getEntityTypeData().flyingMob()) {
@@ -180,6 +184,12 @@ public final class StackConditions {
 
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
+        int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber > 20 || (versionNumber == 20 && minorVersionNumber >= 5)) {
+            // Armadillo, Bogged, Breeze
+            // TODO: None of these mobs have API as of 28/April/2024
+        }
+
         if (versionNumber >= 19) {
             // Allay, Frog, Goat (extras), Tadpole, Warden
             registerConfig(Allay.class, "holding-items", false, EntityStackComparisonResult.HOLDING_ITEMS, (entity1, entity2) -> !entity1.getInventory().isEmpty() || !entity2.getInventory().isEmpty());

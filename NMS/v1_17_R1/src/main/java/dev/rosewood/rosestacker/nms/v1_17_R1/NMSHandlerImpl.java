@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_17_R1;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
@@ -121,7 +121,7 @@ public class NMSHandlerImpl implements NMSHandler {
             field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
 
             field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
-            if (NMSAdapter.isPaper())
+            if (NMSUtil.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, AtomicInteger.class).get(null);
 

@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.stack.StackingThread;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -132,7 +133,7 @@ public class EntityCacheManager extends Manager {
                 World world = stackingThread.getTargetWorld();
                 for (Entity entity : world.getEntities()) {
                     EntityType type = entity.getType();
-                    if (type != EntityType.DROPPED_ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                    if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;
 
                     ChunkLocation chunkLocation = new ChunkLocation(world.getName(), entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);

@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -204,7 +205,7 @@ public class StackToolListener implements Listener {
 
         if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             for (Entity entity : player.getNearbyEntities(3, 3, 3)) {
-                if (entity.getType() != EntityType.DROPPED_ITEM)
+                if (entity.getType() != VersionUtils.ITEM)
                     continue;
 
                 Item item = (Item) entity;

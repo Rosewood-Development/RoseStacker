@@ -14,6 +14,7 @@ import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -112,7 +113,7 @@ public class LocaleManager extends AbstractLocaleManager {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 if (connection.getResponseCode() == 200) {
                     JsonParser parser = new JsonParser();
-                    try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
+                    try (InputStreamReader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)) {
                         JsonObject json = parser.parse(reader).getAsJsonObject();
                         Set<Entry<String, JsonElement>> entrySet = json.entrySet();
                         Map<String, String> entries = entrySet.stream().collect(Collectors.toMap(Entry::getKey, x -> x.getValue().getAsString()));

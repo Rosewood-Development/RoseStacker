@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_20_R2;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
@@ -139,7 +139,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(ServerLevel.class, "entityLookup");
             }
 
-            if (NMSAdapter.isPaper())
+            if (NMSUtil.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, AtomicInteger.class).get(null);
 
@@ -154,7 +154,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
 
-            if (NMSAdapter.isPaper())
+            if (NMSUtil.isPaper())
                 field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
 
             field_ItemEntity_despawnRate = ReflectionUtils.getFieldByName(net.minecraft.world.entity.item.ItemEntity.class, "despawnRate");

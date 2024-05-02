@@ -18,7 +18,7 @@ public class EntitySpawnUtil {
 
     private static Method method;
     static {
-        if (NMSUtil.getVersionNumber() < 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getVersion().contains("R1"))) {
+        if (NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() < 2)) {
             try {
                 method = World.class.getMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
             } catch (ReflectiveOperationException e) {
