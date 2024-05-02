@@ -294,7 +294,7 @@ public class EntityListener implements Listener {
         final int amount = stackedItem.getStackSize();
 
         if (amount > 1 && damage >= item.getHealth()) {
-            final List<ItemStack> contents = getContents(item.getItemStack());
+            final List<ItemStack> contents = getContents(item);
             final List<ItemStack> totalContents = new ArrayList<>();
             final Location location = item.getLocation();
 
@@ -323,14 +323,15 @@ public class EntityListener implements Listener {
         return false;
     }
 
-    private List<ItemStack> getContents(ItemStack item) {
+    private List<ItemStack> getContents(Item item) {
         List<ItemStack> contents = new ArrayList<>();
 
         if (Setting.ITEM_UNPACK_BOX_LIKE_VANILLA.getBoolean()) {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             contents = nmsHandler.getBoxContents(item);
         } else {
-            if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return contents;
+            ItemStack itemStack = item.getItemStack();
+            if (!(itemStack.getItemMeta() instanceof BlockStateMeta meta)) return contents;
 
             if (!(meta.getBlockState() instanceof ShulkerBox box)) return contents;
 

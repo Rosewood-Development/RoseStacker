@@ -53,11 +53,13 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
@@ -486,6 +488,20 @@ public class NMSHandlerImpl implements NMSHandler {
             e.printStackTrace();
             throw new IllegalStateException("Unable to get item despawn rate");
         }
+    }
+
+    @Override
+    public List<ItemStack> getBoxContents(Item item) {
+        ItemContainerContents contents = ((ItemEntity) item).getItem().set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+
+        if (contents != null) {
+            return contents.stream()
+                    .filter(x -> !x.isEmpty())
+                    .map(CraftItemStack::asBukkitCopy)
+                    .toList();
+        }
+
+        return new ArrayList<>();
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {

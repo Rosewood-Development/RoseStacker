@@ -53,6 +53,7 @@ import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
@@ -419,6 +420,14 @@ public class NMSHandlerImpl implements NMSHandler {
             e.printStackTrace();
             throw new IllegalStateException("Unable to get item despawn rate");
         }
+    }
+
+    @Override
+    public List<ItemStack> getBoxContents(Item item) {
+        ItemStack itemStack = item.getItemStack();
+
+        // TODO
+        return new ArrayList<>();
     }
 
     private SpawnReason toBukkitSpawnReason(MobSpawnType mobSpawnType) {

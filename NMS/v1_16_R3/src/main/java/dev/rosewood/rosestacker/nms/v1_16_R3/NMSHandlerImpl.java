@@ -440,6 +440,14 @@ public class NMSHandlerImpl implements NMSHandler {
         }
     }
 
+    @Override
+    public List<ItemStack> getBoxContents(Item item) {
+        ItemStack itemStack = item.getItemStack();
+
+        // TODO
+        return new ArrayList<>();
+    }
+
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {
         return switch (mobSpawnType) {
             case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;

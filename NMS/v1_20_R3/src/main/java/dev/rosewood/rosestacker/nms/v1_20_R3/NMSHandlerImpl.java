@@ -489,11 +489,12 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     @Override
-    public List<ItemStack> getBoxContents(ItemStack item) {
-        CompoundTag nbttagcompound = BlockItem.getBlockEntityData(CraftItemStack.asNMSCopy(item));
+    public List<ItemStack> getBoxContents(Item item) {
+        ItemStack itemStack = item.getItemStack();
+        CompoundTag contents = BlockItem.getBlockEntityData(CraftItemStack.asNMSCopy(itemStack));
 
-        if (nbttagcompound != null && nbttagcompound.contains("Items", 9)) {
-            return nbttagcompound.getList("Items", 10).stream()
+        if (contents != null && contents.contains("Items", 9)) {
+            return contents.getList("Items", 10).stream()
                     .map(CompoundTag.class::cast)
                     .map(net.minecraft.world.item.ItemStack::of)
                     .map(CraftItemStack::asBukkitCopy)
