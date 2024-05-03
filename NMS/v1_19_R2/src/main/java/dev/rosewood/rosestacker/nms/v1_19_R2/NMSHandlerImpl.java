@@ -155,10 +155,10 @@ public class NMSHandlerImpl implements NMSHandler {
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
 
-            if (NMSUtil.isPaper())
+            if (NMSUtil.isPaper()) {
                 field_Entity_spawnedViaMobSpawner = ReflectionUtils.getFieldByName(Entity.class, "spawnedViaMobSpawner");
-
-            field_ItemEntity_despawnRate = ReflectionUtils.getFieldByName(net.minecraft.world.entity.item.ItemEntity.class, "despawnRate");
+                field_ItemEntity_despawnRate = ReflectionUtils.getFieldByName(net.minecraft.world.entity.item.ItemEntity.class, "despawnRate");
+            }
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -480,6 +480,9 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public int getItemDespawnRate(Item item) {
+        if (field_ItemEntity_despawnRate == null)
+            return ((CraftWorld) item.getWorld()).getHandle().spigotConfig.itemDespawnRate;
+
         try {
             return (int) field_ItemEntity_despawnRate.get(((CraftItem) item).getHandle());
         } catch (ReflectiveOperationException e) {
