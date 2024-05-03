@@ -4,6 +4,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import org.bukkit.Particle;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemFlag;
 
 @SuppressWarnings("deprecation")
 public class VersionUtils {
@@ -15,6 +16,7 @@ public class VersionUtils {
     public static final Particle POOF;
     public static final Particle SMOKE;
     public static final Enchantment INFINITY;
+    public static final ItemFlag HIDE_ADDITIONAL_TOOLTIP;
     static {
         if (NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() >= 5)) {
             ITEM = EntityType.ITEM;
@@ -24,6 +26,7 @@ public class VersionUtils {
             SMOKE = Particle.SMOKE;
             DUST = Particle.DUST;
             INFINITY = Enchantment.INFINITY;
+            HIDE_ADDITIONAL_TOOLTIP = ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
         } else {
             ITEM = EntityType.valueOf("DROPPED_ITEM");
             MOOSHROOM = EntityType.valueOf("MUSHROOM_COW");
@@ -32,6 +35,7 @@ public class VersionUtils {
             SMOKE = Particle.valueOf("SMOKE_NORMAL");
             DUST = Particle.valueOf("REDSTONE");
             INFINITY = Enchantment.getByName("ARROW_INFINITE");
+            HIDE_ADDITIONAL_TOOLTIP = ItemFlag.valueOf("HIDE_POTION_EFFECTS");
         }
     }
 

@@ -414,7 +414,7 @@ public final class ItemUtils {
 
         meta.setDisplayName(name);
         meta.setLore(lore);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, VersionUtils.HIDE_ADDITIONAL_TOOLTIP);
         meta.addEnchant(VersionUtils.INFINITY, 1, true);
 
         item.setItemMeta(meta);
