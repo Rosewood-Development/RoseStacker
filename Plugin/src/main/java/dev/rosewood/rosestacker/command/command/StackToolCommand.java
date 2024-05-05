@@ -1,6 +1,8 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.argument.ArgumentHandlers;
+import dev.rosewood.rosegarden.command.framework.ArgumentsDefinition;
 import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
 import dev.rosewood.rosegarden.command.framework.CommandInfo;
@@ -35,9 +37,7 @@ public class StackToolCommand extends BaseRoseCommand {
             RoseStacker.getInstance().getManager(LocaleManager.class).sendMessage(player, "command-stacktool-given");
         } else {
             target.getInventory().addItem(ItemUtils.getStackingTool());
-            localeManager.sendMessage(target, "command-stacktool-given");
-            if (context.getSender() != target)
-                localeManager.sendMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.of("player", target.getName()));
+            localeManager.sendMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.of("player", target.getName()));
         }
     }
 
@@ -46,6 +46,13 @@ public class StackToolCommand extends BaseRoseCommand {
         return CommandInfo.builder("stacktool")
                 .descriptionKey("command-stacktool-description")
                 .permission("rosestacker.stacktool")
+                .build();
+    }
+
+    @Override
+    protected ArgumentsDefinition createArgumentsDefinition() {
+        return ArgumentsDefinition.builder()
+                .optional("target", ArgumentHandlers.PLAYER)
                 .build();
     }
 

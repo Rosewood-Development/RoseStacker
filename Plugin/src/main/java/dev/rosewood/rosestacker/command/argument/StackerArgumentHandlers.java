@@ -16,6 +16,7 @@ public final class StackerArgumentHandlers {
     public static final ArgumentHandler<EntityType> STACKED_ENTITY_TYPE = new StackedEntityTypeArgumentHandler(ROSE_PLUGIN);
     public static final ArgumentHandler<Integer> STACKED_SPAWNER_AMOUNT = new StackedSpawnerAmountArgumentHandler(ROSE_PLUGIN);
     public static final ArgumentHandler<SpawnerType> STACKED_SPAWNER_TYPE = new StackedSpawnerTypeArgumentHandler(ROSE_PLUGIN);
+    public static final ArgumentHandler<String> TRANSLATION_LOCALE = new TranslationLocaleArgumentHandler(ROSE_PLUGIN);
 
     private StackerArgumentHandlers() { }
 
