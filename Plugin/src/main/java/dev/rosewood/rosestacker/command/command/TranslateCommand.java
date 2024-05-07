@@ -1,11 +1,14 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.argument.ArgumentHandlers;
+import dev.rosewood.rosegarden.command.framework.ArgumentsDefinition;
 import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
 import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosestacker.command.argument.StackerArgumentHandlers;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
@@ -108,6 +111,14 @@ public class TranslateCommand extends BaseRoseCommand {
         return CommandInfo.builder("translate")
                 .descriptionKey("command-translate-description")
                 .permission("rosestacker.translate")
+                .build();
+    }
+
+    @Override
+    protected ArgumentsDefinition createArgumentsDefinition() {
+        return ArgumentsDefinition.builder()
+                .required("locale", StackerArgumentHandlers.TRANSLATION_LOCALE)
+                .optional("spawnerFormat", ArgumentHandlers.GREEDY_STRING)
                 .build();
     }
 

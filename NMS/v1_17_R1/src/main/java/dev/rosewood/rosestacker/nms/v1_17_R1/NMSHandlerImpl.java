@@ -108,9 +108,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
 
-    private static Field field_Level_spigotConfig;
-    private static Field field_SpigotWorldConfig_itemDespawnRate;
-
     static {
         try {
             Field field_Creeper_DATA_IS_IGNITED = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.monster.Creeper.class, 2, EntityDataAccessor.class);
@@ -133,9 +130,6 @@ public class NMSHandlerImpl implements NMSHandler {
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.npc.AbstractVillager.class, 0, MerchantOffers.class);
-
-            field_Level_spigotConfig = ReflectionUtils.getFieldByName(Level.class, "spigotConfig");
-            field_SpigotWorldConfig_itemDespawnRate = ReflectionUtils.getFieldByName(SpigotWorldConfig.class, "itemDespawnRate");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -414,12 +408,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public int getItemDespawnRate(Item item) {
-        try {
-            return field_SpigotWorldConfig_itemDespawnRate.getInt(field_Level_spigotConfig.get(((CraftWorld) item.getWorld()).getHandle()));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Unable to get item despawn rate");
-        }
+        return ((CraftWorld) item.getWorld()).getHandle().spigotConfig.itemDespawnRate;
     }
 
     @Override

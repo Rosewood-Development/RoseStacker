@@ -6,6 +6,7 @@ import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,7 +47,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_MULTIKILL_AMOUNT("global-entity-settings.multikill-options.multikill-amount", 5, "The amount of mobs in the stack to kill at a time", "If using the multikill enchantment, this will be the number of mobs killed per enchantment level"),
         ENTITY_MULTIKILL_PLAYER_ONLY("global-entity-settings.multikill-options.multikill-player-only", false, "Should the multikill only apply when done directly by a player?"),
         ENTITY_MULTIKILL_ENCHANTMENT_ENABLED("global-entity-settings.multikill-options.multikill-enchantment-enabled", false, "Should an enchantment on the tool be required to be able to use the multikill features?"),
-        ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", Enchantment.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
+        ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", VersionUtils.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
         ENTITY_KILL_TRANSFER_FIRE("global-entity-settings.kill-transfer-fire", true, "Should fire be transferred to the next entity in the stack?"),
         ENTITY_KILL_DELAY_NEXT_SPAWN("global-entity-settings.kill-delay-next-spawn", false, "Should the next entity in the stack be delayed from spawning by one tick after the previous mob dies?", "Enabling this can prevent the newly spawned entity from taking the same damage as the previous one.", "May result in not being able to kill the entities as fast"),
