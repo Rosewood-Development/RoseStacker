@@ -56,16 +56,16 @@ public class SpawnerFlagPersistenceHook {
         if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
             return;
 
-        if (mcMMOEnabled())
+        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
             mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (jobsEnabled()) {
+        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
         }
 
-        if (roseLootEnabled())
+        if (Setting.MISC_SPAWNER_ROSELOOT_COMPATIBILITY.getBoolean() && roseLootEnabled())
             LootUtils.setEntitySpawnReason(entity, SpawnReason.SPAWNER);
 
         NMSAdapter.getHandler().setPaperFromMobSpawner(entity);
@@ -75,10 +75,10 @@ public class SpawnerFlagPersistenceHook {
         if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
             return;
 
-        if (mcMMOEnabled())
+        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
             mcMMO.getMetadataService().getMobMetadataService().removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (jobsEnabled()) {
+        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.removeMetadata("jobsMobSpawner", jobsPlugin);
