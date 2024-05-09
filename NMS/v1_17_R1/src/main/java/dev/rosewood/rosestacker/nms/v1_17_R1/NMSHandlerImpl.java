@@ -49,15 +49,14 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.raid.Raider;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
@@ -84,7 +83,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
-import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -413,9 +411,17 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public List<ItemStack> getBoxContents(Item item) {
-        ItemStack itemStack = item.getItemStack();
+        net.minecraft.world.item.ItemStack itemStack = ((ItemEntity) item).getItem();
+        CompoundTag contents = itemStack.getTag();
 
-        // TODO
+        if (contents != null) {
+            return contents.getCompound("BlockEntityTag").getList("Items", 10).stream()
+                    .map(CompoundTag.class::cast)
+                    .map(net.minecraft.world.item.ItemStack::of)
+                    .map(CraftItemStack::asBukkitCopy)
+                    .toList();
+        }
+
         return new ArrayList<>();
     }
 

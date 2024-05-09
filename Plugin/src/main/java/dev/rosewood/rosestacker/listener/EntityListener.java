@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -244,7 +245,7 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Item item && item.getItemStack().getType().toString().contains("SHULKER_BOX") && unpackShulkerBox(item, event.getFinalDamage())) {
+        if (NMSUtil.getVersionNumber() >= 17 && event.getEntity() instanceof Item item && item.getItemStack().getType().toString().contains("SHULKER_BOX") && unpackShulkerBox(item, event.getFinalDamage())) {
             event.setCancelled(true);
             return;
         }

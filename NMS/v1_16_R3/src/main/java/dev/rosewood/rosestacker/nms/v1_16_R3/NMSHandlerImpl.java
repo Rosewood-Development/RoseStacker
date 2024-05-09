@@ -88,7 +88,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
-import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -431,9 +430,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public List<ItemStack> getBoxContents(Item item) {
-        ItemStack itemStack = item.getItemStack();
-
-        // TODO
         return new ArrayList<>();
     }
 

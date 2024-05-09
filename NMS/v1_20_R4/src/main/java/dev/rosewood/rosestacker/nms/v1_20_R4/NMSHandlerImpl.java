@@ -495,7 +495,8 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public List<ItemStack> getBoxContents(Item item) {
-        ItemContainerContents contents = ((ItemEntity) item).getItem().set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        net.minecraft.world.item.ItemStack itemStack = ((ItemEntity) item).getItem();
+        ItemContainerContents contents = itemStack.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
 
         if (contents != null) {
             return contents.stream()
