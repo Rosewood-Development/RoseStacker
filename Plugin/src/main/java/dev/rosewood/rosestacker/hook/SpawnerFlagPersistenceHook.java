@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.hook;
 
-import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
+import com.gmail.nossr50.util.MobMetadataUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
@@ -57,7 +57,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
-            mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            MobMetadataUtils.flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
@@ -76,7 +76,7 @@ public class SpawnerFlagPersistenceHook {
             return;
 
         if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
-            mcMMO.getMetadataService().getMobMetadataService().removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+            MobMetadataUtils.removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
         if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");

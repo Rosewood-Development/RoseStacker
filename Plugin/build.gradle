@@ -30,7 +30,7 @@ dependencies {
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
     //compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
     compileOnly 'io.lumine:Mythic-Dist:5.3.3'
-    compileOnly 'com.gmail.nossr50:mcmmo:2.1.209'
+    compileOnly 'com.gmail.nossr50.mcMMO:mcMMO:2.2.012'
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'simplepets.brainsynder:simplepets:5.0-BUILD-176'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
