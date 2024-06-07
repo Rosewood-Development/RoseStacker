@@ -609,6 +609,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void killEntireStack(@Nullable EntityDeathEvent event) {
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+            // Make sure the entity size is correct to allow drops
             if (this.entity.getType() == EntityType.SLIME) {
                 ((Slime) this.entity).setSize(1);
             } else if (this.entity.getType() == EntityType.MAGMA_CUBE) {
@@ -621,6 +622,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
                 event.getDrops().clear();
             }
+
+            if (this.entity.getType() == EntityType.MAGMA_CUBE)
+                ((MagmaCube) this.entity).setSize(1); // Make sure it doesn't split
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
