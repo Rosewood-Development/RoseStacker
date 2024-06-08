@@ -53,6 +53,8 @@ allprojects {
                 }
             }
         }
+
+        mavenLocal()
     }
 
     dependencies {

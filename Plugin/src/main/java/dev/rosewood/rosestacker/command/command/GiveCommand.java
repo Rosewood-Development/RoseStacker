@@ -6,7 +6,6 @@ import dev.rosewood.rosegarden.command.framework.ArgumentsDefinition;
 import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
 import dev.rosewood.rosegarden.command.framework.CommandInfo;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
@@ -36,17 +35,13 @@ public class GiveCommand extends BaseRoseCommand {
         return CommandInfo.builder("give")
                 .descriptionKey("command-give-description")
                 .permission("rosestacker.give")
+                .arguments(ArgumentsDefinition.builder()
+                        .requiredSub("type",
+                                new BlockGiveCommand(this.rosePlugin),
+                                new EntityGiveCommand(this.rosePlugin),
+                                new SpawnerGiveCommand(this.rosePlugin)
+                        ))
                 .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .requiredSub("type",
-                        new BlockGiveCommand(this.rosePlugin),
-                        new EntityGiveCommand(this.rosePlugin),
-                        new SpawnerGiveCommand(this.rosePlugin)
-                );
     }
 
     /**
@@ -106,16 +101,13 @@ public class GiveCommand extends BaseRoseCommand {
 
         @Override
         protected CommandInfo createCommandInfo() {
-            return CommandInfo.builder("block").build();
-        }
-
-        @Override
-        protected ArgumentsDefinition createArgumentsDefinition() {
-            return ArgumentsDefinition.builder()
-                    .required("player", ArgumentHandlers.PLAYER)
-                    .required("material", StackerArgumentHandlers.STACKED_BLOCK_TYPE)
-                    .required("stackSize", StackerArgumentHandlers.STACKED_BLOCK_AMOUNT)
-                    .optional("amount", ArgumentHandlers.INTEGER)
+            return CommandInfo.builder("block")
+                    .arguments(ArgumentsDefinition.builder()
+                            .required("player", ArgumentHandlers.PLAYER)
+                            .required("material", StackerArgumentHandlers.STACKED_BLOCK_TYPE)
+                            .required("stackSize", StackerArgumentHandlers.STACKED_BLOCK_AMOUNT)
+                            .optional("amount", ArgumentHandlers.INTEGER)
+                            .build())
                     .build();
         }
 
@@ -170,16 +162,13 @@ public class GiveCommand extends BaseRoseCommand {
 
         @Override
         protected CommandInfo createCommandInfo() {
-            return CommandInfo.builder("spawner").build();
-        }
-
-        @Override
-        protected ArgumentsDefinition createArgumentsDefinition() {
-            return ArgumentsDefinition.builder()
-                    .required("player", ArgumentHandlers.PLAYER)
-                    .required("spawnerType", StackerArgumentHandlers.STACKED_SPAWNER_TYPE)
-                    .required("stackSize", StackerArgumentHandlers.STACKED_SPAWNER_AMOUNT)
-                    .optional("amount", ArgumentHandlers.INTEGER)
+            return CommandInfo.builder("spawner")
+                    .arguments(ArgumentsDefinition.builder()
+                            .required("player", ArgumentHandlers.PLAYER)
+                            .required("spawnerType", StackerArgumentHandlers.STACKED_SPAWNER_TYPE)
+                            .required("stackSize", StackerArgumentHandlers.STACKED_SPAWNER_AMOUNT)
+                            .optional("amount", ArgumentHandlers.INTEGER)
+                            .build())
                     .build();
         }
 
@@ -233,16 +222,13 @@ public class GiveCommand extends BaseRoseCommand {
 
         @Override
         protected CommandInfo createCommandInfo() {
-            return CommandInfo.builder("entity").build();
-        }
-
-        @Override
-        protected ArgumentsDefinition createArgumentsDefinition() {
-            return ArgumentsDefinition.builder()
-                    .required("player", ArgumentHandlers.PLAYER)
-                    .required("material", StackerArgumentHandlers.STACKED_ENTITY_TYPE)
-                    .required("entityType", StackerArgumentHandlers.STACKED_ENTITY_AMOUNT)
-                    .optional("amount", ArgumentHandlers.INTEGER)
+            return CommandInfo.builder("entity")
+                    .arguments(ArgumentsDefinition.builder()
+                            .required("player", ArgumentHandlers.PLAYER)
+                            .required("material", StackerArgumentHandlers.STACKED_ENTITY_TYPE)
+                            .required("entityType", StackerArgumentHandlers.STACKED_ENTITY_AMOUNT)
+                            .optional("amount", ArgumentHandlers.INTEGER)
+                            .build())
                     .build();
         }
 

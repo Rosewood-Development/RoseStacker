@@ -12,6 +12,7 @@ import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_20_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_20_R1.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_20_R1.event.AsyncEntityDeathEventImpl;
 import dev.rosewood.rosestacker.nms.v1_20_R1.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_20_R1.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_20_R1.storage.NBTEntityDataEntry;
@@ -88,7 +89,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -486,6 +489,11 @@ public class NMSHandlerImpl implements NMSHandler {
             e.printStackTrace();
             throw new IllegalStateException("Unable to get item despawn rate");
         }
+    }
+
+    @Override
+    public EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
+        return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {

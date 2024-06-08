@@ -46,13 +46,9 @@ public class ClearallCommand extends BaseRoseCommand {
         return CommandInfo.builder("clearall")
                 .descriptionKey("command-clearall-description")
                 .permission("rosestacker.clearall")
-                .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .required("type", ArgumentHandlers.forEnum(ClearallType.class))
+                .arguments(ArgumentsDefinition.builder()
+                        .required("type", ArgumentHandlers.forEnum(ClearallType.class))
+                        .build())
                 .build();
     }
 

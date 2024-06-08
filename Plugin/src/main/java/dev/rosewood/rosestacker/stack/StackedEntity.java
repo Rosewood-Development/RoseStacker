@@ -435,7 +435,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
                 int entityExperience;
                 if (callEvents) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, entityItems, desiredExp);
+                    EntityDeathEvent deathEvent = nmsHandler.createAsyncEntityDeathEvent(entity, entityItems, desiredExp);
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     entityExperience = deathEvent.getDroppedExp();
                 } else {

@@ -8,10 +8,17 @@ import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Allows performing certain actions that are only possible through the use of NMS.
@@ -262,6 +269,11 @@ public interface NMSHandler {
 
     }
 
+    /**
+     * Sets the entity's fromMobSpawner property on paper servers
+     *
+     * @param entity The entity
+     */
     default void setPaperFromMobSpawner(Entity entity) {
 
     }
@@ -276,5 +288,7 @@ public interface NMSHandler {
     void setCustomNameUncapped(Entity entity, String customName);
 
     int getItemDespawnRate(Item item);
+
+    EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp);
 
 }

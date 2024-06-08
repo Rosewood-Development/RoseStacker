@@ -17,21 +17,17 @@ public class BaseCommand extends PrimaryCommand {
     protected CommandInfo createCommandInfo() {
         return CommandInfo.builder("rs")
                 .aliases("rosestacker", "stacker")
+                .arguments(ArgumentsDefinition.builder()
+                        .optionalSub(
+                                new HelpCommand(this.rosePlugin, this),
+                                new ReloadCommand(this.rosePlugin),
+                                new ClearallCommand(this.rosePlugin),
+                                new GiveCommand(this.rosePlugin),
+                                new StackToolCommand(this.rosePlugin),
+                                new StatsCommand(this.rosePlugin),
+                                new TranslateCommand(this.rosePlugin)
+                        ))
                 .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .optionalSub(
-                        new HelpCommand(this.rosePlugin, this, CommandInfo.builder("help").descriptionKey("command-help-description").build()),
-                        new ReloadCommand(this.rosePlugin, CommandInfo.builder("reload").descriptionKey("command-reload-description").permission("rosestacker.reload").build()),
-                        new ClearallCommand(this.rosePlugin),
-                        new GiveCommand(this.rosePlugin),
-                        new StackToolCommand(this.rosePlugin),
-                        new StatsCommand(this.rosePlugin),
-                        new TranslateCommand(this.rosePlugin)
-                );
     }
 
 }
