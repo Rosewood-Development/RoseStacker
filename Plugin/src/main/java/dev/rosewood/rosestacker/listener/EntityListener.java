@@ -362,7 +362,15 @@ public class EntityListener implements Listener {
         if (!(event.getEntity() instanceof Creeper creeper))
             return;
 
-        this.handleEntityDeath(null, creeper);
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(creeper);
+        if (stackedEntity == null)
+            return;
+
+        if (stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.CREEPER_EXPLODE_KILL_ENTIRE_STACK).getBoolean()) {
+            this.stackManager.removeEntityStack(stackedEntity);
+        } else {
+            this.handleEntityDeath(null, creeper);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

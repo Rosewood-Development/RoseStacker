@@ -1,5 +1,6 @@
-package dev.rosewood.rosestacker.event;
+package dev.rosewood.rosestacker.nms.v1_20_R2.event;
 
+import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -9,11 +10,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Only called when trigger-death-event-for-entire-stack-kill is enabled in the config.
- * Called once per entity in the stack, may or may not be called async.
- */
-public class AsyncEntityDeathEvent extends EntityDeathEvent {
+public class AsyncEntityDeathEventImpl extends EntityDeathEvent implements AsyncEntityDeathEvent {
 
     private static Field asyncField;
     static {
@@ -25,7 +22,7 @@ public class AsyncEntityDeathEvent extends EntityDeathEvent {
         }
     }
 
-    public AsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
+    public AsyncEntityDeathEventImpl(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
         super(what, drops, droppedExp);
         try {
             asyncField.set(this, !Bukkit.isPrimaryThread());

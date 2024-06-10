@@ -224,7 +224,10 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
         MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above"),
         MISC_MYTHICMOBS_ALLOW_STACKING("misc-settings.mythicmobs-allow-stacking", false, "Should mobs owned by MythicMobs be allowed to stack?", "This is recommended to keep set to false unless you specifically only change mob attributes"),
-        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break."),
+        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break.", "The individual plugin hooks can be configured separately below"),
+        MISC_SPAWNER_JOBS_COMPATIBILITY("misc-settings.spawner-jobs-compatibility", true, "Disabling this will make Jobs no longer recognize spawner entities as spawned from a spawner"),
+        MISC_SPAWNER_MCMMO_COMPATIBILITY("misc-settings.spawner-mcmmo-compatibility", true, "Disabling this will make mcMMO no longer recognize spawner entities as spawned from a spawner"),
+        MISC_SPAWNER_ROSELOOT_COMPATIBILITY("misc-settings.spawner-roseloot-compatibility", true, "Disabling this will make RoseLoot no longer recognize spawner entities as spawned from a spawner"),
         MISC_STACK_STATISTICS("misc-settings.stack-statistics", true, "Should statistics be accurately tracked for stacked entities?", "This can cause issues if you expect players to kill multiple billion mobs"),
         MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST("misc-settings.spawner-lore-display-global-lore-first", true, "Should global lore be displayed before spawner type lore?"),
         ;

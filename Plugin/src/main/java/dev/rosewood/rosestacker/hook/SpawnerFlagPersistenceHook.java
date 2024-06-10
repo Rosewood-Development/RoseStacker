@@ -1,8 +1,9 @@
 package dev.rosewood.rosestacker.hook;
 
-import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
+import com.gmail.nossr50.util.MobMetadataUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -18,6 +19,7 @@ public class SpawnerFlagPersistenceHook {
     private static Boolean mcMMOEnabled;
     private static Boolean jobsEnabled;
     private static Boolean roseLootEnabled;
+    private static boolean displayedMcMMOMessage;
 
     /**
      * @return true if mcMMO is enabled, false otherwise
@@ -25,8 +27,21 @@ public class SpawnerFlagPersistenceHook {
     public static boolean mcMMOEnabled() {
         if (mcMMOEnabled != null)
             return mcMMOEnabled;
+
         Plugin plugin = Bukkit.getPluginManager().getPlugin("mcMMO");
-        return mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2") && NMSUtil.getVersionNumber() >= 18;
+        mcMMOEnabled = plugin != null && plugin.getDescription().getVersion().startsWith("2") && NMSUtil.getVersionNumber() >= 18;
+        if (mcMMOEnabled) {
+            try {
+                Class.forName("com.gmail.nossr50.util.MobMetadataUtils");
+            } catch (ClassNotFoundException e) {
+                mcMMOEnabled = false;
+                if (!displayedMcMMOMessage) {
+                    RoseLoot.getInstance().getLogger().severe("mcMMO is enabled, but the required com.gmail.nossr50.util.MobMetadataUtils class is not found. Your mcMMO version is either too old or too new for RoseStacker to support. The mcMMO hook has been disabled.");
+                    displayedMcMMOMessage = true;
+                }
+            }
+        }
+        return mcMMOEnabled;
     }
 
     /**
@@ -56,16 +71,16 @@ public class SpawnerFlagPersistenceHook {
         if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
             return;
 
-        if (mcMMOEnabled())
-            mcMMO.getMetadataService().getMobMetadataService().flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
+            MobMetadataUtils.flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (jobsEnabled()) {
+        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
         }
 
-        if (roseLootEnabled())
+        if (Setting.MISC_SPAWNER_ROSELOOT_COMPATIBILITY.getBoolean() && roseLootEnabled())
             LootUtils.setEntitySpawnReason(entity, SpawnReason.SPAWNER);
 
         NMSAdapter.getHandler().setPaperFromMobSpawner(entity);
@@ -75,10 +90,10 @@ public class SpawnerFlagPersistenceHook {
         if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
             return;
 
-        if (mcMMOEnabled())
-            mcMMO.getMetadataService().getMobMetadataService().removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
+        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
+            MobMetadataUtils.removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (jobsEnabled()) {
+        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.removeMetadata("jobsMobSpawner", jobsPlugin);

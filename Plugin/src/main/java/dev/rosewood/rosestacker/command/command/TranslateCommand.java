@@ -111,14 +111,10 @@ public class TranslateCommand extends BaseRoseCommand {
         return CommandInfo.builder("translate")
                 .descriptionKey("command-translate-description")
                 .permission("rosestacker.translate")
-                .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .required("locale", StackerArgumentHandlers.TRANSLATION_LOCALE)
-                .optional("spawnerFormat", ArgumentHandlers.GREEDY_STRING)
+                .arguments(ArgumentsDefinition.builder()
+                        .required("locale", StackerArgumentHandlers.TRANSLATION_LOCALE)
+                        .optional("spawnerFormat", ArgumentHandlers.GREEDY_STRING)
+                        .build())
                 .build();
     }
 

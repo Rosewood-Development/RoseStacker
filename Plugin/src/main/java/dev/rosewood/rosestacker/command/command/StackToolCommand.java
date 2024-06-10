@@ -46,13 +46,9 @@ public class StackToolCommand extends BaseRoseCommand {
         return CommandInfo.builder("stacktool")
                 .descriptionKey("command-stacktool-description")
                 .permission("rosestacker.stacktool")
-                .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .optional("target", ArgumentHandlers.PLAYER)
+                .arguments(ArgumentsDefinition.builder()
+                        .optional("target", ArgumentHandlers.PLAYER)
+                        .build())
                 .build();
     }
 

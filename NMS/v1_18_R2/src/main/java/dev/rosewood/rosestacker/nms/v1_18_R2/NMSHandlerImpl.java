@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v1_18_R2.entity.SynchedEntityDataWrapper;
+import dev.rosewood.rosestacker.nms.v1_18_R2.event.AsyncEntityDeathEventImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R2.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R2.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_18_R2.storage.NBTEntityDataEntry;
@@ -82,7 +83,9 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -413,6 +416,11 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public int getItemDespawnRate(Item item) {
         return ((CraftWorld) item.getWorld()).getHandle().spigotConfig.itemDespawnRate;
+    }
+
+    @Override
+    public EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
+        return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
     @Override
