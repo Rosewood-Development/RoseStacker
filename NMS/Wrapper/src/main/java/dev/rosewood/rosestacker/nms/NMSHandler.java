@@ -291,4 +291,6 @@ public interface NMSHandler {
 
     EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp);
 
+    List<ItemStack> getBoxContents(Item item);
+
 }

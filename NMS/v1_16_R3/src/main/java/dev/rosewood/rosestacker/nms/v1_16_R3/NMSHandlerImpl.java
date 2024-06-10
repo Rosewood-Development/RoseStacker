@@ -437,6 +437,11 @@ public class NMSHandlerImpl implements NMSHandler {
         return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
+    @Override
+    public List<ItemStack> getBoxContents(Item item) {
+        return new ArrayList<>();
+    }
+
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {
         return switch (mobSpawnType) {
             case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;
