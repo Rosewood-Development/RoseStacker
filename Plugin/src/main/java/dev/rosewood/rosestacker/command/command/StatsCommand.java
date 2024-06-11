@@ -39,13 +39,13 @@ public class StatsCommand extends BaseRoseCommand {
         int blockAmount = stackManager.getStackedBlocks().values().stream().mapToInt(Stack::getStackSize).sum();
         int spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToInt(Stack::getStackSize).sum();
 
-        localeManager.sendMessage(context.getSender(), "command-stats-header");
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).add("total", StackerUtils.formatNumber(entityAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).add("total", StackerUtils.formatNumber(itemAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).add("total", StackerUtils.formatNumber(blockAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).add("total", StackerUtils.formatNumber(spawnerAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.of("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
+        localeManager.sendCommandMessage(context.getSender(), "command-stats-header");
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).add("total", StackerUtils.formatNumber(entityAmount)).build());
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).add("total", StackerUtils.formatNumber(itemAmount)).build());
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).add("total", StackerUtils.formatNumber(blockAmount)).build());
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).add("total", StackerUtils.formatNumber(spawnerAmount)).build());
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.of("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
     }
 
     @Override

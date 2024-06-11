@@ -35,25 +35,25 @@ public class TranslateCommand extends BaseRoseCommand {
 
         if (spawnerFormat == null) {
             spawnerFormat = "{}";
-            localeManager.sendMessage(context.getSender(), "command-translate-spawner-format");
+            localeManager.sendCommandMessage(context.getSender(), "command-translate-spawner-format");
         }
 
         if (!spawnerFormat.contains("{}")) {
-            localeManager.sendMessage(context.getSender(), "command-translate-spawner-format-invalid");
+            localeManager.sendCommandMessage(context.getSender(), "command-translate-spawner-format-invalid");
             return;
         }
 
-        localeManager.sendMessage(context.getSender(), "command-translate-loading");
+        localeManager.sendCommandMessage(context.getSender(), "command-translate-loading");
 
         String finalSpawnerFormat = spawnerFormat;
         localeManager.getMinecraftTranslationValues(locale, response -> {
             if (response.getResult() == LocaleManager.TranslationResponse.Result.FAILURE) {
-                localeManager.sendMessage(context.getSender(), "command-translate-failure");
+                localeManager.sendCommandMessage(context.getSender(), "command-translate-failure");
                 return;
             }
 
             if (response.getResult() == LocaleManager.TranslationResponse.Result.INVALID_LOCALE) {
-                localeManager.sendMessage(context.getSender(), "command-translate-invalid-locale");
+                localeManager.sendCommandMessage(context.getSender(), "command-translate-invalid-locale");
                 return;
             }
 
@@ -101,7 +101,7 @@ public class TranslateCommand extends BaseRoseCommand {
 
             ThreadUtils.runSync(() -> {
                 this.rosePlugin.reload();
-                localeManager.sendMessage(context.getSender(), "command-translate-success");
+                localeManager.sendCommandMessage(context.getSender(), "command-translate-success");
             });
         });
     }

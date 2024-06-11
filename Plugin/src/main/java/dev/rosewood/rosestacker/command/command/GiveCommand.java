@@ -69,12 +69,12 @@ public class GiveCommand extends BaseRoseCommand {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
             BlockStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getBlockStackSettings(material);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
-                localeManager.sendMessage(context.getSender(), "command-give-unstackable");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
             if (stackSize > stackSettings.getMaxStackSize()) {
-                localeManager.sendMessage(context.getSender(), "command-give-too-large");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-too-large");
                 return;
             }
 
@@ -93,9 +93,9 @@ public class GiveCommand extends BaseRoseCommand {
                     .build();
 
             if (amount == 1) {
-                localeManager.sendMessage(context.getSender(), "command-give-given", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given", placeholders);
             } else {
-                localeManager.sendMessage(context.getSender(), "command-give-given-multiple", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given-multiple", placeholders);
             }
         }
 
@@ -124,12 +124,12 @@ public class GiveCommand extends BaseRoseCommand {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
             SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
-                localeManager.sendMessage(context.getSender(), "command-give-unstackable");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
             if (stackSize > stackSettings.getMaxStackSize()) {
-                localeManager.sendMessage(context.getSender(), "command-give-too-large");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-too-large");
                 return;
             }
 
@@ -154,9 +154,9 @@ public class GiveCommand extends BaseRoseCommand {
                     .build();
 
             if (amount == 1) {
-                localeManager.sendMessage(context.getSender(), "command-give-given", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given", placeholders);
             } else {
-                localeManager.sendMessage(context.getSender(), "command-give-given-multiple", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given-multiple", placeholders);
             }
         }
 
@@ -185,12 +185,12 @@ public class GiveCommand extends BaseRoseCommand {
             LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             if (stackSettings == null || !stackSettings.isStackingEnabled()) {
-                localeManager.sendMessage(context.getSender(), "command-give-unstackable");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-unstackable");
                 return;
             }
 
             if (stackSize > stackSettings.getMaxStackSize()) {
-                localeManager.sendMessage(context.getSender(), "command-give-too-large");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-too-large");
                 return;
             }
 
@@ -199,7 +199,7 @@ public class GiveCommand extends BaseRoseCommand {
 
             ItemStack item = ItemUtils.getEntityAsStackedItemStack(entityType, stackSize);
             if (item == null) {
-                this.rosePlugin.getManager(LocaleManager.class).sendMessage(context.getSender(), "command-give-usage");
+                localeManager.sendCommandMessage(context.getSender(), "command-give-usage");
                 return;
             }
 
@@ -214,9 +214,9 @@ public class GiveCommand extends BaseRoseCommand {
                     .build();
 
             if (amount == 1) {
-                localeManager.sendMessage(context.getSender(), "command-give-given", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given", placeholders);
             } else {
-                localeManager.sendMessage(context.getSender(), "command-give-given-multiple", placeholders);
+                localeManager.sendCommandMessage(context.getSender(), "command-give-given-multiple", placeholders);
             }
         }
 

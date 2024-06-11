@@ -71,13 +71,13 @@ public class StackToolListener implements Listener {
         event.setCancelled(true);
 
         if (!player.hasPermission("rosestacker.stacktool")) {
-            this.localeManager.sendMessage(player, "command-stacktool-no-permission");
+            this.localeManager.sendCommandMessage(player, "command-stacktool-no-permission");
             return;
         }
 
         StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
-            this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
+            this.localeManager.sendCommandMessage(player, "command-stacktool-invalid-entity");
             return;
         }
 
@@ -85,14 +85,14 @@ public class StackToolListener implements Listener {
             boolean stackable = !PersistentDataUtils.isUnstackable(entity);
             PersistentDataUtils.setUnstackable(entity, stackable);
             String stackableStr = !stackable ? "stackable" : "unstackable";
-            this.localeManager.sendMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
+            this.localeManager.sendCommandMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
         } else {
             PersistentDataUtils.setUnstackable(entity, true);
             ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(x -> {
                 PersistentDataUtils.setUnstackable(x, true);
                 return true;
             }));
-            this.localeManager.sendMessage(player, "command-stacktool-marked-all-unstackable", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
+            this.localeManager.sendCommandMessage(player, "command-stacktool-marked-all-unstackable", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
         }
     }
 
@@ -116,13 +116,13 @@ public class StackToolListener implements Listener {
             return;
 
         if (!player.hasPermission("rosestacker.stacktool")) {
-            this.localeManager.sendMessage(player, "command-stacktool-no-permission");
+            this.localeManager.sendCommandMessage(player, "command-stacktool-no-permission");
             return;
         }
 
         StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
         if (stackedEntity == null) {
-            this.localeManager.sendMessage(player, "command-stacktool-invalid-entity");
+            this.localeManager.sendCommandMessage(player, "command-stacktool-invalid-entity");
             return;
         }
 
@@ -135,16 +135,16 @@ public class StackToolListener implements Listener {
 
             if (selected.getEntity1() == stackedEntity) {
                 selected.unselect();
-                this.localeManager.sendMessage(player, "command-stacktool-unselect-1", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
+                this.localeManager.sendCommandMessage(player, "command-stacktool-unselect-1", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
                 return;
             }
 
             selected.select(stackedEntity);
 
             if (!selected.hasSelected()) {
-                this.localeManager.sendMessage(player, "command-stacktool-select-1", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
+                this.localeManager.sendCommandMessage(player, "command-stacktool-select-1", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
             } else {
-                this.localeManager.sendMessage(player, "command-stacktool-select-2", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
+                this.localeManager.sendCommandMessage(player, "command-stacktool-select-2", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
 
                 StackedEntity entity1 = selected.getEntity1();
                 StackedEntity entity2 = selected.getEntity2();
@@ -152,31 +152,31 @@ public class StackToolListener implements Listener {
 
                 EntityStackComparisonResult result = stackedEntity.getStackSettings().canStackWith(entity1, entity2, false, true);
                 if (result == EntityStackComparisonResult.CAN_STACK) {
-                    this.localeManager.sendMessage(player, "command-stacktool-can-stack");
+                    this.localeManager.sendCommandMessage(player, "command-stacktool-can-stack");
                 } else {
-                    this.localeManager.sendMessage(player, "command-stacktool-can-not-stack", StringPlaceholders.of("reason", result.name()));
+                    this.localeManager.sendCommandMessage(player, "command-stacktool-can-not-stack", StringPlaceholders.of("reason", result.name()));
                 }
             }
         } else {
             String trueStr = this.localeManager.getLocaleMessage("command-stacktool-info-true");
             String falseStr = this.localeManager.getLocaleMessage("command-stacktool-info-false");
 
-            this.localeManager.sendMessage(player, "command-stacktool-info");
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-uuid", StringPlaceholders.of("uuid", entity.getUniqueId().toString()));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.of("id", StackerUtils.formatNumber(entity.getEntityId())));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-type", StringPlaceholders.of("type", entity.getType().name()));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedEntity.getStackSize())));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-data-storage-type", StringPlaceholders.of("type", stackedEntity.getDataStorage().getType().name()));
+            this.localeManager.sendCommandMessage(player, "command-stacktool-info");
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-uuid", StringPlaceholders.of("uuid", entity.getUniqueId().toString()));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.of("id", StackerUtils.formatNumber(entity.getEntityId())));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-type", StringPlaceholders.of("type", entity.getType().name()));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedEntity.getStackSize())));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-data-storage-type", StringPlaceholders.of("type", stackedEntity.getDataStorage().getType().name()));
             if (entity.getCustomName() != null)
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.of("name", entity.getCustomName()));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.of("value", PersistentDataUtils.isUnstackable(entity) ? falseStr : trueStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.of("value", PersistentDataUtils.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.of("value", !PersistentDataUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(entity.getLocation().getBlockX()))
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.of("name", entity.getCustomName()));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-stackable", StringPlaceholders.of("value", PersistentDataUtils.isUnstackable(entity) ? falseStr : trueStr));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-from-spawner", StringPlaceholders.of("value", PersistentDataUtils.isSpawnedFromSpawner(entity) ? trueStr : falseStr));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-has-ai", StringPlaceholders.of("value", !PersistentDataUtils.isAiDisabled(entity) && entity.hasAI() ? trueStr : falseStr));
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(entity.getLocation().getBlockX()))
                     .add("y", StackerUtils.formatNumber(entity.getLocation().getBlockY()))
                     .add("z", StackerUtils.formatNumber(entity.getLocation().getBlockZ()))
                     .add("world", entity.getWorld().getName()).build());
-            this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(entity.getLocation().getChunk().getX()))
+            this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(entity.getLocation().getChunk().getX()))
                     .add("z", StackerUtils.formatNumber(entity.getLocation().getChunk().getZ())).build());
         }
     }
@@ -199,7 +199,7 @@ public class StackToolListener implements Listener {
             return;
 
         if (!player.hasPermission("rosestacker.stacktool")) {
-            this.localeManager.sendMessage(player, "command-stacktool-no-permission");
+            this.localeManager.sendCommandMessage(player, "command-stacktool-no-permission");
             return;
         }
 
@@ -218,18 +218,18 @@ public class StackToolListener implements Listener {
 
                 ItemMeta itemMeta = item.getItemStack().getItemMeta();
 
-                this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-uuid", StringPlaceholders.of("uuid", item.getUniqueId().toString()));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.of("id", StackerUtils.formatNumber(item.getEntityId())));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-item-type", StringPlaceholders.of("type", item.getItemStack().getType().name()));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedItem.getStackSize())));
+                this.localeManager.sendCommandMessage(player, "command-stacktool-info");
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-uuid", StringPlaceholders.of("uuid", item.getUniqueId().toString()));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-entity-id", StringPlaceholders.of("id", StackerUtils.formatNumber(item.getEntityId())));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-item-type", StringPlaceholders.of("type", item.getItemStack().getType().name()));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedItem.getStackSize())));
                 if (itemMeta != null && itemMeta.hasDisplayName())
-                    this.localeManager.sendSimpleMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.of("name", itemMeta.getDisplayName()));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(item.getLocation().getBlockX()))
+                    this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-custom-name", StringPlaceholders.of("name", itemMeta.getDisplayName()));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(item.getLocation().getBlockX()))
                         .add("y", StackerUtils.formatNumber(item.getLocation().getBlockY()))
                         .add("z", StackerUtils.formatNumber(item.getLocation().getBlockZ()))
                         .add("world", item.getWorld().getName()).build());
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(item.getLocation().getChunk().getX()))
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(item.getLocation().getChunk().getX()))
                         .add("z", StackerUtils.formatNumber(item.getLocation().getChunk().getZ())).build());
 
                 return;
@@ -246,28 +246,28 @@ public class StackToolListener implements Listener {
                 if (stackedBlock == null)
                     return;
 
-                this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-block-type", StringPlaceholders.of("type", clickedBlock.getType().name()));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedBlock.getStackSize())));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getX()))
+                this.localeManager.sendCommandMessage(player, "command-stacktool-info");
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-block-type", StringPlaceholders.of("type", clickedBlock.getType().name()));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedBlock.getStackSize())));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getX()))
                         .add("y", StackerUtils.formatNumber(clickedBlock.getY()))
                         .add("z", StackerUtils.formatNumber(clickedBlock.getZ()))
                         .add("world", clickedBlock.getWorld().getName()).build());
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getChunk().getX()))
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getChunk().getX()))
                         .add("z", StackerUtils.formatNumber(clickedBlock.getChunk().getZ())).build());
             } else {
                 StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(clickedBlock);
                 if (stackedSpawner == null)
                     return;
 
-                this.localeManager.sendMessage(player, "command-stacktool-info");
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.of("type", stackedSpawner.getSpawnerTile().getSpawnerType().getEnumName()));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedSpawner.getStackSize())));
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getX()))
+                this.localeManager.sendCommandMessage(player, "command-stacktool-info");
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-spawner-type", StringPlaceholders.of("type", stackedSpawner.getSpawnerTile().getSpawnerType().getEnumName()));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-stack-size", StringPlaceholders.of("amount", StackerUtils.formatNumber(stackedSpawner.getStackSize())));
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-location", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getX()))
                         .add("y", StackerUtils.formatNumber(clickedBlock.getY()))
                         .add("z", StackerUtils.formatNumber(clickedBlock.getZ()))
                         .add("world", clickedBlock.getWorld().getName()).build());
-                this.localeManager.sendSimpleMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getChunk().getX()))
+                this.localeManager.sendSimpleCommandMessage(player, "command-stacktool-info-chunk", StringPlaceholders.builder("x", StackerUtils.formatNumber(clickedBlock.getChunk().getX()))
                         .add("z", StackerUtils.formatNumber(clickedBlock.getChunk().getZ())).build());
             }
         }

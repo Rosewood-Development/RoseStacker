@@ -38,10 +38,19 @@ public class VersionUtils {
             POOF = Particle.valueOf("EXPLOSION_NORMAL");
             SMOKE = Particle.valueOf("SMOKE_NORMAL");
             DUST = Particle.valueOf("REDSTONE");
-            INFINITY = Enchantment.getByName("infinity");
-            SWEEPING_EDGE = Enchantment.getByName("sweeping_edge");
+            INFINITY = findEnchantmentLegacy("infinity", "arrow_infinite");
+            SWEEPING_EDGE = findEnchantmentLegacy("sweeping", "sweeping_edge");
             HIDE_ADDITIONAL_TOOLTIP = ItemFlag.valueOf("HIDE_POTION_EFFECTS");
         }
+    }
+
+    private static Enchantment findEnchantmentLegacy(String... names) {
+        for (String name : names) {
+            Enchantment enchantment = Enchantment.getByKey(NamespacedKey.fromString(name));
+            if (enchantment != null)
+                return enchantment;
+        }
+        return null;
     }
 
 }

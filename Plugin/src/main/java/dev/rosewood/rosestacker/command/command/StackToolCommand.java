@@ -29,15 +29,15 @@ public class StackToolCommand extends BaseRoseCommand {
 
         if (target == null) {
             if (!(context.getSender() instanceof Player player)) {
-                localeManager.sendMessage(context.getSender(), "command-stacktool-no-console");
+                localeManager.sendCommandMessage(context.getSender(), "command-stacktool-no-console");
                 return;
             }
 
             player.getInventory().addItem(ItemUtils.getStackingTool());
-            RoseStacker.getInstance().getManager(LocaleManager.class).sendMessage(player, "command-stacktool-given");
+            localeManager.sendCommandMessage(player, "command-stacktool-given");
         } else {
             target.getInventory().addItem(ItemUtils.getStackingTool());
-            localeManager.sendMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.of("player", target.getName()));
+            localeManager.sendCommandMessage(context.getSender(), "command-stacktool-given-other", StringPlaceholders.of("player", target.getName()));
         }
     }
 
