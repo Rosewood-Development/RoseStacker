@@ -229,17 +229,23 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         boolean displaySingleEntityTags = Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean();
         boolean displaySingleItemTags = Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean();
 
-        List<Entity> entities = new ArrayList<>();
-        entities.addAll(this.stackedEntities.values().stream()
-                .filter(x -> x.getStackSize() > 1 || displaySingleEntityTags)
-                .map(StackedEntity::getEntity)
-                .filter(Objects::nonNull)
-                .filter(x -> validEntities.contains(x.getType()))
-                .toList());
-        entities.addAll(this.stackedItems.values().stream()
-                .filter(x -> x.getStackSize() > 1 || displaySingleItemTags)
-                .map(StackedItem::getItem)
-                .toList());
+        List<LivingEntity> entities = null;
+        if (this.dynamicEntityTags) {
+            entities = this.stackedEntities.values().stream()
+                    .filter(x -> x.getStackSize() > 1 || displaySingleEntityTags)
+                    .map(StackedEntity::getEntity)
+                    .filter(Objects::nonNull)
+                    .filter(x -> validEntities.contains(x.getType()))
+                    .toList();
+        }
+
+        List<Item> items = null;
+        if (this.dynamicItemTags) {
+            items = this.stackedItems.values().stream()
+                    .filter(x -> x.getStackSize() > 1 || displaySingleItemTags)
+                    .map(StackedItem::getItem)
+                    .toList();
+        }
 
         for (Player player : players) {
             if (player.getWorld() != this.targetWorld)
@@ -248,53 +254,60 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             ItemStack itemStack = player.getInventory().getItemInMainHand();
             boolean displayStackingToolParticles = ItemUtils.isStackingTool(itemStack);
 
-            for (Entity entity : entities) {
-                if (entity.getType() == EntityType.PLAYER)
-                    continue;
+            if (this.dynamicEntityTags) {
+                for (LivingEntity entity : entities) {
+                    double distanceSqrd;
+                    try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
+                        distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
+                    } catch (Exception e) {
+                        continue;
+                    }
 
-                if ((entity.getType() == VersionUtils.ITEM || entity.getType() == EntityType.ARMOR_STAND)
-                        && (entity.getCustomName() == null || !entity.isCustomNameVisible()))
-                    continue;
+                    if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
+                        continue;
 
-                double distanceSqrd;
-                try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
-                    distanceSqrd = player.getLocation().distanceSquared(entity.getLocation());
-                } catch (Exception e) {
-                    continue;
-                }
-
-                if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
-                    continue;
-
-                boolean visible;
-                if (this.dynamicItemTags && entity.getType() == VersionUtils.ITEM) {
-                    visible = distanceSqrd < this.itemDynamicViewRangeSqrd;
-                    if (this.itemDynamicWallDetection)
+                    boolean visible = distanceSqrd < this.entityDynamicViewRangeSqrd;
+                    if (this.entityDynamicWallDetection)
                         visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                } else if (this.dynamicEntityTags) {
-                     visible = distanceSqrd < this.entityDynamicViewRangeSqrd;
-                     if (this.entityDynamicWallDetection)
-                         visible &= EntityUtils.hasLineOfSight(player, entity, 0.75, true);
-                 } else continue;
 
-                if (entity.getType() != EntityType.ARMOR_STAND && entity instanceof LivingEntity livingEntity) {
-                    StackedEntity stackedEntity = this.getStackedEntity(livingEntity);
+                    StackedEntity stackedEntity = this.getStackedEntity(entity);
                     if (stackedEntity != null)
                         nmsHandler.updateEntityNameTagForPlayer(player, entity, stackedEntity.getDisplayName(), stackedEntity.isDisplayNameVisible() && visible);
 
                     // Spawn particles for holding the stacking tool
                     if (visible && displayStackingToolParticles) {
-                        Location location = entity.getLocation().add(0, livingEntity.getEyeHeight(true) + 0.75, 0);
+                        Location location = entity.getLocation().add(0, entity.getEyeHeight(true) + 0.75, 0);
                         DustOptions dustOptions;
-                        if (PersistentDataUtils.isUnstackable(livingEntity)) {
+                        if (PersistentDataUtils.isUnstackable(entity)) {
                             dustOptions = StackerUtils.UNSTACKABLE_DUST_OPTIONS;
                         } else {
                             dustOptions = StackerUtils.STACKABLE_DUST_OPTIONS;
                         }
                         player.spawnParticle(VersionUtils.DUST, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions);
                     }
-                } else {
-                    nmsHandler.updateEntityNameTagVisibilityForPlayer(player, entity, visible);
+                }
+            }
+
+            if (this.dynamicItemTags) {
+                for (Item item : items) {
+                    if (item.getCustomName() == null || !item.isCustomNameVisible())
+                        continue;
+
+                    double distanceSqrd;
+                    try { // The locations can end up comparing cross-world if the player/entity switches worlds mid-loop due to being async
+                        distanceSqrd = player.getLocation().distanceSquared(item.getLocation());
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    if (distanceSqrd > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
+                        continue;
+
+                    boolean visible = distanceSqrd < this.itemDynamicViewRangeSqrd;
+                    if (this.itemDynamicWallDetection)
+                        visible &= EntityUtils.hasLineOfSight(player, item, 0.75, true);
+
+                    nmsHandler.updateEntityNameTagVisibilityForPlayer(player, item, visible);
                 }
             }
         }
