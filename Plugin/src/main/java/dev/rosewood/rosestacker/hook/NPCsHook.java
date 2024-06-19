@@ -185,7 +185,7 @@ public class NPCsHook {
             npc = SimplePets.isPetEntity(entity);
 
         if (!npc && levelledMobsEnabled() && !Setting.MISC_LEVELLEDMOBS_ALLOW_STACKING.getBoolean())
-            npc = entity.getPersistentDataContainer().has(new NamespacedKey("LevelledMobs", "level"), PersistentDataType.INTEGER);
+            npc = entity.getPersistentDataContainer().has(new NamespacedKey("levelledmobs", "level"), PersistentDataType.INTEGER);
 
         return npc;
     }
