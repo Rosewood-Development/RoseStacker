@@ -17,9 +17,13 @@ dependencies:
     required: false
   - name: EpicBosses
     required: false
+  - name: InfernalMobs
+    required: false
   - name: Insights
     required: false
   - name: Jobs
+    required: false
+  - name: LevelledMobs
     required: false
   - name: LogBlock
     required: false

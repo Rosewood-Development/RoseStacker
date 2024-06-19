@@ -8,7 +8,9 @@ import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.persistence.PersistentDataType;
 import simplepets.brainsynder.api.plugin.SimplePets;
 
 public class NPCsHook {
@@ -23,6 +25,7 @@ public class NPCsHook {
     private static Boolean proCosmeticsEnabled;
     private static Boolean infernalMobsEnabled;
     private static Boolean simplePetsEnabled;
+    private static Boolean levelledMobsEnabled;
 
     /**
      * @return true if Citizens is enabled, false otherwise
@@ -121,6 +124,13 @@ public class NPCsHook {
         return simplePetsEnabled = true;
     }
 
+    public static boolean levelledMobsEnabled() {
+        if (levelledMobsEnabled != null)
+            return levelledMobsEnabled;
+
+        return levelledMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("LevelledMobs");
+    }
+
     /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
@@ -166,13 +176,16 @@ public class NPCsHook {
         if (!npc && proCosmeticsEnabled())
             npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
 
-        if (!npc && infernalMobsEnabled()) {
+        if (!npc && infernalMobsEnabled() && !Setting.MISC_INFERNALMOBS_ALLOW_STACKING.getBoolean()) {
             infernal_mobs plugin = ((infernal_mobs) Bukkit.getPluginManager().getPlugin("InfernalMobs"));
             npc = plugin != null && plugin.idSearch(entity.getUniqueId()) >= 0;
         }
 
         if (!npc && simplePetsEnabled())
             npc = SimplePets.isPetEntity(entity);
+
+        if (!npc && levelledMobsEnabled() && !Setting.MISC_LEVELLEDMOBS_ALLOW_STACKING.getBoolean())
+            npc = entity.getPersistentDataContainer().has(new NamespacedKey("LevelledMobs", "level"), PersistentDataType.INTEGER);
 
         return npc;
     }
