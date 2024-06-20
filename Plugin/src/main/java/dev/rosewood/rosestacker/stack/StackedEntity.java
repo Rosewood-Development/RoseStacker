@@ -164,7 +164,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this);
         entityCacheManager.preCacheEntity(this.entity);
-        this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
+        this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01))); // Nudge the entity to unstack it from the old entity
 
         // Attempt to prevent adult entities from going into walls when a baby entity gets unstacked
         if (oldEntity instanceof Ageable ageable1 && this.entity instanceof Ageable ageable2 && !ageable1.isAdult() && ageable2.isAdult()) {

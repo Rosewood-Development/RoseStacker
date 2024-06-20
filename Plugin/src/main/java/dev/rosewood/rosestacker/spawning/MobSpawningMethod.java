@@ -286,20 +286,14 @@ public class MobSpawningMethod implements SpawningMethod {
                 }
             });
         } else {
-            successfulSpawns = Math.min(spawnAmount, possibleLocations.size());
-
             int finalSpawnAmount = spawnAmount;
-            ThreadUtils.runSync(() -> {
+            ThreadUtils.runSync(() -> { // No poof particles to show where the mobs spawn with this setting, they immediately try stacking and are entirely unpredictable
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 for (int i = 0; i < finalSpawnAmount; i++) {
                     if (possibleLocations.isEmpty())
                         break;
 
                     Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                    World world = location.getWorld();
-                    if (world == null)
-                        continue;
-
                     LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
                     entityStackSettings.applySpawnerSpawnedProperties(entity);
 
@@ -311,16 +305,12 @@ public class MobSpawningMethod implements SpawningMethod {
                     }
 
                     // Nudge the entities a little so they unstack easier
-                    entity.setVelocity(Vector.getRandom().multiply(0.01));
-
-                    // Spawn Particles
-                    if (entity.isValid())
-                        entity.getWorld().spawnParticle(VersionUtils.POOF, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);
+                    entity.setVelocity(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01));
                 }
             });
         }
 
-        return successfulSpawns;
+        return spawnAmount;
     }
 
     private boolean useNearbyEntitiesForStacking(StackManager stackManager, EntityStackSettings entityStackSettings) {

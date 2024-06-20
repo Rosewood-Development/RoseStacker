@@ -49,7 +49,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -225,30 +224,24 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         // Handle dynamic stack tags
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        Set<EntityType> validEntities = StackerUtils.getStackableEntityTypes();
-        boolean displaySingleEntityTags = Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean();
-        boolean displaySingleItemTags = Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean();
 
         List<LivingEntity> entities = null;
         if (this.dynamicEntityTags) {
             entities = this.stackedEntities.values().stream()
-                    .filter(x -> x.getStackSize() > 1 || displaySingleEntityTags)
                     .map(StackedEntity::getEntity)
                     .filter(Objects::nonNull)
-                    .filter(x -> validEntities.contains(x.getType()))
                     .toList();
         }
 
         List<Item> items = null;
         if (this.dynamicItemTags) {
             items = this.stackedItems.values().stream()
-                    .filter(x -> x.getStackSize() > 1 || displaySingleItemTags)
                     .map(StackedItem::getItem)
                     .toList();
         }
 
         for (Player player : players) {
-            if (player.getWorld() != this.targetWorld)
+            if (!player.getWorld().equals(this.targetWorld))
                 continue;
 
             ItemStack itemStack = player.getInventory().getItemInMainHand();
@@ -587,14 +580,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isBlockStackingEnabled() || !this.stackManager.isBlockTypeStackable(block))
             return null;
 
+        StackChunkData stackChunkData = this.stackChunkData.computeIfAbsent(block.getChunk(), x -> new StackChunkData());
         StackedBlock newStackedBlock = new StackedBlock(amount, block);
-
-        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
-        if (stackChunkData == null) {
-            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            this.stackChunkData.put(block.getChunk(), stackChunkData);
-        }
-
         stackChunkData.addBlock(newStackedBlock);
         return newStackedBlock;
     }
@@ -608,14 +595,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isSpawnerStackingEnabled() || !this.stackManager.isSpawnerTypeStackable(creatureSpawner.getSpawnedType()))
             return null;
 
+        StackChunkData stackChunkData = this.stackChunkData.computeIfAbsent(block.getChunk(), x -> new StackChunkData());
         StackedSpawner newStackedSpawner = new StackedSpawner(amount, block, placedByPlayer);
-
-        StackChunkData stackChunkData = this.stackChunkData.get(block.getChunk());
-        if (stackChunkData == null) {
-            stackChunkData = new StackChunkData(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
-            this.stackChunkData.put(block.getChunk(), stackChunkData);
-        }
-
         stackChunkData.addSpawner(newStackedSpawner);
         return newStackedSpawner;
     }
