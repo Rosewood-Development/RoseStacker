@@ -141,7 +141,7 @@ public class NMSHandlerImpl implements NMSHandler {
                 field_ServerLevel_entityManager = ReflectionUtils.getFieldByPositionAndType(ServerLevel.class, 0, PersistentEntitySectionManager.class);
             } catch (IllegalStateException e) {
                 field_ServerLevel_entityManager = null;
-                field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(ServerLevel.class, "entityLookup");
+                field_ServerLevel_entityLookup = ReflectionUtils.getFieldByName(Level.class, "entityLookup");
             }
 
             if (NMSUtil.isPaper())
