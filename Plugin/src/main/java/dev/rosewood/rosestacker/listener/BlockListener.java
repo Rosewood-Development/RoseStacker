@@ -224,7 +224,7 @@ public class BlockListener implements Listener {
 
     private void damageTool(Player player) {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
-        if (!itemStack.getType().name().endsWith("PICKAXE"))
+        if (player.getGameMode() == GameMode.CREATIVE || !itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
         ItemUtils.damageTool(itemStack);

@@ -127,12 +127,7 @@ public class StackToolListener implements Listener {
         }
 
         if (!player.isSneaking()) {
-            SelectedEntities selected = this.selectedEntities.get(player.getUniqueId());
-            if (selected == null) {
-                selected = new SelectedEntities();
-                this.selectedEntities.put(player.getUniqueId(), selected);
-            }
-
+            SelectedEntities selected = this.selectedEntities.computeIfAbsent(player.getUniqueId(), x -> new SelectedEntities());
             if (selected.getEntity1() == stackedEntity) {
                 selected.unselect();
                 this.localeManager.sendCommandMessage(player, "command-stacktool-unselect-1", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
