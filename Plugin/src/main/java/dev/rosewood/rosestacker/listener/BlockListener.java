@@ -161,10 +161,8 @@ public class BlockListener implements Listener {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
 
-                if (stackedSpawner.getStackSize() <= 0) {
+                if (stackedSpawner.getStackSize() <= 0)
                     stackManager.removeSpawnerStack(stackedSpawner);
-                    return;
-                }
             } else {
                 event.setCancelled(true);
                 return;
