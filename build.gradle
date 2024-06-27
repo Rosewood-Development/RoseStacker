@@ -25,6 +25,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        mavenLocal()
 
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
         maven { url = 'https://libraries.minecraft.net' }

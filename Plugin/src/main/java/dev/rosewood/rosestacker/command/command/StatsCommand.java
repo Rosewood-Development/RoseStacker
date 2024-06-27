@@ -41,10 +41,10 @@ public class StatsCommand extends BaseRoseCommand {
 
         localeManager.sendCommandMessage(context.getSender(), "command-stats-header");
         localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
-        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).add("total", StackerUtils.formatNumber(entityAmount)).build());
-        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).add("total", StackerUtils.formatNumber(itemAmount)).build());
-        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).add("total", StackerUtils.formatNumber(blockAmount)).build());
-        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).add("total", StackerUtils.formatNumber(spawnerAmount)).build());
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(entityStackAmount),"total", StackerUtils.formatNumber(entityAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(itemStackAmount), "total", StackerUtils.formatNumber(itemAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(blockStackAmount), "total", StackerUtils.formatNumber(blockAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(spawnerStackAmount), "total", StackerUtils.formatNumber(spawnerAmount)));
         localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.of("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
     }
 

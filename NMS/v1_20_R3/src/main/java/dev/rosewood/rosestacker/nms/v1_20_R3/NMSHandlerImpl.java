@@ -503,6 +503,8 @@ public class NMSHandlerImpl implements NMSHandler {
             PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);
             entityManager.addNewEntity(entity);
         } else if (field_ServerLevel_entityLookup != null) {
+            if (entity.getRemovalReason() != null)
+                return;
             Object entityLookup = field_ServerLevel_entityLookup.get(world);
             if (method_EntityLookup_addNewEntity == null)
                 method_EntityLookup_addNewEntity = ReflectionUtils.getMethodByName(entityLookup.getClass(), "addNewEntity", Entity.class);
