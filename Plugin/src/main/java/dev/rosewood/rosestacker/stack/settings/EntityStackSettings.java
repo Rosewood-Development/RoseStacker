@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
@@ -47,6 +46,7 @@ public class EntityStackSettings extends StackSettings {
 
     // Entity-specific settings
     public static final String CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE = "multiply-egg-drops-by-stack-size";
+    public static final String MAX_EGG_STACK_SIZE = "max-egg-stack-size";
     public static final String CREEPER_EXPLODE_KILL_ENTIRE_STACK = "explode-kill-entire-stack";
     public static final String SHEEP_SHEAR_ALL_SHEEP_IN_STACK = "shear-all-sheep-in-stack";
     public static final String SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN = "percentage-of-wool-to-regrow-per-grass-eaten";
@@ -94,7 +94,10 @@ public class EntityStackSettings extends StackSettings {
         this.extraSettings = new HashMap<>();
 
         switch (this.entityType) {
-            case CHICKEN -> this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
+            case CHICKEN -> {
+                this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
+                this.putSetting(MAX_EGG_STACK_SIZE, 10000);
+            }
             case CREEPER -> this.putSetting(CREEPER_EXPLODE_KILL_ENTIRE_STACK, false);
             case SHEEP -> {
                 this.putSetting(SHEEP_SHEAR_ALL_SHEEP_IN_STACK, true);
