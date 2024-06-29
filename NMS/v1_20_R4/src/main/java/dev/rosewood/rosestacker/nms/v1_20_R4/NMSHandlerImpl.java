@@ -503,7 +503,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public List<ItemStack> getBoxContents(Item item) {
-        net.minecraft.world.item.ItemStack itemStack = ((ItemEntity) item).getItem();
+        net.minecraft.world.item.ItemStack itemStack = CraftItemStack.asNMSCopy(item.getItemStack());
         ItemContainerContents contents = itemStack.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
 
         if (contents != null) {
