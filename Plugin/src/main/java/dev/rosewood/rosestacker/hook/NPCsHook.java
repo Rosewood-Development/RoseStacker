@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -26,6 +27,8 @@ public class NPCsHook {
     private static Boolean infernalMobsEnabled;
     private static Boolean simplePetsEnabled;
     private static Boolean levelledMobsEnabled;
+
+    private static final NamespacedKey LEVELLEDMOBS_KEY = new NamespacedKey("levelledmobs", "level");
 
     /**
      * @return true if Citizens is enabled, false otherwise
@@ -185,9 +188,16 @@ public class NPCsHook {
             npc = SimplePets.isPetEntity(entity);
 
         if (!npc && levelledMobsEnabled() && !Setting.MISC_LEVELLEDMOBS_ALLOW_STACKING.getBoolean())
-            npc = entity.getPersistentDataContainer().has(new NamespacedKey("levelledmobs", "level"), PersistentDataType.INTEGER);
+            npc = entity.getPersistentDataContainer().has(LEVELLEDMOBS_KEY, PersistentDataType.INTEGER);
 
         return npc;
+    }
+
+    public static void addCustomPlaceholders(LivingEntity entity, StringPlaceholders.Builder placeholders) {
+        if (levelledMobsEnabled()) {
+            Integer level = entity.getPersistentDataContainer().get(LEVELLEDMOBS_KEY, PersistentDataType.INTEGER);
+            placeholders.add("levelledmobs_level", level == null ? 0 : level);
+        }
     }
 
 }

@@ -515,12 +515,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         String customName = this.entity.getCustomName();
         if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
+            StringPlaceholders.Builder placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()));
+            NPCsHook.addCustomPlaceholders(this.entity, placeholders);
+
             if (customName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .add("name", customName).build());
+                placeholders.add("name", customName);
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", placeholders.build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .add("name", this.stackSettings.getDisplayName()).build());
+                placeholders.add("name", this.stackSettings.getDisplayName());
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", placeholders.build());
             }
 
             this.displayNameVisible = !Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean();
