@@ -152,7 +152,8 @@ public class EntityListener implements Listener {
 
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
         this.entityCacheManager.preCacheEntity(entity);
-        stackManager.createEntityStack(entity, true);
+        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled())
+            stackManager.createEntityStack(entity, true);
 
         SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
