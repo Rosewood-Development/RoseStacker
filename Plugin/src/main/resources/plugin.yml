@@ -12,14 +12,17 @@ softdepend:
   - CoreProtect
   - EliteMobs
   - EpicBosses
+  - InfernalMobs
   - Insights
   - Jobs
+  - LevelledMobs
   - LogBlock
   - mcMMO
   - MythicMobs
   - PlaceholderAPI
   - ProCosmetics
   - RoseLoot
+  - ShopGUIPlus
   - Shopkeepers
   - SimplePets
   - WildChests

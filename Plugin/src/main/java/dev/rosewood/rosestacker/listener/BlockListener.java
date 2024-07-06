@@ -20,6 +20,7 @@ import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -160,10 +161,8 @@ public class BlockListener implements Listener {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
 
-                if (stackedSpawner.getStackSize() <= 0) {
+                if (stackedSpawner.getStackSize() <= 0)
                     stackManager.removeSpawnerStack(stackedSpawner);
-                    return;
-                }
             } else {
                 event.setCancelled(true);
                 return;
@@ -225,7 +224,7 @@ public class BlockListener implements Listener {
 
     private void damageTool(Player player) {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
-        if (!itemStack.getType().name().endsWith("PICKAXE"))
+        if (player.getGameMode() == GameMode.CREATIVE || !itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
         ItemUtils.damageTool(itemStack);
@@ -312,15 +311,23 @@ public class BlockListener implements Listener {
         if (amount <= 0)
             return true;
 
-        if (Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean())
-            dropLocation = player.getLocation().add(0, 1, 0);
-
+        boolean dropToInventory = Setting.SPAWNER_DROP_TO_INVENTORY.getBoolean();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        List<ItemStack> itemsToDrop;
         if (Setting.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
-            ItemStack spawnerItem = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);
-            stackManager.dropItemStack(spawnerItem, amount, dropLocation, true);
+            ItemStack item = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);
+            item.setAmount(amount);
+            itemsToDrop = List.of(item);
         } else {
-            stackManager.preStackItems(List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, amount)), dropLocation);
+            itemsToDrop = List.of(ItemUtils.getSpawnerAsStackedItemStack(spawnerType, amount));
+        }
+
+        if (dropToInventory) {
+            Collection<ItemStack> remainingItems = player.getInventory().addItem(itemsToDrop.toArray(ItemStack[]::new)).values();
+            if (!remainingItems.isEmpty())
+                stackManager.preStackItems(remainingItems, player.getLocation().add(0, 1, 0));
+        } else {
+            stackManager.preStackItems(itemsToDrop, dropLocation);
         }
 
         return true;

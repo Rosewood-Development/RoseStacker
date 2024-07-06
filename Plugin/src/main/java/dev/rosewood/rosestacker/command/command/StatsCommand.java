@@ -1,9 +1,9 @@
 package dev.rosewood.rosestacker.command.command;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.command.framework.CommandContext;
-import dev.rosewood.rosegarden.command.framework.RoseCommand;
-import dev.rosewood.rosegarden.command.framework.RoseCommandWrapper;
+import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -12,10 +12,14 @@ import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 
-public class StatsCommand extends RoseCommand {
+public class StatsCommand extends BaseRoseCommand {
 
-    public StatsCommand(RosePlugin rosePlugin, RoseCommandWrapper parent) {
-        super(rosePlugin, parent);
+    private final RosePlugin rosePlugin;
+
+    public StatsCommand(RosePlugin rosePlugin) {
+        super(rosePlugin);
+
+        this.rosePlugin = rosePlugin;
     }
 
     @RoseExecutable
@@ -35,28 +39,21 @@ public class StatsCommand extends RoseCommand {
         int blockAmount = stackManager.getStackedBlocks().values().stream().mapToInt(Stack::getStackSize).sum();
         int spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToInt(Stack::getStackSize).sum();
 
-        localeManager.sendMessage(context.getSender(), "command-stats-header");
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.builder("stackAmount", entityStackAmount).add("total", StackerUtils.formatNumber(entityAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.builder("stackAmount", itemStackAmount).add("total", StackerUtils.formatNumber(itemAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.builder("stackAmount", blockStackAmount).add("total", StackerUtils.formatNumber(blockAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.builder("stackAmount", spawnerStackAmount).add("total", StackerUtils.formatNumber(spawnerAmount)).build());
-        localeManager.sendSimpleMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.of("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
+        localeManager.sendCommandMessage(context.getSender(), "command-stats-header");
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-entities", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(entityStackAmount),"total", StackerUtils.formatNumber(entityAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-items", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(itemStackAmount), "total", StackerUtils.formatNumber(itemAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-blocks", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(blockStackAmount), "total", StackerUtils.formatNumber(blockAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-stacked-spawners", StringPlaceholders.of("stackAmount", StackerUtils.formatNumber(spawnerStackAmount), "total", StackerUtils.formatNumber(spawnerAmount)));
+        localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-active-tasks", StringPlaceholders.of("amount", StackerUtils.formatNumber(ThreadUtils.getActiveThreads())));
     }
 
     @Override
-    protected String getDefaultName() {
-        return "stats";
-    }
-
-    @Override
-    public String getDescriptionKey() {
-        return "command-stats-description";
-    }
-
-    @Override
-    public String getRequiredPermission() {
-        return "rosestacker.stats";
+    protected CommandInfo createCommandInfo() {
+        return CommandInfo.builder("stats")
+                .descriptionKey("command-stats-description")
+                .permission("rosestacker.stats")
+                .build();
     }
 
 }

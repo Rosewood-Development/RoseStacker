@@ -18,7 +18,8 @@ public final class ReflectionUtils {
 
     /**
      * Gets a Class's field by name and makes it accessible.
-     * Does not work for remapped jars, see {@link #getFieldByPositionAndType}
+     * Does not work for remapped jars, see {@link #getFieldByPositionAndType}.
+     * Does not include parent class fields.
      *
      * @param clazz The class
      * @param name The name of the field
@@ -37,6 +38,7 @@ public final class ReflectionUtils {
 
     /**
      * Gets a Class's field by position and type and makes it accessible.
+     * Does not include parent class fields.
      *
      * @param clazz The class
      * @param index The index of the field, relative to all other fields with the same type
@@ -58,7 +60,7 @@ public final class ReflectionUtils {
 
     /**
      * Gets a Class's method by name and parameter types and makes it accessible.
-     * Does not work for remapped jars, see {@link #getMethodByPositionAndTypes}
+     * Does not work for remapped jars, see {@link #getMethodByPositionAndTypes}.
      *
      * @param clazz The class
      * @param name The name of the method
@@ -72,12 +74,19 @@ public final class ReflectionUtils {
             method.setAccessible(true);
             return method;
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to get method reflectively: [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
+            try {
+                Method method = clazz.getMethod(name, parameterTypes);
+                method.setAccessible(true);
+                return method;
+            } catch (ReflectiveOperationException e2) {
+                throw new IllegalStateException("Failed to get method reflectively: [" + clazz.getName() + ";" + Arrays.stream(parameterTypes).map(Class::getName).collect(Collectors.joining(";")) + "]");
+            }
         }
     }
 
     /**
      * Gets a Class's method by position and parameter types and makes it accessible.
+     * Does not include parent class methods.
      *
      * @param clazz The class
      * @param index The index of the method, relative to all other methods with the same parameter types

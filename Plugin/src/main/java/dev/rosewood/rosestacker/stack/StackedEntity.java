@@ -5,7 +5,6 @@ import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
-import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.hook.NPCsHook;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -166,7 +164,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.stackSettings.applyUnstackProperties(this.entity, oldEntity);
         stackManager.updateStackedEntityKey(oldEntity, this);
         entityCacheManager.preCacheEntity(this.entity);
-        this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().multiply(0.01))); // Nudge the entity to unstack it from the old entity
+        this.entity.setVelocity(this.entity.getVelocity().add(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01))); // Nudge the entity to unstack it from the old entity
 
         // Attempt to prevent adult entities from going into walls when a baby entity gets unstacked
         if (oldEntity instanceof Ageable ageable1 && this.entity instanceof Ageable ageable2 && !ageable1.isAdult() && ageable2.isAdult()) {
@@ -435,7 +433,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
                 int entityExperience;
                 if (callEvents) {
-                    EntityDeathEvent deathEvent = new AsyncEntityDeathEvent(entity, entityItems, desiredExp);
+                    EntityDeathEvent deathEvent = nmsHandler.createAsyncEntityDeathEvent(entity, entityItems, desiredExp);
                     Bukkit.getPluginManager().callEvent(deathEvent);
                     entityExperience = deathEvent.getDroppedExp();
                 } else {
@@ -517,12 +515,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         String customName = this.entity.getCustomName();
         if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
             String displayString;
+            StringPlaceholders.Builder placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()));
+            NPCsHook.addCustomPlaceholders(this.entity, placeholders);
+
             if (customName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .add("name", customName).build());
+                placeholders.add("name", customName);
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", placeholders.build());
             } else {
-                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()))
-                        .add("name", this.stackSettings.getDisplayName()).build());
+                placeholders.add("name", this.stackSettings.getDisplayName());
+                displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", placeholders.build());
             }
 
             this.displayNameVisible = !Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean();
@@ -609,6 +610,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void killEntireStack(@Nullable EntityDeathEvent event) {
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+            // Make sure the entity size is correct to allow drops
             if (this.entity.getType() == EntityType.SLIME) {
                 ((Slime) this.entity).setSize(1);
             } else if (this.entity.getType() == EntityType.MAGMA_CUBE) {
@@ -621,6 +623,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
                 event.getDrops().clear();
             }
+
+            if (this.entity.getType() == EntityType.MAGMA_CUBE)
+                ((MagmaCube) this.entity).setSize(1); // Make sure it doesn't split
         } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));

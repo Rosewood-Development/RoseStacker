@@ -1,24 +1,36 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
     id 'maven-publish'
+    id 'java'
+}
+
+jar {
+    manifest {
+        attributes("paperweight-mappings-namespace": "spigot")
+    }
 }
 
 allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.5.20'
+    version = '1.5.22'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        disableAutoTargetJvm()
     }
 
     repositories {
         mavenCentral()
+        mavenLocal()
 
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }
         maven { url = 'https://libraries.minecraft.net' }
         maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://repo.bg-software.com/repository/api/' }
         maven { url = 'https://bitbucket.org/kangarko/libraries/raw/master' }
@@ -29,6 +41,7 @@ allprojects {
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.fvdh.dev/releases' }
+        maven { url = 'https://nexus.neetgames.com/repository/maven-releases/' }
         maven { url = 'https://jitpack.io' }
 
         maven {
@@ -54,11 +67,12 @@ dependencies {
     implementation project(':NMS:v1_16_R3')
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
-    implementation project(path: ':NMS:v1_19_R2', configuration: 'remapped')
     implementation project(path: ':NMS:v1_19_R3', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R2', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R3', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_20_R4', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R1', configuration: 'remapped')
 }
 
 shadowJar {

@@ -97,8 +97,19 @@ public class StackSettingManager extends Manager {
                 try {
                     entityType = EntityType.valueOf(name);
                 } catch (Exception e) {
-                    invalidKeys.add(name);
-                    return;
+                    JsonObject entityObject = entry.getValue().getAsJsonObject();
+                    if (entityObject.has("alternate_id")) {
+                        String alternateId = entityObject.get("alternate_id").getAsString();
+                        try {
+                            entityType = EntityType.valueOf(alternateId);
+                        } catch (Exception e2) {
+                            invalidKeys.add(name);
+                            return;
+                        }
+                    } else {
+                        invalidKeys.add(name);
+                        return;
+                    }
                 }
 
                 EntityStackSettings entityStackSetting = new EntityStackSettings(entitySettingsConfiguration, entry.getValue().getAsJsonObject(), entityType);

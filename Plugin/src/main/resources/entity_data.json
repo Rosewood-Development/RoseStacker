@@ -9,6 +9,21 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
+  "ARMADILLO": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "ARMADILLO_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "block:coarse_dirt,red_sand,terracotta,white_terracotta,yellow_terracotta,orange_terracotta,red_terracotta,brown_terracotta,light_gray_terracotta",
+      "lightness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTE2NGVkMGUwZWY2OWIwY2U3ODE1ZTQzMDBiNDQxM2E0ODI4ZmNiMDA5MjkxODU0MzU0NWE0MThhNDhlMGMzYyJ9fX0=",
+    "breeding_materials": [
+      "SPIDER_EYE"
+    ],
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
+  },
   "AXOLOTL": {
     "is_swimming_mob": true,
     "is_flying_mob": false,
@@ -75,6 +90,32 @@
       "darkness"
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjc4ZWYyZTRjZjJjNDFhMmQxNGJmZGU5Y2FmZjEwMjE5ZjViMWJmNWIzNWE0OWViNTFjNjQ2Nzg4MmNiNWYwIn19fQ==",
+    "breeding_materials": [],
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
+  },
+  "BOGGED": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "BOGGED_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTNiOTAwM2JhMmQwNTU2MmM3NTExOWI4YTYyMTg1YzY3MTMwZTkyODJmN2FjYmFjNGJjMjgyNGMyMWViOTVkOSJ9fX0=",
+    "breeding_materials": [],
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
+  },
+  "BREEZE": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "BREEZE_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTI3NTcyOGFmN2U2YTI5Yzg4MTI1YjY3NWEzOWQ4OGFlOTkxOWJiNjFmZGMyMDAzMzdmZWQ2YWIwYzQ5ZDY1YyJ9fX0=",
     "breeding_materials": [],
     "spawn_category": "MONSTER",
     "standard_equipment": []
@@ -481,7 +522,8 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
-  "MUSHROOM_COW": {
+  "MOOSHROOM": {
+    "alternate_id": "MUSHROOM_COW",
     "is_swimming_mob": false,
     "is_flying_mob": false,
     "spawn_egg_material": "MOOSHROOM_SPAWN_EGG",
@@ -774,7 +816,8 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
-  "SNOWMAN": {
+  "SNOW_GOLEM": {
+    "alternate_id": "SNOWMAN",
     "is_swimming_mob": false,
     "is_flying_mob": false,
     "spawn_egg_material": "SNOW_GOLEM_SPAWN_EGG",

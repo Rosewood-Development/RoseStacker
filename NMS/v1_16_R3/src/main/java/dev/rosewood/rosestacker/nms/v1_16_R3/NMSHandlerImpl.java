@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.nms.v1_16_R3;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.DataWatcherWrapper;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_16_R3.entity.SoloEntityStrider;
+import dev.rosewood.rosestacker.nms.v1_16_R3.event.AsyncEntityDeathEventImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.spawner.StackedSpawnerTileImpl;
 import dev.rosewood.rosestacker.nms.v1_16_R3.storage.NBTEntityDataEntry;
@@ -87,7 +88,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
@@ -113,9 +116,6 @@ public class NMSHandlerImpl implements NMSHandler {
 
     private static Field field_AbstractVillager_offers; // Field to get the offers of an AbstractVillager, normally private
 
-    private static Field field_Level_spigotConfig;
-    private static Field field_SpigotWorldConfig_itemDespawnRate;
-
     static {
         try {
             method_WorldServer_registerEntity = ReflectionUtils.getMethodByName(WorldServer.class, "registerEntity", Entity.class);
@@ -130,7 +130,7 @@ public class NMSHandlerImpl implements NMSHandler {
             field_EntityInsentient_jumpController = ReflectionUtils.getFieldByName(EntityInsentient.class, "bi");
             field_EntityLiving_behaviorController = ReflectionUtils.getFieldByName(EntityLiving.class, "bg");
 
-            if (NMSAdapter.isPaper())
+            if (NMSUtil.isPaper())
                 field_Entity_spawnReason = ReflectionUtils.getFieldByPositionAndType(Entity.class, 0, SpawnReason.class);
             entityCounter = (AtomicInteger) ReflectionUtils.getFieldByName(Entity.class, "entityCount").get(null);
 
@@ -141,9 +141,6 @@ public class NMSHandlerImpl implements NMSHandler {
             field_SpawnerBlockEntity_spawner_offset = unsafe.objectFieldOffset(field_SpawnerBlockEntity_spawner);
 
             field_AbstractVillager_offers = ReflectionUtils.getFieldByName(EntityVillagerAbstract.class, "trades");
-
-            field_Level_spigotConfig = ReflectionUtils.getFieldByName(net.minecraft.server.v1_16_R3.World.class, "spigotConfig");
-            field_SpigotWorldConfig_itemDespawnRate = ReflectionUtils.getFieldByName(SpigotWorldConfig.class, "itemDespawnRate");
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
@@ -432,12 +429,12 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public int getItemDespawnRate(Item item) {
-        try {
-            return field_SpigotWorldConfig_itemDespawnRate.getInt(field_Level_spigotConfig.get(((CraftWorld) item.getWorld()).getHandle()));
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-            throw new IllegalStateException("Unable to get item despawn rate");
-        }
+        return ((CraftWorld) item.getWorld()).getHandle().spigotConfig.itemDespawnRate;
+    }
+
+    @Override
+    public EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
+        return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

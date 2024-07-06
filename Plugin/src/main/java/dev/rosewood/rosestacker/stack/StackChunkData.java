@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.block.Block;
 
 /**
@@ -10,6 +11,11 @@ public class StackChunkData {
 
     private final Map<Block, StackedSpawner> stackedSpawners;
     private final Map<Block, StackedBlock> stackedBlocks;
+
+    public StackChunkData() {
+        this.stackedSpawners = new ConcurrentHashMap<>();
+        this.stackedBlocks = new ConcurrentHashMap<>();
+    }
 
     public StackChunkData(Map<Block, StackedSpawner> stackedSpawners, Map<Block, StackedBlock> stackedBlocks) {
         this.stackedSpawners = stackedSpawners;

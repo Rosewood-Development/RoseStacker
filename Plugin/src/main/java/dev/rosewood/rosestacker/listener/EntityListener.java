@@ -19,6 +19,7 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -149,6 +151,10 @@ public class EntityListener implements Listener {
             return;
 
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
+        this.entityCacheManager.preCacheEntity(entity);
+        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled())
+            stackManager.createEntityStack(entity, true);
+
         SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = this.stackManager.getStackedSpawner(event.getSpawner().getBlock());
         if (stackedSpawner == null)
@@ -288,10 +294,18 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        if (!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof Creeper creeper))
             return;
 
-        this.handleEntityDeath(null, (LivingEntity) event.getEntity());
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(creeper);
+        if (stackedEntity == null)
+            return;
+
+        if (stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.CREEPER_EXPLODE_KILL_ENTIRE_STACK).getBoolean()) {
+            this.stackManager.removeEntityStack(stackedEntity);
+        } else {
+            this.handleEntityDeath(null, creeper);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -415,7 +429,7 @@ public class EntityListener implements Listener {
             event.setCancelled(true);
 
             // Handle mooshroom shearing
-            if (event.getEntityType() == EntityType.MUSHROOM_COW) {
+            if (event.getEntityType() == VersionUtils.MOOSHROOM) {
                 EntityStackSettings stackSettings = stackedEntity.getStackSettings();
                 int mushroomsDropped = 5;
                 if (stackSettings.getSettingValue(EntityStackSettings.MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK).getBoolean())

@@ -6,6 +6,7 @@ import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.AbstractConfigurationManager;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,7 +47,7 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         ENTITY_MULTIKILL_AMOUNT("global-entity-settings.multikill-options.multikill-amount", 5, "The amount of mobs in the stack to kill at a time", "If using the multikill enchantment, this will be the number of mobs killed per enchantment level"),
         ENTITY_MULTIKILL_PLAYER_ONLY("global-entity-settings.multikill-options.multikill-player-only", false, "Should the multikill only apply when done directly by a player?"),
         ENTITY_MULTIKILL_ENCHANTMENT_ENABLED("global-entity-settings.multikill-options.multikill-enchantment-enabled", false, "Should an enchantment on the tool be required to be able to use the multikill features?"),
-        ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", Enchantment.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
+        ENTITY_MULTIKILL_ENCHANTMENT_TYPE("global-entity-settings.multikill-options.multikill-enchantment-type", VersionUtils.SWEEPING_EDGE.getKey().getKey(), "The enchantment required to be able to use the multikill features", "Only used if the above setting is enabled"),
         ENTITY_KILL_TRANSFER_VELOCITY("global-entity-settings.kill-transfer-velocity", true, "Should knockback be transferred to the next entity in the stack?"),
         ENTITY_KILL_TRANSFER_FIRE("global-entity-settings.kill-transfer-fire", true, "Should fire be transferred to the next entity in the stack?"),
         ENTITY_KILL_DELAY_NEXT_SPAWN("global-entity-settings.kill-delay-next-spawn", false, "Should the next entity in the stack be delayed from spawning by one tick after the previous mob dies?", "Enabling this can prevent the newly spawned entity from taking the same damage as the previous one.", "May result in not being able to kill the entities as fast"),
@@ -222,7 +223,12 @@ public class ConfigurationManager extends AbstractConfigurationManager {
         MISC_CLEARLAG_CLEAR_ITEMS("misc-settings.clearlag-clear-items", false, "If Clearlag is installed, should we clear stacked items?"),
         MISC_CLEARALL_REMOVE_SINGLE("misc-settings.clearall-remove-single", false, "Should single mobs be removed with `/rs clearall`?", "This will also affect the clearlag-clear-entities setting above"),
         MISC_MYTHICMOBS_ALLOW_STACKING("misc-settings.mythicmobs-allow-stacking", false, "Should mobs owned by MythicMobs be allowed to stack?", "This is recommended to keep set to false unless you specifically only change mob attributes"),
-        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break."),
+        MISC_INFERNALMOBS_ALLOW_STACKING("misc-settings.infernalmobs-allow-stacking", false, "Should mobs from InfernalMobs be allowed to stack?", "Recommended to keep set to false to not interfere with InfernalMobs"),
+        MISC_LEVELLEDMOBS_ALLOW_STACKING("misc-settings.levelledmobs-allow-stacking", false, "Should mobs from LevelledMobs be allowed to stack?", "Recommended to keep set to false to not interfere with LevelledMobs"),
+        MISC_SPAWNER_PERSISTENT_COMPATIBILITY("misc-settings.spawner-persistent-compatibility", true, "Some plugins like Jobs, mcMMO, and RoseLoot store special data for spawner mobs.", "Disabling this will cause the functionality within those plugins to break.", "The individual plugin hooks can be configured separately below"),
+        MISC_SPAWNER_JOBS_COMPATIBILITY("misc-settings.spawner-jobs-compatibility", true, "Disabling this will make Jobs no longer recognize spawner entities as spawned from a spawner"),
+        MISC_SPAWNER_MCMMO_COMPATIBILITY("misc-settings.spawner-mcmmo-compatibility", true, "Disabling this will make mcMMO no longer recognize spawner entities as spawned from a spawner"),
+        MISC_SPAWNER_ROSELOOT_COMPATIBILITY("misc-settings.spawner-roseloot-compatibility", true, "Disabling this will make RoseLoot no longer recognize spawner entities as spawned from a spawner"),
         MISC_STACK_STATISTICS("misc-settings.stack-statistics", true, "Should statistics be accurately tracked for stacked entities?", "This can cause issues if you expect players to kill multiple billion mobs"),
         MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST("misc-settings.spawner-lore-display-global-lore-first", true, "Should global lore be displayed before spawner type lore?"),
         ;
