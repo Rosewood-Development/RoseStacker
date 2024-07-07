@@ -24,12 +24,12 @@ public class EntitiesLoadListener implements Listener {
             if (entity instanceof LivingEntity)
                 PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-        this.stackManager.loadChunkEntities(event.getChunk(), event.getEntities());
+        this.stackManager.loadChunkEntities(event.getEntities());
     }
 
     @EventHandler
     public void onEntitiesUnload(EntitiesUnloadEvent event) {
-        this.stackManager.saveChunkEntities(event.getChunk(), event.getEntities(), true);
+        this.stackManager.saveChunkEntities(event.getEntities(), true);
     }
 
 }

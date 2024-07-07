@@ -15,7 +15,6 @@ import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -346,10 +345,13 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public void loadChunkEntities(Chunk chunk, List<Entity> entities) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+    public void loadChunkEntities(List<Entity> entities) {
+        if (entities.isEmpty())
+            return;
+
+        StackingThread stackingThread = this.getStackingThread(entities.get(0).getWorld());
         if (stackingThread != null)
-            stackingThread.loadChunkEntities(chunk, entities);
+            stackingThread.loadChunkEntities(entities);
     }
 
     @Override
@@ -360,22 +362,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
-    public void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored) {
-        StackingThread stackingThread = this.getStackingThread(chunk.getWorld());
+    public void saveChunkEntities(List<Entity> entities, boolean clearStored) {
+        if (entities.isEmpty())
+            return;
+
+        StackingThread stackingThread = this.getStackingThread(entities.get(0).getWorld());
         if (stackingThread != null)
-            stackingThread.saveChunkEntities(chunk, entities, clearStored);
+            stackingThread.saveChunkEntities(entities, clearStored);
     }
 
-    /**
-     * Saves all data in loaded chunks
-     */
+    @Override
     public void saveAllData(boolean clearStored) {
-        for (StackingThread stackingThread : this.stackingThreads.values()) {
-            for (Chunk chunk : stackingThread.getTargetWorld().getLoadedChunks()) {
-                stackingThread.saveChunkBlocks(chunk, clearStored);
-                stackingThread.saveChunkEntities(chunk, Arrays.asList(chunk.getEntities()), clearStored);
-            }
-        }
+        for (StackingThread stackingThread : this.stackingThreads.values())
+            stackingThread.saveAllData(clearStored);
     }
 
     public boolean isEntityStackingEnabled() {

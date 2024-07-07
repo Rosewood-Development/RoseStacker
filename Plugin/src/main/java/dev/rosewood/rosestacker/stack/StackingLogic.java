@@ -14,6 +14,8 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Common logic shared between {@link StackManager} and {@link StackingThread}
@@ -23,21 +25,25 @@ public interface StackingLogic {
     /**
      * @return a map of all loaded stacked entities
      */
+    @NotNull
     Map<UUID, StackedEntity> getStackedEntities();
 
     /**
      * @return a map of all loaded stacked items
      */
+    @NotNull
     Map<UUID, StackedItem> getStackedItems();
 
     /**
      * @return a map of all loaded stacked blocks
      */
+    @NotNull
     Map<Block, StackedBlock> getStackedBlocks();
 
     /**
      * @return a map of all loaded stacked spawners
      */
+    @NotNull
     Map<Block, StackedSpawner> getStackedSpawners();
 
     /**
@@ -46,6 +52,7 @@ public interface StackingLogic {
      * @param livingEntity the target entity
      * @return a StackedEntity, or null if not found
      */
+    @Nullable
     StackedEntity getStackedEntity(LivingEntity livingEntity);
 
     /**
@@ -54,6 +61,7 @@ public interface StackingLogic {
      * @param item the target item
      * @return a StackedItem, or null if not found
      */
+    @Nullable
     StackedItem getStackedItem(Item item);
 
     /**
@@ -62,6 +70,7 @@ public interface StackingLogic {
      * @param block the target block
      * @return a StackedBlock, or null if not found
      */
+    @Nullable
     StackedBlock getStackedBlock(Block block);
 
     /**
@@ -70,6 +79,7 @@ public interface StackingLogic {
      * @param block the target block
      * @return a StackedBlock, or null if not found
      */
+    @Nullable
     StackedSpawner getStackedSpawner(Block block);
 
     /**
@@ -159,8 +169,9 @@ public interface StackingLogic {
      * Splits the top entity off the StackedEntity
      *
      * @param stackedEntity the StackedEntity to split
-     * @return the new StackedEntity that was created
+     * @return the new StackedEntity that was created, or null if one wasn't created
      */
+    @Nullable
     StackedEntity splitEntityStack(StackedEntity stackedEntity);
 
     /**
@@ -168,8 +179,9 @@ public interface StackingLogic {
      *
      * @param stackedItem the StackedItem to split
      * @param newSize the amount to split off
-     * @return the new StackedItem that was created
+     * @return the new StackedItem that was created, or null if one wasn't created
      */
+    @Nullable
     StackedItem splitItemStack(StackedItem stackedItem, int newSize);
 
     /**
@@ -179,6 +191,7 @@ public interface StackingLogic {
      * @param tryStack true to try to stack the entity instantly, otherwise false
      * @return the newly created stack, or null if one wasn't created
      */
+    @Nullable
     StackedEntity createEntityStack(LivingEntity livingEntity, boolean tryStack);
 
     /**
@@ -188,6 +201,7 @@ public interface StackingLogic {
      * @param tryStack true to try to stack the item instantly, otherwise false
      * @return the newly created stack, or null if one wasn't created
      */
+    @Nullable
     StackedItem createItemStack(Item item, boolean tryStack);
 
     /**
@@ -197,6 +211,7 @@ public interface StackingLogic {
      * @param amount the size of the stack being created
      * @return the newly created stack, or null if one wasn't created
      */
+    @Nullable
     StackedBlock createBlockStack(Block block, int amount);
 
     /**
@@ -207,6 +222,7 @@ public interface StackingLogic {
      * @param placedByPlayer true for if the spawner was placed by a player, false otherwise
      * @return the newly created stack, or null if one wasn't created
      */
+    @Nullable
     StackedSpawner createSpawnerStack(Block block, int amount, boolean placedByPlayer);
 
     /**
@@ -270,6 +286,7 @@ public interface StackingLogic {
      * @param dropNaturally true to drop naturally, false otherwise
      * @return The newly created StackedItem, may be null if item stacking is disabled
      */
+    @Nullable
     StackedItem dropItemStack(ItemStack itemStack, int amount, Location location, boolean dropNaturally);
 
     /**
@@ -282,10 +299,9 @@ public interface StackingLogic {
     /**
      * Loads stacks for entities and items for a chunk
      *
-     * @param chunk The chunk to load data in
      * @param entities The entities that are to be loaded
      */
-    void loadChunkEntities(Chunk chunk, List<Entity> entities);
+    void loadChunkEntities(List<Entity> entities);
 
     /**
      * Saves stacks for blocks and spawners for a chunk
@@ -298,10 +314,16 @@ public interface StackingLogic {
     /**
      * Saves stacks for entities and items for a chunk
      *
-     * @param chunk The chunk to save data to
-     * @param entities The entities that are to be saved
+     * @param entities The entities that are to be saved, they must all be in the same chunk
      * @param clearStored If the data should be cleared from cache
      */
-    void saveChunkEntities(Chunk chunk, List<Entity> entities, boolean clearStored);
+    void saveChunkEntities(List<Entity> entities, boolean clearStored);
+
+    /**
+     * Saves all stack data in loaded chunks
+     *
+     * @param clearStored If the data should be cleared from cache
+     */
+    void saveAllData(boolean clearStored);
 
 }
