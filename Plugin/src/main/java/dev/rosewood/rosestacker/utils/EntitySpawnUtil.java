@@ -1,10 +1,8 @@
 package dev.rosewood.rosestacker.utils;
 
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 import org.bukkit.Location;
-import org.bukkit.RegionAccessor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
@@ -18,13 +16,9 @@ public class EntitySpawnUtil {
 
     private static Method method;
     static {
-        if (NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() < 2)) {
-            try {
-                method = World.class.getMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-        }
+        try {
+            method = World.class.getMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
+        } catch (ReflectiveOperationException ignored) { }
     }
 
     public static <T extends Entity> T spawn(Location location, Class<T> clazz, Consumer<T> function) {
