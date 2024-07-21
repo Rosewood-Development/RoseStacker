@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -81,7 +81,7 @@ public class InteractListener implements Listener {
             }
 
             boolean consumesItems = event.getPlayer().getGameMode() != GameMode.CREATIVE;
-            boolean consumesMultipleItems = Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean();
+            boolean consumesMultipleItems = SettingKey.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.get();
             if (consumesMultipleItems
                     && item.getAmount() < stackedSpawner.getStackSize()
                     && consumesItems) {

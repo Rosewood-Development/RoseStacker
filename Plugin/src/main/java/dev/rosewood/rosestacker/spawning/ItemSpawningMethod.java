@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.spawning;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -47,7 +47,7 @@ public class ItemSpawningMethod implements SpawningMethod {
         spawnRequirements.removeAll(perSpawnConditions);
 
         Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());
-        if (Setting.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.getBoolean() && !stackedSpawner.isPlacedByPlayer())
+        if (SettingKey.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.get() && !stackedSpawner.isPlacedByPlayer())
             invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
 
         boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
@@ -56,7 +56,7 @@ public class ItemSpawningMethod implements SpawningMethod {
 
         // Spawn the items
         int spawnAmount;
-        if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
+        if (SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.get()) {
             if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
                 int spawnerSpawnCount = Math.max(spawnerTile.getSpawnCount(), 0);
                 spawnAmount = StackerUtils.randomInRange(stackedSpawner.getStackSize(), spawnerSpawnCount);
@@ -72,9 +72,9 @@ public class ItemSpawningMethod implements SpawningMethod {
             int spawnRange = spawnerTile.getSpawnRange();
             for (int i = 0; i < spawnAmount; i++) {
                 int attempts = 0;
-                while (attempts < Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt()) {
+                while (attempts < SettingKey.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.get()) {
                     int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                    int yOffset = !Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                    int yOffset = !SettingKey.SPAWNER_USE_VERTICAL_SPAWN_RANGE.get() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                     int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
                     Location spawnLocation = stackedSpawner.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);

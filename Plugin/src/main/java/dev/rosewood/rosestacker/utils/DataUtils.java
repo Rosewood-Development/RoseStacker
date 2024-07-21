@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
@@ -77,7 +77,7 @@ public final class DataUtils {
         PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
         byte[] data = null;
 
-        int maxSaveAmount = ConfigurationManager.Setting.ENTITY_SAVE_MAX_STACK_SIZE.getInt();
+        int maxSaveAmount = SettingKey.ENTITY_SAVE_MAX_STACK_SIZE.get();
         if (maxSaveAmount <= 0)
             maxSaveAmount = Integer.MAX_VALUE;
 

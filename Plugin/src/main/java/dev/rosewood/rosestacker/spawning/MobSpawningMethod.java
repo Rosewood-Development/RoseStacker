@@ -1,10 +1,10 @@
 package dev.rosewood.rosestacker.spawning;
 
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.PreStackedSpawnerSpawnEvent;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -68,7 +68,7 @@ public class MobSpawningMethod implements SpawningMethod {
         spawnRequirements.removeAll(perSpawnConditions);
 
         Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());
-        if (Setting.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.getBoolean() && !stackedSpawner.isPlacedByPlayer())
+        if (SettingKey.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.get() && !stackedSpawner.isPlacedByPlayer())
             invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
 
         boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
@@ -77,7 +77,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         // Spawn the mobs
         int spawnAmount;
-        if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
+        if (SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.get()) {
             if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
                 int spawnerSpawnCount = Math.max(spawnerTile.getSpawnCount(), 0);
                 spawnAmount = StackerUtils.randomInRange(stackedSpawner.getStackSize(), spawnerSpawnCount);
@@ -100,15 +100,15 @@ public class MobSpawningMethod implements SpawningMethod {
             Set<Location> invalidLocations = new HashSet<>();
             int spawnRange = spawnerTile.getSpawnRange();
             int attempts = 0;
-            int maxFailedSpawnAttempts = Setting.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.getInt() * spawnRange * spawnRange;
+            int maxFailedSpawnAttempts = SettingKey.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.get() * spawnRange * spawnRange;
             int desiredLocations = Math.max(2, stackSettings.getSpawnCountStackSizeMultiplier());
-            boolean useNearbyEntitiesForStacking = stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled() && Setting.SPAWNER_SPAWN_INTO_NEARBY_STACKS.getBoolean();
+            boolean useNearbyEntitiesForStacking = stackManager.isEntityStackingEnabled() && entityStackSettings.isStackingEnabled() && SettingKey.SPAWNER_SPAWN_INTO_NEARBY_STACKS.get();
             if (!useNearbyEntitiesForStacking)
                 desiredLocations *= 4;
 
             while (attempts <= maxFailedSpawnAttempts) {
                 int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
-                int yOffset = !Setting.SPAWNER_USE_VERTICAL_SPAWN_RANGE.getBoolean() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
+                int yOffset = !SettingKey.SPAWNER_USE_VERTICAL_SPAWN_RANGE.get() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                 int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
                 Location spawnLocation = stackedSpawner.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
@@ -210,7 +210,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
+                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
                 entityStackSettings.applySpawnerSpawnedProperties(entity);
 
                 SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
@@ -313,7 +313,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 if (spawnerSpawnEvent.isCancelled())
                     continue;
 
-                nmsHandler.spawnExistingEntity(entity, CreatureSpawnEvent.SpawnReason.SPAWNER, Setting.SPAWNER_BYPASS_REGION_SPAWNING_RULES.getBoolean());
+                nmsHandler.spawnExistingEntity(entity, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
                 entity.setVelocity(Vector.getRandom().multiply(0.01));
                 stackManager.addEntityStack(stackedEntity);
             }
@@ -335,7 +335,7 @@ public class MobSpawningMethod implements SpawningMethod {
         LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
         SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
-        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
+        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
             PersistentDataUtils.removeEntityAi(entity);
 
         entityStackSettings.applySpawnerSpawnedProperties(entity);

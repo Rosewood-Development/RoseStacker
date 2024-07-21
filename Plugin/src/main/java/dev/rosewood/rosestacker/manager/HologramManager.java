@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
@@ -39,9 +39,9 @@ public class HologramManager extends Manager implements Listener {
 
     @Override
     public void reload() {
-        this.watcherTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateWatchers, 0L, Setting.HOLOGRAM_UPDATE_FREQUENCY.getLong());
-        this.renderDistanceSqrd = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble() * Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE.getDouble();
-        this.hideThroughWalls = Setting.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.getBoolean();
+        this.watcherTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateWatchers, 0L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+        this.renderDistanceSqrd = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get() * SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get();
+        this.hideThroughWalls = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
     }
 
     @Override

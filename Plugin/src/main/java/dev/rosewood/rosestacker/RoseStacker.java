@@ -1,8 +1,10 @@
 package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.config.RoseSetting;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.hook.RoseStackerPlaceholderExpansion;
 import dev.rosewood.rosestacker.hook.ShopGuiPlusHook;
 import dev.rosewood.rosestacker.hook.WildChestsStackerProvider;
@@ -19,7 +21,6 @@ import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.listener.paper.PaperPreCreatureSpawnListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -47,7 +48,7 @@ public class RoseStacker extends RosePlugin {
     }
 
     public RoseStacker() {
-        super(82729, 5517, ConfigurationManager.class, null, LocaleManager.class, CommandManager.class);
+        super(82729, 5517, null, LocaleManager.class, CommandManager.class);
 
         instance = this;
     }
@@ -128,6 +129,23 @@ public class RoseStacker extends RosePlugin {
                 EntityCacheManager.class,
                 StackManager.class
         );
+    }
+
+    @Override
+    protected List<RoseSetting<?>> getRoseConfigSettings() {
+        return SettingKey.getKeys();
+    }
+
+    @Override
+    protected String[] getRoseConfigHeader() {
+        return new String[]{
+                "     __________                      _________ __                 __                 ",
+                "     \\______   \\ ____  ______ ____  /   _____//  |______    ____ |  | __ ___________ ",
+                "      |       _//  _ \\/  ___// __ \\ \\_____  \\\\   __\\__  \\ _/ ___\\|  |/ // __ \\_  __ \\",
+                "      |    |   (  <_> )___ \\\\  ___/ /        \\|  |  / __ \\\\  \\___|    <\\  ___/|  | \\/",
+                "      |____|_  /\\____/____  >\\___  >_______  /|__| (____  /\\___  >__|_ \\\\___  >__|   ",
+                "             \\/           \\/     \\/        \\/           \\/     \\/     \\/    \\/       "
+        };
     }
 
 }

@@ -2,9 +2,9 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedBlockGui;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -87,7 +87,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
 
     @Override
     public void updateDisplay() {
-        if (!Setting.BLOCK_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
+        if (!SettingKey.BLOCK_DISPLAY_TAGS.get() || this.stackSettings == null)
             return;
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
@@ -106,7 +106,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     }
 
     public Location getHologramLocation() {
-        return this.block.getLocation().add(0.5, Setting.BLOCK_DISPLAY_TAGS_HEIGHT_OFFSET.getDouble(), 0.5);
+        return this.block.getLocation().add(0.5, SettingKey.BLOCK_DISPLAY_TAGS_HEIGHT_OFFSET.get(), 0.5);
     }
 
     @Override

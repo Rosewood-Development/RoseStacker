@@ -4,7 +4,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import org.bukkit.Location;
 
 /**
@@ -18,7 +18,7 @@ public class WorldGuardFlagHook {
      * UNCHECKED! Call {@link WorldGuardHook#registerFlag}
      */
     public static void registerFlag() {
-        if (!ConfigurationManager.Setting.MISC_WORLDGUARD_REGION.getBoolean())
+        if (!SettingKey.MISC_WORLDGUARD_REGION.get())
             return;
 
         flag = new StateFlag("rosestacker", true);
@@ -31,7 +31,7 @@ public class WorldGuardFlagHook {
      * @param location The Location to test
      */
     public static boolean testLocation(Location location) {
-        if (!ConfigurationManager.Setting.MISC_WORLDGUARD_REGION.getBoolean())
+        if (!SettingKey.MISC_WORLDGUARD_REGION.get())
             return true;
 
         RegionQuery regionQuery = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();

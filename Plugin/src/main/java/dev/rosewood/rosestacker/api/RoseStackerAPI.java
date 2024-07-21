@@ -2,9 +2,9 @@ package dev.rosewood.rosestacker.api;
 
 import com.google.common.base.Preconditions;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -81,7 +81,7 @@ public final class RoseStackerAPI {
      * @return true if {@link EntityStackMultipleDeathEvent} is called
      */
     public boolean isEntityStackMultipleDeathEventCalled() {
-        return !Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
+        return !SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get();
     }
 
     //region Stack Manager

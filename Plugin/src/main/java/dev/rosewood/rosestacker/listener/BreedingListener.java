@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
@@ -50,12 +50,12 @@ public class BreedingListener implements Listener {
         if (breedingItem == null || !stackSettings.getEntityTypeData().isValidBreedingMaterial(breedingItem.getType()) || (player.getGameMode() != GameMode.CREATIVE && breedingItem.getAmount() < 2))
             return;
 
-        if (PersistentDataUtils.isAiDisabled(animal) && Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.getBoolean()) {
+        if (PersistentDataUtils.isAiDisabled(animal) && SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_BREEDING.get()) {
             event.setCancelled(true);
             return;
         }
 
-        if (!Setting.ENTITY_CUMULATIVE_BREEDING.getBoolean())
+        if (!SettingKey.ENTITY_CUMULATIVE_BREEDING.get())
             return;
 
         int stackSize = stackedEntity.getStackSize();

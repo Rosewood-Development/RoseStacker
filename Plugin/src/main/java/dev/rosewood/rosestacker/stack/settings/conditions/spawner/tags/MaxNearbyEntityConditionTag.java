@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags;
 
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -43,7 +43,7 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
                 detectionRange,
                 entity -> entityTypes.contains(entity.getType()));
 
-        if (Setting.SPAWNER_MAX_NEARBY_ENTITIES_INCLUDE_STACKS.getBoolean()) {
+        if (SettingKey.SPAWNER_MAX_NEARBY_ENTITIES_INCLUDE_STACKS.get()) {
             return nearbyEntities.stream().mapToInt(x -> {
                 StackedEntity stackedEntity = this.stackManager.getStackedEntity((LivingEntity) x);
                 return stackedEntity == null ? 1 : stackedEntity.getStackSize();

@@ -6,10 +6,10 @@ import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.hook.NPCsHook;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -272,14 +272,14 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     private void calculateAndDropPartialStackLoot(Supplier<EntityDrops> calculator) {
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
-        boolean async = Setting.ENTITY_DEATH_EVENT_RUN_ASYNC.getBoolean();
+        boolean async = SettingKey.ENTITY_DEATH_EVENT_RUN_ASYNC.get();
         Runnable mainTask = () -> {
             EntityDrops drops = calculator.get();
 
             Runnable finishTask = () -> {
                 RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), this.entity.getLocation(), false);
                 int finalDroppedExp = drops.getExperience();
-                if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean() && finalDroppedExp > 0)
+                if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get() && finalDroppedExp > 0)
                     StackerUtils.dropExperience(this.entity.getLocation(), finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
             };
 
@@ -360,9 +360,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         double multiplier = 1;
         if (useCount) {
-            int threshold = Setting.ENTITY_LOOT_APPROXIMATION_THRESHOLD.getInt();
-            int approximationAmount = Setting.ENTITY_LOOT_APPROXIMATION_AMOUNT.getInt();
-            if (Setting.ENTITY_LOOT_APPROXIMATION_ENABLED.getBoolean() && count > threshold) {
+            int threshold = SettingKey.ENTITY_LOOT_APPROXIMATION_THRESHOLD.get();
+            int approximationAmount = SettingKey.ENTITY_LOOT_APPROXIMATION_AMOUNT.get();
+            if (SettingKey.ENTITY_LOOT_APPROXIMATION_ENABLED.get() && count > threshold) {
                 int offset = internalEntities.size() + (mainEntityDrops != null ? 1 : 0);
                 this.stackedEntityDataStorage.forEachCapped(approximationAmount - offset, internalEntities::add);
                 multiplier = count / (double) approximationAmount;
@@ -502,7 +502,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.displayName != null)
             return this.displayName;
 
-        if (!Setting.ENTITY_DISPLAY_TAGS.getBoolean() || this.stackSettings == null || this.entity == null) {
+        if (!SettingKey.ENTITY_DISPLAY_TAGS.get() || this.stackSettings == null || this.entity == null) {
             this.displayNameVisible = false;
             return this.displayName = this.entity == null ? null : this.entity.getCustomName();
         }
@@ -513,12 +513,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         String customName = this.entity.getCustomName();
-        if (this.getStackSize() > 1 || Setting.ENTITY_DISPLAY_TAGS_SINGLE.getBoolean()) {
+        if (this.getStackSize() > 1 || SettingKey.ENTITY_DISPLAY_TAGS_SINGLE.get()) {
             String displayString;
             StringPlaceholders.Builder placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()));
             NPCsHook.addCustomPlaceholders(this.entity, placeholders);
 
-            if (customName != null && Setting.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.getBoolean()) {
+            if (customName != null && SettingKey.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.get()) {
                 placeholders.add("name", customName);
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display-custom-name", placeholders.build());
             } else {
@@ -526,7 +526,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("entity-stack-display", placeholders.build());
             }
 
-            this.displayNameVisible = !Setting.ENTITY_DISPLAY_TAGS_HOVER.getBoolean();
+            this.displayNameVisible = !SettingKey.ENTITY_DISPLAY_TAGS_HOVER.get();
             return this.displayName = displayString;
         } else if (this.getStackSize() == 1 && customName != null) {
             this.displayNameVisible = false;
@@ -569,7 +569,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this == stack2)
             return 0;
 
-        if (Setting.ENTITY_STACK_FLYING_DOWNWARDS.getBoolean() && this.stackSettings.getEntityTypeData().flyingMob())
+        if (SettingKey.ENTITY_STACK_FLYING_DOWNWARDS.get() && this.stackSettings.getEntityTypeData().flyingMob())
             return entity1.getLocation().getY() < entity2.getLocation().getY() ? 3 : -3;
 
         if (this.getStackSize() == stack2.getStackSize())
@@ -590,9 +590,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             overrideKiller = this.entity.getKiller();
 
         return this.stackSettings.shouldKillEntireStackOnDeath()
-                || (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.getBoolean() && PersistentDataUtils.isAiDisabled(this.entity))
-                || (lastDamageCause != null && Setting.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))
-                || (overrideKiller != null && Setting.ENTITY_KILL_ENTIRE_STACK_ON_DEATH_PERMISSION.getBoolean() && overrideKiller.hasPermission("rosestacker.killentirestack"));
+                || (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_KILL_ENTIRE_STACK_ON_DEATH.get() && PersistentDataUtils.isAiDisabled(this.entity))
+                || (lastDamageCause != null && SettingKey.ENTITY_KILL_ENTIRE_STACK_CONDITIONS.get().stream().anyMatch(x -> x.equalsIgnoreCase(lastDamageCause.getCause().name())))
+                || (overrideKiller != null && SettingKey.ENTITY_KILL_ENTIRE_STACK_ON_DEATH_PERMISSION.get() && overrideKiller.hasPermission("rosestacker.killentirestack"));
     }
 
     /**
@@ -609,7 +609,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public void killEntireStack(@Nullable EntityDeathEvent event) {
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
-        if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+        if (SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()) {
             // Make sure the entity size is correct to allow drops
             if (this.entity.getType() == EntityType.SLIME) {
                 ((Slime) this.entity).setSize(1);
@@ -626,7 +626,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
             if (this.entity.getType() == EntityType.MAGMA_CUBE)
                 ((MagmaCube) this.entity).setSize(1); // Make sure it doesn't split
-        } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
+        } else if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
@@ -635,7 +635,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         Player killer = this.entity.getKiller();
-        if (killer != null && this.getStackSize() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+        if (killer != null && this.getStackSize() - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
 
         RoseStacker.getInstance().getManager(StackManager.class).removeEntityStack(this);
@@ -662,7 +662,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
-        if (Setting.ENTITY_DROP_ACCURATE_ITEMS.getBoolean()) {
+        if (SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()) {
             List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
             if (event == null) {
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
@@ -670,7 +670,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(event.getDrops()), experience);
                 event.getDrops().clear();
             }
-        } else if (Setting.ENTITY_DROP_ACCURATE_EXP.getBoolean()) {
+        } else if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get()) {
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
@@ -687,7 +687,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             slime.setSize(1);
 
         Player killer = originalEntity.getKiller();
-        if (killer != null && amount - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+        if (killer != null && amount - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), amount - 1);
     }
 

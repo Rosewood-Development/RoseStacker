@@ -13,10 +13,10 @@ import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.gui.GuiHelper.GuiStringHelper;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -89,7 +89,7 @@ public class StackedBlockGui {
         for (int i = 17; i <= 44; i += 9) borderSlots.add(i);
         for (int i = 46; i <= 52; i += 2) borderSlots.add(i);
         borderSlots.addAll(List.of(45, 53));
-        ItemStack borderItem = new ItemStack(GuiHelper.parseMaterial(Setting.BLOCK_GUI_BORDER_MATERIAL.getString()));
+        ItemStack borderItem = new ItemStack(GuiHelper.parseMaterial(SettingKey.BLOCK_GUI_BORDER_MATERIAL.get()));
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
             itemMeta.setDisplayName(" ");
@@ -280,13 +280,13 @@ public class StackedBlockGui {
                 return;
 
             List<ItemStack> itemsToDrop;
-            if (Setting.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.getBoolean()) {
+            if (SettingKey.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.get()) {
                 itemsToDrop = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, blockUnstackEvent.getDecreaseAmount());
             } else {
                 itemsToDrop = List.of(ItemUtils.getBlockAsStackedItemStack(this.stackType, blockUnstackEvent.getDecreaseAmount()));
             }
 
-            if (Setting.BLOCK_DROP_TO_INVENTORY.getBoolean()) {
+            if (SettingKey.BLOCK_DROP_TO_INVENTORY.get()) {
                 ItemUtils.dropItemsToPlayer(player, itemsToDrop);
             } else {
                 stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation());

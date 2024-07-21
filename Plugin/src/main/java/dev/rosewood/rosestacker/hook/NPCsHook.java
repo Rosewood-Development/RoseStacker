@@ -4,7 +4,7 @@ import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.citizensnpcs.api.CitizensAPI;
@@ -164,7 +164,7 @@ public class NPCsHook {
         if (!npc && shopkeepersEnabled() && ShopkeepersAPI.isEnabled())
             npc = ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(entity);
 
-        if (!npc && mythicMobsEnabled() && !Setting.MISC_MYTHICMOBS_ALLOW_STACKING.getBoolean())
+        if (!npc && mythicMobsEnabled() && !SettingKey.MISC_MYTHICMOBS_ALLOW_STACKING.get())
             npc = MythicBukkit.inst().getAPIHelper().isMythicMob(entity);
 
         if (!npc && epicBossesEnabled())
@@ -179,7 +179,7 @@ public class NPCsHook {
         if (!npc && proCosmeticsEnabled())
             npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
 
-        if (!npc && infernalMobsEnabled() && !Setting.MISC_INFERNALMOBS_ALLOW_STACKING.getBoolean()) {
+        if (!npc && infernalMobsEnabled() && !SettingKey.MISC_INFERNALMOBS_ALLOW_STACKING.get()) {
             infernal_mobs plugin = ((infernal_mobs) Bukkit.getPluginManager().getPlugin("InfernalMobs"));
             npc = plugin != null && plugin.idSearch(entity.getUniqueId()) >= 0;
         }
@@ -187,7 +187,7 @@ public class NPCsHook {
         if (!npc && simplePetsEnabled())
             npc = SimplePets.isPetEntity(entity);
 
-        if (!npc && levelledMobsEnabled() && !Setting.MISC_LEVELLEDMOBS_ALLOW_STACKING.getBoolean())
+        if (!npc && levelledMobsEnabled() && !SettingKey.MISC_LEVELLEDMOBS_ALLOW_STACKING.get())
             npc = entity.getPersistentDataContainer().has(LEVELLEDMOBS_KEY, PersistentDataType.INTEGER);
 
         return npc;

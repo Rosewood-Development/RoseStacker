@@ -5,7 +5,7 @@ import com.gmail.nossr50.util.MobMetadataUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.roseloot.util.LootUtils;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import org.bukkit.Bukkit;
@@ -68,32 +68,32 @@ public class SpawnerFlagPersistenceHook {
      * @param entity The LivingEntity to flag
      */
     public static void flagSpawnerSpawned(LivingEntity entity) {
-        if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
+        if (!SettingKey.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.get())
             return;
 
-        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
+        if (SettingKey.MISC_SPAWNER_MCMMO_COMPATIBILITY.get() && mcMMOEnabled())
             MobMetadataUtils.flagMetadata(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
+        if (SettingKey.MISC_SPAWNER_JOBS_COMPATIBILITY.get() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.setMetadata("jobsMobSpawner", new FixedMetadataValue(jobsPlugin, true));
         }
 
-        if (Setting.MISC_SPAWNER_ROSELOOT_COMPATIBILITY.getBoolean() && roseLootEnabled())
+        if (SettingKey.MISC_SPAWNER_ROSELOOT_COMPATIBILITY.get() && roseLootEnabled())
             LootUtils.setEntitySpawnReason(entity, SpawnReason.SPAWNER);
 
         NMSAdapter.getHandler().setPaperFromMobSpawner(entity);
     }
 
     public static void unflagSpawnerSpawned(LivingEntity entity) {
-        if (!Setting.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.getBoolean())
+        if (!SettingKey.MISC_SPAWNER_PERSISTENT_COMPATIBILITY.get())
             return;
 
-        if (Setting.MISC_SPAWNER_MCMMO_COMPATIBILITY.getBoolean() && mcMMOEnabled())
+        if (SettingKey.MISC_SPAWNER_MCMMO_COMPATIBILITY.get() && mcMMOEnabled())
             MobMetadataUtils.removeMobFlag(MobMetaFlagType.MOB_SPAWNER_MOB, entity);
 
-        if (Setting.MISC_SPAWNER_JOBS_COMPATIBILITY.getBoolean() && jobsEnabled()) {
+        if (SettingKey.MISC_SPAWNER_JOBS_COMPATIBILITY.get() && jobsEnabled()) {
             Plugin jobsPlugin = Bukkit.getPluginManager().getPlugin("Jobs");
             if (jobsPlugin != null)
                 entity.removeMetadata("jobsMobSpawner", jobsPlugin);

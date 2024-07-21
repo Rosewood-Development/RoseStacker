@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import de.diddiz.LogBlock.Actor;
 import de.diddiz.LogBlock.Consumer;
 import de.diddiz.LogBlock.LogBlock;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.Bukkit;
@@ -27,7 +27,7 @@ public class BlockLoggingHook {
      * @return true if CoreProtect is enabled, false otherwise
      */
     public static boolean coreProtectEnabled() {
-        if (!Setting.MISC_COREPROTECT_LOGGING.getBoolean())
+        if (!SettingKey.MISC_COREPROTECT_LOGGING.get())
             return false;
 
         if (coreProtectEnabled != null)
@@ -46,7 +46,7 @@ public class BlockLoggingHook {
      * @return true if LogBlock is enabled, false otherwise
      */
     public static boolean logBlockEnabled() {
-        if (!Setting.MISC_LOGBLOCK_LOGGING.getBoolean())
+        if (!SettingKey.MISC_LOGBLOCK_LOGGING.get())
             return false;
 
         if (logBlockEnabled != null)
@@ -65,7 +65,7 @@ public class BlockLoggingHook {
      * @return true if Insights is enabled, false otherwise
      */
     public static boolean insightsEnabled() {
-        if (!Setting.MISC_INSIGHTS_LOGGING.getBoolean())
+        if (!SettingKey.MISC_INSIGHTS_LOGGING.get())
             return false;
 
         if (insightsEnabled != null)

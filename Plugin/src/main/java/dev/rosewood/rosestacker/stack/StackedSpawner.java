@@ -2,9 +2,9 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.StackGUIOpenEvent;
 import dev.rosewood.rosestacker.gui.StackedSpawnerGui;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.HologramManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -138,7 +138,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
     @Override
     public void updateDisplay() {
-        if (!Setting.SPAWNER_DISPLAY_TAGS.getBoolean() || this.stackSettings == null)
+        if (!SettingKey.SPAWNER_DISPLAY_TAGS.get() || this.stackSettings == null)
             return;
 
         HologramManager hologramManager = RoseStacker.getInstance().getManager(HologramManager.class);
@@ -146,14 +146,14 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         Location location = this.getHologramLocation();
 
-        int sizeForHologram = Setting.SPAWNER_DISPLAY_TAGS_SINGLE.getBoolean() ? 0 : 1;
+        int sizeForHologram = SettingKey.SPAWNER_DISPLAY_TAGS_SINGLE.get() ? 0 : 1;
         if (this.size <= sizeForHologram) {
             hologramManager.deleteHologram(location);
             return;
         }
 
         List<String> displayStrings;
-        if (this.size == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+        if (this.size == 1 && !SettingKey.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.get()) {
             displayStrings = localeManager.getLocaleMessages("spawner-hologram-display" + (this.spawnerTile.getSpawnerType().isEmpty() ? "-empty" : "") + "-single", this.getPlaceholders());
         } else {
             displayStrings = localeManager.getLocaleMessages("spawner-hologram-display" + (this.spawnerTile.getSpawnerType().isEmpty() ? "-empty" : ""), this.getPlaceholders());
@@ -174,7 +174,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     public Location getHologramLocation() {
-        return this.block.getLocation().add(0.5, Setting.SPAWNER_DISPLAY_TAGS_HEIGHT_OFFSET.getDouble(), 0.5);
+        return this.block.getLocation().add(0.5, SettingKey.SPAWNER_DISPLAY_TAGS_HEIGHT_OFFSET.get(), 0.5);
     }
 
     @Override

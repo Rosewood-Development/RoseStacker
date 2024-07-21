@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_20_R1.spawner;
 
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
@@ -47,7 +47,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     @Override
     public void serverTick(ServerLevel level, BlockPos blockPos) {
         // Only tick the spawner if a player is nearby
-        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % Setting.SPAWNER_PLAYER_CHECK_FREQUENCY.getInt();
+        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % SettingKey.SPAWNER_PLAYER_CHECK_FREQUENCY.get();
         if (this.playersTimeSinceLastCheck == 0)
             this.playersNearby = this.isNearPlayer(level, blockPos);
 
@@ -62,7 +62,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
-        if (Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean()) {
+        if (SettingKey.SPAWNER_DEACTIVATE_WHEN_POWERED.get()) {
             if (this.redstoneTimeSinceLastCheck == 0) {
                 boolean hasSignal = level.hasNeighborSignal(this.blockPos);
                 if (this.redstoneDeactivated && !hasSignal) {
@@ -79,7 +79,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     return;
             }
 
-            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % SettingKey.SPAWNER_POWERED_CHECK_FREQUENCY.get();
         }
 
         // Count down spawn timer unless we are ready to spawn

@@ -6,7 +6,7 @@ import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -209,7 +209,7 @@ public final class ItemUtils {
 
         itemMeta.setDisplayName(displayString);
 
-        if (ConfigurationManager.Setting.SPAWNER_HIDE_VANILLA_ITEM_LORE.getBoolean())
+        if (SettingKey.SPAWNER_HIDE_VANILLA_ITEM_LORE.get())
             itemMeta.addItemFlags(VersionUtils.HIDE_ADDITIONAL_TOOLTIP);
 
         // Set the lore
@@ -224,7 +224,7 @@ public final class ItemUtils {
         }
 
         List<String> lore = new ArrayList<>(globalLore.size() + typeLore.size());
-        if (ConfigurationManager.Setting.MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST.getBoolean()) {
+        if (SettingKey.MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST.get()) {
             lore.addAll(globalLore);
             lore.addAll(typeLore);
         } else {
@@ -383,14 +383,14 @@ public final class ItemUtils {
         if (cachedStackingTool != null)
             return cachedStackingTool;
 
-        Material material = Material.matchMaterial(ConfigurationManager.Setting.STACK_TOOL_MATERIAL.getString());
+        Material material = Material.matchMaterial(SettingKey.STACK_TOOL_MATERIAL.get());
         if (material == null) {
             material = Material.STICK;
             RoseStacker.getInstance().getLogger().warning("Invalid material for stacking tool in config.yml!");
         }
 
-        String name = HexUtils.colorify(ConfigurationManager.Setting.STACK_TOOL_NAME.getString());
-        List<String> lore = ConfigurationManager.Setting.STACK_TOOL_LORE.getStringList().stream().map(HexUtils::colorify).toList();
+        String name = HexUtils.colorify(SettingKey.STACK_TOOL_NAME.get());
+        List<String> lore = SettingKey.STACK_TOOL_LORE.get().stream().map(HexUtils::colorify).toList();
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();

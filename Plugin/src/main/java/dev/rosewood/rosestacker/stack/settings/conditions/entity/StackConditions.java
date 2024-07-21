@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.stack.settings.conditions.entity;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.NMSUtil;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
@@ -95,15 +95,15 @@ public final class StackConditions {
             if (PersistentDataUtils.isUnstackable(entity1) || PersistentDataUtils.isUnstackable(entity2))
                 return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
-            if (Setting.ENTITY_DONT_STACK_CUSTOM_NAMED.getBoolean() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
+            if (SettingKey.ENTITY_DONT_STACK_CUSTOM_NAMED.get() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
                     && entity1.getType() != VersionUtils.SNOW_GOLEM) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
                 return EntityStackComparisonResult.CUSTOM_NAMED;
 
             if (!comparingForUnstack && !ignorePositions && !stackSettings.getEntityTypeData().swimmingMob() && !stackSettings.getEntityTypeData().flyingMob()) {
-                if (Setting.ENTITY_ONLY_STACK_ON_GROUND.getBoolean() && (!entity1.isOnGround() || !entity2.isOnGround()))
+                if (SettingKey.ENTITY_ONLY_STACK_ON_GROUND.get() && (!entity1.isOnGround() || !entity2.isOnGround()))
                     return EntityStackComparisonResult.NOT_ON_GROUND;
 
-                if (Setting.ENTITY_DONT_STACK_IF_IN_WATER.getBoolean() &&
+                if (SettingKey.ENTITY_DONT_STACK_IF_IN_WATER.get() &&
                         (entity1.getLocation().getBlock().getType() == Material.WATER || entity2.getLocation().getBlock().getType() == Material.WATER))
                     return EntityStackComparisonResult.IN_WATER;
             }
@@ -116,7 +116,7 @@ public final class StackConditions {
             if (!comparingForUnstack && (!entity1.getPassengers().isEmpty() || !entity2.getPassengers().isEmpty() || entity1.isInsideVehicle() || entity2.isInsideVehicle()))
                 return EntityStackComparisonResult.PART_OF_VEHICLE; // If comparing for unstack and is being ridden or is riding something, don't want to unstack it
 
-            if (Setting.ENTITY_DONT_STACK_IF_INVULNERABLE.getBoolean() && (entity1.isInvulnerable() || entity2.isInvulnerable()))
+            if (SettingKey.ENTITY_DONT_STACK_IF_INVULNERABLE.get() && (entity1.isInvulnerable() || entity2.isInvulnerable()))
                 return EntityStackComparisonResult.INVULNERABLE;
 
             return EntityStackComparisonResult.CAN_STACK;
@@ -124,10 +124,10 @@ public final class StackConditions {
 
         // Register base LivingEntity conditions
         register(LivingEntity.class, (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions) -> {
-            if (!comparingForUnstack && Setting.ENTITY_DONT_STACK_IF_LEASHED.getBoolean() && (entity1.isLeashed() || entity2.isLeashed()))
+            if (!comparingForUnstack && SettingKey.ENTITY_DONT_STACK_IF_LEASHED.get() && (entity1.isLeashed() || entity2.isLeashed()))
                 return EntityStackComparisonResult.LEASHED;
 
-            if (Setting.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.getBoolean()) {
+            if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {
                 EntityEquipment equipment1 = entity1.getEquipment();
                 EntityEquipment equipment2 = entity2.getEquipment();
 
@@ -148,7 +148,7 @@ public final class StackConditions {
                 }
             }
 
-            if (Setting.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.getBoolean() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
+            if (SettingKey.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.get() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
                 return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
 
             return EntityStackComparisonResult.CAN_STACK;

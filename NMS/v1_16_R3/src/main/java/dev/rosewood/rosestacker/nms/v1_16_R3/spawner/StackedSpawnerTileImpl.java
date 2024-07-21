@@ -1,6 +1,6 @@
 package dev.rosewood.rosestacker.nms.v1_16_R3.spawner;
 
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.util.ExtraUtils;
@@ -49,7 +49,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
             return;
 
         // Only tick the spawner if a player is nearby
-        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % Setting.SPAWNER_PLAYER_CHECK_FREQUENCY.getInt();
+        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % SettingKey.SPAWNER_PLAYER_CHECK_FREQUENCY.get();
         if (this.playersTimeSinceLastCheck == 0)
             this.playersNearby = this.isNearPlayer(level, this.blockPos);
 
@@ -64,7 +64,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
-        if (Setting.SPAWNER_DEACTIVATE_WHEN_POWERED.getBoolean()) {
+        if (SettingKey.SPAWNER_DEACTIVATE_WHEN_POWERED.get()) {
             if (this.redstoneTimeSinceLastCheck == 0) {
                 boolean hasSignal = level.isBlockIndirectlyPowered(this.blockPos);
                 if (this.redstoneDeactivated && !hasSignal) {
@@ -81,7 +81,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
                     return;
             }
 
-            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % Setting.SPAWNER_POWERED_CHECK_FREQUENCY.getInt();
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % SettingKey.SPAWNER_POWERED_CHECK_FREQUENCY.get();
         }
 
         // Count down spawn timer unless we are ready to spawn

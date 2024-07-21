@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -65,24 +65,24 @@ public final class PersistentDataUtils {
 
     public static void applyDisabledAi(LivingEntity entity, boolean disable) {
         if (isAiDisabled(entity) || !disable) {
-            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.getBoolean() && disable) {
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.get() && disable) {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 nmsHandler.removeEntityGoals(entity);
             }
 
-            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_SET_UNAWARE.getBoolean() && entity instanceof Mob mob)
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_SET_UNAWARE.get() && entity instanceof Mob mob)
                 mob.setAware(!disable);
 
-            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_SILENCE.getBoolean())
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_SILENCE.get())
                 entity.setSilent(disable);
 
-            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK.getBoolean()) {
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK.get()) {
                 AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
                 if (knockbackAttribute != null)
                     knockbackAttribute.setBaseValue(disable ? Double.MAX_VALUE : 0);
             }
 
-            if (Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ZOMBIFICATION.getBoolean()) {
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ZOMBIFICATION.get()) {
                 if (entity instanceof PiglinAbstract piglin) {
                     piglin.setImmuneToZombification(disable);
                 } else if (entity instanceof Hoglin hoglin) {

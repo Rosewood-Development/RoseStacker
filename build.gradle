@@ -14,7 +14,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     group = 'dev.rosewood'
-    version = '1.5.23'
+    version = '1.5.24-SNAPSHOT'
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 
@@ -81,8 +81,8 @@ shadowJar {
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
     relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
 
-    exclude 'dev/rosewood/rosegarden/lib/hikaricp/**/*.class'
-    exclude 'dev/rosewood/rosegarden/lib/slf4j/**/*.class'
+    exclude 'com/zaxxer/hikari/**/*.class'
+    exclude 'org/slf4j/**/*.class'
 }
 
 publishing {

@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import org.bukkit.Material;
 
@@ -53,7 +53,7 @@ public class ItemStackSettings extends StackSettings {
     public int getMaxStackSize() {
         if (this.maxStackSize != -1)
             return this.maxStackSize;
-        return Setting.ITEM_MAX_STACK_SIZE.getInt();
+        return SettingKey.ITEM_MAX_STACK_SIZE.get();
     }
 
     public Material getType() {
@@ -62,7 +62,7 @@ public class ItemStackSettings extends StackSettings {
 
     public boolean shouldDisplayTags() {
         if (this.displayTags == null)
-            return Setting.ITEM_DISPLAY_TAGS.getBoolean();
+            return SettingKey.ITEM_DISPLAY_TAGS.get();
         return this.displayTags;
     }
 

@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.stack;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -94,8 +94,8 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         boolean hasCustomName = itemMeta != null && itemMeta.hasDisplayName();
-        if (hasCustomName && Setting.ITEM_DISPLAY_CUSTOM_NAMES.getBoolean()) {
-            if (Setting.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.getBoolean()) {
+        if (hasCustomName && SettingKey.ITEM_DISPLAY_CUSTOM_NAMES.get()) {
+            if (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.get()) {
                 displayName = itemMeta.getDisplayName();
             } else {
                 displayName = ChatColor.stripColor(itemMeta.getDisplayName());
@@ -108,7 +108,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
                 .add("amount", StackerUtils.formatNumber(this.getStackSize()))
                 .add("name", displayName);
 
-        if (Setting.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.getBoolean()) {
+        if (SettingKey.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.get()) {
             String timer;
             if (NMSUtil.getVersionNumber() >= 18 && this.item.isUnlimitedLifetime()) {
                 timer = "∞";
@@ -128,8 +128,8 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", placeholdersBuilder.build());
         }
 
-        this.item.setCustomNameVisible((this.size > 1 || Setting.ITEM_DISPLAY_TAGS_SINGLE.getBoolean() || (Setting.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.getBoolean() && hasCustomName)) &&
-                (this.size > itemStack.getMaxStackSize() || !Setting.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.getBoolean()));
+        this.item.setCustomNameVisible((this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get() || (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName)) &&
+                (this.size > itemStack.getMaxStackSize() || !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get()));
         NMSAdapter.getHandler().setCustomNameUncapped(this.item, displayString);
     }
 
@@ -152,7 +152,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         if (this == stack2)
             return 0;
 
-        if (Setting.ITEM_MERGE_INTO_NEWEST.getBoolean())
+        if (SettingKey.ITEM_MERGE_INTO_NEWEST.get())
             return entity1.getTicksLived() < entity2.getTicksLived() ? 1 : -1;
 
         if (this.getStackSize() == stack2.getStackSize())

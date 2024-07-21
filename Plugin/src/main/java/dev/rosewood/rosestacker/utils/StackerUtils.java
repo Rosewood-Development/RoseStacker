@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -262,8 +262,8 @@ public final class StackerUtils {
     }
 
     public static double getSilkTouchChanceRaw(Player player) {
-        double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_CHANCE.getInt());
-        chance += ConfigurationManager.Setting.SPAWNER_SILK_TOUCH_LUCK_CHANCE_INCREASE.getInt() * StackerUtils.getLuckLevel(player);
+        double chance = StackerUtils.getPermissionDefinableValue(player, "rosestacker.silktouch.chance", SettingKey.SPAWNER_SILK_TOUCH_CHANCE.get());
+        chance += SettingKey.SPAWNER_SILK_TOUCH_LUCK_CHANCE_INCREASE.get() * StackerUtils.getLuckLevel(player);
         return chance;
     }
 

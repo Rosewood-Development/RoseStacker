@@ -4,7 +4,7 @@ import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
@@ -62,11 +62,11 @@ public class SpawnerStackSettings extends StackSettings {
                 }
             }
 
-            if (Setting.SPAWNER_DONT_SPAWN_INTO_BLOCKS.getBoolean() && (requirementStrings.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("air"))))
+            if (SettingKey.SPAWNER_DONT_SPAWN_INTO_BLOCKS.get() && (requirementStrings.stream().noneMatch(x -> x.startsWith("fluid") || x.startsWith("air"))))
                 this.spawnRequirements.add(ConditionTags.parse("air")); // All entities that don't require fluids will require air
 
             if (requirementStrings.stream().noneMatch(x -> x.startsWith("max-nearby-entities")))
-                this.spawnRequirements.add(ConditionTags.parse("max-nearby-entities:" + Setting.SPAWNER_SPAWN_MAX_NEARBY_ENTITIES.getInt()));
+                this.spawnRequirements.add(ConditionTags.parse("max-nearby-entities:" + SettingKey.SPAWNER_SPAWN_MAX_NEARBY_ENTITIES.get()));
         } else {
             this.maxStackSize = -1;
             this.disableMobAI = null;
@@ -128,7 +128,7 @@ public class SpawnerStackSettings extends StackSettings {
     public int getMaxStackSize() {
         if (this.maxStackSize != -1)
             return this.maxStackSize;
-        return Setting.SPAWNER_MAX_STACK_SIZE.getInt();
+        return SettingKey.SPAWNER_MAX_STACK_SIZE.get();
     }
 
     public SpawnerType getSpawnerType() {
@@ -138,7 +138,7 @@ public class SpawnerStackSettings extends StackSettings {
     public boolean isMobAIDisabled() {
         if (this.disableMobAI != null)
             return this.disableMobAI;
-        return Setting.SPAWNER_DISABLE_MOB_AI.getBoolean();
+        return SettingKey.SPAWNER_DISABLE_MOB_AI.get();
     }
 
     public List<ConditionTag> getSpawnRequirements() {
@@ -148,7 +148,7 @@ public class SpawnerStackSettings extends StackSettings {
     public int getSpawnCountStackSizeMultiplier() {
         if (this.spawnCountStackSizeMultiplier != -1)
             return Math.max(this.spawnCountStackSizeMultiplier, 1);
-        int configValue = Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.getInt();
+        int configValue = SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_MULTIPLIER.get();
         if (configValue != -1)
             configValue = Math.max(configValue, 1);
         return configValue;
@@ -157,20 +157,20 @@ public class SpawnerStackSettings extends StackSettings {
     public int getMinSpawnDelay() {
         if (this.minSpawnDelay != -1)
             return Math.max(this.minSpawnDelay, 5);
-        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_DELAY_MINIMUM.getInt(), 5);
+        return this.maxIfNotNegativeOne(SettingKey.SPAWNER_SPAWN_DELAY_MINIMUM.get(), 5);
     }
 
     public int getMaxSpawnDelay() {
         if (this.maxSpawnDelay != -1)
             return Math.max(this.maxSpawnDelay, this.getMinSpawnDelay());
-        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_DELAY_MAXIMUM.getInt(), this.getMinSpawnDelay());
+        return this.maxIfNotNegativeOne(SettingKey.SPAWNER_SPAWN_DELAY_MAXIMUM.get(), this.getMinSpawnDelay());
     }
 
     public int getEntitySearchRange() {
         if (this.entitySearchRange != -1)
             return this.maxIfNotNegativeOne(this.entitySearchRange, 1);
 
-        int globalRange = Setting.SPAWNER_SPAWN_ENTITY_SEARCH_RANGE.getInt();
+        int globalRange = SettingKey.SPAWNER_SPAWN_ENTITY_SEARCH_RANGE.get();
         if (globalRange == -1)
             return this.getSpawnRange();
         return this.maxIfNotNegativeOne(globalRange, 1);
@@ -181,17 +181,17 @@ public class SpawnerStackSettings extends StackSettings {
             return Integer.MAX_VALUE;
         if (this.playerActivationRange != -1)
             return Math.max(this.playerActivationRange, 1);
-        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt(), 1);
+        return this.maxIfNotNegativeOne(SettingKey.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.get(), 1);
     }
 
     public boolean hasUnlimitedPlayerActivationRange() {
-        return this.playerActivationRange == -2 || Setting.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.getInt() == -2;
+        return this.playerActivationRange == -2 || SettingKey.SPAWNER_SPAWN_PLAYER_ACTIVATION_RANGE.get() == -2;
     }
 
     public int getSpawnRange() {
         if (this.spawnRange != -1)
             return Math.max(this.spawnRange, 1);
-        return this.maxIfNotNegativeOne(Setting.SPAWNER_SPAWN_RANGE.getInt(), 1);
+        return this.maxIfNotNegativeOne(SettingKey.SPAWNER_SPAWN_RANGE.get(), 1);
     }
 
     public List<String> getItemLoreSingular(StringPlaceholders stringPlaceholders) {

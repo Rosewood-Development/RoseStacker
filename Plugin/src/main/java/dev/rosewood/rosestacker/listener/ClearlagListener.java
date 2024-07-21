@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import me.minebuilders.clearlag.events.EntityRemoveEvent;
@@ -24,10 +24,10 @@ public class ClearlagListener implements Listener {
         if (stackingThread == null)
             return;
 
-        if (Setting.MISC_CLEARLAG_CLEAR_ENTITIES.getBoolean() && stackManager.isEntityStackingEnabled())
+        if (SettingKey.MISC_CLEARLAG_CLEAR_ENTITIES.get() && stackManager.isEntityStackingEnabled())
             stackingThread.removeAllEntityStacks();
 
-        if (Setting.MISC_CLEARLAG_CLEAR_ITEMS.getBoolean() && stackManager.isItemStackingEnabled())
+        if (SettingKey.MISC_CLEARLAG_CLEAR_ITEMS.get() && stackManager.isItemStackingEnabled())
             stackingThread.removeAllItemStacks();
     }
 

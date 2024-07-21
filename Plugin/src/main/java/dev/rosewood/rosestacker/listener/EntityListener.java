@@ -3,8 +3,8 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -161,7 +161,7 @@ public class EntityListener implements Listener {
             stackedSpawner = stackManager.createSpawnerStack(event.getSpawner().getBlock(), 1, false);
 
         boolean placedByPlayer = stackedSpawner != null && stackedSpawner.isPlacedByPlayer();
-        if (stackSettings.isMobAIDisabled() && (!Setting.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.getBoolean() || placedByPlayer))
+        if (stackSettings.isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || placedByPlayer))
             PersistentDataUtils.removeEntityAi(entity);
     }
 
@@ -173,7 +173,7 @@ public class EntityListener implements Listener {
             return;
 
         boolean disableAttacking = (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
-                || (Setting.SPAWNER_DISABLE_ATTACKING.getBoolean()) && PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity());
+                || (SettingKey.SPAWNER_DISABLE_ATTACKING.get()) && PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity());
         if (disableAttacking)
             event.setCancelled(true);
     }
@@ -227,7 +227,7 @@ public class EntityListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity entity) || event.getEntity().getType() == EntityType.PLAYER)
             return;
 
-        if (!Setting.ENTITY_INSTANT_KILL_DISABLED_AI.getBoolean() || this.stackManager.isWorldDisabled(entity.getWorld()) || !PersistentDataUtils.isAiDisabled(entity))
+        if (!SettingKey.ENTITY_INSTANT_KILL_DISABLED_AI.get() || this.stackManager.isWorldDisabled(entity.getWorld()) || !PersistentDataUtils.isAiDisabled(entity))
             return;
 
         Entity damager = event.getDamager();
@@ -257,7 +257,7 @@ public class EntityListener implements Listener {
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
-        if (!Setting.ENTITY_SHARE_DAMAGE_CONDITIONS.getStringList().contains(event.getCause().name()))
+        if (!SettingKey.ENTITY_SHARE_DAMAGE_CONDITIONS.get().contains(event.getCause().name()))
             return;
 
         double damage = event.getFinalDamage();
@@ -276,7 +276,7 @@ public class EntityListener implements Listener {
             stackedEntity.dropPartialStackLoot(killedEntities);
 
             Player killer = entity.getKiller();
-            if (killer != null && killedEntities.size() - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+            if (killer != null && killedEntities.size() - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
                 killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killedEntities.size() - 1);
         }
     }
@@ -288,7 +288,7 @@ public class EntityListener implements Listener {
             return;
 
         // Don't allow mobs to naturally burn in the daylight if their AI is disabled
-        if (PersistentDataUtils.isAiDisabled((LivingEntity) entity) && !Setting.SPAWNER_DISABLE_MOB_AI_OPTIONS_UNDEAD_BURN_IN_DAYLIGHT.getBoolean())
+        if (PersistentDataUtils.isAiDisabled((LivingEntity) entity) && !SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_UNDEAD_BURN_IN_DAYLIGHT.get())
             event.setCancelled(true);
     }
 
@@ -339,16 +339,16 @@ public class EntityListener implements Listener {
         Vector previousVelocity = entity.getVelocity().clone();
         Runnable task = () -> {
             // Should we kill multiple entities?
-            if (Setting.ENTITY_MULTIKILL_ENABLED.getBoolean()) {
-                int multikillAmount = Setting.ENTITY_MULTIKILL_AMOUNT.getInt();
+            if (SettingKey.ENTITY_MULTIKILL_ENABLED.get()) {
+                int multikillAmount = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
                 int killAmount = 1;
 
-                if (!Setting.ENTITY_MULTIKILL_PLAYER_ONLY.getBoolean() || entity.getKiller() != null) {
-                    if (Setting.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.getBoolean()) {
-                        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString()));
+                if (!SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() || entity.getKiller() != null) {
+                    if (SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get()) {
+                        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
                         if (requiredEnchantment == null) {
                             // Only decrease stack size by 1 and print a warning to the console
-                            RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + Setting.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.getString());
+                            RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get());
                         } else if (event != null && event.getEntity().getKiller() != null) {
                             Player killer = event.getEntity().getKiller();
                             int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
@@ -361,7 +361,7 @@ public class EntityListener implements Listener {
                 }
 
                 Player killer = entity.getKiller();
-                if (killer != null && killAmount - 1 > 0 && Setting.MISC_STACK_STATISTICS.getBoolean())
+                if (killer != null && killAmount - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
                     killer.incrementStatistic(Statistic.KILL_ENTITY, entity.getType(), killAmount - 1);
 
                 stackedEntity.killPartialStack(event, killAmount);
@@ -372,20 +372,20 @@ public class EntityListener implements Listener {
 
             stackedEntity.getEntity().setVelocity(new Vector());
 
-            if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
+            if (SettingKey.ENTITY_KILL_TRANSFER_VELOCITY.get())
                 stackedEntity.getEntity().setVelocity(previousVelocity);
         };
 
-        if (Setting.ENTITY_KILL_DELAY_NEXT_SPAWN.getBoolean()) {
+        if (SettingKey.ENTITY_KILL_DELAY_NEXT_SPAWN.get()) {
             ThreadUtils.runSync(task);
         } else {
             task.run();
         }
 
-        if (Setting.ENTITY_KILL_TRANSFER_VELOCITY.getBoolean())
+        if (SettingKey.ENTITY_KILL_TRANSFER_VELOCITY.get())
             entity.setVelocity(new Vector());
 
-        if (!Setting.ENTITY_DISPLAY_CORPSE.getBoolean())
+        if (!SettingKey.ENTITY_DISPLAY_CORPSE.get())
             entity.remove();
     }
 
@@ -424,7 +424,7 @@ public class EntityListener implements Listener {
         if (stackedEntity.getStackSize() == 1)
             return;
 
-        if (Setting.ENTITY_TRANSFORM_ENTIRE_STACK.getBoolean()) {
+        if (SettingKey.ENTITY_TRANSFORM_ENTIRE_STACK.get()) {
             EntityDataEntry serialized = EntityDataEntry.of(transformedEntity);
             event.setCancelled(true);
 

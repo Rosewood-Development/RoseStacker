@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.EnumSet;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class BlockStackSettings extends StackSettings {
     public int getMaxStackSize() {
         if (this.maxStackSize != -1)
             return this.maxStackSize;
-        return Setting.BLOCK_MAX_STACK_SIZE.getInt();
+        return SettingKey.BLOCK_MAX_STACK_SIZE.get();
     }
 
     public Material getType() {

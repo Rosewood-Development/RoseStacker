@@ -10,7 +10,7 @@ import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
@@ -60,7 +60,7 @@ public class StackedSpawnerGui {
      */
     private void buildGui() {
         this.guiContainer = GuiFactory.createContainer()
-                .setTickRate(Setting.SPAWNER_GUI_TICK_UPDATE_RATE.getInt());
+                .setTickRate(SettingKey.SPAWNER_GUI_TICK_UPDATE_RATE.get());
 
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
@@ -70,9 +70,9 @@ public class StackedSpawnerGui {
                 .addButtonAt(13, GuiFactory.createButton())
                 .addButtonAt(15, GuiFactory.createButton());
 
-        Material filler = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_MATERIAL.getString());
-        Material corner = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_CORNER_MATERIAL.getString());
-        Material accent = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_BORDER_ACCENT_MATERIAL.getString());
+        Material filler = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_BORDER_MATERIAL.get());
+        Material corner = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_BORDER_CORNER_MATERIAL.get());
+        Material accent = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_BORDER_ACCENT_MATERIAL.get());
 
         ItemStack fillerItem = new ItemStack(filler);
         ItemMeta fillerItemMeta = fillerItem.getItemMeta();
@@ -97,16 +97,16 @@ public class StackedSpawnerGui {
             mainScreen.addItemStackAt(slot, accentItem);
 
         this.stackedSpawner.getSpawnerTile().getSpawnerType().get().ifPresent(spawnerType -> {
-            Material info = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_SPAWNER_STATS_MATERIAL.getString());
-            Material spawner = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_CENTRAL_MATERIAL.getString());
-            Material conditionsValid = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_VALID_SPAWN_CONDITIONS_MATERIAL.getString());
-            Material conditionsInvalid = GuiHelper.parseMaterial(Setting.SPAWNER_GUI_INVALID_SPAWN_CONDITIONS_MATERIAL.getString());
+            Material info = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_SPAWNER_STATS_MATERIAL.get());
+            Material spawner = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_CENTRAL_MATERIAL.get());
+            Material conditionsValid = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_VALID_SPAWN_CONDITIONS_MATERIAL.get());
+            Material conditionsInvalid = GuiHelper.parseMaterial(SettingKey.SPAWNER_GUI_INVALID_SPAWN_CONDITIONS_MATERIAL.get());
 
             ItemStack skull = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(spawnerType)
                     .getEntityTypeData().getSkullItem();
 
             String skullDisplayName;
-            if (this.stackedSpawner.getStackSize() == 1 && !Setting.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.getBoolean()) {
+            if (this.stackedSpawner.getStackSize() == 1 && !SettingKey.SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT.get()) {
                 skullDisplayName = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))
                         .add("name", this.stackedSpawner.getStackSettings().getDisplayName()).build());
             } else {
@@ -132,7 +132,7 @@ public class StackedSpawnerGui {
                         lore.add(this.getString("spawn-range", StringPlaceholders.of("range", spawnerTile.getSpawnRange())));
 
                         if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
-                            if (Setting.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.getBoolean()) {
+                            if (SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.get()) {
                                 lore.add(this.getString("min-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))));
                                 lore.add(this.getString("max-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
                             } else {

@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -58,13 +58,13 @@ public class StackManager extends Manager implements StackingLogic {
 
     @Override
     public void reload() {
-        this.entityDataStorageType = StackedEntityDataStorageType.fromName(Setting.ENTITY_DATA_STORAGE_TYPE.getString());
+        this.entityDataStorageType = StackedEntityDataStorageType.fromName(SettingKey.ENTITY_DATA_STORAGE_TYPE.get());
 
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
 
         // Kick off autosave task if enabled
-        long autosaveFrequency = Setting.AUTOSAVE_FREQUENCY.getLong();
+        long autosaveFrequency = SettingKey.AUTOSAVE_FREQUENCY.get();
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
             this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, () -> this.saveAllData(false), interval, interval);
@@ -378,19 +378,19 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     public boolean isEntityStackingEnabled() {
-        return Setting.ENTITY_STACKING_ENABLED.getBoolean();
+        return SettingKey.ENTITY_STACKING_ENABLED.get();
     }
 
     public boolean isItemStackingEnabled() {
-        return Setting.ITEM_STACKING_ENABLED.getBoolean();
+        return SettingKey.ITEM_STACKING_ENABLED.get();
     }
 
     public boolean isBlockStackingEnabled() {
-        return Setting.BLOCK_STACKING_ENABLED.getBoolean();
+        return SettingKey.BLOCK_STACKING_ENABLED.get();
     }
 
     public boolean isSpawnerStackingEnabled() {
-        return Setting.SPAWNER_STACKING_ENABLED.getBoolean();
+        return SettingKey.SPAWNER_STACKING_ENABLED.get();
     }
 
     /**
@@ -478,7 +478,7 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
-        return Setting.DISABLED_WORLDS.getStringList().stream().anyMatch(x -> x.equalsIgnoreCase(world.getName()));
+        return SettingKey.DISABLED_WORLDS.get().stream().anyMatch(x -> x.equalsIgnoreCase(world.getName()));
     }
 
     public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {

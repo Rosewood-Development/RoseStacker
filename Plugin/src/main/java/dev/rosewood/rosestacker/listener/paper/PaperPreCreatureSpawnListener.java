@@ -2,7 +2,7 @@ package dev.rosewood.rosestacker.listener.paper;
 
 import com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent;
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -36,7 +36,7 @@ public class PaperPreCreatureSpawnListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPreCreatureSpawn(PreCreatureSpawnEvent event) {
-        if (!ConfigurationManager.Setting.ENTITY_OBEY_MOB_CAPS.getBoolean() || event.getReason() != SpawnReason.NATURAL)
+        if (!SettingKey.ENTITY_OBEY_MOB_CAPS.get() || event.getReason() != SpawnReason.NATURAL)
             return;
 
         String category = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().spawnCategory();
