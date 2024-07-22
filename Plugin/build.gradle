@@ -23,7 +23,6 @@ dependencies {
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'dev.frankheijden.insights:Insights:6.13.0'
     compileOnly 'com.songoda:epicbosses:1.2.12'
-    compileOnly 'me.minebuilders:clearlag:3.1.6'
     compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0'
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'

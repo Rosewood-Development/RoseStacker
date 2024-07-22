@@ -12,7 +12,6 @@ import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.listener.BeeListener;
 import dev.rosewood.rosestacker.listener.BlockListener;
 import dev.rosewood.rosestacker.listener.BreedingListener;
-import dev.rosewood.rosestacker.listener.ClearlagListener;
 import dev.rosewood.rosestacker.listener.EntitiesLoadListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
@@ -99,10 +98,6 @@ public class RoseStacker extends RosePlugin {
             if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
                 ShopGuiPlusHook.setupSpawners(this);
         });
-
-        // Try to hook with Clearlag
-        if (Bukkit.getPluginManager().isPluginEnabled("Clearlag"))
-            pluginManager.registerEvents(new ClearlagListener(this), this);
 
         // Try to hook with WildChests
         if (Bukkit.getPluginManager().isPluginEnabled("WildChests"))

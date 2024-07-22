@@ -8,7 +8,6 @@ loadbefore: [ShopGUIPlus]
 softdepend:
   - Boss
   - Citizens
-  - ClearLag
   - CoreProtect
   - EliteMobs
   - EpicBosses

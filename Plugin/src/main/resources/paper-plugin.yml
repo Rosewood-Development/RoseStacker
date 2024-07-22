@@ -9,8 +9,6 @@ dependencies:
     required: false
   - name: Citizens
     required: false
-  - name: ClearLag
-    required: false
   - name: CoreProtect
     required: false
   - name: EliteMobs
@@ -48,7 +46,6 @@ dependencies:
   - name: WorldGuard
     required: false
 load-after:
-  - name: Clearlag
   - name: PlaceholderAPI
   - name: ShopGUIPlus
   - name: WildChests
