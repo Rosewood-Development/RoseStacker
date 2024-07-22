@@ -47,7 +47,7 @@ public class StackSettingManager extends Manager {
     private final Map<Material, ItemStackSettings> itemSettings;
     private final Map<SpawnerType, SpawnerStackSettings> spawnerSettings;
 
-    private boolean registeredPermissions = false;
+    private static boolean registeredPermissions = false;
 
     public StackSettingManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -178,7 +178,7 @@ public class StackSettingManager extends Manager {
             spawnerSettingsConfiguration.save(spawnerSettingsFile, true);
 
         // Register dynamic permissions on first load
-        if (!this.registeredPermissions) {
+        if (!registeredPermissions) {
             PluginManager pluginManager = Bukkit.getPluginManager();
 
             List<Permission> silktouch = new ArrayList<>();
@@ -204,7 +204,7 @@ public class StackSettingManager extends Manager {
             spawnerplace.forEach(pluginManager::addPermission);
             pluginManager.addPermission(new Permission("rosestacker.spawnerplace.*", spawnerplace.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
 
-            this.registeredPermissions = true;
+            registeredPermissions = true;
         }
     }
 
