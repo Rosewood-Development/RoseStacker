@@ -490,9 +490,16 @@ public class EntityListener implements Listener {
         if (!stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE).getBoolean())
             return;
 
-        event.getItemDrop().remove();
-        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
-        this.stackManager.preStackItems(items, event.getEntity().getLocation());
+        if (stackedEntity.getStackSize() > stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.MAX_EGG_STACK_SIZE).getInt()) {
+            event.getItemDrop().remove();
+            List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.MAX_EGG_STACK_SIZE).getInt());
+            this.stackManager.preStackItems(items, event.getEntity().getLocation());
+        }
+        else {
+            event.getItemDrop().remove();
+            List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
+            this.stackManager.preStackItems(items, event.getEntity().getLocation());
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
