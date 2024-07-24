@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import org.bukkit.Material;
 import static dev.rosewood.rosegarden.config.RoseSettingSerializers.*;
 
-public class SettingKey {
+public final class SettingKey {
 
     private static final List<RoseSetting<?>> KEYS = new ArrayList<>();
 
@@ -246,5 +246,7 @@ public class SettingKey {
     public static List<RoseSetting<?>> getKeys() {
         return Collections.unmodifiableList(KEYS);
     }
+
+    private SettingKey() {}
 
 }

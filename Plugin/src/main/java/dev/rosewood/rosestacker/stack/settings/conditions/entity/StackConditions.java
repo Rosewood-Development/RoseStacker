@@ -96,7 +96,7 @@ public final class StackConditions {
                 return EntityStackComparisonResult.MARKED_UNSTACKABLE;
 
             if (SettingKey.ENTITY_DONT_STACK_CUSTOM_NAMED.get() && (entity1.getCustomName() != null || entity2.getCustomName() != null)
-                    && entity1.getType() != VersionUtils.SNOW_GOLEM) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
+                    && (entity1.getType() != VersionUtils.SNOW_GOLEM || !stackSettings.getSettingValue(EntityStackSettings.SNOW_GOLEM_FORCE_CUSTOM_NAMED_STACKING).getBoolean())) // Force named snow golems to always stack together for infinite snowball lag-prevention reasons
                 return EntityStackComparisonResult.CUSTOM_NAMED;
 
             if (!comparingForUnstack && !ignorePositions && !stackSettings.getEntityTypeData().swimmingMob() && !stackSettings.getEntityTypeData().flyingMob()) {

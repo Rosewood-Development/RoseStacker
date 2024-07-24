@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
-import dev.rosewood.rosegarden.utils.RoseGardenUtils;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
@@ -16,10 +15,8 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.conditions.entity.StackConditions;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +49,7 @@ public class EntityStackSettings extends StackSettings {
     public static final String SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH = "accurate-drops-with-kill-entire-stack-on-death";
     public static final String MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK = "drop-additional-mushrooms-for-each-cow-in-stack";
     public static final String MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK = "extra-mushrooms-per-cow-in-stack";
+    public static final String SNOW_GOLEM_FORCE_CUSTOM_NAMED_STACKING = "force-custom-named-stacking";
 
     // Data pertaining to this EntityType
     private final EntityType entityType;
@@ -92,19 +90,19 @@ public class EntityStackSettings extends StackSettings {
 
         this.extraSettings = new HashMap<>();
 
-        switch (this.entityType) {
-            case CHICKEN -> this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
-            case CREEPER -> this.putSetting(CREEPER_EXPLODE_KILL_ENTIRE_STACK, false);
-            case SHEEP -> {
+        switch (this.entityType.getKey().getKey()) {
+            case "chicken" -> this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
+            case "creeper" -> this.putSetting(CREEPER_EXPLODE_KILL_ENTIRE_STACK, false);
+            case "sheep" -> {
                 this.putSetting(SHEEP_SHEAR_ALL_SHEEP_IN_STACK, true);
                 this.putSetting(SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN, 25.0);
             }
-            case SLIME, MAGMA_CUBE -> this.putSetting(SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH, true);
-        }
-
-        if (this.entityType == VersionUtils.MOOSHROOM) {
-            this.putSetting(MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK, true);
-            this.putSetting(MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK, 5);
+            case "slime", "magma_cube" -> this.putSetting(SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH, true);
+            case "snowman", "snow_golem" -> this.putSetting(SNOW_GOLEM_FORCE_CUSTOM_NAMED_STACKING, true);
+            case "mooshroom", "mushroom_cow" -> {
+                this.putSetting(MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK, true);
+                this.putSetting(MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK, 5);
+            }
         }
 
         this.setDefaults();
@@ -119,10 +117,10 @@ public class EntityStackSettings extends StackSettings {
         List<String> defaultSpawnRequirements = gson.fromJson(jsonObject.get("default_spawn_requirements").getAsJsonArray(), stringListType);
         String skullTexture = jsonObject.get("skull_texture").getAsString();
         List<String> breedingMaterialsStrings = gson.fromJson(jsonObject.get("breeding_materials").getAsJsonArray(), stringListType);
-        Set<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+        Set<Material> breedingMaterials = breedingMaterialsStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
         String spawnCategory = jsonObject.get("spawn_category").getAsString();
         List<String> standardEquipmentStrings = gson.fromJson(jsonObject.get("standard_equipment").getAsJsonArray(), stringListType);
-        Set<Material> standardEquipment = standardEquipmentStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toCollection(() -> EnumSet.noneOf(Material.class)));
+        Set<Material> standardEquipment = standardEquipmentStrings.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toSet());
         this.entityTypeData = new EntityTypeData(isSwimmingMob, isFlyingMob, spawnEggMaterial, defaultSpawnRequirements, skullTexture, breedingMaterials, spawnCategory, standardEquipment);
 
         this.enabled = this.settingsConfiguration.getBoolean("enabled");
