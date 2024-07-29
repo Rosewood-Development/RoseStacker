@@ -12,10 +12,10 @@ import org.bukkit.event.world.EntitiesUnloadEvent;
 
 public class EntitiesLoadListener implements Listener {
 
-    private final StackManager stackManager;
+    private final RosePlugin rosePlugin;
 
     public EntitiesLoadListener(RosePlugin rosePlugin) {
-        this.stackManager = rosePlugin.getManager(StackManager.class);
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler
@@ -24,12 +24,12 @@ public class EntitiesLoadListener implements Listener {
             if (entity instanceof LivingEntity)
                 PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-        this.stackManager.loadChunkEntities(event.getEntities());
+        this.rosePlugin.getManager(StackManager.class).loadChunkEntities(event.getEntities());
     }
 
     @EventHandler
     public void onEntitiesUnload(EntitiesUnloadEvent event) {
-        this.stackManager.saveChunkEntities(event.getEntities(), true);
+        this.rosePlugin.getManager(StackManager.class).saveChunkEntities(event.getEntities(), true);
     }
 
 }

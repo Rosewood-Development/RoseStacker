@@ -24,14 +24,10 @@ public class PaperPreCreatureSpawnListener implements Listener {
 
     private static final Map<String, SpawnCategory> SPAWN_CATEGORY_LOOKUP = Arrays.stream(SpawnCategory.values()).collect(Collectors.toMap(SpawnCategory::name, Function.identity()));
 
-    private final StackManager stackManager;
-    private final EntityCacheManager entityCacheManager;
-    private final StackSettingManager stackSettingManager;
+    private final RosePlugin rosePlugin;
 
     public PaperPreCreatureSpawnListener(RosePlugin rosePlugin) {
-        this.stackManager = rosePlugin.getManager(StackManager.class);
-        this.entityCacheManager = rosePlugin.getManager(EntityCacheManager.class);
-        this.stackSettingManager = rosePlugin.getManager(StackSettingManager.class);
+        this.rosePlugin = rosePlugin;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -39,15 +35,15 @@ public class PaperPreCreatureSpawnListener implements Listener {
         if (!SettingKey.ENTITY_OBEY_MOB_CAPS.get() || event.getReason() != SpawnReason.NATURAL)
             return;
 
-        String category = this.stackSettingManager.getEntityStackSettings(event.getType()).getEntityTypeData().spawnCategory();
+        String category = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(event.getType()).getEntityTypeData().spawnCategory();
         SpawnCategory spawnCategory = SPAWN_CATEGORY_LOOKUP.get(category);
         int limit = event.getSpawnLocation().getWorld().getSpawnLimit(spawnCategory);
 
         int total = 0;
-        Collection<Entity> entities = this.entityCacheManager.getNearbyEntities(event.getSpawnLocation(), 16, x -> x.getSpawnCategory() == spawnCategory);
+        Collection<Entity> entities = this.rosePlugin.getManager(EntityCacheManager.class).getNearbyEntities(event.getSpawnLocation(), 16, x -> x.getSpawnCategory() == spawnCategory);
         for (Entity entity : entities) {
             LivingEntity livingEntity = (LivingEntity) entity;
-            StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
+            StackedEntity stackedEntity = this.rosePlugin.getManager(StackManager.class).getStackedEntity(livingEntity);
             if (stackedEntity == null) {
                 total++;
             } else {
