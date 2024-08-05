@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
+
 import static dev.rosewood.rosegarden.config.RoseSettingSerializers.*;
 
 public final class SettingKey {
@@ -113,6 +115,7 @@ public final class SettingKey {
     public static final RoseSetting<CommentedConfigurationSection> GLOBAL_SPAWNER_SETTINGS = create("global-spawner-settings", "Global spawner settings", "Changed values in spawner_settings.yml will override these values");
     public static final RoseSetting<Boolean> SPAWNER_STACKING_ENABLED = create("global-spawner-settings.stacking-enabled", BOOLEAN, true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead.", "Changing this setting will require a full server restart to fully take effect.");
     public static final RoseSetting<Integer> SPAWNER_MAX_STACK_SIZE = create("global-spawner-settings.max-stack-size", INTEGER, 32, "The maximum number of spawners that can be in a single stack");
+    public static final RoseSetting<Boolean> SPAWNER_CHECK_DISPLAY_NAME = create("global-spawner-settings.check-name-and-lore", BOOLEAN, true, "Should RoseStacker check the display name and lore", "while attempting to place an empty spawner.");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS = create("global-spawner-settings.display-tags", BOOLEAN, true, "Should tags be displayed above stacks to show their amount and type?");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS_SINGLE = create("global-spawner-settings.display-tags-single", BOOLEAN, false, "Should tags be displayed if the stack only has one spawner?");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT = create("global-spawner-settings.display-tags-single-amount", BOOLEAN, false, "Should stacks of size one show the amount on their tags if enabled?");
