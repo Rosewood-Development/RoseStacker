@@ -6,13 +6,13 @@ import dev.rosewood.rosegarden.config.RoseSettingSerializer;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.utils.VersionUtils;
+import org.bukkit.Material;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 
 import static dev.rosewood.rosegarden.config.RoseSettingSerializers.*;
 
