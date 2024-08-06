@@ -339,7 +339,8 @@ public final class ItemUtils {
         }
 
         // Check if we're allowing name and lore checks
-        if (!SettingKey.SPAWNER_CHECK_DISPLAY_NAME.get()) return null;
+        if (!SettingKey.SPAWNER_ITEM_CHECK_DISPLAY_NAME.get())
+            return null;
 
         // Use the name to determine the type, must be colored
         String name = ChatColor.stripColor(itemMeta.getDisplayName());

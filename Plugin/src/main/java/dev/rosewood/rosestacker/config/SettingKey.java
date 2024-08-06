@@ -6,14 +6,12 @@ import dev.rosewood.rosegarden.config.RoseSettingSerializer;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.utils.VersionUtils;
-import org.bukkit.Material;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
+import org.bukkit.Material;
 import static dev.rosewood.rosegarden.config.RoseSettingSerializers.*;
 
 public final class SettingKey {
@@ -115,7 +113,6 @@ public final class SettingKey {
     public static final RoseSetting<CommentedConfigurationSection> GLOBAL_SPAWNER_SETTINGS = create("global-spawner-settings", "Global spawner settings", "Changed values in spawner_settings.yml will override these values");
     public static final RoseSetting<Boolean> SPAWNER_STACKING_ENABLED = create("global-spawner-settings.stacking-enabled", BOOLEAN, true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead.", "Changing this setting will require a full server restart to fully take effect.");
     public static final RoseSetting<Integer> SPAWNER_MAX_STACK_SIZE = create("global-spawner-settings.max-stack-size", INTEGER, 32, "The maximum number of spawners that can be in a single stack");
-    public static final RoseSetting<Boolean> SPAWNER_CHECK_DISPLAY_NAME = create("global-spawner-settings.check-name-and-lore", BOOLEAN, true, "Should RoseStacker check the display name and lore", "while attempting to place an empty spawner.");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS = create("global-spawner-settings.display-tags", BOOLEAN, true, "Should tags be displayed above stacks to show their amount and type?");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS_SINGLE = create("global-spawner-settings.display-tags-single", BOOLEAN, false, "Should tags be displayed if the stack only has one spawner?");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT = create("global-spawner-settings.display-tags-single-amount", BOOLEAN, false, "Should stacks of size one show the amount on their tags if enabled?");
@@ -179,6 +176,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> SPAWNER_DONT_SPAWN_INTO_BLOCKS = create("global-spawner-settings.dont-spawn-into-blocks", BOOLEAN, true, "When enabled, this will force the 'air' condition tag onto the", "spawner if it doesn't have 'fluid' or 'air' already.", "Disabling this will allow mobs to spawn into blocks unless", "you explicitly add the 'fluid' or 'air' tags.");
     public static final RoseSetting<Boolean> SPAWNER_NERF_PATROL_LEADERS = create("global-spawner-settings.nerf-patrol-leaders", BOOLEAN, false, "Should patrol leaders be prevented when spawning potential raid member mobs?");
     public static final RoseSetting<Boolean> SPAWNER_MAX_NEARBY_ENTITIES_INCLUDE_STACKS = create("global-spawner-settings.max-nearby-entities-include-stacks", BOOLEAN, false, "When enabled, the entire stack size of entities will be taken into account for nearby entiites", "When disabled, only one entity per stack will count towards nearby entities");
+    public static final RoseSetting<Boolean> SPAWNER_ITEM_CHECK_DISPLAY_NAME = create("global-spawner-settings.check-name-and-lore", BOOLEAN, false, "Should the display name and lore of spawners be checked when determining the spawner item type?", "Helpful for migrating old spawner items from another spawner plugin with unsupported data");
     public static final RoseSetting<Boolean> SPAWNER_GUI_ENABLED = create("global-spawner-settings.gui-enabled", BOOLEAN, true, "Should a GUI to view the spawner information open when the player shift-right-clicks the stack?");
     public static final RoseSetting<Integer> SPAWNER_GUI_TICK_UPDATE_RATE = create("global-spawner-settings.gui-tick-update-rate", INTEGER, 2, "How often should the time before next spawn message be updated?", "Value is measured in ticks, do not go below 1");
     public static final RoseSetting<String> SPAWNER_GUI_BORDER_MATERIAL = create("global-spawner-settings.gui-border-material", STRING, Material.GRAY_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?");
