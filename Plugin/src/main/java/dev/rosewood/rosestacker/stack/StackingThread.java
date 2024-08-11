@@ -1098,7 +1098,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private boolean isRemoved(Entity entity) {
-        return entity == null || (!entity.isValid() && !entity.hasMetadata(NEW_METADATA)) || REMOVED_ENTITIES.getIfPresent(entity.getUniqueId()) != null;
+        return entity == null || (!entity.hasMetadata(NEW_METADATA) && !entity.isValid()) || REMOVED_ENTITIES.getIfPresent(entity.getUniqueId()) != null;
     }
 
     private void setRemoved(Entity entity) {

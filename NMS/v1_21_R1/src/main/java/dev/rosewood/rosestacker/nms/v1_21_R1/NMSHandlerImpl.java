@@ -72,8 +72,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.RegionAccessor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_21_R1.CraftRegionAccessor;
 import org.bukkit.craftbukkit.v1_21_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftCreeper;
@@ -497,6 +499,15 @@ public class NMSHandlerImpl implements NMSHandler {
     @Override
     public EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp) {
         return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
+    }
+
+    @Override
+    public List<org.bukkit.entity.Entity> getEntities(World world) {
+        CraftWorld craftWorld = (CraftWorld) world;
+        List<org.bukkit.entity.Entity> entities = new ArrayList<>();
+        for (Entity entity : craftWorld.getNMSEntities())
+            entities.add(entity.getBukkitEntity());
+        return entities;
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
