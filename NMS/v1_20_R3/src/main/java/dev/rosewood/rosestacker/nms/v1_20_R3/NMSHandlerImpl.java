@@ -498,6 +498,15 @@ public class NMSHandlerImpl implements NMSHandler {
         return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
+    @Override
+    public List<org.bukkit.entity.Entity> getEntities(World world) {
+        CraftWorld craftWorld = (CraftWorld) world;
+        List<org.bukkit.entity.Entity> entities = new ArrayList<>();
+        for (Entity entity : craftWorld.getNMSEntities())
+            entities.add(entity.getBukkitEntity());
+        return entities;
+    }
+
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
         if (field_ServerLevel_entityManager != null) {
             PersistentEntitySectionManager<Entity> entityManager = (PersistentEntitySectionManager<Entity>) field_ServerLevel_entityManager.get(world);

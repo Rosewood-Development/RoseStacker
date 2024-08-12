@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
@@ -82,9 +84,9 @@ public class EntityCacheManager extends Manager {
         }
 
         return nearbyEntities.stream()
-                .filter(Entity::isValid)
                 .filter(x -> boundingBox.contains(x.getLocation().toVector()))
                 .filter(predicate)
+                .filter(Entity::isValid)
                 .collect(Collectors.toSet());
     }
 
@@ -105,8 +107,8 @@ public class EntityCacheManager extends Manager {
             return new ArrayList<>();
 
         return entities.stream()
-                .filter(Entity::isValid)
                 .filter(predicate)
+                .filter(Entity::isValid)
                 .collect(Collectors.toSet());
     }
 
@@ -129,9 +131,10 @@ public class EntityCacheManager extends Manager {
     private void refresh() {
         synchronized (this.entityCache) {
             this.entityCache.clear();
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
-                for (Entity entity : world.getEntities()) {
+                for (Entity entity : nmsHandler.getEntities(world)) {
                     EntityType type = entity.getType();
                     if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;

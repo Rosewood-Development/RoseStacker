@@ -24,7 +24,6 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
 
         maven { url = 'https://repo.rosewooddev.io/repository/public/' }

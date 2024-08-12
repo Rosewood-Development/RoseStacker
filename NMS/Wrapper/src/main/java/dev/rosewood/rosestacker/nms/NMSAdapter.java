@@ -17,7 +17,7 @@ public final class NMSAdapter {
                 int minor = NMSUtil.getMinorVersionNumber();
                 if (major == 20 && (minor == 5 || minor == 6)) {
                     name = "v1_20_R4";
-                } else if (major == 21 && minor == 0) {
+                } else if (major == 21) {
                     name = "v1_21_R1";
                 }
             }

@@ -287,8 +287,32 @@ public interface NMSHandler {
      */
     void setCustomNameUncapped(Entity entity, String customName);
 
+    /**
+     * Gets the number of ticks the item will live for before despawning
+     *
+     * @param item The item
+     * @return the number of ticks the item will live for before despawning
+     */
     int getItemDespawnRate(Item item);
 
+    /**
+     * Creates an AsyncEntityDeathEvent instance compatible with the current server version
+     *
+     * @param what The entity dying
+     * @param drops The items being dropped
+     * @param droppedExp The experience being dropped
+     * @return The AsyncEntityDeathEvent instance
+     */
     EntityDeathEvent createAsyncEntityDeathEvent(@NotNull LivingEntity what, @NotNull List<ItemStack> drops, int droppedExp);
+
+    /**
+     * Gets all living entities and items in the world
+     *
+     * @param world The world
+     * @return A list of all living entities and items in the world
+     */
+    default List<Entity> getEntities(World world) {
+        return world.getEntities();
+    }
 
 }

@@ -437,6 +437,15 @@ public class NMSHandlerImpl implements NMSHandler {
         return new AsyncEntityDeathEventImpl(what, drops, droppedExp);
     }
 
+    @Override
+    public List<org.bukkit.entity.Entity> getEntities(World world) {
+        CraftWorld craftWorld = (CraftWorld) world;
+        List<org.bukkit.entity.Entity> entities = new ArrayList<>();
+        for (Entity entity : craftWorld.getHandle().entitiesById.values())
+            entities.add(entity.getBukkitEntity());
+        return entities;
+    }
+
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {
         return switch (mobSpawnType) {
             case SPAWN_EGG -> SpawnReason.SPAWNER_EGG;
