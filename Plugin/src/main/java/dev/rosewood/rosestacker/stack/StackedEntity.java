@@ -712,7 +712,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return true;
 
         // Is partial stack kill
-        Player killer = this.entity.getKiller();
+        Player killer = event.getEntity().getKiller();
         if (!SettingKey.ENTITY_MULTIKILL_ENABLED.get())
             return false;
 
