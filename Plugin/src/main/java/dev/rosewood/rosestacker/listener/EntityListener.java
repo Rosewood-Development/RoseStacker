@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
@@ -531,14 +533,15 @@ public class EntityListener implements Listener {
             return;
         }
 
+        ShearedHandler shearedHandler = CompatibilityAdapter.getShearedHandler();
         List<ItemStack> drops = new ArrayList<>();
         stackManager.setEntityUnstackingTemporarilyDisabled(true);
         ThreadUtils.runAsync(() -> {
             try {
                 stackedEntity.getDataStorage().forEachTransforming(internal -> {
                     Sheep sheep = (Sheep) internal;
-                    if (!sheep.isSheared() || stackManager.getEntityDataStorageType(sheep.getType()) == StackedEntityDataStorageType.SIMPLE) {
-                        sheep.setSheared(true);
+                    if (!shearedHandler.isSheared(sheep) || stackManager.getEntityDataStorageType(sheep.getType()) == StackedEntityDataStorageType.SIMPLE) {
+                        shearedHandler.setSheared(sheep, true);
                         drops.add(new ItemStack(ItemUtils.getWoolMaterial(sheep.getColor()), getWoolDropAmount()));
                         return true;
                     }
@@ -578,8 +581,9 @@ public class EntityListener implements Listener {
         double regrowPercentage = stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN).getDouble() / 100D;
         int regrowAmount = Math.max(1, (int) Math.round(stackedEntity.getStackSize() * regrowPercentage));
 
-        if (sheepEntity.isSheared()) {
-            sheepEntity.setSheared(false);
+        ShearedHandler shearedHandler = CompatibilityAdapter.getShearedHandler();
+        if (shearedHandler.isSheared(sheepEntity)) {
+            shearedHandler.setSheared(sheepEntity, false);
             regrowAmount--;
         }
 
@@ -589,8 +593,8 @@ public class EntityListener implements Listener {
         AtomicInteger regrowRemaining = new AtomicInteger(regrowAmount);
         ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(internal -> {
             Sheep sheep = (Sheep) internal;
-            if (sheep.isSheared() && regrowRemaining.getAndDecrement() > 0) {
-                sheep.setSheared(false);
+            if (shearedHandler.isSheared(sheep) && regrowRemaining.getAndDecrement() > 0) {
+                shearedHandler.setSheared(sheepEntity, false);
                 return true;
             }
             return false;
