@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -336,7 +337,7 @@ public class StackSettingManager extends Manager {
      * @return The SpawnerStackSettings for the spawner
      */
     public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
-        return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
+        return this.getSpawnerStackSettings(CompatibilityAdapter.getCreatureSpawnerHandler().getSpawnedType(creatureSpawner));
     }
 
     public Set<EntityType> getStackableEntityTypes() {

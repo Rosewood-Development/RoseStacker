@@ -81,7 +81,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     }
 
     /**
-     * @return a freshly fetched copy of the spawner's CreatureSpawner state
+     * @return a copy of the spawner's CreatureSpawner state
      * @implNote It is recommended to use {@link #getSpawnerTile} instead as it is updated live, this object is likely to be <i>very</i> stale
      */
     public CreatureSpawner getSpawner() {

@@ -40,6 +40,7 @@ dependencies {
 
     // Dependencies that will be shaded into the jar
     api "dev.rosewood:rosegarden:$rosegardenVersion"
+    api "dev.rosewood:rosegarden-compatibility:$rosegardenVersion"
     api 'dev.rosewood:guiframework:1.1.4'
 }
 

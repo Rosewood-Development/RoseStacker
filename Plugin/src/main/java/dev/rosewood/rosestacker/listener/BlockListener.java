@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
@@ -556,7 +557,7 @@ public class BlockListener implements Listener {
 
             if (block.getState() instanceof CreatureSpawner creatureSpawner) {
                 spawnerType.get().ifPresent(x -> {
-                    creatureSpawner.setSpawnedType(x);
+                    CompatibilityAdapter.getCreatureSpawnerHandler().setSpawnedType(creatureSpawner, x);
                     creatureSpawner.update();
                 });
             }
