@@ -185,12 +185,14 @@ public class StackSettingManager extends Manager {
             List<Permission> silktouch = new ArrayList<>();
             List<Permission> nosilk = new ArrayList<>();
             List<Permission> spawnerplace = new ArrayList<>();
+            List<Permission> spawnerconvert = new ArrayList<>();
 
             for (EntityType entityType : this.entitySettings.keySet()) {
-                String type = entityType.name().toLowerCase();
+                String type = entityType.getKey().getKey();
                 silktouch.add(new Permission("rosestacker.silktouch." + type));
                 nosilk.add(new Permission("rosestacker.nosilk." + type));
                 spawnerplace.add(new Permission("rosestacker.spawnerplace." + type));
+                spawnerconvert.add(new Permission("rosestacker.spawnerconvert." + type));
             }
 
             // Register silktouch permissions
@@ -204,6 +206,10 @@ public class StackSettingManager extends Manager {
             // Register spawnerplace permissions
             spawnerplace.forEach(pluginManager::addPermission);
             pluginManager.addPermission(new Permission("rosestacker.spawnerplace.*", spawnerplace.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
+
+            // Register spawnerconvert permissions
+            spawnerconvert.forEach(pluginManager::addPermission);
+            pluginManager.addPermission(new Permission("rosestacker.spawnerconvert.*", spawnerconvert.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
 
             registeredPermissions = true;
         }
