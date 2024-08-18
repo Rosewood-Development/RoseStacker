@@ -3,7 +3,9 @@ package dev.rosewood.rosestacker.stack.settings.conditions.entity;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.compatibility.handler.OldEnumHandler;
 import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
+import dev.rosewood.rosegarden.compatibility.wrapper.WrappedKeyed;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -20,12 +22,10 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Animals;
-import org.bukkit.entity.Armadillo;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Bee;
 import org.bukkit.entity.Bogged;
-import org.bukkit.entity.Breeze;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
@@ -81,6 +81,7 @@ public final class StackConditions {
         CLASS_STACK_EVALUATION_MAP = MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
         ShearedHandler shearedHandler = CompatibilityAdapter.getShearedHandler();
+        OldEnumHandler oldEnumHandler = CompatibilityAdapter.getOldEnumHandler();
 
         // Register base Entity conditions
         register(Entity.class, (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions) -> {
@@ -262,7 +263,9 @@ public final class StackConditions {
         registerConfig(Vex.class, "charging", false, EntityStackComparisonResult.CHARGING, (entity1, entity2) -> entity1.isCharging() || entity2.isCharging());
         registerConfig(Villager.class, "professioned", false, EntityStackComparisonResult.PROFESSIONED, (entity1, entity2) -> {
             List<String> professionValues = List.of("none", "nitwit");
-            return !professionValues.contains(entity1.getProfession().getKey().getKey()) || !professionValues.contains(entity2.getProfession().getKey().getKey());
+            WrappedKeyed profession1 = oldEnumHandler.getProfession(entity1);
+            WrappedKeyed profession2 = oldEnumHandler.getProfession(entity2);
+            return !professionValues.contains(profession1.getKey().getKey()) || !professionValues.contains(profession2.getKey().getKey());
         });
         registerConfig(Villager.class, "different-profession", false, EntityStackComparisonResult.DIFFERENT_PROFESSIONS, (entity1, entity2) -> entity1.getProfession() != entity2.getProfession());
         registerConfig(Villager.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVillagerType() != entity2.getVillagerType());
