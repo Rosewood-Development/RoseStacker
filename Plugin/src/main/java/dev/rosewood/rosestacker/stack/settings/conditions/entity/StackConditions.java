@@ -189,6 +189,10 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber >= 21) {
+            registerConfig(Wolf.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
         if (versionNumber > 20 || (versionNumber == 20 && minorVersionNumber >= 5)) {
             // Armadillo, Bogged, Breeze, only Bogged has API as of 17/August/2024
             registerConfig(Bogged.class, "sheared", false, EntityStackComparisonResult.SHEARED, (entity1, entity2) -> shearedHandler.isSheared(entity1) || shearedHandler.isSheared(entity2));
@@ -257,8 +261,8 @@ public final class StackConditions {
         registerConfig(TropicalFish.class, "different-pattern-color", false, EntityStackComparisonResult.DIFFERENT_PATTERN_COLORS, (entity1, entity2) -> entity1.getPatternColor() != entity2.getPatternColor());
         registerConfig(Vex.class, "charging", false, EntityStackComparisonResult.CHARGING, (entity1, entity2) -> entity1.isCharging() || entity2.isCharging());
         registerConfig(Villager.class, "professioned", false, EntityStackComparisonResult.PROFESSIONED, (entity1, entity2) -> {
-            List<String> professionValues = List.of("NONE", "NITWIT");
-            return !professionValues.contains(entity1.getProfession().name()) || !professionValues.contains(entity2.getProfession().name());
+            List<String> professionValues = List.of("none", "nitwit");
+            return !professionValues.contains(entity1.getProfession().getKey().getKey()) || !professionValues.contains(entity2.getProfession().getKey().getKey());
         });
         registerConfig(Villager.class, "different-profession", false, EntityStackComparisonResult.DIFFERENT_PROFESSIONS, (entity1, entity2) -> entity1.getProfession() != entity2.getProfession());
         registerConfig(Villager.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVillagerType() != entity2.getVillagerType());

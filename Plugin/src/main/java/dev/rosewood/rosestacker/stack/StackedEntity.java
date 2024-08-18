@@ -664,9 +664,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
         }
 
+        List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()) {
-            List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
             if (event == null) {
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
             } else {
@@ -677,7 +677,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
-                event.setDroppedExp(experience * this.getStackSize());
+                event.setDroppedExp(experience * (killedEntities.size() + 1));
             }
         }
 
