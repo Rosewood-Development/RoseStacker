@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.event.SpawnerStackEvent;
 import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
 import dev.rosewood.rosestacker.hook.BlockLoggingHook;
+import dev.rosewood.rosestacker.hook.InsightsHook;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -156,14 +157,18 @@ public class BlockListener implements Listener {
             if (this.tryDropSpawners(player, dropLocation, spawnerType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
                 BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
+                    // Fix an issue where Insights can't detect the last spawner broken when the hook is disabled
+                    if (!SettingKey.MISC_INSIGHTS_LOGGING.get() && Bukkit.getPluginManager().isPluginEnabled("Insights"))
+                        InsightsHook.modifyBlockAmount(block, -1);
                     stackedSpawner.setStackSize(0);
                     block.setType(Material.AIR);
                 } else {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
 
-                if (stackedSpawner.getStackSize() <= 0)
+                if (stackedSpawner.getStackSize() <= 0) {
                     stackManager.removeSpawnerStack(stackedSpawner);
+                }
             } else {
                 event.setCancelled(true);
                 return;
@@ -209,6 +214,9 @@ public class BlockListener implements Listener {
 
             BlockLoggingHook.recordBlockBreak(player, block);
             if (breakAmount == stackedBlock.getStackSize()) {
+                // Fix an issue where Insights can't detect the last block broken when the hook is disabled
+                if (!SettingKey.MISC_INSIGHTS_LOGGING.get() && Bukkit.getPluginManager().isPluginEnabled("Insights"))
+                    InsightsHook.modifyBlockAmount(block, -1);
                 stackedBlock.setStackSize(0);
                 block.setType(Material.AIR);
             } else {
