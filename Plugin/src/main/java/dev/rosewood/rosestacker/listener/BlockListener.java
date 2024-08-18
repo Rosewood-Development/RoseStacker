@@ -548,10 +548,10 @@ public class BlockListener implements Listener {
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
         boolean isDistanceStack = false;
         boolean isAdditiveStack = against.getType() == block.getType();
-        SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : SpawnerType.empty();
+        SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : null;
         int stackAmount = ItemUtils.getStackedItemStackAmount(placedItem);
 
-        if (block.getType() == Material.SPAWNER) {
+        if (spawnerType != null) {
             if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(spawnerType))
                 return;
 
@@ -570,7 +570,7 @@ public class BlockListener implements Listener {
         int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
         boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
         boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
-        if (useAutoStack && block.getType() == Material.SPAWNER) {
+        if (useAutoStack && spawnerType != null) {
             StackedSpawner nearest = null;
             boolean anyNearby = false;
             List<StackedSpawner> spawners = new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());
