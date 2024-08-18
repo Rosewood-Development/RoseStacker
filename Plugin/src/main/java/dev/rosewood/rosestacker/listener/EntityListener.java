@@ -420,7 +420,7 @@ public class EntityListener implements Listener {
             return;
 
         StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) event.getEntity());
-        if (stackedEntity.getStackSize() == 1)
+        if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
         if (SettingKey.ENTITY_TRANSFORM_ENTIRE_STACK.get()) {
@@ -487,11 +487,21 @@ public class EntityListener implements Listener {
         if (stackedEntity == null || stackedEntity.getStackSize() == 1)
             return;
 
-        if (!stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE).getBoolean())
+        EntityStackSettings chickenStackSettings = stackedEntity.getStackSettings();
+        if (!chickenStackSettings.getSettingValue(EntityStackSettings.CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE).getBoolean())
             return;
 
         event.getItemDrop().remove();
-        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, stackedEntity.getStackSize());
+
+        int maxAmount = chickenStackSettings.getSettingValue(EntityStackSettings.CHICKEN_MAX_EGG_STACK_SIZE).getInt();
+        if (maxAmount == 0) // Allow disabling eggs for stacks
+            return;
+
+        int amount = stackedEntity.getStackSize();
+        if (maxAmount > 0)
+            amount = Math.min(amount, maxAmount);
+
+        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, amount);
         stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
