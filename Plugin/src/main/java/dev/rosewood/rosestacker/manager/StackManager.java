@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -33,6 +34,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Manages {@link StackingThread} and chunk processing
@@ -399,6 +401,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @param world the World
      * @return a StackingThread for the World, otherwise null if one doesn't exist
      */
+    @Nullable
     public StackingThread getStackingThread(World world) {
         return this.stackingThreads.get(world.getUID());
     }
@@ -406,6 +409,7 @@ public class StackManager extends Manager implements StackingLogic {
     /**
      * @return a Map of key -> World UUID, value -> StackingThread of all StackingThreads
      */
+    @NotNull
     public Map<UUID, StackingThread> getStackingThreads() {
         return this.stackingThreads;
     }

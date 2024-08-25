@@ -285,11 +285,8 @@ public class BlockListener implements Listener {
                     && (!SettingKey.SPAWNER_ADVANCED_PERMISSIONS.get() || !hasAdvNoSilkPermission)
                     && (!SettingKey.SPAWNER_SILK_TOUCH_GUARANTEE.get() || silkTouchLevel < 2)) {
                 double chance = StackerUtils.getSilkTouchChanceRaw(player) / 100;
-                for (int i = 0, n = amount - destroyAmount; i < n; i++) {
-                    boolean passesChance = StackerUtils.passesChance(chance);
-                    if (!passesChance || silkTouchLevel == 0)
-                        destroyAmount++;
-                }
+                int attempts = amount - destroyAmount;
+                destroyAmount += attempts - StackerUtils.countPassedChances(chance, attempts);
             }
 
             if (destroyAmount > amount)
@@ -313,7 +310,7 @@ public class BlockListener implements Listener {
                 }
 
                 if (SettingKey.SPAWNER_DROP_EXPERIENCE_WHEN_DESTROYED.get())
-                    StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 15 * destroyAmount);
+                    StackerUtils.dropExperience(dropLocation, 15L * destroyAmount, 43L * destroyAmount, (int) Math.min(Integer.MAX_VALUE, 15L * destroyAmount));
             }
         }
 
