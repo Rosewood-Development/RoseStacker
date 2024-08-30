@@ -507,11 +507,6 @@ public class StackManager extends Manager implements StackingLogic {
         fromThread.transferExistingEntityStack(entityUUID, stackedItem, toThread);
     }
 
-    public void processNametags() {
-        for (StackingThread stackingThread : this.stackingThreads.values())
-            stackingThread.processNametags();
-    }
-
     /**
      * Toggles instant entity stacking as temporarily disabled to allow for entity manipulation without
      * stacks automatically being created.
@@ -560,7 +555,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return the current entity data storage type for newly created entity stacks
      * @deprecated use {@link #getEntityDataStorageType(EntityType)} as this can now be changed per entity type
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public StackedEntityDataStorageType getEntityDataStorageType() {
         return this.entityDataStorageType;
     }
