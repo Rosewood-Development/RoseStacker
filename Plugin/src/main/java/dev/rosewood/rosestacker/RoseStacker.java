@@ -18,7 +18,6 @@ import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
 import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
-import dev.rosewood.rosestacker.listener.paper.PaperPreCreatureSpawnListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
@@ -84,10 +83,6 @@ public class RoseStacker extends RosePlugin {
                 this.getLogger().severe("Your version of 1.17 is VERY OUTDATED! Stacked entities and items WILL NOT LOAD until you update!");
             }
         }
-
-        // Try to hook with Paper
-        if (NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 18)
-            pluginManager.registerEvents(new PaperPreCreatureSpawnListener(this), this);
 
         // Try to hook with PlaceholderAPI
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
