@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.stack;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
@@ -592,7 +593,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return null;
 
         CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
-        if (!this.stackManager.isSpawnerStackingEnabled() || !this.stackManager.isSpawnerTypeStackable(creatureSpawner.getSpawnedType()))
+        EntityType spawnedType = CompatibilityAdapter.getCreatureSpawnerHandler().getSpawnedType(creatureSpawner);
+        if (!this.stackManager.isSpawnerStackingEnabled() || !this.stackManager.isSpawnerTypeStackable(spawnedType))
             return null;
 
         StackChunkData stackChunkData = this.stackChunkData.computeIfAbsent(block.getChunk(), x -> new StackChunkData());

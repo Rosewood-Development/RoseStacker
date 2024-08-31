@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.api;
 
 import com.google.common.base.Preconditions;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
@@ -530,7 +531,7 @@ public final class RoseStackerAPI {
     public SpawnerStackSettings getSpawnerStackSettings(@NotNull CreatureSpawner creatureSpawner) {
         Objects.requireNonNull(creatureSpawner);
 
-        return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
+        return this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(creatureSpawner);
     }
 
     /**

@@ -8,12 +8,12 @@ import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -56,7 +56,7 @@ public class EntityCacheManager extends Manager {
      * @return A Set of nearby entities
      */
     public Collection<Entity> getNearbyEntities(Location center, double radius, Predicate<Entity> predicate) {
-        List<Entity> nearbyEntities = new ArrayList<>();
+        Set<Entity> nearbyEntities = new HashSet<>();
         World world = center.getWorld();
         if (world == null)
             return nearbyEntities;
@@ -78,16 +78,19 @@ public class EntityCacheManager extends Manager {
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, z));
-                if (entities != null)
-                    nearbyEntities.addAll(entities);
+                if (entities == null)
+                    continue;
+
+                for (Entity entity : entities) {
+                    if (boundingBox.contains(entity.getLocation().toVector())
+                            && predicate.test(entity)
+                            && entity.isValid())
+                        nearbyEntities.add(entity);
+                }
             }
         }
 
-        return nearbyEntities.stream()
-                .filter(x -> boundingBox.contains(x.getLocation().toVector()))
-                .filter(predicate)
-                .filter(Entity::isValid)
-                .collect(Collectors.toSet());
+        return nearbyEntities;
     }
 
     /**
@@ -106,10 +109,12 @@ public class EntityCacheManager extends Manager {
         if (entities == null)
             return new ArrayList<>();
 
-        return entities.stream()
-                .filter(predicate)
-                .filter(Entity::isValid)
-                .collect(Collectors.toSet());
+        Set<Entity> nearbyEntities = new HashSet<>();
+        for (Entity entity : entities)
+            if (predicate.test(entity) && entity.isValid())
+                nearbyEntities.add(entity);
+
+        return nearbyEntities;
     }
 
     /**

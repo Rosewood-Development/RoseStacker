@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
@@ -239,7 +240,7 @@ public final class ItemUtils {
             // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
             BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
             CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
-            creatureSpawner.setSpawnedType(spawnerType.getOrThrow());
+            CompatibilityAdapter.getCreatureSpawnerHandler().setSpawnedType(creatureSpawner, spawnerType.getOrThrow());
             blockStateMeta.setBlockState(creatureSpawner);
         }
 
@@ -304,7 +305,7 @@ public final class ItemUtils {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta instanceof BlockStateMeta blockStateMeta && blockStateMeta.hasBlockState()) {
             CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
-            return creatureSpawner.getSpawnedType();
+            return CompatibilityAdapter.getCreatureSpawnerHandler().getSpawnedType(creatureSpawner);
         }
 
         // Try formats from other plugins/servers

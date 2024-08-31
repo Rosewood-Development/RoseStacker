@@ -32,7 +32,9 @@ import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
@@ -49,6 +51,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -661,9 +664,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return;
         }
 
+        List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()) {
-            List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.pop(amount - 1);
             if (event == null) {
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(), experience);
             } else {
@@ -674,7 +677,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
-                event.setDroppedExp(experience * this.getStackSize());
+                event.setDroppedExp(experience * (killedEntities.size() + 1));
             }
         }
 
@@ -689,6 +692,44 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         Player killer = originalEntity.getKiller();
         if (killer != null && amount - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), amount - 1);
+    }
+
+    /**
+     * Checks if multiple entities are dying from the EntityDeathEvent and an {@link EntityStackMultipleDeathEvent} is
+     * going to be called.
+     *
+     * @param event The EntityDeathEvent to check
+     * @return true if multiple entities are dying during this event, false otherwise
+     */
+    public boolean areMultipleEntitiesDying(@NotNull EntityDeathEvent event) {
+        // Don't ignore if single entity kill or not a stack
+        if (!SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get()
+                || this.getStackSize() == 1)
+            return false;
+
+        // Ignore if entire stack kill
+        if (this.isEntireStackKilledOnDeath())
+            return true;
+
+        // Is partial stack kill
+        Player killer = event.getEntity().getKiller();
+        if (!SettingKey.ENTITY_MULTIKILL_ENABLED.get())
+            return false;
+
+        if (SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() && killer == null)
+            return false;
+
+        if (!SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get())
+            return true;
+
+        if (killer == null)
+            return false;
+
+        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
+        if (requiredEnchantment == null)
+            return false;
+
+        return killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment) > 0;
     }
 
 }

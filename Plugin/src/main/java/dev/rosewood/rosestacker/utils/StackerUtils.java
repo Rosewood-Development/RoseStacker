@@ -105,6 +105,30 @@ public final class StackerUtils {
     }
 
     /**
+     * Calculates the number of times a chance passes against a certain number of attempts
+     *
+     * @param chance The percent chance, 0-1, that the attempt will pass
+     * @param attempts The number of times to attempt the chance
+     * @return The number of times that the chance passed in the number of attempts
+     */
+    public static int countPassedChances(double chance, int attempts) {
+        if (chance == 0) return 0;
+        if (chance == 1) return attempts;
+
+        if (attempts < 128) {
+            int passes = 0;
+            for (int i = 0; i < attempts; i++)
+                if (passesChance(chance))
+                    passes++;
+            return passes;
+        }
+
+        double mean = attempts * chance;
+        double stdDev = Math.sqrt(attempts * chance) * (1 - chance);
+        return (int) Math.round(RANDOM.nextGaussian(mean, stdDev));
+    }
+
+    /**
      * Drops experience at a given location
      *
      * @param location to spawn experience
@@ -112,12 +136,12 @@ public final class StackerUtils {
      * @param upperBound maximum amount to drop
      * @param step the max size an orb can be, will drop multiple orbs if this is exceeded
      */
-    public static void dropExperience(Location location, int lowerBound, int upperBound, int step) {
+    public static void dropExperience(Location location, long lowerBound, long upperBound, int step) {
         World world = location.getWorld();
         if (world == null)
             return;
 
-        int experience = RANDOM.nextInt(upperBound - lowerBound + 1) + lowerBound;
+        long experience = RANDOM.nextLong(upperBound - lowerBound + 1) + lowerBound;
 
         int chunkAmount = Math.max(2, step); // Prevent infinite loops and always use at minimum a step of 2
         while (experience > chunkAmount) {
@@ -126,7 +150,7 @@ public final class StackerUtils {
         }
 
         if (experience > 0) {
-            int fExperience = experience;
+            int fExperience = (int) experience;
             EntitySpawnUtil.spawn(location.clone().add(RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5, RANDOM.nextDouble() - 0.5), ExperienceOrb.class, x -> x.setExperience(fExperience));
         }
     }

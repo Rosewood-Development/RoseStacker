@@ -2,12 +2,14 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
 import dev.rosewood.rosestacker.event.SpawnerStackEvent;
 import dev.rosewood.rosestacker.event.SpawnerUnstackEvent;
 import dev.rosewood.rosestacker.hook.BlockLoggingHook;
+import dev.rosewood.rosestacker.hook.InsightsHook;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -155,14 +157,18 @@ public class BlockListener implements Listener {
             if (this.tryDropSpawners(player, dropLocation, spawnerType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
                 BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
+                    // Fix an issue where Insights can't detect the last spawner broken when the hook is disabled
+                    if (!SettingKey.MISC_INSIGHTS_LOGGING.get() && Bukkit.getPluginManager().isPluginEnabled("Insights"))
+                        InsightsHook.modifyBlockAmount(block, -1);
                     stackedSpawner.setStackSize(0);
                     block.setType(Material.AIR);
                 } else {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
 
-                if (stackedSpawner.getStackSize() <= 0)
+                if (stackedSpawner.getStackSize() <= 0) {
                     stackManager.removeSpawnerStack(stackedSpawner);
+                }
             } else {
                 event.setCancelled(true);
                 return;
@@ -208,6 +214,9 @@ public class BlockListener implements Listener {
 
             BlockLoggingHook.recordBlockBreak(player, block);
             if (breakAmount == stackedBlock.getStackSize()) {
+                // Fix an issue where Insights can't detect the last block broken when the hook is disabled
+                if (!SettingKey.MISC_INSIGHTS_LOGGING.get() && Bukkit.getPluginManager().isPluginEnabled("Insights"))
+                    InsightsHook.modifyBlockAmount(block, -1);
                 stackedBlock.setStackSize(0);
                 block.setType(Material.AIR);
             } else {
@@ -276,11 +285,8 @@ public class BlockListener implements Listener {
                     && (!SettingKey.SPAWNER_ADVANCED_PERMISSIONS.get() || !hasAdvNoSilkPermission)
                     && (!SettingKey.SPAWNER_SILK_TOUCH_GUARANTEE.get() || silkTouchLevel < 2)) {
                 double chance = StackerUtils.getSilkTouchChanceRaw(player) / 100;
-                for (int i = 0, n = amount - destroyAmount; i < n; i++) {
-                    boolean passesChance = StackerUtils.passesChance(chance);
-                    if (!passesChance || silkTouchLevel == 0)
-                        destroyAmount++;
-                }
+                int attempts = amount - destroyAmount;
+                destroyAmount += attempts - StackerUtils.countPassedChances(chance, attempts);
             }
 
             if (destroyAmount > amount)
@@ -304,7 +310,7 @@ public class BlockListener implements Listener {
                 }
 
                 if (SettingKey.SPAWNER_DROP_EXPERIENCE_WHEN_DESTROYED.get())
-                    StackerUtils.dropExperience(dropLocation, 15 * destroyAmount, 43 * destroyAmount, 15 * destroyAmount);
+                    StackerUtils.dropExperience(dropLocation, 15L * destroyAmount, 43L * destroyAmount, (int) Math.min(Integer.MAX_VALUE, 15L * destroyAmount));
             }
         }
 
@@ -547,16 +553,16 @@ public class BlockListener implements Listener {
         // Will be true if we are adding to an existing stack (including a stack of 1), or false if we are creating a new one from an itemstack with a stack value
         boolean isDistanceStack = false;
         boolean isAdditiveStack = against.getType() == block.getType();
-        SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : SpawnerType.empty();
+        SpawnerType spawnerType = placedItem.getType() == Material.SPAWNER ? ItemUtils.getStackedItemSpawnerType(placedItem) : null;
         int stackAmount = ItemUtils.getStackedItemStackAmount(placedItem);
 
-        if (block.getType() == Material.SPAWNER) {
+        if (spawnerType != null) {
             if (!stackManager.isSpawnerStackingEnabled() || !stackManager.isSpawnerTypeStackable(spawnerType))
                 return;
 
             if (block.getState() instanceof CreatureSpawner creatureSpawner) {
                 spawnerType.get().ifPresent(x -> {
-                    creatureSpawner.setSpawnedType(x);
+                    CompatibilityAdapter.getCreatureSpawnerHandler().setSpawnedType(creatureSpawner, x);
                     creatureSpawner.update();
                 });
             }
@@ -569,7 +575,7 @@ public class BlockListener implements Listener {
         int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
         boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
         boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
-        if (useAutoStack && block.getType() == Material.SPAWNER) {
+        if (useAutoStack && spawnerType != null) {
             StackedSpawner nearest = null;
             boolean anyNearby = false;
             List<StackedSpawner> spawners = new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());

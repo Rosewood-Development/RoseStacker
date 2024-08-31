@@ -2,6 +2,10 @@ package dev.rosewood.rosestacker.stack.settings.conditions.entity;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.compatibility.handler.OldEnumHandler;
+import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
+import dev.rosewood.rosegarden.compatibility.wrapper.WrappedKeyed;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -21,6 +25,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Bee;
+import org.bukkit.entity.Bogged;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
@@ -74,6 +79,9 @@ public final class StackConditions {
 
     static {
         CLASS_STACK_EVALUATION_MAP = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+
+        ShearedHandler shearedHandler = CompatibilityAdapter.getShearedHandler();
+        OldEnumHandler oldEnumHandler = CompatibilityAdapter.getOldEnumHandler();
 
         // Register base Entity conditions
         register(Entity.class, (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions) -> {
@@ -182,9 +190,13 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber >= 21) {
+            registerConfig(Wolf.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
         if (versionNumber > 20 || (versionNumber == 20 && minorVersionNumber >= 5)) {
-            // Armadillo, Bogged, Breeze
-            // TODO: None of these mobs have API as of 28/April/2024
+            // Armadillo, Bogged, Breeze, only Bogged has API as of 17/August/2024
+            registerConfig(Bogged.class, "sheared", false, EntityStackComparisonResult.SHEARED, (entity1, entity2) -> shearedHandler.isSheared(entity1) || shearedHandler.isSheared(entity2));
         }
 
         if (versionNumber >= 19) {
@@ -239,8 +251,8 @@ public final class StackConditions {
         registerConfig(Pig.class, "saddled", false, EntityStackComparisonResult.SADDLED, (entity1, entity2) -> entity1.hasSaddle() || entity2.hasSaddle());
         registerConfig(PufferFish.class, "different-inflation", false, EntityStackComparisonResult.DIFFERENT_INFLATIONS, (entity1, entity2) -> entity1.getPuffState() != entity2.getPuffState());
         registerConfig(Rabbit.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getRabbitType() != entity2.getRabbitType());
-        registerConfig(Sheep.class, "sheared", false, EntityStackComparisonResult.SHEARED, (entity1, entity2) -> entity1.isSheared() || entity2.isSheared());
-        registerConfig(Sheep.class, "different-shear-state", false, EntityStackComparisonResult.SHEARED_STATE_DIFFERENT, (entity1, entity2) -> entity1.isSheared() != entity2.isSheared());
+        registerConfig(Sheep.class, "sheared", false, EntityStackComparisonResult.SHEARED, (entity1, entity2) -> shearedHandler.isSheared(entity1) || shearedHandler.isSheared(entity2));
+        registerConfig(Sheep.class, "different-shear-state", false, EntityStackComparisonResult.SHEARED_STATE_DIFFERENT, (entity1, entity2) -> shearedHandler.isSheared(entity1) != shearedHandler.isSheared(entity2));
         registerConfig(Slime.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getSize() != entity2.getSize());
         registerConfig(Snowman.class, "no-pumpkin", false, EntityStackComparisonResult.NO_PUMPKIN, (entity1, entity2) -> entity1.isDerp() || entity2.isDerp());
         registerConfig(Strider.class, "shivering", false, EntityStackComparisonResult.SHIVERING, (entity1, entity2) -> entity1.isShivering() || entity2.isShivering());
@@ -250,8 +262,10 @@ public final class StackConditions {
         registerConfig(TropicalFish.class, "different-pattern-color", false, EntityStackComparisonResult.DIFFERENT_PATTERN_COLORS, (entity1, entity2) -> entity1.getPatternColor() != entity2.getPatternColor());
         registerConfig(Vex.class, "charging", false, EntityStackComparisonResult.CHARGING, (entity1, entity2) -> entity1.isCharging() || entity2.isCharging());
         registerConfig(Villager.class, "professioned", false, EntityStackComparisonResult.PROFESSIONED, (entity1, entity2) -> {
-            List<String> professionValues = List.of("NONE", "NITWIT");
-            return !professionValues.contains(entity1.getProfession().name()) || !professionValues.contains(entity2.getProfession().name());
+            List<String> professionValues = List.of("none", "nitwit");
+            WrappedKeyed profession1 = oldEnumHandler.getProfession(entity1);
+            WrappedKeyed profession2 = oldEnumHandler.getProfession(entity2);
+            return !professionValues.contains(profession1.getKey().getKey()) || !professionValues.contains(profession2.getKey().getKey());
         });
         registerConfig(Villager.class, "different-profession", false, EntityStackComparisonResult.DIFFERENT_PROFESSIONS, (entity1, entity2) -> entity1.getProfession() != entity2.getProfession());
         registerConfig(Villager.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVillagerType() != entity2.getVillagerType());

@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -276,7 +277,7 @@ public class StackToolListener implements Listener {
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
             if (stackedSpawner == null) {
                 CreatureSpawner creatureSpawner = (CreatureSpawner) clickedBlock.getState();
-                creatureSpawner.setDelay(5);
+                CompatibilityAdapter.getCreatureSpawnerHandler().setDelay(creatureSpawner, 5);
                 creatureSpawner.update();
             } else {
                 stackedSpawner.getSpawnerTile().setDelay(5);

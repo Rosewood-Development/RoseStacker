@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.Arrays;
@@ -87,7 +88,10 @@ public class WorldListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        ThreadUtils.runAsync(this.rosePlugin.getManager(StackManager.class)::processNametags);
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        StackingThread stackingThread = stackManager.getStackingThread(event.getPlayer().getWorld());
+        if (stackingThread != null)
+            ThreadUtils.runAsync(stackingThread::processNametags);
     }
 
 }

@@ -43,6 +43,7 @@ public class EntityStackSettings extends StackSettings {
 
     // Entity-specific settings
     public static final String CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE = "multiply-egg-drops-by-stack-size";
+    public static final String CHICKEN_MAX_EGG_STACK_SIZE = "max-egg-stack-size";
     public static final String CREEPER_EXPLODE_KILL_ENTIRE_STACK = "explode-kill-entire-stack";
     public static final String SHEEP_SHEAR_ALL_SHEEP_IN_STACK = "shear-all-sheep-in-stack";
     public static final String SHEEP_PERCENTAGE_OF_WOOL_TO_REGROW_PER_GRASS_EATEN = "percentage-of-wool-to-regrow-per-grass-eaten";
@@ -91,7 +92,10 @@ public class EntityStackSettings extends StackSettings {
         this.extraSettings = new HashMap<>();
 
         switch (this.entityType.getKey().getKey()) {
-            case "chicken" -> this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
+            case "chicken" -> {
+                this.putSetting(CHICKEN_MULTIPLY_EGG_DROPS_BY_STACK_SIZE, true);
+                this.putSetting(CHICKEN_MAX_EGG_STACK_SIZE, -1);
+            }
             case "creeper" -> this.putSetting(CREEPER_EXPLODE_KILL_ENTIRE_STACK, false);
             case "sheep" -> {
                 this.putSetting(SHEEP_SHEAR_ALL_SHEEP_IN_STACK, true);
