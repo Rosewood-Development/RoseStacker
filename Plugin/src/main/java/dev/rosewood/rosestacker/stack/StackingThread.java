@@ -1084,8 +1084,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         toThread.loadExistingEntityStack(entityUUID, stackedEntity);
     }
 
-    public void transferExistingEntityStack(UUID entityUUID, StackedItem stackedItem, StackingThread toThread) {
-        this.stackedEntities.remove(entityUUID);
+    public void transferExistingItemStack(UUID entityUUID, StackedItem stackedItem, StackingThread toThread) {
+        this.stackedItems.remove(entityUUID);
         toThread.loadExistingItemStack(entityUUID, stackedItem);
     }
 
