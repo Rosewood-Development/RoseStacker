@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -135,12 +134,8 @@ public class ItemListener implements Listener {
             return;
 
         Inventory inventory = event.getInventory();
-
-        if (this.applyInventoryItemPickup(inventory, stackedItem, null)) {
+        if (this.applyInventoryItemPickup(inventory, stackedItem, null))
             event.setCancelled(true);
-            if (inventory.getHolder() instanceof Container container)
-                container.update(); // Fix comparators not updating for single-slot changes
-        }
     }
 
     /**
