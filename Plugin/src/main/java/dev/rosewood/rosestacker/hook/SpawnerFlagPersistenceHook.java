@@ -5,6 +5,7 @@ import com.gmail.nossr50.util.MobMetadataUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.roseloot.util.LootUtils;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -36,7 +37,7 @@ public class SpawnerFlagPersistenceHook {
             } catch (ClassNotFoundException e) {
                 mcMMOEnabled = false;
                 if (!displayedMcMMOMessage) {
-                    RoseLoot.getInstance().getLogger().severe("mcMMO is enabled, but the required com.gmail.nossr50.util.MobMetadataUtils class is not found. Your mcMMO version is either too old or too new for RoseStacker to support. The mcMMO hook has been disabled.");
+                    RoseStacker.getInstance().getLogger().severe("mcMMO is enabled, but the required com.gmail.nossr50.util.MobMetadataUtils class is not found. Your mcMMO version is either too old or too new for RoseStacker to support. The mcMMO hook has been disabled.");
                     displayedMcMMOMessage = true;
                 }
             }
