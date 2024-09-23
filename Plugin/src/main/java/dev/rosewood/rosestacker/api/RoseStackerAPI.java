@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.api;
 
 import com.google.common.base.Preconditions;
-import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
@@ -553,8 +552,6 @@ public final class RoseStackerAPI {
 
     /**
      * Gets a Set of StackedEntities within the given Collection of Chunks.
-     * Loaded chunks will query the cached data, and unloaded chunks will query the database.
-     * Modifying StackedEntities in unloaded chunks will not save changes.
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedEntities
@@ -568,8 +565,6 @@ public final class RoseStackerAPI {
 
     /**
      * Gets a Set of StackedItems within the given Collection of Chunks.
-     * Loaded chunks will query the cached data, and unloaded chunks will query the database.
-     * Modifying StackedItems in unloaded chunks will not save changes.
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedItems
@@ -598,8 +593,6 @@ public final class RoseStackerAPI {
 
     /**
      * Gets a Set of StackedSpawners within the given Collection of Chunks.
-     * Loaded chunks will query the cached data, and unloaded chunks will query the database.
-     * Modifying StackedSpawners in unloaded chunks will not save changes.
      *
      * @param chunks The Chunks to query
      * @return A Set of StackedSpawners

@@ -504,7 +504,7 @@ public class StackManager extends Manager implements StackingLogic {
             return;
 
         DataUtils.writeStackedItem(stackedItem);
-        fromThread.transferExistingEntityStack(entityUUID, stackedItem, toThread);
+        fromThread.transferExistingItemStack(entityUUID, stackedItem, toThread);
     }
 
     /**

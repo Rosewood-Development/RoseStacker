@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -13,6 +14,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
+import org.bukkit.block.Hopper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -24,8 +26,10 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -135,11 +139,18 @@ public class ItemListener implements Listener {
             return;
 
         Inventory inventory = event.getInventory();
-
         if (this.applyInventoryItemPickup(inventory, stackedItem, null)) {
-            event.setCancelled(true);
-            if (inventory.getHolder() instanceof Container container)
+            InventoryHolder holder;
+            if (NMSUtil.isPaper()) {
+                holder = inventory.getHolder(false);
+            } else {
+                holder = inventory.getHolder();
+            }
+
+            if (holder instanceof Container container)
                 container.update(); // Fix comparators not updating for single-slot changes
+
+            event.setCancelled(true);
         }
     }
 
@@ -158,7 +169,7 @@ public class ItemListener implements Listener {
         // Check how much space the inventory has for the new items
         int inventorySpace = this.getAmountAvailable(inventory, target);
 
-        // Just let them pick it up if it will all fit
+        // Just let them pick it up and remove the item if it will all fit
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (inventorySpace >= stackedItem.getStackSize() && stackedItem.getStackSize() <= maxStackSize) {
             stackManager.removeItemStack(stackedItem);

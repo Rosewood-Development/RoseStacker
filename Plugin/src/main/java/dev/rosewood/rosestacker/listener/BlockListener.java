@@ -284,9 +284,13 @@ public class BlockListener implements Listener {
             if (!(SettingKey.SPAWNER_SILK_TOUCH_ONLY_NATURAL.get() && placedByPlayer)
                     && (!SettingKey.SPAWNER_ADVANCED_PERMISSIONS.get() || !hasAdvNoSilkPermission)
                     && (!SettingKey.SPAWNER_SILK_TOUCH_GUARANTEE.get() || silkTouchLevel < 2)) {
-                double chance = StackerUtils.getSilkTouchChanceRaw(player) / 100;
-                int attempts = amount - destroyAmount;
-                destroyAmount += attempts - StackerUtils.countPassedChances(chance, attempts);
+                if (silkTouchLevel > 0) {
+                    double chance = StackerUtils.getSilkTouchChanceRaw(player) / 100;
+                    int attempts = amount - destroyAmount;
+                    destroyAmount += attempts - StackerUtils.countPassedChances(chance, attempts);
+                } else {
+                    destroyAmount += amount; // Destroy all spawners with no silk touch while it's required
+                }
             }
 
             if (destroyAmount > amount)
