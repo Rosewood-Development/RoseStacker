@@ -106,8 +106,9 @@ public class EntityListener implements Listener {
             if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
                 return;
 
-            this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
-            stackManager.createItemStack(item, true);
+            StackedItem stackedItem = stackManager.createItemStack(item, true);
+            if (stackedItem == null || stackedItem.getStackSize() > 0)
+                this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
         }
     }
 
@@ -122,10 +123,10 @@ public class EntityListener implements Listener {
             return;
 
         Runnable task = () -> {
-            this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
-
             // Try to immediately stack everything except bees from hives and built entities due to them duplicating
             stackManager.createEntityStack(entity, !DELAYED_SPAWN_REASONS.contains(event.getSpawnReason()));
+            if (entity.isValid())
+                this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
 
             PersistentDataUtils.applyDisabledAi(entity);
         };
@@ -148,9 +149,14 @@ public class EntityListener implements Listener {
             return;
 
         PersistentDataUtils.tagSpawnedFromSpawner(entity);
-        this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
-        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled())
+        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled()) {
             stackManager.createEntityStack(entity, true);
+            if (entity.isValid())
+                this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
+        } else {
+            this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
+        }
+
 
         SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = stackManager.getStackedSpawner(event.getSpawner().getBlock());

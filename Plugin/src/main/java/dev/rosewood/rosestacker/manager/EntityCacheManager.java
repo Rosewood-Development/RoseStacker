@@ -125,11 +125,7 @@ public class EntityCacheManager extends Manager {
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
         ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
-        Collection<Entity> entities = this.entityCache.get(chunkLocation);
-        if (entities == null) {
-            entities = new LinkedBlockingDeque<>();
-            this.entityCache.put(chunkLocation, entities);
-        }
+        Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
         entities.add(entity);
     }
 
@@ -145,15 +141,15 @@ public class EntityCacheManager extends Manager {
                         continue;
 
                     ChunkLocation chunkLocation = new ChunkLocation(world.getName(), entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
-                    Collection<Entity> entities = this.entityCache.get(chunkLocation);
-                    if (entities == null) {
-                        entities = new LinkedBlockingDeque<>();
-                        this.entityCache.put(chunkLocation, entities);
-                    }
+                    Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
                     entities.add(entity);
                 }
             }
         }
+    }
+
+    private Collection<Entity> createCollection() {
+        return new LinkedBlockingDeque<>();
     }
 
     private record ChunkLocation(String world, int x, int z) { }

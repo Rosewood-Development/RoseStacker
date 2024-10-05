@@ -564,7 +564,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
             return null;
 
-        StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
+        StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item, false);
         this.stackedItems.put(item.getUniqueId(), newStackedItem);
 
         if (tryStack) {
@@ -572,6 +572,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             this.tryStackItem(newStackedItem);
             item.removeMetadata(NEW_METADATA, this.rosePlugin);
         }
+
+        // Only update the display after stacking to avoid needing to calculate the name unnecessarily
+        if (newStackedItem.getStackSize() > 0)
+            newStackedItem.updateDisplay();
 
         return newStackedItem;
     }
@@ -1061,7 +1065,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (itemStackEvent.isCancelled())
                 continue;
 
-            increased.increaseStackSize(removed.getStackSize(), true);
+            increased.increaseStackSize(removed.getStackSize(), false);
+            removed.increaseStackSize(-removed.getStackSize(), false);
             if (SettingKey.ITEM_RESET_DESPAWN_TIMER_ON_MERGE.get())
                 increased.getItem().setTicksLived(1); // Reset the 5 minute pickup timer
 
@@ -1077,6 +1082,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
             this.removeItemStack(removed);
         }
+
+        headStack.updateDisplay();
     }
 
     public void transferExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity, StackingThread toThread) {
