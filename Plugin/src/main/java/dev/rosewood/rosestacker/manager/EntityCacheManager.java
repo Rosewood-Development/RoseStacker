@@ -72,20 +72,24 @@ public class EntityCacheManager extends Manager {
 
         int minX = (int) boundingBox.getMinX() >> 4;
         int maxX = (int) boundingBox.getMaxX() >> 4;
+        int minY = (int) boundingBox.getMinY() >> 4;
+        int maxY = (int) boundingBox.getMaxY() >> 4;
         int minZ = (int) boundingBox.getMinZ() >> 4;
         int maxZ = (int) boundingBox.getMaxZ() >> 4;
 
         for (int x = minX; x <= maxX; x++) {
-            for (int z = minZ; z <= maxZ; z++) {
-                Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, z));
-                if (entities == null)
-                    continue;
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, y, z));
+                    if (entities == null)
+                        continue;
 
-                for (Entity entity : entities) {
-                    if (boundingBox.contains(entity.getLocation().toVector())
-                            && predicate.test(entity)
-                            && entity.isValid())
-                        nearbyEntities.add(entity);
+                    for (Entity entity : entities) {
+                        if (boundingBox.contains(entity.getX(), entity.getY(), entity.getZ())
+                                && predicate.test(entity)
+                                && entity.isValid())
+                            nearbyEntities.add(entity);
+                    }
                 }
             }
         }
@@ -105,9 +109,17 @@ public class EntityCacheManager extends Manager {
         if (world == null)
             return new ArrayList<>();
 
-        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
-        if (entities == null)
-            return new ArrayList<>();
+        int x = location.getBlockX() >> 4;
+        int z = location.getBlockZ() >> 4;
+        int minY = world.getMinHeight() >> 4;
+        int maxY = world.getMaxHeight() >> 4;
+
+        Set<Entity> entities = new HashSet<>();
+        for (int y = minY; y <= maxY; y++) {
+            Collection<Entity> chunkEntities = this.entityCache.get(new ChunkLocation(world.getName(), x, y, z));
+            if (chunkEntities != null)
+                entities.addAll(chunkEntities);
+        }
 
         Set<Entity> nearbyEntities = new HashSet<>();
         for (Entity entity : entities)
@@ -123,8 +135,7 @@ public class EntityCacheManager extends Manager {
      * @param entity The entity to cache
      */
     public void preCacheEntity(Entity entity) {
-        Location location = entity.getLocation();
-        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
         Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
         entities.add(entity);
     }
@@ -140,7 +151,7 @@ public class EntityCacheManager extends Manager {
                     if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;
 
-                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
+                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
                     Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
                     entities.add(entity);
                 }
@@ -152,6 +163,6 @@ public class EntityCacheManager extends Manager {
         return new LinkedBlockingDeque<>();
     }
 
-    private record ChunkLocation(String world, int x, int z) { }
+    private record ChunkLocation(String world, int x, int y, int z) { }
 
 }
