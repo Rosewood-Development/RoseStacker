@@ -163,6 +163,9 @@ public class EntityCacheManager extends Manager {
         return new LinkedBlockingDeque<>();
     }
 
+    /**
+     * Represents a 16x16x16 chunk in the world
+     */
     private record ChunkLocation(String world, int x, int y, int z) { }
 
 }

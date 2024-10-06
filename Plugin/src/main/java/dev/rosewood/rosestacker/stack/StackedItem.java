@@ -94,19 +94,21 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             return;
         }
 
-        String displayName;
         ItemMeta itemMeta = itemStack.getItemMeta();
 
+        String displayName = null;
         boolean hasCustomName = itemMeta != null && itemMeta.hasDisplayName();
         if (hasCustomName && SettingKey.ITEM_DISPLAY_CUSTOM_NAMES.get()) {
-            if (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.get()) {
-                displayName = itemMeta.getDisplayName();
-            } else {
-                displayName = ChatColor.stripColor(itemMeta.getDisplayName());
-            }
-        } else {
-            displayName = this.stackSettings.getDisplayName();
+            displayName = itemMeta.getDisplayName();
+        } else if (NMSUtil.getVersionNumber() >= 21 && itemMeta.hasItemName()) { // Support item_name component in 1.21+
+            displayName = itemMeta.getItemName();
         }
+
+        if (displayName != null && !SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.get())
+            displayName = ChatColor.stripColor(displayName);
+
+        if (displayName == null)
+            displayName = this.stackSettings.getDisplayName();
 
         StringPlaceholders.Builder placeholdersBuilder = StringPlaceholders.builder()
                 .add("amount", StackerUtils.formatNumber(this.getStackSize()))
