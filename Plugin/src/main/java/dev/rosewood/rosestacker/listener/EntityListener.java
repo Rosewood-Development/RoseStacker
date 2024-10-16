@@ -430,7 +430,7 @@ public class EntityListener implements Listener {
             return;
 
         if (SettingKey.ENTITY_TRANSFORM_ENTIRE_STACK.get()) {
-            EntityDataEntry serialized = EntityDataEntry.of(transformedEntity);
+            EntityDataEntry serialized = EntityDataEntry.createFromEntityNBT(transformedEntity);
             event.setCancelled(true);
 
             // Handle mooshroom shearing

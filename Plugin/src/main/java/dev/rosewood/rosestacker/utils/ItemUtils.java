@@ -417,8 +417,18 @@ public final class ItemUtils {
     }
 
     public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier, boolean reduce) {
+        List<ItemStack> unstackables = new ArrayList<>(); // Don't multiply unstackable items, those are usually unique
+        List<ItemStack> stackables = new ArrayList<>();
+        for (ItemStack itemStack : itemStacks) {
+            if (itemStack.getMaxStackSize() == 1) {
+                unstackables.add(itemStack);
+            } else {
+                stackables.add(itemStack);
+            }
+        }
+
         // Reduce and multiply counts
-        Map<ItemStack, Integer> counts = reduceItemsByCounts(itemStacks).entrySet()
+        Map<ItemStack, Integer> counts = reduceItemsByCounts(stackables).entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) (entry.getValue() * multiplier)));
 
@@ -435,6 +445,9 @@ public final class ItemUtils {
                 items.addAll(splitItemStack(itemStack, amount));
             }
         }
+
+        // Add the unstackable items back
+        items.addAll(unstackables);
 
         return items;
     }
