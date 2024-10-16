@@ -12,6 +12,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -65,7 +66,7 @@ public final class PersistentDataUtils {
 
     public static void applyDisabledAi(LivingEntity entity, boolean disable) {
         // Hijacking this method for some other logic that applies to all entities
-        if (SettingKey.ENTITY_DISABLE_ALL_ITEM_PICKUP.get())
+        if (entity.getType() != EntityType.PLAYER && SettingKey.ENTITY_DISABLE_ALL_ITEM_PICKUP.get())
             entity.setCanPickupItems(false);
 
         if (isAiDisabled(entity) || !disable) {
