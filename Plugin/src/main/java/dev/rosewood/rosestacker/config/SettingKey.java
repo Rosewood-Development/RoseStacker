@@ -78,6 +78,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ENTITY_INSTANT_KILL_DISABLED_AI = create("global-entity-settings.instant-kill-disabled-ai", BOOLEAN, false, "Should entities with disabled AI be killed instantly when receiving damage from a player?");
     public static final RoseSetting<Boolean> ENTITY_DISABLE_ALL_MOB_AI = create("global-entity-settings.disable-all-mob-ai", BOOLEAN, false, "Should the AI of ALL MOBS on the server be disabled?", "The parts of the AI that are disabled can be further customized in the global-spawner-settings section");
     public static final RoseSetting<Integer> ENTITY_SAVE_MAX_STACK_SIZE = create("global-entity-settings.save-max-stack-size", INTEGER, -1, "The maximum amount of entities that will be stored when entities are saved to chunk data", "Useful for when you have a very high max stack size, set to -1 to disable");
+    public static final RoseSetting<Boolean> ENTITY_DISABLE_ALL_ITEM_PICKUP = create("global-entity-settings.disable-all-item-pickup", BOOLEAN, true, "Disables entities from picking up items to help prevent item duplication issues when using the loot-approximation settings");
 
     public static final RoseSetting<CommentedConfigurationSection> GLOBAL_ITEM_SETTINGS = create("global-item-settings", "Global item settings", "Changed values in item_settings.yml will override these values");
     public static final RoseSetting<Boolean> ITEM_STACKING_ENABLED = create("global-item-settings.stacking-enabled", BOOLEAN, true, "Should item stacking be enabled at all?");
