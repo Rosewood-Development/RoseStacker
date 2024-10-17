@@ -85,7 +85,8 @@ public class EntityCacheManager extends Manager {
                         continue;
 
                     for (Entity entity : entities) {
-                        if (boundingBox.contains(entity.getX(), entity.getY(), entity.getZ())
+                        Location location = entity.getLocation();
+                        if (boundingBox.contains(location.getX(), location.getY(), location.getZ())
                                 && predicate.test(entity)
                                 && entity.isValid())
                             nearbyEntities.add(entity);
@@ -135,7 +136,8 @@ public class EntityCacheManager extends Manager {
      * @param entity The entity to cache
      */
     public void preCacheEntity(Entity entity) {
-        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
+        Location location = entity.getLocation();
+        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
         Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
         entities.add(entity);
     }
@@ -151,7 +153,8 @@ public class EntityCacheManager extends Manager {
                     if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;
 
-                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
+                    Location location = entity.getLocation();
+                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
                     Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
                     entities.add(entity);
                 }
