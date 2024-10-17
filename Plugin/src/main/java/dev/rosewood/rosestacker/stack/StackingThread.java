@@ -158,23 +158,29 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!entityStackingEnabled || this.stackManager.isEntityUnstackingTemporarilyDisabled())
             return;
 
-        boolean minSplitIfLower = SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get();
-        for (StackedEntity stackedEntity : this.stackedEntities.values()) {
-            LivingEntity entity = stackedEntity.getEntity();
-            if (!stackedEntity.shouldStayStacked() && entity.isValid()) {
-                ThreadUtils.runSync(() -> {
-                    if (stackedEntity.getStackSize() > 1)
-                        this.splitEntityStack(stackedEntity);
-                });
-            } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
-                NMSHandler nmsHandler = NMSAdapter.getHandler();
-                StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
-                stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
-                ThreadUtils.runSync(() -> {
-                    for (EntityDataEntry entityDataEntry : nbt.getAll())
-                        entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
-                });
-            }
+        for (StackedEntity stackedEntity : this.stackedEntities.values())
+            this.tryUnstackEntity(stackedEntity);
+    }
+
+    @Override
+    public void tryUnstackEntity(StackedEntity stackedEntity) {
+        LivingEntity entity = stackedEntity.getEntity();
+        if (entity == null || stackedEntity.getStackSize() <= 1 || !entity.isValid())
+            return;
+
+        if (!stackedEntity.shouldStayStacked()) {
+            ThreadUtils.runSync(() -> {
+                if (stackedEntity.getStackSize() > 1)
+                    this.splitEntityStack(stackedEntity);
+            });
+        } else if (SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get() && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
+            NMSHandler nmsHandler = NMSAdapter.getHandler();
+            StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
+            stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
+            ThreadUtils.runSync(() -> {
+                for (EntityDataEntry entityDataEntry : nbt.getAll())
+                    entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
+            });
         }
     }
 

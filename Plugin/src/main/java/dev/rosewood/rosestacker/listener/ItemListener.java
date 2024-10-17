@@ -5,18 +5,21 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -67,31 +70,27 @@ public class ItemListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
+        LivingEntity entity = event.getEntity();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
+        if (stackManager.isWorldDisabled(entity.getWorld()))
             return;
 
         if (!stackManager.isItemStackingEnabled())
             return;
-
-        if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ITEM_PICKUP.get() && PersistentDataUtils.isAiDisabled(event.getEntity())) {
-            event.setCancelled(true);
-            return;
-        }
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getItem());
         if (stackedItem == null)
             return;
 
         Inventory inventory;
-        if (event.getEntity() instanceof Player player) {
+        if (entity instanceof Player player) {
             if (StackerUtils.isVanished(player)) {
                 event.setCancelled(true);
                 return;
             }
 
             inventory = player.getInventory();
-        } else if (event.getEntity() instanceof Villager villager) {
+        } else if (entity instanceof Villager villager) {
             inventory = villager.getInventory();
         } else if (event.getEntityType() == EntityType.DOLPHIN) {
             // Only stop the dolphin from picking up the item if it's larger than a normal item would be, otherwise
@@ -101,7 +100,7 @@ public class ItemListener implements Listener {
                 ItemStack clone = event.getItem().getItemStack().clone();
                 clone.setAmount(maxStack);
                 stackedItem.setStackSize(stackedItem.getStackSize() - maxStack);
-                EntityEquipment equipment = event.getEntity().getEquipment();
+                EntityEquipment equipment = entity.getEquipment();
                 if (equipment != null)
                     equipment.setItemInMainHand(clone);
 
@@ -117,10 +116,20 @@ public class ItemListener implements Listener {
                 stackManager.splitItemStack(stackedItem, 1);
                 event.setCancelled(true);
             }
+
+            if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {
+                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                    StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
+                    if (stackedEntity != null)
+                        stackManager.tryUnstackEntity(stackedEntity);
+                });
+            }
+
             return;
         }
 
-        if (this.applyInventoryItemPickup(inventory, stackedItem, event.getEntity()))
+        // This only runs for unvanished players and villagers
+        if (this.applyInventoryItemPickup(inventory, stackedItem, entity))
             event.setCancelled(true);
     }
 

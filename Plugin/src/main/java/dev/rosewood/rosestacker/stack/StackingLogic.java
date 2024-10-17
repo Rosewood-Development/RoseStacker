@@ -326,4 +326,11 @@ public interface StackingLogic {
      */
     void saveAllData(boolean clearStored);
 
+    /**
+     * Tries to unstack the given entity if it meets unstacking conditions
+     *
+     * @param stackedEntity The stacked entity to try unstacking
+     */
+    void tryUnstackEntity(StackedEntity stackedEntity);
+
 }

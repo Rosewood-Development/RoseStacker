@@ -65,15 +65,14 @@ public final class PersistentDataUtils {
     }
 
     public static void applyDisabledAi(LivingEntity entity, boolean disable) {
-        // Hijacking this method for some other logic that applies to all entities
-        if (entity.getType() != EntityType.PLAYER && SettingKey.ENTITY_DISABLE_ALL_ITEM_PICKUP.get())
-            entity.setCanPickupItems(false);
-
         if (isAiDisabled(entity) || !disable) {
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.get() && disable) {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
                 nmsHandler.removeEntityGoals(entity);
             }
+
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ITEM_PICKUP.get())
+                entity.setCanPickupItems(false);
 
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_SET_UNAWARE.get() && entity instanceof Mob mob)
                 mob.setAware(!disable);
