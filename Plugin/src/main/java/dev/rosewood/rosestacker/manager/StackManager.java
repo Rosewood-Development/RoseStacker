@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.stack.StackingLogic;
 import dev.rosewood.rosestacker.stack.StackingThread;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import java.util.Collection;
@@ -50,6 +51,9 @@ public class StackManager extends Manager implements StackingLogic {
 
     private StackedEntityDataStorageType entityDataStorageType;
 
+    private MultikillBound lowerMultikillBound;
+    private MultikillBound upperMultikillBound;
+
     public StackManager(RosePlugin rosePlugin) {
         super(rosePlugin);
 
@@ -70,6 +74,19 @@ public class StackManager extends Manager implements StackingLogic {
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
             this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, () -> this.saveAllData(false), interval, interval);
+        }
+
+        String multikillAmountValue = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
+        int separatorIndex = multikillAmountValue.indexOf("-");
+        if (separatorIndex != -1) {
+            String lower = multikillAmountValue.substring(0, separatorIndex);
+            String upper = multikillAmountValue.substring(separatorIndex + 1);
+            this.lowerMultikillBound = MultikillBound.parse(lower);
+            this.upperMultikillBound = MultikillBound.parse(upper);
+        } else {
+            MultikillBound bound = MultikillBound.parse(multikillAmountValue);
+            this.lowerMultikillBound = bound;
+            this.upperMultikillBound = bound;
         }
     }
 
@@ -561,12 +578,17 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     /**
-     * @return the current entity data storage type for newly created entity stacks
-     * @deprecated use {@link #getEntityDataStorageType(EntityType)} as this can now be changed per entity type
+     * @return the lower multikill bound
      */
-    @Deprecated(forRemoval = true)
-    public StackedEntityDataStorageType getEntityDataStorageType() {
-        return this.entityDataStorageType;
+    public MultikillBound getLowerMultikillBound() {
+        return this.lowerMultikillBound;
+    }
+
+    /**
+     * @return the upper multikill bound
+     */
+    public MultikillBound getUpperMultikillBound() {
+        return this.upperMultikillBound;
     }
 
 }

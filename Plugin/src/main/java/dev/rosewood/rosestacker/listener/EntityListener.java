@@ -17,9 +17,11 @@ import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
@@ -333,7 +335,8 @@ public class EntityListener implements Listener {
         if (stackedEntity == null)
             return;
 
-        if (stackedEntity.getStackSize() == 1) {
+        int stackSize = stackedEntity.getStackSize();
+        if (stackSize == 1) {
             stackManager.removeEntityStack(stackedEntity);
             return;
         }
@@ -348,9 +351,7 @@ public class EntityListener implements Listener {
         Runnable task = () -> {
             // Should we kill multiple entities?
             if (SettingKey.ENTITY_MULTIKILL_ENABLED.get()) {
-                int multikillAmount = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
-                int killAmount = 1;
-
+                int enchantmentMultiplier = 1;
                 if (!SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() || entity.getKiller() != null) {
                     if (SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get()) {
                         Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
@@ -359,16 +360,27 @@ public class EntityListener implements Listener {
                             RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get());
                         } else if (event != null && event.getEntity().getKiller() != null) {
                             Player killer = event.getEntity().getKiller();
-                            int enchantmentLevel = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
-                            if (enchantmentLevel > 0)
-                                killAmount = multikillAmount * enchantmentLevel;
+                            enchantmentMultiplier = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
                         }
-                    } else {
-                        killAmount = multikillAmount;
                     }
                 }
 
-                stackedEntity.killPartialStack(event, killAmount);
+                MultikillBound lowerBound = stackManager.getLowerMultikillBound();
+                MultikillBound upperBound = stackManager.getUpperMultikillBound();
+
+                int lowerValue = lowerBound.getValue(stackSize);
+                int upperValue = upperBound.getValue(stackSize);
+                if (upperValue < lowerValue)
+                    upperValue = lowerValue;
+
+                int targetAmount = StackerUtils.randomInRange(lowerValue, upperValue);
+                int killAmount = Math.max(1, targetAmount * enchantmentMultiplier);
+
+                if (killAmount >= stackSize) {
+                    stackedEntity.killEntireStack(event);
+                } else {
+                    stackedEntity.killPartialStack(event, killAmount);
+                }
             } else {
                 // Decrease stack size by 1
                 stackedEntity.decreaseStackSize();
