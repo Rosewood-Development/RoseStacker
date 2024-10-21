@@ -1127,7 +1127,9 @@
     "breeding_materials": [],
     "spawn_category": "MONSTER",
     "standard_equipment": [
-      "GOLDEN_SWORD"
+      "GOLDEN_AXE",
+      "GOLDEN_SWORD",
+      "CROSSBOW"
     ]
   }
 }

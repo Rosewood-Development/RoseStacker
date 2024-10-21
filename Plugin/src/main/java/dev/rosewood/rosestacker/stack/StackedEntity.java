@@ -10,6 +10,7 @@ import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.hook.NPCsHook;
+import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -417,6 +418,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (entityKillCount == null)
             entityKillCount = stackEntities.size() + (mainEntityDrops != null ? 1 : 0);
 
+        boolean fromSpawner = PersistentDataUtils.isSpawnedFromSpawner(this.entity);
         Location location = mainEntity.getLocation();
         Player killer = mainEntity.getKiller();
         boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
@@ -436,6 +438,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             // Propagate fire ticks and last damage cause
             entity.setFireTicks(mainEntity.getFireTicks());
             entity.setLastDamageCause(mainEntity.getLastDamageCause());
+            if (fromSpawner)
+                SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
             nmsHandler.setLastHurtBy(entity, killer);
 
             int iterations = 1;
@@ -488,6 +492,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             // Prevent magma cubes from splitting
             if (isSlime && entity.getType() == EntityType.MAGMA_CUBE)
                 ((MagmaCube) entity).setSize(1);
+
+            if (fromSpawner)
+                SpawnerFlagPersistenceHook.unflagSpawnerSpawned(entity);
         }
 
         // Call the EntityStackMultipleDeathEvent if enabled
