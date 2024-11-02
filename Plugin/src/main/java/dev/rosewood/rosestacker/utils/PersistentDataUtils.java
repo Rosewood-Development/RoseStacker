@@ -81,7 +81,7 @@ public final class PersistentDataUtils {
                 entity.setSilent(disable);
 
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_NO_KNOCKBACK.get()) {
-                AttributeInstance knockbackAttribute = entity.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+                AttributeInstance knockbackAttribute = entity.getAttribute(VersionUtils.KNOCKBACK_RESISTANCE);
                 if (knockbackAttribute != null)
                     knockbackAttribute.setBaseValue(disable ? Double.MAX_VALUE : 0);
             }

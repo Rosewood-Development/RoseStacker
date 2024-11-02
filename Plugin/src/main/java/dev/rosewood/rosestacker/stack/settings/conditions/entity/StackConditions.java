@@ -190,6 +190,11 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 3)) {
+            // TODO: There still isn't API for this or the other baby mob changes
+            //registerConfig(Salmon.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.get() != entity2.getSize());
+        }
+
         if (versionNumber >= 21) {
             registerConfig(Wolf.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
         }

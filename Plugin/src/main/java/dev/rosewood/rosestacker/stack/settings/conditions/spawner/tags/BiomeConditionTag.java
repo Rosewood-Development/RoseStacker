@@ -5,6 +5,7 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Keyed;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 
@@ -40,7 +41,7 @@ public class BiomeConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return this.biomes.stream().map(Enum::name).toList();
+        return this.biomes.stream().map(x -> x.getKey().getKey()).toList();
     }
 
 }
