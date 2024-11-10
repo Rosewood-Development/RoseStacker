@@ -1010,12 +1010,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             this.removeEntityStack(toStack);
         }
 
-        Runnable removeTask = () -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove);
-        if (Bukkit.isPrimaryThread()) {
-            removeTask.run();
-        } else {
-            ThreadUtils.runSync(removeTask);
-        }
+        ThreadUtils.runOnPrimary(() -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove));
     }
 
     /**
@@ -1083,13 +1078,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             increased.getItem().setPickupDelay(Math.max(increased.getItem().getPickupDelay(), removed.getItem().getPickupDelay()));
             removed.getItem().setPickupDelay(100); // Don't allow the item we just merged to get picked up or stacked
 
-            Runnable removeTask = () -> removed.getItem().remove();
-            if (Bukkit.isPrimaryThread()) {
-                removeTask.run();
-            } else {
-                ThreadUtils.runSync(removeTask);
-            }
-
+            ThreadUtils.runOnPrimary(() -> removed.getItem().remove());
             this.removeItemStack(removed);
         }
 

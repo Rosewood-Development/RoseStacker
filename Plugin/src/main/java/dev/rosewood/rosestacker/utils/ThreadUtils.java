@@ -1,56 +1,53 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.scheduler.RoseScheduler;
 import dev.rosewood.rosestacker.RoseStacker;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 
 public final class ThreadUtils {
 
-    private static final AtomicInteger activeThreads = new AtomicInteger(0);
-    private static final RosePlugin rosePlugin = RoseStacker.getInstance();
+    private static final RosePlugin PLUGIN = RoseStacker.getInstance();
+    private static final RoseScheduler SCHEDULER = PLUGIN.getScheduler();
 
     private ThreadUtils() {
 
     }
 
+    public static void runOnPrimary(Runnable runnable) {
+        if (Bukkit.isPrimaryThread()) {
+            runnable.run();
+        } else {
+            runSync(runnable);
+        }
+    }
+
     public static void runSync(Runnable runnable) {
         if (checkEnabled())
-            Bukkit.getScheduler().runTask(rosePlugin, wrap(runnable));
+            SCHEDULER.runTask(runnable);
     }
 
     public static void runSyncDelayed(Runnable runnable, long delay) {
         if (checkEnabled())
-            Bukkit.getScheduler().runTaskLater(rosePlugin, wrap(runnable), delay);
+            SCHEDULER.runTaskLater(runnable, delay);
     }
 
     public static void runAsync(Runnable runnable) {
         if (checkEnabled())
-            Bukkit.getScheduler().runTaskAsynchronously(rosePlugin, wrap(runnable));
+            SCHEDULER.runTaskAsync(runnable);
     }
 
     public static void runAsyncDelayed(Runnable runnable, long delay) {
         if (checkEnabled())
-            Bukkit.getScheduler().runTaskLaterAsynchronously(rosePlugin, wrap(runnable), delay);
+            SCHEDULER.runTaskLaterAsync(runnable, delay);
     }
 
     public static int getActiveThreads() {
-        return activeThreads.get();
-    }
-
-    private static Runnable wrap(Runnable runnable) {
-        return () -> {
-            activeThreads.incrementAndGet();
-            try {
-                runnable.run();
-            } finally {
-                activeThreads.decrementAndGet();
-            }
-        };
+        return SCHEDULER.getRunningTaskCount();
     }
 
     private static boolean checkEnabled() {
-        return rosePlugin.isEnabled();
+        return PLUGIN.isEnabled();
     }
 
 }
