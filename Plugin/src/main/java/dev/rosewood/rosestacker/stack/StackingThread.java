@@ -1042,7 +1042,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Set<StackedItem> targetItems = new HashSet<>();
         for (Item otherItem : nearbyItems) {
-            if (item == otherItem || otherItem.getPickupDelay() > 40 || !item.getItemStack().isSimilar(otherItem.getItemStack()) || this.isRemoved(otherItem))
+            if (item == otherItem
+                    || otherItem.getPickupDelay() > 40
+                    || !item.getItemStack().isSimilar(otherItem.getItemStack())
+                    || !Objects.equals(item.getOwner(), otherItem.getOwner())
+                    || this.isRemoved(otherItem))
                 continue;
 
             StackedItem other = this.stackedItems.get(otherItem.getUniqueId());
