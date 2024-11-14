@@ -1020,12 +1020,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      */
     private void tryStackItem(StackedItem stackedItem) {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
+        Item item = stackedItem.getItem();
         if (stackSettings == null
                 || !stackSettings.isStackingEnabled()
-                || stackedItem.getItem().getPickupDelay() > 40)
+                || item.getPickupDelay() > 40
+                || PersistentDataUtils.isUnstackable(item))
             return;
 
-        Item item = stackedItem.getItem();
         if (this.isRemoved(item))
             return;
 
@@ -1041,6 +1042,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     || otherItem.getPickupDelay() > 40
                     || !item.getItemStack().isSimilar(otherItem.getItemStack())
                     || !Objects.equals(item.getOwner(), otherItem.getOwner())
+                    || PersistentDataUtils.isUnstackable(otherItem)
                     || this.isRemoved(otherItem))
                 continue;
 
