@@ -664,7 +664,7 @@
     "breeding_materials": [],
     "spawn_category": "MONSTER",
     "standard_equipment": [
-      "BOW"
+      "CROSSBOW"
     ]
   },
   "POLAR_BEAR": {
