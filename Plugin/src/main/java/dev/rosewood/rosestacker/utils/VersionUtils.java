@@ -1,11 +1,13 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import java.lang.reflect.Method;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
@@ -53,9 +55,9 @@ public class VersionUtils {
             KNOCKBACK_RESISTANCE = Attribute.KNOCKBACK_RESISTANCE;
             LUCK = Attribute.LUCK;
         } else {
-            MAX_HEALTH = Attribute.valueOf("generic.max_health");
-            KNOCKBACK_RESISTANCE = Attribute.valueOf("generic.knockback_resistance");
-            LUCK = Attribute.valueOf("generic.luck");
+            MAX_HEALTH = findAttributeLegacy("GENERIC_MAX_HEALTH");
+            KNOCKBACK_RESISTANCE = findAttributeLegacy("GENERIC_KNOCKBACK_RESISTANCE");
+            LUCK = findAttributeLegacy("GENERIC_LUCK");
         }
     }
 
@@ -66,6 +68,32 @@ public class VersionUtils {
                 return enchantment;
         }
         return null;
+    }
+
+    private static Method attributeValueOf;
+    private static Attribute findAttributeLegacy(String name) {
+        try {
+            if (attributeValueOf == null)
+                attributeValueOf = Attribute.class.getMethod("valueOf", String.class);
+            return (Attribute) attributeValueOf.invoke(null, name);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Method biomeValueOf;
+    public static Biome getBiome(String name) {
+        if (NMSUtil.getVersionNumber() > 21 || NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3) {
+            return Registry.BIOME.match(name);
+        } else {
+            try {
+                if (biomeValueOf == null)
+                    biomeValueOf = Biome.class.getMethod("valueOf", String.class);
+                return (Biome) biomeValueOf.invoke(null, name.toUpperCase());
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }
