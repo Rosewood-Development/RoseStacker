@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.listener;
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
 import dev.rosewood.rosestacker.event.BlockUnstackEvent;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.ExplosionResult;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -358,12 +360,14 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
-        this.handleExplosion(event.getBlock().getLocation(), event.blockList());
+        if (NMSUtil.getVersionNumber() < 21 || (event.getExplosionResult() == ExplosionResult.DESTROY || event.getExplosionResult() == ExplosionResult.DESTROY_WITH_DECAY))
+            this.handleExplosion(event.getBlock().getLocation(), event.blockList());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        this.handleExplosion(event.getLocation(), event.blockList());
+        if (NMSUtil.getVersionNumber() < 21 || (event.getExplosionResult() == ExplosionResult.DESTROY || event.getExplosionResult() == ExplosionResult.DESTROY_WITH_DECAY))
+            this.handleExplosion(event.getLocation(), event.blockList());
     }
 
     private void handleExplosion(Location location, List<Block> blockList) {

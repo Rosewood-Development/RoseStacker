@@ -6,13 +6,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 
-@SuppressWarnings({"deprecation", "removal", "UnstableApiUsage"})
+@SuppressWarnings({"deprecation", "removal"})
 public class VersionUtils {
 
     public static final EntityType ITEM;
