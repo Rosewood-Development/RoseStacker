@@ -79,11 +79,11 @@ public class BlockListener implements Listener {
 
         // Check for interacting with certain stacked blocks
         ItemStack item = event.getItem();
-        if (stackManager.isBlockStackingEnabled() && stackManager.isBlockStacked(block)) {
+        if (stackManager.isBlockStackingEnabled() && stackManager.isBlockStacked(block) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 return;
-            } else if (block.getType().isInteractable() && (!event.getPlayer().isSneaking() || item == null) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            } else if (StackerUtils.isInteractable(block.getType()) && (!event.getPlayer().isSneaking() || item == null)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 return;
             }
