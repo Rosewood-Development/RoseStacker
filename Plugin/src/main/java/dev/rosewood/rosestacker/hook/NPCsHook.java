@@ -146,7 +146,8 @@ public class NPCsHook {
 //                || bossEnabled()
                 || proCosmeticsEnabled()
                 || infernalMobsEnabled()
-                || simplePetsEnabled();
+                || simplePetsEnabled()
+                || levelledMobsEnabled();
     }
 
     /**
