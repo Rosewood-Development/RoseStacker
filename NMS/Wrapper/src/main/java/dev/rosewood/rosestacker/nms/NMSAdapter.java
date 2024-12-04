@@ -21,6 +21,8 @@ public final class NMSAdapter {
                     name = "v1_21_R1";
                 } else if (major == 21 && minor == 3) {
                     name = "v1_21_R2";
+                } else if (major == 21 && minor == 4) {
+                    name = "v1_21_R3";
                 }
             }
 
