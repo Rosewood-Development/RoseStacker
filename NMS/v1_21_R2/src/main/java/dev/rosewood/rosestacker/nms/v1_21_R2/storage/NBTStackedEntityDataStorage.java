@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataIOException;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
 import dev.rosewood.rosestacker.nms.v1_21_R2.NMSHandlerImpl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -41,19 +43,29 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         this.data = createBackingQueue();
     }
 
-    public NBTStackedEntityDataStorage(LivingEntity livingEntity, byte[] data) {
+    public NBTStackedEntityDataStorage(LivingEntity livingEntity, byte[] data, Set<StorageMigrationType> migrations) {
         super(StackedEntityDataStorageType.NBT, livingEntity);
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(inputStream)) {
 
-            this.base = NbtIo.read(dataInput);
+            this.base = this.migrate(migrations, NbtIo.read(dataInput));
             int length = dataInput.readInt();
             this.data = createBackingQueue();
             for (int i = 0; i < length; i++)
-                this.data.add(NbtIo.read(dataInput));
+                this.data.add(this.migrate(migrations, NbtIo.read(dataInput)));
         } catch (Exception e) {
             throw new StackedEntityDataIOException(e);
         }
+    }
+
+    private CompoundTag migrate(Set<StorageMigrationType> migrations, CompoundTag tag) {
+        if (migrations.isEmpty())
+            return tag;
+
+        if (migrations.contains(StorageMigrationType.STRIP_OLD_ATTRIBUTES))
+            tag.remove("attributes");
+
+        return tag;
     }
 
     @Override
