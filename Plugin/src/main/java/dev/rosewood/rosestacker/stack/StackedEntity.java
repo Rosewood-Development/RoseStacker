@@ -418,9 +418,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (entityKillCount == null)
             entityKillCount = stackEntities.size() + (mainEntityDrops != null ? 1 : 0);
 
+        boolean propagateKiller = SettingKey.ENTITY_LOOT_PROPAGATE_KILLER.get();
         boolean fromSpawner = PersistentDataUtils.isSpawnedFromSpawner(this.entity);
         Location location = mainEntity.getLocation();
-        Player killer = mainEntity.getKiller();
+        Player killer = propagateKiller ? mainEntity.getKiller() : null;
         boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
         boolean isAnimal = mainEntity instanceof Animals;
         boolean isWither = mainEntity.getType() == EntityType.WITHER;
@@ -437,10 +438,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         for (LivingEntity entity : stackEntities) {
             // Propagate fire ticks and last damage cause
             entity.setFireTicks(mainEntity.getFireTicks());
-            entity.setLastDamageCause(mainEntity.getLastDamageCause());
             if (fromSpawner)
                 SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
             nmsHandler.setLastHurtBy(entity, killer);
+            entity.setLastDamageCause(propagateKiller ? mainEntity.getLastDamageCause() : null);
 
             int iterations = 1;
             if (isSlime) {
