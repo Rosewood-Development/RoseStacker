@@ -23,7 +23,9 @@ dependencies {
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'dev.frankheijden.insights:Insights:6.13.0'
     compileOnly 'com.songoda:epicbosses:1.2.12'
-    compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0'
+    compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0', {
+        exclude group: 'org.spigotmc'
+    }
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
@@ -35,7 +37,10 @@ dependencies {
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'simplepets.brainsynder:simplepets:5.0-BUILD-176'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
-    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4'
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4', {
+        exclude group: 'org.spigotmc'
+        exclude group: 'com.sk89q.worldedit'
+    }
     compileOnly 'dev.rosewood:roseloot:1.2.0'
 
     // Dependencies that will be shaded into the jar
