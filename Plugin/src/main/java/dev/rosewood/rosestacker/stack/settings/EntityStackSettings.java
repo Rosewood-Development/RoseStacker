@@ -139,7 +139,6 @@ public class EntityStackSettings extends StackSettings {
         this.disableAllMobAI = this.settingsConfiguration.getDefaultedBoolean("disable-all-mob-ai");
 
         this.stackConditions.forEach(StackConditionEntry::load);
-        this.extraSettings.values().forEach(EntitySetting::load);
     }
 
     private void putSetting(String key, Object defaultValue) {
@@ -437,19 +436,21 @@ public class EntityStackSettings extends StackSettings {
             EntityStackSettings.this.setIfNotExists(this.key, this.defaultValue);
         }
 
-        public void load() {
-            this.value = EntityStackSettings.this.settingsConfiguration.get(this.key, this.defaultValue);
-        }
-
         public boolean getBoolean() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getBoolean(this.key);
             return (boolean) this.value;
         }
 
         public int getInt() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getInt(this.key);
             return (int) this.value;
         }
 
         public double getDouble() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getDouble(this.key);
             return (double) this.value;
         }
 
