@@ -127,9 +127,8 @@ public class EntityListener implements Listener {
 
         Runnable task = () -> {
             // Try to immediately stack everything except bees from hives and built entities due to them duplicating
+            this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
             stackManager.createEntityStack(entity, !DELAYED_SPAWN_REASONS.contains(event.getSpawnReason()));
-            if (entity.isValid())
-                this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
 
             PersistentDataUtils.applyDisabledAi(entity);
         };
@@ -151,15 +150,11 @@ public class EntityListener implements Listener {
         if (stackManager.isWorldDisabled(event.getEntity().getWorld()))
             return;
 
-        PersistentDataUtils.tagSpawnedFromSpawner(entity);
-        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled()) {
-            stackManager.createEntityStack(entity, true);
-            if (entity.isValid())
-                this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
-        } else {
-            this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
-        }
+        this.rosePlugin.getManager(EntityCacheManager.class).preCacheEntity(entity);
 
+        PersistentDataUtils.tagSpawnedFromSpawner(entity);
+        if (stackManager.isEntityStackingEnabled() && !stackManager.isEntityStackingTemporarilyDisabled())
+            stackManager.createEntityStack(entity, true);
 
         SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(event.getSpawner());
         StackedSpawner stackedSpawner = stackManager.getStackedSpawner(event.getSpawner().getBlock());
