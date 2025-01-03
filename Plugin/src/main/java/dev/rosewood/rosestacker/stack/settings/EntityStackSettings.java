@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
@@ -82,7 +83,7 @@ public class EntityStackSettings extends StackSettings {
         if (this.entityClass == null)
             throw new IllegalArgumentException("EntityType " + this.entityType.name() + " has no entity class");
 
-        this.assignableClassMap = new HashMap<>();
+        this.assignableClassMap = new ConcurrentHashMap<>();
 
         List<StackConditions.StackCondition<?>> stackConditions = StackConditions.getEligibleConditions(this.entityClass);
         this.stackConditions = new ArrayList<>(stackConditions.size());
