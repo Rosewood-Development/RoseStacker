@@ -65,6 +65,9 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     }
 
     public void openGui(Player player) {
+        if (SettingKey.BLOCK_GUI_ONLY_ONE_PLAYER_ALLOWED.get() && this.isLocked())
+            return;
+
         StackGUIOpenEvent event = new StackGUIOpenEvent(player, this);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
