@@ -573,7 +573,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item, false);
         this.stackedItems.put(item.getUniqueId(), newStackedItem);
 
-        if (tryStack) {
+        if (tryStack && SettingKey.ITEM_INSTANT_STACK.get()) {
             item.setMetadata(NEW_METADATA, new FixedMetadataValue(this.rosePlugin, true));
             this.tryStackItem(newStackedItem);
             item.removeMetadata(NEW_METADATA, this.rosePlugin);
@@ -928,7 +928,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      */
     private void tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
-        if (stackSettings == null)
+        if (stackSettings == null || !stackedEntity.hasMoved())
             return;
 
         if (stackedEntity.checkNPC()) {
@@ -1022,6 +1022,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
         Item item = stackedItem.getItem();
         if (stackSettings == null
+                || !stackedItem.hasMoved()
                 || !stackSettings.isStackingEnabled()
                 || item.getPickupDelay() > 40
                 || PersistentDataUtils.isUnstackable(item))

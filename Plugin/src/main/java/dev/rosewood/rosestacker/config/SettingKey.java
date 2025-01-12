@@ -82,6 +82,7 @@ public final class SettingKey {
 
     public static final RoseSetting<CommentedConfigurationSection> GLOBAL_ITEM_SETTINGS = create("global-item-settings", "Global item settings", "Changed values in item_settings.yml will override these values");
     public static final RoseSetting<Boolean> ITEM_STACKING_ENABLED = create("global-item-settings.stacking-enabled", BOOLEAN, true, "Should item stacking be enabled at all?");
+    public static final RoseSetting<Boolean> ITEM_INSTANT_STACK = create("global-item-settings.instant-stack", BOOLEAN, true, "Should items try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of items being visible before stacking");
     public static final RoseSetting<Integer> ITEM_MAX_STACK_SIZE = create("global-item-settings.max-stack-size", INTEGER, 1024, "The maximum number of items that can be in a single stack");
     public static final RoseSetting<Double> ITEM_MERGE_RADIUS = create("global-item-settings.merge-radius", DOUBLE, 2.5, "How close do items need to be to merge with each other?");
     public static final RoseSetting<Boolean> ITEM_DISPLAY_TAGS = create("global-item-settings.display-tags", BOOLEAN, true, "Should tags be displayed above stacks to show their amount and type?");

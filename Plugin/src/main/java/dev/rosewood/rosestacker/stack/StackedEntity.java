@@ -65,6 +65,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private String displayName;
     private boolean displayNameVisible;
+    private double x, y, z;
 
     private EntityStackSettings stackSettings;
 
@@ -776,6 +777,20 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             return false;
 
         return killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment) > 0;
+    }
+
+    /**
+     * @return true if the entity has moved since the last time this method was called
+     */
+    public boolean hasMoved() {
+        Location location = this.entity.getLocation();
+        boolean moved = location.getX() != this.x || location.getY() != this.y || location.getZ() != this.z;
+        if (!moved) {
+            this.x = location.getX();
+            this.y = location.getY();
+            this.z = location.getZ();
+        }
+        return moved;
     }
 
 }

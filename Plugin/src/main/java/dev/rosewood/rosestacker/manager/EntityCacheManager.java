@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackingThread;
@@ -22,6 +23,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.BoundingBox;
 
 public class EntityCacheManager extends Manager {
+
+    private static final boolean DIRECT_GETTERS = NMSUtil.isPaper() && (NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() >= 4));
 
     private final Map<ChunkLocation, Collection<Entity>> entityCache;
     private ScheduledTask refreshTask;
@@ -84,18 +87,31 @@ public class EntityCacheManager extends Manager {
                     if (entities == null)
                         continue;
 
-                    for (Entity entity : entities) {
-                        entity.getLocation(location);
-                        if (boundingBox.contains(location.getX(), location.getY(), location.getZ())
-                                && predicate.test(entity)
-                                && entity.isValid())
-                            nearbyEntities.add(entity);
-                    }
+                    this.filter(location, boundingBox, entities, predicate, nearbyEntities);
                 }
             }
         }
 
         return nearbyEntities;
+    }
+
+    private void filter(Location location, BoundingBox boundingBox, Collection<Entity> entities, Predicate<Entity> predicate, Set<Entity> collector) {
+        if (DIRECT_GETTERS) {
+            for (Entity entity : entities) {
+                if (boundingBox.contains(entity.getX(), entity.getY(), entity.getZ())
+                        && predicate.test(entity)
+                        && entity.isValid())
+                    collector.add(entity);
+            }
+        } else {
+            for (Entity entity : entities) {
+                entity.getLocation(location);
+                if (boundingBox.contains(location.getX(), location.getY(), location.getZ())
+                        && predicate.test(entity)
+                        && entity.isValid())
+                    collector.add(entity);
+            }
+        }
     }
 
     /**

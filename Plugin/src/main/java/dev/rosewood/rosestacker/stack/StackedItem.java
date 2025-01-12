@@ -24,6 +24,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
     private Item item;
 
     private ItemStackSettings stackSettings;
+    private double x, y, z;
 
     public StackedItem(int size, Item item) {
         this(size, item, true);
@@ -165,6 +166,20 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             return entity1.getTicksLived() > entity2.getTicksLived() ? 2 : -2;
 
         return this.getStackSize() > stack2.getStackSize() ? 1 : -1;
+    }
+
+    /**
+     * @return true if the entity has moved since the last time this method was called, false otherwise
+     */
+    public boolean hasMoved() {
+        Location location = this.item.getLocation();
+        boolean moved = location.getX() != this.x || location.getY() != this.y || location.getZ() != this.z;
+        if (moved) {
+            this.x = location.getX();
+            this.y = location.getY();
+            this.z = location.getZ();
+        }
+        return moved;
     }
 
 }
