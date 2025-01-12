@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

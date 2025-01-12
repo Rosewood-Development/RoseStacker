@@ -8,7 +8,6 @@ import dev.rosewood.rosegarden.command.framework.CommandContext;
 import dev.rosewood.rosegarden.command.framework.CommandInfo;
 import dev.rosewood.rosegarden.command.framework.annotation.RoseExecutable;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
-import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import org.bukkit.entity.Player;

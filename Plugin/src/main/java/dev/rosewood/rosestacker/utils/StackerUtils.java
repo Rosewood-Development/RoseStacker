@@ -21,7 +21,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;

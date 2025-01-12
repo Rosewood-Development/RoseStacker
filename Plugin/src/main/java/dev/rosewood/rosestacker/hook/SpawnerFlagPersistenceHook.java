@@ -3,7 +3,6 @@ package dev.rosewood.rosestacker.hook;
 import com.gmail.nossr50.metadata.MobMetaFlagType;
 import com.gmail.nossr50.util.MobMetadataUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
-import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.roseloot.util.LootUtils;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;

@@ -6,7 +6,6 @@ import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Keyed;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 

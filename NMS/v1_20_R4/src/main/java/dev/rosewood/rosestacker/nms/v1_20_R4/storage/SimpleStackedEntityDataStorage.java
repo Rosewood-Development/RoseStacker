@@ -4,7 +4,6 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.AbstractSimpleStackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.v1_20_R4.NMSHandlerImpl;
-import dev.rosewood.rosestacker.nms.v1_20_R4.storage.NBTEntityDataEntry;
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.entity.LivingEntity;
 

@@ -85,14 +85,13 @@ import org.bukkit.craftbukkit.v1_16_R3.util.CraftNamespacedKey;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")

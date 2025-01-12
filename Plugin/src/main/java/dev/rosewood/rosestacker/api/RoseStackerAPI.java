@@ -18,7 +18,6 @@ import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
