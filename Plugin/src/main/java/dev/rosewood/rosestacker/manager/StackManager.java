@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
@@ -18,8 +19,10 @@ import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
@@ -34,7 +37,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,8 +45,9 @@ import org.jetbrains.annotations.NotNull;
 public class StackManager extends Manager implements StackingLogic {
 
     private final Map<UUID, StackingThread> stackingThreads;
+    private final Set<String> disabledWorldNames;
 
-    private BukkitTask autosaveTask;
+    private ScheduledTask autosaveTask;
 
     private boolean isEntityStackingTemporarilyDisabled;
     private boolean isEntityUnstackingTemporarilyDisabled;
@@ -58,6 +61,7 @@ public class StackManager extends Manager implements StackingLogic {
         super(rosePlugin);
 
         this.stackingThreads = new ConcurrentHashMap<>();
+        this.disabledWorldNames = new HashSet<>();
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -73,8 +77,10 @@ public class StackManager extends Manager implements StackingLogic {
         long autosaveFrequency = SettingKey.AUTOSAVE_FREQUENCY.get();
         if (autosaveFrequency > 0) {
             long interval = autosaveFrequency * 20 * 60;
-            this.autosaveTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, () -> this.saveAllData(false), interval, interval);
+            this.autosaveTask = this.rosePlugin.getScheduler().runTaskTimer(() -> this.saveAllData(false), interval, interval);
         }
+
+        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get().stream().map(String::toLowerCase).toList());
 
         String multikillAmountValue = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
         int separatorIndex = multikillAmountValue.indexOf("-");
@@ -103,6 +109,8 @@ public class StackManager extends Manager implements StackingLogic {
         // Close and clear StackingThreads
         this.stackingThreads.values().forEach(StackingThread::close);
         this.stackingThreads.clear();
+
+        this.disabledWorldNames.clear();
     }
 
     @Override
@@ -508,7 +516,7 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
-        return SettingKey.DISABLED_WORLDS.get().stream().anyMatch(x -> x.equalsIgnoreCase(world.getName()));
+        return this.disabledWorldNames.contains(world.getName().toLowerCase());
     }
 
     public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {

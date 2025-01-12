@@ -107,7 +107,7 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     public void disable() {
-        Bukkit.getScheduler().cancelTasks(this);
+        this.getScheduler().cancelAllTasks();
     }
 
     @Override

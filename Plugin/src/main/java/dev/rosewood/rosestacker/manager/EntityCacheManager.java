@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackingThread;
@@ -14,18 +15,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
 public class EntityCacheManager extends Manager {
 
     private final Map<ChunkLocation, Collection<Entity>> entityCache;
-    private BukkitTask refreshTask;
+    private ScheduledTask refreshTask;
 
     public EntityCacheManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -34,7 +33,7 @@ public class EntityCacheManager extends Manager {
 
     @Override
     public void reload() {
-        this.refreshTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::refresh, 5L, 60L);
+        this.refreshTask = this.rosePlugin.getScheduler().runTaskTimer(this::refresh, 5L, 60L);
     }
 
     @Override
@@ -77,6 +76,7 @@ public class EntityCacheManager extends Manager {
         int minZ = (int) boundingBox.getMinZ() >> 4;
         int maxZ = (int) boundingBox.getMaxZ() >> 4;
 
+        Location location = center.clone(); // re-use location object to dump positions so we aren't constantly remaking Location objects
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -85,7 +85,7 @@ public class EntityCacheManager extends Manager {
                         continue;
 
                     for (Entity entity : entities) {
-                        Location location = entity.getLocation();
+                        entity.getLocation(location);
                         if (boundingBox.contains(location.getX(), location.getY(), location.getZ())
                                 && predicate.test(entity)
                                 && entity.isValid())
@@ -148,12 +148,13 @@ public class EntityCacheManager extends Manager {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
+                Location location = new Location(world, 0, 0, 0);
                 for (Entity entity : nmsHandler.getEntities(world)) {
                     EntityType type = entity.getType();
                     if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
                         continue;
 
-                    Location location = entity.getLocation();
+                    entity.getLocation(location); // re-use location object to dump positions so we aren't constantly remaking Location objects
                     ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
                     Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
                     entities.add(entity);

@@ -118,7 +118,7 @@ public class ItemListener implements Listener {
             }
 
             if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {
-                Bukkit.getScheduler().runTask(this.rosePlugin, () -> {
+                this.rosePlugin.getScheduler().runTask(() -> {
                     StackedEntity stackedEntity = stackManager.getStackedEntity(entity);
                     if (stackedEntity != null)
                         stackManager.tryUnstackEntity(stackedEntity);
