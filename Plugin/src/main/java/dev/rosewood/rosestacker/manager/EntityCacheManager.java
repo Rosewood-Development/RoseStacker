@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -164,17 +165,33 @@ public class EntityCacheManager extends Manager {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
-                Location location = new Location(world, 0, 0, 0);
-                for (Entity entity : nmsHandler.getEntities(world)) {
-                    EntityType type = entity.getType();
-                    if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
-                        continue;
 
-                    entity.getLocation(location); // re-use location object to dump positions so we aren't constantly remaking Location objects
-                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
-                    Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
-                    entities.add(entity);
-                }
+            }
+        }
+    }
+
+    private void addWorldEntities(World world, List<Entity> worldEntities) {
+        if (DIRECT_GETTERS) {
+            for (Entity entity : worldEntities) {
+                EntityType type = entity.getType();
+                if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                    continue;
+
+                ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
+                Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
+                entities.add(entity);
+            }
+        } else {
+            Location location = new Location(world, 0, 0, 0);
+            for (Entity entity : worldEntities) {
+                EntityType type = entity.getType();
+                if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                    continue;
+
+                entity.getLocation(location); // re-use location object to dump positions so we aren't constantly remaking Location objects
+                ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
+                Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
+                entities.add(entity);
             }
         }
     }

@@ -95,14 +95,18 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             return;
         }
 
-        ItemMeta itemMeta = itemStack.getItemMeta();
 
         String displayName = null;
-        boolean hasCustomName = itemMeta != null && itemMeta.hasDisplayName();
-        if (hasCustomName && SettingKey.ITEM_DISPLAY_CUSTOM_NAMES.get()) {
-            displayName = itemMeta.getDisplayName();
-        } else if (NMSUtil.getVersionNumber() >= 21 && itemMeta.hasItemName()) { // Support item_name component in 1.21+
-            displayName = itemMeta.getItemName();
+        boolean hasCustomName = false;
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta != null) {
+            if (itemMeta.hasDisplayName() && SettingKey.ITEM_DISPLAY_CUSTOM_NAMES.get()) {
+                displayName = itemMeta.getDisplayName();
+                hasCustomName = true;
+            } else if (NMSUtil.getVersionNumber() >= 21 && itemMeta.hasItemName()) { // Support item_name component in 1.21+
+                displayName = itemMeta.getItemName();
+                hasCustomName = true;
+            }
         }
 
         if (displayName != null && !SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.get())
