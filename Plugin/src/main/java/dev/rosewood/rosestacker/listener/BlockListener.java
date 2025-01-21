@@ -778,6 +778,11 @@ public class BlockListener implements Listener {
                 if (spawnerType == null)
                     return;
 
+                if (block.getType() != Material.SPAWNER) {
+                    event.setCancelled(true);
+                    return;
+                }
+
                 SpawnerStackSettings spawnerStackSettings = stackSettingManager.getSpawnerStackSettings(spawnerType);
                 if (spawnerStackSettings == null)
                     return;
