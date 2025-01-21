@@ -790,7 +790,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedSpawner tempStackedSpawner = new StackedSpawner(0, block, true);
+                StackedSpawner tempStackedSpawner = new StackedSpawner(0, block, true, false);
                 SpawnerStackEvent spawnerStackEvent = new SpawnerStackEvent(player, tempStackedSpawner, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(spawnerStackEvent);
                 if (spawnerStackEvent.isCancelled()) {
@@ -818,7 +818,7 @@ public class BlockListener implements Listener {
                     return;
                 }
 
-                StackedBlock tempStackedBlock = new StackedBlock(0, block);
+                StackedBlock tempStackedBlock = new StackedBlock(0, block, false);
                 BlockStackEvent blockStackEvent = new BlockStackEvent(player, tempStackedBlock, stackAmount, true);
                 Bukkit.getPluginManager().callEvent(blockStackEvent);
                 if (blockStackEvent.isCancelled()) {

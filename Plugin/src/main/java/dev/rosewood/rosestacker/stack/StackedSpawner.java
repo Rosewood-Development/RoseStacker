@@ -36,7 +36,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     private List<Class<? extends ConditionTag>> lastInvalidConditions;
     private SpawnerStackSettings stackSettings;
 
-    public StackedSpawner(int size, Block spawner, boolean placedByPlayer) {
+    public StackedSpawner(int size, Block spawner, boolean placedByPlayer, boolean updateDisplay) {
         if (spawner.getType() != Material.SPAWNER)
             throw new IllegalArgumentException("Block must be a spawner");
 
@@ -50,10 +50,13 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnerType());
 
-        ThreadUtils.runOnPrimary(() -> {
-            this.updateSpawnerProperties(true);
+        ThreadUtils.runOnPrimary(() -> this.updateSpawnerProperties(true));
+        if (updateDisplay)
             this.updateDisplay();
-        });
+    }
+
+    public StackedSpawner(int size, Block spawner, boolean placedByPlayer) {
+        this(size, spawner, placedByPlayer, true);
     }
 
     /**

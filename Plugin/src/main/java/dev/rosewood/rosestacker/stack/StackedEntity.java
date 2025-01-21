@@ -69,7 +69,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     private EntityStackSettings stackSettings;
 
-    public StackedEntity(LivingEntity entity, StackedEntityDataStorage stackedEntityDataStorage) {
+    public StackedEntity(LivingEntity entity, StackedEntityDataStorage stackedEntityDataStorage, boolean updateDisplay) {
         this.entity = entity;
         this.stackedEntityDataStorage = stackedEntityDataStorage;
         this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
@@ -79,12 +79,17 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         if (this.entity != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
-            this.updateDisplay();
+            if (updateDisplay)
+                this.updateDisplay();
         }
     }
 
+    public StackedEntity(LivingEntity entity, StackedEntityDataStorage stackedEntityDataStorage) {
+        this(entity, stackedEntityDataStorage, true);
+    }
+
     public StackedEntity(LivingEntity entity) {
-        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())));
+        this(entity, NMSAdapter.getHandler().createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())), true);
     }
 
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't

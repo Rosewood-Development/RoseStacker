@@ -26,10 +26,6 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
     private ItemStackSettings stackSettings;
     private double x, y, z;
 
-    public StackedItem(int size, Item item) {
-        this(size, item, true);
-    }
-
     public StackedItem(int size, Item item, boolean updateDisplay) {
         this.size = size;
         this.item = item;
@@ -37,9 +33,13 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         if (this.item != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getItemStackSettings(this.item);
 
-            if (updateDisplay && Bukkit.isPrimaryThread())
+            if (updateDisplay)
                 this.updateDisplay();
         }
+    }
+
+    public StackedItem(int size, Item item) {
+        this(size, item, true);
     }
 
     public Item getItem() {

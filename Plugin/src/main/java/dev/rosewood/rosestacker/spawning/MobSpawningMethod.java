@@ -333,7 +333,6 @@ public class MobSpawningMethod implements SpawningMethod {
 
     private StackedEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, EntityStackSettings entityStackSettings) {
         LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
-        SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
         if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
             PersistentDataUtils.removeEntityAi(entity);

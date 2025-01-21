@@ -49,7 +49,7 @@ public final class DataUtils {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         byte[] data = pdc.get(ENTITY_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
-            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, storageType));
+            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, storageType), false);
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(new GZIPInputStream(inputStream))) {
@@ -64,7 +64,7 @@ public final class DataUtils {
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
                 Set<StorageMigrationType> migrations = getNeededMigrations(major, minor);
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations));
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations), false);
             } else if (dataVersion == 2) {
                 StackedEntityDataStorageType type = StackedEntityDataStorageType.fromId(dataInput.readInt());
                 int length = dataInput.readInt();
@@ -72,14 +72,14 @@ public final class DataUtils {
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
                 Set<StorageMigrationType> migrations = getNeededMigrations(0, 0);
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations));
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations), false);
             } else if (dataVersion == 1) {
                 int length = dataInput.readInt();
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
                 Set<StorageMigrationType> migrations = getNeededMigrations(0, 0);
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT, migrations));
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT, migrations), false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +191,7 @@ public final class DataUtils {
                     boolean placedByPlayer = dataInput.readBoolean();
                     Block block = chunk.getBlock(x, y, z);
                     if (block.getType() == Material.SPAWNER)
-                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer));
+                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer, false));
                 }
             }
         } catch (Exception e) {
@@ -251,7 +251,7 @@ public final class DataUtils {
                     int y = dataInput.readInt();
                     int z = dataInput.readInt();
 
-                    stackedBlocks.add(new StackedBlock(stackSize, chunk.getBlock(x, y, z)));
+                    stackedBlocks.add(new StackedBlock(stackSize, chunk.getBlock(x, y, z), false));
                 }
             }
         } catch (Exception e) {

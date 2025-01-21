@@ -818,8 +818,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
                 stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
 
-        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty())
+        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty()) {
             this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
+            ThreadUtils.runAsync(() -> {
+                stackedSpawners.values().forEach(StackedSpawner::updateDisplay);
+                stackedBlocks.values().forEach(StackedBlock::updateDisplay);
+            });
+        }
     }
 
     @Override
@@ -827,6 +832,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entities.isEmpty())
             return;
 
+        List<StackedEntity> stackedEntities = new ArrayList<>();
         if (this.stackManager.isEntityStackingEnabled()) {
             for (Entity entity : entities) {
                 if (!(entity instanceof LivingEntity livingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
@@ -835,12 +841,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity, this.stackManager.getEntityDataStorageType(entity.getType()));
                 if (stackedEntity != null) {
                     this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+                    stackedEntities.add(stackedEntity);
                 } else {
                     this.createEntityStack(livingEntity, true);
                 }
             }
         }
 
+        List<StackedItem> stackedItems = new ArrayList<>();
         if (this.stackManager.isItemStackingEnabled()) {
             for (Entity entity : entities) {
                 if (entity.getType() != VersionUtils.ITEM)
@@ -850,10 +858,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 StackedItem stackedItem = DataUtils.readStackedItem(item);
                 if (stackedItem != null) {
                     this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+                    stackedItems.add(stackedItem);
                 } else {
                     this.createItemStack(item, true);
                 }
             }
+        }
+
+        if (!stackedEntities.isEmpty() || !stackedItems.isEmpty()) {
+            ThreadUtils.runAsync(() -> {
+                stackedEntities.forEach(StackedEntity::updateDisplay);
+                stackedItems.forEach(StackedItem::updateDisplay);
+            });
         }
     }
 
