@@ -36,6 +36,7 @@ dependencies {
     }
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'simplepets.brainsynder:simplepets:5.0-BUILD-176'
+    compileOnly 'com.bgsoftware:SuperiorSkyblockAPI:2024.4'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4', {
         exclude group: 'org.spigotmc'

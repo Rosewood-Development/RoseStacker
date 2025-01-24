@@ -234,6 +234,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> MISC_SPAWNER_ROSELOOT_COMPATIBILITY = create("misc-settings.spawner-roseloot-compatibility", BOOLEAN, true, "Disabling this will make RoseLoot no longer recognize spawner entities as spawned from a spawner");
     public static final RoseSetting<Boolean> MISC_STACK_STATISTICS = create("misc-settings.stack-statistics", BOOLEAN, true, "Should statistics be accurately tracked for stacked entities?", "This can cause issues if you expect players to kill multiple billion mobs");
     public static final RoseSetting<Boolean> MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST = create("misc-settings.spawner-lore-display-global-lore-first", BOOLEAN, true, "Should global lore be displayed before spawner type lore?");
+    public static final RoseSetting<Boolean> MISC_SUPERIOR_SKYBLOCK_STACK_GUI_HOOK = create("misc-settings.superior-skyblock-stack-gui-hook", BOOLEAN, true, "Should stacked block/spawner GUIs be blocked from being opened without SuperiorSkyblock2 island break and place permissions?");
 
     private static <T> RoseSetting<T> create(String key, RoseSettingSerializer<T> serializer, T defaultValue, String... comments) {
         RoseSetting<T> setting = RoseSetting.backed(RoseStacker.getInstance(), key, serializer, defaultValue, comments);

@@ -41,6 +41,8 @@ dependencies:
     required: false
   - name: SimplePets
     required: false
+  - name: SuperiorSkyblock2
+    required: false
   - name: WildChests
     required: false
   - name: WorldGuard
