@@ -14,6 +14,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
+import org.bukkit.entity.Allay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -79,6 +80,8 @@ public class ItemListener implements Listener {
         if (stackedItem == null)
             return;
 
+        int maxStack = event.getItem().getItemStack().getType().getMaxStackSize();
+
         Inventory inventory;
         if (entity instanceof Player player) {
             if (StackerUtils.isVanished(player)) {
@@ -92,7 +95,6 @@ public class ItemListener implements Listener {
         } else if (event.getEntityType() == EntityType.DOLPHIN) {
             // Only stop the dolphin from picking up the item if it's larger than a normal item would be, otherwise
             // cancel the event, give the dolphin an item of max normal stack size, and reduce the stacked item size
-            int maxStack = event.getItem().getItemStack().getType().getMaxStackSize();
             if (stackedItem.getStackSize() > maxStack) {
                 ItemStack clone = event.getItem().getItemStack().clone();
                 clone.setAmount(maxStack);
@@ -102,8 +104,20 @@ public class ItemListener implements Listener {
                     equipment.setItemInMainHand(clone);
 
                 // Stun the item temporarily to avoid it getting instantly stacked back into
-                stackedItem.getItem().setPickupDelay(50);
+                stackedItem.getItem().setPickupDelay(20);
 
+                event.setCancelled(true);
+            }
+            return;
+        } else if (NMSUtil.getVersionNumber() >= 19 && entity instanceof Allay allay) {
+            // Similar to dolphin logic
+            int pickedUpAmount = Math.min(maxStack, stackedItem.getStackSize()) - event.getRemaining();
+            if (stackedItem.getStackSize() > maxStack) {
+                ItemStack clone = event.getItem().getItemStack().clone();
+                clone.setAmount(pickedUpAmount);
+                stackedItem.setStackSize(stackedItem.getStackSize() - pickedUpAmount);
+                allay.getInventory().addItem(clone);
+                stackedItem.getItem().setPickupDelay(20);
                 event.setCancelled(true);
             }
             return;

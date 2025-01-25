@@ -165,7 +165,7 @@ public class EntityCacheManager extends Manager {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
-
+                this.addWorldEntities(world, nmsHandler.getEntities(world));
             }
         }
     }

@@ -790,7 +790,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public boolean hasMoved() {
         Location location = this.entity.getLocation();
         boolean moved = location.getX() != this.x || location.getY() != this.y || location.getZ() != this.z;
-        if (!moved) {
+        if (moved) {
             this.x = location.getX();
             this.y = location.getY();
             this.z = location.getZ();

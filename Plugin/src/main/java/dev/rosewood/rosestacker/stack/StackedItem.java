@@ -95,7 +95,6 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             return;
         }
 
-
         String displayName = null;
         boolean hasCustomName = false;
         ItemMeta itemMeta = itemStack.getItemMeta();

@@ -944,7 +944,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      */
     private void tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
-        if (stackSettings == null || !stackedEntity.hasMoved())
+        if (stackSettings == null)
             return;
 
         if (stackedEntity.checkNPC()) {
@@ -953,7 +953,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         LivingEntity entity = stackedEntity.getEntity();
-        if (this.isRemoved(entity))
+        if (this.isRemoved(entity) || !stackedEntity.hasMoved())
             return;
 
         if (!WorldGuardHook.testLocation(entity.getLocation()))
@@ -1038,9 +1038,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
         Item item = stackedItem.getItem();
         if (stackSettings == null
-                || !stackedItem.hasMoved()
                 || !stackSettings.isStackingEnabled()
                 || item.getPickupDelay() > 40
+                || !stackedItem.hasMoved()
                 || PersistentDataUtils.isUnstackable(item))
             return;
 
@@ -1067,6 +1067,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (other != null)
                 targetItems.add(other);
         }
+
+        if (targetItems.isEmpty())
+            return;
 
         int totalSize = stackedItem.getStackSize();
         Set<StackedItem> removable = new HashSet<>();
