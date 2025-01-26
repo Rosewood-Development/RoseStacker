@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -9,18 +10,31 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import io.papermc.paper.entity.CollarColorable;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Frog;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.Panda;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Colorable;
 
 public class BreedingListener implements Listener {
 
@@ -85,14 +99,13 @@ public class BreedingListener implements Listener {
         animal.playEffect(EntityEffect.LOVE_HEARTS);
 
         boolean disableAi = PersistentDataUtils.isAiDisabled(animal);
-
         // Drop experience and spawn entities a few ticks later
-        int f_totalChildren = totalChildren;
         ThreadUtils.runSyncDelayed(() -> {
-            for (int i = 0; i < f_totalChildren; i++)
+            for (int i = 0; i < totalChildren; i++)
                 EntitySpawnUtil.spawn(animal.getLocation(), entityClass, x -> {
                     Ageable baby = (Ageable) x;
                     baby.setBaby();
+                    this.transferEntityProperties(animal, baby);
                     if (disableAi)
                         PersistentDataUtils.removeEntityAi(baby);
                 });
@@ -102,6 +115,46 @@ public class BreedingListener implements Listener {
             // Increment statistic
             player.incrementStatistic(Statistic.ANIMALS_BRED, totalChildren);
         }, 30);
+    }
+
+    private void transferEntityProperties(LivingEntity parent, LivingEntity child) {
+        if (parent instanceof Colorable colorableParent && child instanceof Colorable colorableChild)
+            colorableChild.setColor(colorableParent.getColor());
+
+        if (parent instanceof Tameable tameableParent && child instanceof Tameable tameableChild)
+            tameableChild.setOwner(tameableParent.getOwner());
+
+        if (NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 19 && parent instanceof CollarColorable collarColorableParent && child instanceof CollarColorable collarColorableChild)
+            collarColorableChild.setCollarColor(collarColorableParent.getCollarColor());
+
+        if (parent instanceof Cat parentCat && child instanceof Cat childCat)
+            childCat.setCatType(parentCat.getCatType());
+
+        if (parent instanceof Fox parentFox && child instanceof Fox childFox)
+            childFox.setFoxType(parentFox.getFoxType());
+
+        if (NMSUtil.getVersionNumber() >= 19 && parent instanceof Frog parentFrog && child instanceof Frog childFrog)
+            childFrog.setVariant(parentFrog.getVariant());
+
+        if (parent instanceof Horse parentHorse && child instanceof Horse childHorse) {
+            childHorse.setStyle(parentHorse.getStyle());
+            childHorse.setColor(parentHorse.getColor());
+        }
+
+        if (parent instanceof MushroomCow parentMooshroom && child instanceof MushroomCow childMooshroom)
+            childMooshroom.setVariant(parentMooshroom.getVariant());
+
+        if (parent instanceof Panda parentPanda && child instanceof Panda childPanda)
+            childPanda.setMainGene(parentPanda.getMainGene());
+
+        if (parent instanceof Rabbit parentRabbit && child instanceof Rabbit childRabbit)
+            childRabbit.setRabbitType(parentRabbit.getRabbitType());
+
+        if (parent instanceof Llama parentLlama && child instanceof Llama childLlama)
+            childLlama.setColor(parentLlama.getColor());
+
+        if ((NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() >= 6)) && parent instanceof Wolf parentWolf && child instanceof Wolf childWolf)
+            childWolf.setVariant(parentWolf.getVariant());
     }
 
 }
