@@ -328,7 +328,7 @@ public class MobSpawningMethod implements SpawningMethod {
             }
         });
 
-        return spawnAmount;
+        return successfulSpawns;
     }
 
     private StackedEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, EntityStackSettings entityStackSettings) {
