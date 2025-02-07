@@ -663,6 +663,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @param event The event that caused the entity to die, nullable
      */
     public void killEntireStack(@Nullable EntityDeathEvent event) {
+        int amount = this.getStackSize();
         int experience = event != null ? event.getDroppedExp() : EntityUtils.getApproximateExperience(this.entity);
         if (SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()) {
             // Make sure the entity size is correct to allow drops
@@ -685,13 +686,13 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
-                event.setDroppedExp(experience * this.getStackSize());
+                event.setDroppedExp(experience * amount);
             }
         }
 
         Player killer = this.entity.getKiller();
-        if (killer != null && this.getStackSize() - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
-            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), this.getStackSize() - 1);
+        if (killer != null && amount - 1 > 0 && SettingKey.MISC_STACK_STATISTICS.get())
+            killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), amount - 1);
 
         RoseStacker.getInstance().getManager(StackManager.class).removeEntityStack(this);
 
@@ -756,6 +757,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public boolean areMultipleEntitiesDying(@NotNull EntityDeathEvent event) {
         // Don't ignore if single entity kill or not a stack
         if (!SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get()
+                || !SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()
                 || this.getStackSize() == 1)
             return false;
 
