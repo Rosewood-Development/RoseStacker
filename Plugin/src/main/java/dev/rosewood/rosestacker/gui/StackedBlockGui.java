@@ -272,6 +272,11 @@ public class StackedBlockGui {
     private void destroyStackedBlock(Player player) {
         this.kickOutViewers();
 
+        // It's possible we already destroyed the entire stacked block by the time we got here due to kicking out viewers being able to
+        // decrease the stack size, just bail early if that's the case
+        if (this.stackedBlock.getStackSize() == 0)
+            return;
+
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         ThreadUtils.runSync(() -> {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
