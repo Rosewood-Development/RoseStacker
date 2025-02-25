@@ -16,9 +16,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 public class HologramManager extends Manager implements Listener {
 
@@ -91,6 +93,17 @@ public class HologramManager extends Manager implements Listener {
             Player player = event.getPlayer();
             for (Hologram hologram : this.holograms.values())
                 hologram.removeWatcher(player);
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWorldUnload(WorldUnloadEvent event) {
+        this.holograms.entrySet().removeIf(x -> {
+            if (x.getKey().getWorld().equals(event.getWorld())) {
+                x.getValue().delete();
+                return true;
+            }
+            return false;
         });
     }
 
