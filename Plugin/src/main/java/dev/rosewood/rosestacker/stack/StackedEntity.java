@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
 import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
+import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -282,15 +283,18 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     private void calculateAndDropPartialStackLoot(Supplier<EntityDrops> calculator) {
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
+        Player killer = this.entity.getKiller();
         boolean async = SettingKey.ENTITY_DEATH_EVENT_RUN_ASYNC.get();
         Runnable mainTask = () -> {
             EntityDrops drops = calculator.get();
 
             Runnable finishTask = () -> {
-                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), this.entity.getLocation(), false);
+                Location location = this.entity.getLocation();
+                if (WorldGuardHook.testCanDropItems(killer, location))
+                    RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), location, false);
                 int finalDroppedExp = drops.getExperience();
-                if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get() && finalDroppedExp > 0)
-                    StackerUtils.dropExperience(this.entity.getLocation(), finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
+                if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get() && finalDroppedExp > 0 && WorldGuardHook.testCanDropExperience(killer, location))
+                    StackerUtils.dropExperience(location, finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
             };
 
             if (!Bukkit.isPrimaryThread()) {

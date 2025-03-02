@@ -222,6 +222,7 @@ public final class SettingKey {
 
     public static final RoseSetting<CommentedConfigurationSection> MISC_SETTINGS = create("misc-settings", "Miscellaneous other settings for the plugin");
     public static final RoseSetting<Boolean> MISC_WORLDGUARD_REGION = create("misc-settings.worldguard-region", BOOLEAN, false, "Should a custom WorldGuard region named 'rosestacker' be registered and used to test entity stacking?", "Entity stacking within regions will only work if the result is ALLOW", "This setting will only be updated after a restart");
+    public static final RoseSetting<Boolean> MISC_WORLDGUARD_OBEY_FLAGS = create("misc-settings.worldguard-obey-flags", BOOLEAN, true, "Should we try to obey the WorldGuard region flags item-drop and exp-drops?", "Items and experience will only drop within regions where the flags are not DENY");
     public static final RoseSetting<Boolean> MISC_COREPROTECT_LOGGING = create("misc-settings.coreprotect-logging-enabled", BOOLEAN, true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?");
     public static final RoseSetting<Boolean> MISC_LOGBLOCK_LOGGING = create("misc-settings.logblock-logging-enabled", BOOLEAN, true, "If LogBlock is installed, should we log stacked block/spawner break/placing?");
     public static final RoseSetting<Boolean> MISC_INSIGHTS_LOGGING = create("misc-settings.insights-logging-enabled", BOOLEAN, true, "If Insights is installed, should we track stacked block/spawner break/placing?");
