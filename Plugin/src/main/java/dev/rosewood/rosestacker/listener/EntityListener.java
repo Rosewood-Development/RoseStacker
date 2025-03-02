@@ -418,14 +418,14 @@ public class EntityListener implements Listener {
         if (!stackManager.isEntityStackingEnabled())
             return;
 
-        EntityStackSettings stackSettings = stackSettingManager.getEntityStackSettings(event.getTransformedEntity().getType());
+        EntityStackSettings newStackSettings = stackSettingManager.getEntityStackSettings(event.getTransformedEntity().getType());
         boolean aiDisabled = PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity());
         boolean fromSpawner = PersistentDataUtils.isSpawnedFromSpawner(event.getEntity());
         if (event.getEntity() instanceof Slime) {
             if (aiDisabled)
                 event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(PersistentDataUtils::removeEntityAi);
             if (fromSpawner)
-                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(stackSettings::applySpawnerSpawnedProperties);
+                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(newStackSettings::applySpawnerSpawnedProperties);
             return;
         }
 
@@ -444,9 +444,11 @@ public class EntityListener implements Listener {
             event.setCancelled(true);
 
             // Handle mooshroom shearing
-            if (event.getEntityType() == VersionUtils.MOOSHROOM) {
+            EntityType entityType = event.getEntityType();
+            if (entityType == VersionUtils.MOOSHROOM) {
                 int mushroomsDropped = 5;
-                if (stackSettings.getSettingValue(EntityStackSettings.MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK).getBoolean())
+                EntityStackSettings mooshroomStackSettings = stackSettingManager.getEntityStackSettings(entityType);
+                if (mooshroomStackSettings.getSettingValue(EntityStackSettings.MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK).getBoolean())
                     mushroomsDropped += (stackedEntity.getStackSize() - 1) * stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK).getInt();
 
                 Material dropType = ((MushroomCow) event.getEntity()).getVariant() == Variant.BROWN ? Material.BROWN_MUSHROOM : Material.RED_MUSHROOM;
@@ -481,7 +483,7 @@ public class EntityListener implements Listener {
             if (aiDisabled)
                 event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(PersistentDataUtils::removeEntityAi);
             if (fromSpawner)
-                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(stackSettings::applySpawnerSpawnedProperties);
+                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(newStackSettings::applySpawnerSpawnedProperties);
 
             if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
                 ThreadUtils.runSyncDelayed(stackedEntity::decreaseStackSize, 20);
