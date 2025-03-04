@@ -84,7 +84,7 @@ public class ItemListener implements Listener {
 
         Inventory inventory;
         if (entity instanceof Player player) {
-            if (StackerUtils.isVanished(player)) {
+            if (SettingKey.ITEM_DISABLE_PICKUP_IF_VANISHED.get() && StackerUtils.isVanished(player)) {
                 event.setCancelled(true);
                 return;
             }

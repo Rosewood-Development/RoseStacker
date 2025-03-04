@@ -94,6 +94,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER = create("global-item-settings.display-despawn-timer-placeholder", BOOLEAN, false, "Should the %timer% placeholder be available in item display tags?", "You will need to add the %timer% placeholder to the item display tag in your locale file manually", "Placeholder updates will occur at the same frequency as item-stack-frequency");
     public static final RoseSetting<Boolean> ITEM_RESET_DESPAWN_TIMER_ON_MERGE = create("global-item-settings.reset-despawn-timer-on-merge", BOOLEAN, true, "Should the item despawn timer be reset when an item is merged into it?");
     public static final RoseSetting<Boolean> ITEM_MERGE_INTO_NEWEST = create("global-item-settings.merge-into-newest", BOOLEAN, false, "Should items be merged into the newest stack?");
+    public static final RoseSetting<Boolean> ITEM_DISABLE_PICKUP_IF_VANISHED = create("global-item-settings.disable-pickup-if-vanished", BOOLEAN, true, "Should items be prevented from being picked up while vanished?", "This is for compatibility with external vanish plugins");
 
     public static final RoseSetting<CommentedConfigurationSection> GLOBAL_BLOCK_SETTINGS = create("global-block-settings", "Global block settings", "Changed values in block_settings.yml will override these values");
     public static final RoseSetting<Boolean> BLOCK_STACKING_ENABLED = create("global-block-settings.stacking-enabled", BOOLEAN, true, "Should block stacking be enabled at all?");
