@@ -314,7 +314,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     continue;
 
                 nmsHandler.spawnExistingEntity(entity, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
-                entity.setVelocity(Vector.getRandom().multiply(0.01));
+                entity.setVelocity(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01));
                 stackManager.addEntityStack(stackedEntity);
             }
             stackManager.setEntityStackingTemporarilyDisabled(false);

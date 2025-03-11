@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.manager;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.command.framework.BaseRoseCommand;
 import dev.rosewood.rosegarden.manager.AbstractCommandManager;
-import dev.rosewood.rosestacker.command.command.BaseCommand;
+import dev.rosewood.rosestacker.command.BaseCommand;
 import java.util.List;
 import java.util.function.Function;
 

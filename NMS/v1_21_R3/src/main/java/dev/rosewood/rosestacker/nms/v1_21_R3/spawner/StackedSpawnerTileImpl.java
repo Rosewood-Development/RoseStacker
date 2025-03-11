@@ -35,9 +35,6 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
     private boolean checkedInitialConditions;
-    private final int playerCheckFrequency;
-    private final int spawnerPoweredCheckFrequency;
-    private final boolean deactiveWhenPowered;
 
     public StackedSpawnerTileImpl(BaseSpawner old, SpawnerBlockEntity blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -45,15 +42,12 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         Location location = stackedSpawner.getLocation();
         this.blockPos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         this.loadOld(old);
-        this.playerCheckFrequency = SettingKey.SPAWNER_PLAYER_CHECK_FREQUENCY.get();
-        this.spawnerPoweredCheckFrequency = SettingKey.SPAWNER_POWERED_CHECK_FREQUENCY.get();
-        this.deactiveWhenPowered = SettingKey.SPAWNER_DEACTIVATE_WHEN_POWERED.get();
     }
 
     @Override
     public void serverTick(ServerLevel level, BlockPos blockPos) {
         // Only tick the spawner if a player is nearby
-        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % this.playerCheckFrequency;
+        this.playersTimeSinceLastCheck = (this.playersTimeSinceLastCheck + 1) % SettingKey.SPAWNER_PLAYER_CHECK_FREQUENCY.get();
         if (this.playersTimeSinceLastCheck == 0)
             this.playersNearby = this.isNearPlayer(level, blockPos);
 
@@ -68,7 +62,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
         SpawnerStackSettings stackSettings = this.stackedSpawner.getStackSettings();
 
         // Handle redstone deactivation if enabled
-        if (this.deactiveWhenPowered) {
+        if (SettingKey.SPAWNER_DEACTIVATE_WHEN_POWERED.get()) {
             if (this.redstoneTimeSinceLastCheck == 0) {
                 boolean hasSignal = level.hasNeighborSignal(this.blockPos);
                 if (this.redstoneDeactivated && !hasSignal) {
@@ -85,7 +79,7 @@ public class StackedSpawnerTileImpl extends BaseSpawner implements StackedSpawne
                     return;
             }
 
-            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % this.spawnerPoweredCheckFrequency;
+            this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % SettingKey.SPAWNER_POWERED_CHECK_FREQUENCY.get();
         }
 
         // Count down spawn timer unless we are ready to spawn
