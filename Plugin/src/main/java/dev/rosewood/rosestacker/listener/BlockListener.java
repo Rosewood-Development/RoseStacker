@@ -46,6 +46,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -80,7 +81,11 @@ public class BlockListener implements Listener {
         // Check for interacting with certain stacked blocks
         ItemStack item = event.getItem();
         if (stackManager.isBlockStackingEnabled() && stackManager.isBlockStacked(block) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
+            if (block.getType() == Material.DRAGON_EGG && !event.getPlayer().isSneaking()) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.ALLOW);
+                return;
+            } else if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 return;
             } else if (StackerUtils.isInteractable(block.getType()) && (!event.getPlayer().isSneaking() || item == null)) {
@@ -918,6 +923,17 @@ public class BlockListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBlockForm(BlockFormEvent event) {
+        Block block = event.getBlock();
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(block.getWorld()) || !stackManager.isBlockStackingEnabled())
+            return;
+
+        if (this.isBlockOrSpawnerStack(stackManager, block))
+            event.setCancelled(true);
     }
 
     private boolean isBlockOrSpawnerStack(StackManager stackManager, Block block) {

@@ -163,8 +163,7 @@ public final class StackerUtils {
                 .filter(Material::isBlock)
                 .filter(Material::isItem)
                 .filter(Material::isSolid)
-                .filter(x -> x == Material.SPAWNER || !isInteractable(x))
-                .filter(x -> !x.hasGravity())
+                .filter(x -> !isInteractable(x))
                 .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
                 .filter(x -> !Tag.SLABS.isTagged(x))
                 .filter(x -> !Tag.BANNERS.isTagged(x))
@@ -178,7 +177,8 @@ public final class StackerUtils {
             case "redstone_ore",
                  "deepslate_redstone_ore",
                  "beacon",
-                 "tnt" -> false;
+                 "tnt",
+                 "dragon_egg" -> false;
             default -> material.isInteractable();
         };
     }
