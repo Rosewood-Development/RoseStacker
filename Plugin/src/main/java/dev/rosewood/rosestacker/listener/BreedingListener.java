@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import io.papermc.paper.entity.CollarColorable;
+import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
@@ -32,6 +33,8 @@ import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
@@ -89,8 +92,9 @@ public class BreedingListener implements Listener {
             breedingItem.setAmount(breedingItem.getAmount() - requiredFood);
             totalChildren = requiredFood / 2;
         } else {
-            // Creative mode should allow the entire stack to breed half as many babies as the total size
-            totalChildren = stackSize / 2;
+            // Creative mode should allow the entire stack to breed half as many babies as the max stack size of the
+            // item they are holding, without actually taking any items
+            totalChildren = Math.max(1, breedingItem.getMaxStackSize() / 2);
         }
 
         // Reset breeding timer and play the breeding effect
@@ -101,16 +105,44 @@ public class BreedingListener implements Listener {
         boolean disableAi = PersistentDataUtils.isAiDisabled(animal);
         // Drop experience and spawn entities a few ticks later
         ThreadUtils.runSyncDelayed(() -> {
-            for (int i = 0; i < totalChildren; i++)
-                EntitySpawnUtil.spawn(animal.getLocation(), entityClass, x -> {
-                    Ageable baby = (Ageable) x;
-                    baby.setBaby();
-                    this.transferEntityProperties(animal, baby);
-                    if (disableAi)
-                        PersistentDataUtils.removeEntityAi(baby);
-                });
+            ItemStack breedingItemCopy = breedingItem.clone();
+            breedingItemCopy.setAmount(1);
+            boolean callEvents = SettingKey.ENTITY_CUMULATIVE_BREEDING_TRIGGER_BREED_EVENT.get();
+            int totalExperience = callEvents ? 0 : totalChildren * 7;
+            boolean modern = NMSUtil.getVersionNumber() >= 21 && NMSUtil.isPaper();
+            for (int i = 0; i < totalChildren; i++) {
+                LivingEntity child;
+                if (modern) {
+                    child = (LivingEntity) animal.getLocation().getWorld().spawn(animal.getLocation(), entityClass, CreatureSpawnEvent.SpawnReason.BREEDING, x -> {
+                        Ageable baby = (Ageable) x;
+                        baby.setBaby();
+                        this.transferEntityProperties(animal, baby);
+                        if (disableAi)
+                            PersistentDataUtils.removeEntityAi(baby);
+                    });
+                } else {
+                    child = (LivingEntity) EntitySpawnUtil.spawn(animal.getLocation(), entityClass, x -> {
+                        Ageable baby = (Ageable) x;
+                        baby.setBaby();
+                        this.transferEntityProperties(animal, baby);
+                        if (disableAi)
+                            PersistentDataUtils.removeEntityAi(baby);
+                    });
+                }
 
-            StackerUtils.dropExperience(animal.getLocation(), totalChildren, 7 * totalChildren, totalChildren);
+                if (callEvents) {
+                    EntityBreedEvent breedEvent = new EntityBreedEvent(child, animal, animal, player, breedingItemCopy.clone(), 7);
+                    Bukkit.getPluginManager().callEvent(breedEvent);
+                    if (breedEvent.isCancelled()) {
+                        child.remove();
+                        breedingItem.setAmount(breedingItem.getAmount() + 2);
+                    } else {
+                        totalExperience += breedEvent.getExperience();
+                    }
+                }
+            }
+
+            StackerUtils.dropExperience(animal.getLocation(), totalChildren, totalExperience, totalChildren);
 
             // Increment statistic
             player.incrementStatistic(Statistic.ANIMALS_BRED, totalChildren);
