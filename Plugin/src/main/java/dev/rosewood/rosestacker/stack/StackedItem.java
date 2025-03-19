@@ -20,6 +20,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class StackedItem extends Stack<ItemStackSettings> implements Comparable<StackedItem> {
 
+    private static final char MAGIC_AMPERSAND = '\uFDD0';
+    private static final char MAGIC_LESS_THAN = '\uFDD1';
+
     private int size;
     private Item item;
 
@@ -104,7 +107,6 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
                 hasCustomName = true;
             } else if (NMSUtil.getVersionNumber() >= 21 && itemMeta.hasItemName()) { // Support item_name component in 1.21+
                 displayName = itemMeta.getItemName();
-                hasCustomName = true;
             }
         }
 
@@ -113,6 +115,8 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
         if (displayName == null)
             displayName = this.stackSettings.getDisplayName();
+
+        displayName = displayName.replace('&', MAGIC_AMPERSAND).replace('<', MAGIC_LESS_THAN);
 
         StringPlaceholders.Builder placeholdersBuilder = StringPlaceholders.builder()
                 .add("amount", StackerUtils.formatNumber(this.getStackSize()))
@@ -137,6 +141,8 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         } else {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", placeholdersBuilder.build());
         }
+
+        displayString = displayString.replace(MAGIC_AMPERSAND, '&').replace(MAGIC_LESS_THAN, '<');
 
         this.item.setCustomNameVisible((this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get() || (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName)) &&
                 (this.size > itemStack.getMaxStackSize() || !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get()));
