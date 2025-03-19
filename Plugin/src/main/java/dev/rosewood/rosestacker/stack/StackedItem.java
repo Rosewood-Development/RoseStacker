@@ -22,6 +22,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
     private static final char MAGIC_AMPERSAND = '\uFDD0';
     private static final char MAGIC_LESS_THAN = '\uFDD1';
+    private static final char MAGIC_POUND     = '\uFDD2';
 
     private int size;
     private Item item;
@@ -116,7 +117,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         if (displayName == null)
             displayName = this.stackSettings.getDisplayName();
 
-        displayName = displayName.replace('&', MAGIC_AMPERSAND).replace('<', MAGIC_LESS_THAN);
+        displayName = displayName.replace('&', MAGIC_AMPERSAND).replace('<', MAGIC_LESS_THAN).replace('#', MAGIC_POUND);
 
         StringPlaceholders.Builder placeholdersBuilder = StringPlaceholders.builder()
                 .add("amount", StackerUtils.formatNumber(this.getStackSize()))
@@ -142,7 +143,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", placeholdersBuilder.build());
         }
 
-        displayString = displayString.replace(MAGIC_AMPERSAND, '&').replace(MAGIC_LESS_THAN, '<');
+        displayString = displayString.replace(MAGIC_AMPERSAND, '&').replace(MAGIC_LESS_THAN, '<').replace(MAGIC_POUND, '#');
 
         this.item.setCustomNameVisible((this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get() || (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName)) &&
                 (this.size > itemStack.getMaxStackSize() || !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get()));
