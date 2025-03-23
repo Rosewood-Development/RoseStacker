@@ -12,7 +12,7 @@ dependencies {
 
     // Referenced dependencies
     compileOnly "io.papermc.paper:paper-api:$spigotVersion-R0.1-SNAPSHOT"
-    compileOnly 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'org.jetbrains:annotations:23.1.0'
 
     // Mojang dependencies
@@ -21,7 +21,7 @@ dependencies {
     // Misc other
     compileOnly 'net.coreprotect:coreprotect:19.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
-    compileOnly 'dev.frankheijden.insights:Insights:6.13.0'
+    compileOnly 'dev.frankheijden.insights:Insights:6.19.2'
     compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0', {
         exclude group: 'org.spigotmc'
@@ -35,7 +35,7 @@ dependencies {
         exclude group: 'com.comphenix.protocol'
     }
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
-    compileOnly 'simplepets.brainsynder:simplepets:5.0-BUILD-176'
+    compileOnly 'simplepets.brainsynder:Version_1.21.4:5.0-BUILD-279'
     compileOnly 'com.bgsoftware:SuperiorSkyblockAPI:2024.4'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4', {

@@ -39,7 +39,7 @@ allprojects {
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
-        maven { url = 'https://repo.fvdh.dev/releases' }
+        maven { url = 'https://repo.bsdevelopment.org/releases' }
         maven { url = 'https://nexus.neetgames.com/repository/maven-releases/' }
         maven { url = 'https://jitpack.io' }
 
