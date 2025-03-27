@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import java.util.ConcurrentModificationException;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
@@ -133,14 +134,18 @@ public final class PersistentDataUtils {
     }
 
     public static long getTotalSpawnCount(StackedSpawnerTile spawner) {
-        RosePlugin rosePlugin = RoseStacker.getInstance();
-        PersistentDataContainer persistentDataContainer = spawner.getPersistentDataContainer();
-        if (persistentDataContainer == null)
-            return 0;
+        try {
+            RosePlugin rosePlugin = RoseStacker.getInstance();
+            PersistentDataContainer persistentDataContainer = spawner.getPersistentDataContainer();
+            if (persistentDataContainer == null)
+                return 0;
 
-        NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
-        Long amount = persistentDataContainer.get(key, PersistentDataType.LONG);
-        return amount != null ? amount : 0;
+            NamespacedKey key = new NamespacedKey(rosePlugin, TOTAL_SPAWNS_METADATA_NAME);
+            Long amount = persistentDataContainer.get(key, PersistentDataType.LONG);
+            return amount != null ? amount : 0;
+        } catch (ConcurrentModificationException e) {
+            return 0; // StackedSpawner#updateDisplay can cause a CME sometimes here when run async
+        }
     }
 
 }

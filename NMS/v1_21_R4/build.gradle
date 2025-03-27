@@ -1,0 +1,29 @@
+plugins {
+    id 'dev.rosewood.mojang-remapper' version '1.1.0'
+}
+
+dependencies {
+    compileOnly project(':NMS:Wrapper')
+    compileOnly project(':Plugin')
+    compileOnly 'org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot:1.21.5:remapped-mojang'
+    compileOnly 'com.github.Mojang:DataFixerUpper:e843dac1eb'
+
+    mojangToObf 'org.spigotmc:minecraft-server:1.21.5:maps-mojang@txt'
+    mojangRemapped 'org.spigotmc:spigot:1.21.5:remapped-mojang'
+    obfToRuntime 'org.spigotmc:minecraft-server:1.21.5:maps-spigot@csrg'
+    obfRemapped 'org.spigotmc:spigot:1.21.5:remapped-obf'
+}
+
+configurations {
+    remapped {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+}
+
+artifacts {
+    remapped(runtimeMappedJar)
+}
+
+build.dependsOn runtimeMappedJar
