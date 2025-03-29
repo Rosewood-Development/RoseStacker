@@ -759,8 +759,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      * @return true if multiple entities are dying during this event, false otherwise
      */
     public boolean areMultipleEntitiesDying(@NotNull EntityDeathEvent event) {
-        // Don't ignore if single entity kill or not a stack
-        if (!SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get()
+        // Individual events will be called if we are triggering death events
+        if (SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get()
                 || !SettingKey.ENTITY_DROP_ACCURATE_ITEMS.get()
                 || this.getStackSize() == 1)
             return false;
