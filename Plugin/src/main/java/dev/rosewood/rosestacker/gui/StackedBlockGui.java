@@ -11,6 +11,7 @@ import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -93,7 +94,11 @@ public class StackedBlockGui {
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
             itemMeta.setDisplayName(" ");
-            itemMeta.addItemFlags(ItemFlag.values());
+            if (NMSUtil.getVersionNumber() >= 21) {
+                itemMeta.setHideTooltip(true);
+            } else {
+                itemMeta.addItemFlags(ItemFlag.values());
+            }
             borderItem.setItemMeta(itemMeta);
         }
 
@@ -294,7 +299,7 @@ public class StackedBlockGui {
             if (SettingKey.BLOCK_DROP_TO_INVENTORY.get()) {
                 ItemUtils.dropItemsToPlayer(player, itemsToDrop);
             } else {
-                stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation());
+                stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation().add(0.5, 0.5, 0.5));
             }
 
             this.stackedBlock.setStackSize(this.stackedBlock.getStackSize() - blockUnstackEvent.getDecreaseAmount());

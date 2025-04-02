@@ -8,6 +8,7 @@ import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.GuiString;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -21,6 +22,7 @@ import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTags;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -78,7 +80,11 @@ public class StackedSpawnerGui {
         ItemMeta fillerItemMeta = fillerItem.getItemMeta();
         if (fillerItemMeta != null) {
             fillerItemMeta.setDisplayName(" ");
-            fillerItemMeta.addItemFlags(ItemFlag.values());
+            if (NMSUtil.getVersionNumber() >= 21) {
+                fillerItemMeta.setHideTooltip(true);
+            } else {
+                fillerItemMeta.addItemFlags(ItemFlag.values());
+            }
             fillerItem.setItemMeta(fillerItemMeta);
         }
 
@@ -153,8 +159,22 @@ public class StackedSpawnerGui {
 
                         return lore;
                     }));
+            List<ItemFlag> flags;
+            if (NMSUtil.getVersionNumber() > 21 || NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 5) {
+                flags = new ArrayList<>();
+                if (NMSUtil.isPaper()) {
+                    flags.add(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+                } else {
+                    try {
+                        flags.add(ItemFlag.valueOf("HIDE_BLOCK_ENTITY_DATA"));
+                    } catch (Exception ignored) { }
+                }
+            } else {
+                flags = Arrays.asList(ItemFlag.values());
+            }
             mainScreen.addButtonAt(13, GuiFactory.createButton()
                     .setIcon(spawner)
+                    .setItemFlags(flags.toArray(ItemFlag[]::new))
                     .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.of("time", StackerUtils.formatNumber(this.stackedSpawner.getSpawnerTile().getDelay() + 1))))
                     .setLoreSupplier(() -> List.of(this.getString("total-spawns", StringPlaceholders.of("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
                     ));
