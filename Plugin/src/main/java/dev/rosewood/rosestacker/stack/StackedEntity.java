@@ -290,8 +290,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
             Runnable finishTask = () -> {
                 Location location = this.entity.getLocation();
-                if (WorldGuardHook.testCanDropItems(killer, location))
-                    RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), location, false);
+                RoseStacker.getInstance().getManager(StackManager.class).preStackItems(drops.getDrops(), location, false);
                 int finalDroppedExp = drops.getExperience();
                 if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get() && finalDroppedExp > 0 && WorldGuardHook.testCanDropExperience(killer, location))
                     StackerUtils.dropExperience(location, finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);

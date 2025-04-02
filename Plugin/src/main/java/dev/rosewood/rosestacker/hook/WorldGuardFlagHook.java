@@ -44,17 +44,6 @@ public class WorldGuardFlagHook {
     }
 
     /**
-     * UNCHECKED! Call {@link WorldGuardHook#testCanDropItems}
-     *
-     * @param player The player that is causing the items to drop, nullable
-     * @param location The location the items are dropping at
-     * @return true if the Location is flagged to allow dropping items, false otherwise
-     */
-    public static boolean testCanDropItems(Player player, Location location) {
-        return testFlag(player, location, Flags.ITEM_DROP);
-    }
-
-    /**
      * UNCHECKED! Call {@link WorldGuardHook#testCanDropExperience}
      *
      * @param player The player that is causing the experience to drop, nullable

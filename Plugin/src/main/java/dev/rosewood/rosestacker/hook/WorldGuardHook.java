@@ -41,20 +41,6 @@ public class WorldGuardHook {
     }
 
     /**
-     * Tests if the given Location allows dropping items
-     *
-     * @param player The player that is causing the items to drop, nullable
-     * @param location The location the items are dropping at
-     * @return true if the Location is flagged to allow dropping items, false otherwise
-     */
-    public static boolean testCanDropItems(Player player, Location location) {
-        if (!enabled())
-            return true;
-
-        return WorldGuardFlagHook.testCanDropItems(player, location);
-    }
-
-    /**
      * Tests if the given Location allows dropping experience
      *
      * @param player The player that is causing the experience to drop, nullable

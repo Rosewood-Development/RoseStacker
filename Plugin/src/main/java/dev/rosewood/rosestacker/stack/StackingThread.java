@@ -190,10 +190,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 continue;
 
             if (entity instanceof LivingEntity livingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER && !this.isEntityStacked(livingEntity)) {
-                this.createEntityStack(livingEntity, false);
+                if (!this.stackManager.isAreaDisabled(entity.getLocation()))
+                    this.createEntityStack(livingEntity, false);
             } else if (entity.getType() == VersionUtils.ITEM) {
                 Item item = (Item) entity;
-                if (!this.isItemStacked(item))
+                if (!this.isItemStacked(item) && !this.stackManager.isAreaDisabled(entity.getLocation()))
                     this.createItemStack(item, false);
             }
         }

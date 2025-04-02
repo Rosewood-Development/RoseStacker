@@ -4,6 +4,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
 import dev.rosewood.rosestacker.config.SettingKey;
+import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -517,6 +518,19 @@ public class StackManager extends Manager implements StackingLogic {
         if (world == null)
             return true;
         return this.disabledWorldNames.contains(world.getName().toLowerCase());
+    }
+
+    /**
+     * Checks if stacking is disabled at a given Location
+     *
+     * @param location the Location to check
+     * @return true if stacking is disabled at the location, otherwise false
+     */
+    public boolean isAreaDisabled(Location location) {
+        World world = location.getWorld();
+        if (this.isWorldDisabled(world))
+            return true;
+        return !WorldGuardHook.testLocation(location);
     }
 
     public void changeStackingThread(UUID entityUUID, StackedEntity stackedEntity, World from, World to) {

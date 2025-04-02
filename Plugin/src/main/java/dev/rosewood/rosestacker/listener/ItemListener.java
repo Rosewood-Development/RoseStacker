@@ -44,7 +44,7 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDespawn(ItemDespawnEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()) || !stackManager.isItemStackingEnabled())
+        if (stackManager.isAreaDisabled(event.getEntity().getLocation()) || !stackManager.isItemStackingEnabled())
             return;
 
         StackedItem stackedItem = stackManager.getStackedItem(event.getEntity());
@@ -55,7 +55,7 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onItemMerge(ItemMergeEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()) || !stackManager.isItemStackingEnabled())
+        if (stackManager.isAreaDisabled(event.getEntity().getLocation()) || !stackManager.isItemStackingEnabled())
             return;
 
         ItemStackSettings itemStackSettings = this.rosePlugin.getManager(StackSettingManager.class).getItemStackSettings(event.getEntity());
@@ -70,7 +70,7 @@ public class ItemListener implements Listener {
     public void onItemPickup(EntityPickupItemEvent event) {
         LivingEntity entity = event.getEntity();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(entity.getWorld()))
+        if (stackManager.isAreaDisabled(entity.getLocation()))
             return;
 
         if (!stackManager.isItemStackingEnabled())
@@ -147,7 +147,7 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onInventoryPickup(InventoryPickupItemEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getItem().getWorld()))
+        if (stackManager.isAreaDisabled(event.getItem().getLocation()))
             return;
 
         if (!stackManager.isItemStackingEnabled())

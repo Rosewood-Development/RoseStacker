@@ -75,7 +75,7 @@ public class BlockListener implements Listener {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+        if (stackManager.isAreaDisabled(event.getClickedBlock().getLocation()))
             return;
 
         // Check for interacting with certain stacked blocks
@@ -121,11 +121,11 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+        if (stackManager.isAreaDisabled(block.getLocation()))
             return;
 
-        Block block = event.getBlock();
         boolean isStacked = this.isBlockOrSpawnerStack(stackManager, block);
         boolean isSpawner = block.getType() == Material.SPAWNER;
         if (!isStacked && !isSpawner)
@@ -353,7 +353,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -377,7 +377,7 @@ public class BlockListener implements Listener {
 
     private void handleExplosion(Location location, List<Block> blockList) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(location.getWorld()))
+        if (stackManager.isAreaDisabled(location))
             return;
 
         boolean stackedBlockProtection = SettingKey.BLOCK_EXPLOSION_PROTECTION.get() && stackManager.isBlockStackingEnabled();
@@ -493,7 +493,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -506,7 +506,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPistonExtend(BlockPistonExtendEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -523,7 +523,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPistonRetract(BlockPistonRetractEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -539,12 +539,12 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+        if (stackManager.isAreaDisabled(block.getLocation()))
             return;
 
         Player player = event.getPlayer();
-        Block block = event.getBlock();
 
         // Block is transforming from one type to another, ignore this to prevent potential duplication
         Material replacedType = event.getBlockReplacedState().getType();
@@ -858,7 +858,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -871,7 +871,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpongeAbsorb(SpongeAbsorbEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isBlockStackingEnabled())
@@ -884,7 +884,7 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockExp(BlockExpEvent event) {
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getBlock().getWorld()))
+        if (stackManager.isAreaDisabled(event.getBlock().getLocation()))
             return;
 
         if (!stackManager.isSpawnerStackingEnabled())
@@ -908,7 +908,7 @@ public class BlockListener implements Listener {
         }
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getEntity().getWorld()) || !stackManager.isBlockStackingEnabled())
+        if (stackManager.isAreaDisabled(event.getEntity().getLocation()) || !stackManager.isBlockStackingEnabled())
             return;
 
         // Do not allow the entity to be spawned if there is a stacked block too close to the entity location
@@ -929,7 +929,7 @@ public class BlockListener implements Listener {
     public void onBlockForm(BlockFormEvent event) {
         Block block = event.getBlock();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(block.getWorld()) || !stackManager.isBlockStackingEnabled())
+        if (stackManager.isAreaDisabled(block.getLocation()) || !stackManager.isBlockStackingEnabled())
             return;
 
         if (this.isBlockOrSpawnerStack(stackManager, block))
