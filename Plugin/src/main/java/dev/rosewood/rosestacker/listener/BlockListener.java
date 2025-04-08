@@ -390,13 +390,14 @@ public class BlockListener implements Listener {
             blockList.removeIf(stackManager::isBlockStacked);
 
         for (Block block : new ArrayList<>(blockList)) {
-            if (stackManager.isBlockStacked(block)) {
+            StackedBlock stackedBlock = stackManager.getStackedBlock(block);
+            StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
+            if (stackedBlock != null) {
                 blockList.remove(block);
 
                 if (!StackerUtils.passesChance(SettingKey.BLOCK_EXPLOSION_DESTROY_CHANCE.get() / 100))
                     continue;
 
-                StackedBlock stackedBlock = stackManager.getStackedBlock(block);
                 stackedBlock.kickOutGuiViewers();
 
                 int destroyAmountFixed = SettingKey.BLOCK_EXPLOSION_DESTROY_AMOUNT_FIXED.get();
@@ -440,13 +441,18 @@ public class BlockListener implements Listener {
                         stackManager.preStackItems(items, block.getLocation().clone().add(0.5, 0.5, 0.5));
                     });
                 }
-            } else if (stackManager.isSpawnerStacked(block)) {
+            } else if (stackedSpawner != null) {
                 blockList.remove(block);
+
+                if (!stackedSpawner.isPlacedByPlayer() || SettingKey.SPAWNER_EXPLOSION_DESTROY_NATURAL.get()) {
+                    block.setType(Material.AIR);
+                    stackedSpawner.setStackSize(0);
+                    stackManager.removeSpawnerStack(stackedSpawner);
+                    continue;
+                }
 
                 if (!StackerUtils.passesChance(SettingKey.SPAWNER_EXPLOSION_DESTROY_CHANCE.get() / 100))
                     continue;
-
-                StackedSpawner stackedSpawner = stackManager.getStackedSpawner(block);
 
                 int destroyAmountFixed = SettingKey.SPAWNER_EXPLOSION_DESTROY_AMOUNT_FIXED.get();
                 int destroyAmount;
@@ -599,7 +605,7 @@ public class BlockListener implements Listener {
                 double closestDistance = autoStackRange * autoStackRange;
                 for (StackedSpawner spawner : spawners) {
                     double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                    if (distance < closestDistance) {
+                    if (distance < closestDistance && spawner.isPlacedByPlayer()) {
                         boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
                         if (sameType)
                             spawnerSameType = spawner;
@@ -615,7 +621,7 @@ public class BlockListener implements Listener {
                 int blockChunkZ = block.getLocation().getBlockZ() >> 4;
                 for (StackedSpawner spawner : spawners) {
                     Block spawnerBlock = spawner.getBlock();
-                    if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ) {
+                    if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ && spawner.isPlacedByPlayer()) {
                         boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
                         if (sameType)
                             spawnerSameType = spawner;
@@ -652,7 +658,7 @@ public class BlockListener implements Listener {
         StackedSpawner againstSpawner = null;
         if (isAdditiveStack && against.getType() == Material.SPAWNER) {
             againstSpawner = stackManager.getStackedSpawner(against);
-            if (againstSpawner == null) {
+            if (againstSpawner == null || !againstSpawner.isPlacedByPlayer()) {
                 event.setCancelled(true);
                 return;
             }
