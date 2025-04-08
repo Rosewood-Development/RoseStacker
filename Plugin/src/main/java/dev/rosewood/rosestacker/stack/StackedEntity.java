@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.stack;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
@@ -44,6 +45,7 @@ import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Frog;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
@@ -430,6 +432,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         boolean fromSpawner = PersistentDataUtils.isSpawnedFromSpawner(this.entity);
         Location location = mainEntity.getLocation();
         Player killer = propagateKiller ? mainEntity.getKiller() : null;
+        Entity froglightKiller = NMSUtil.getVersionNumber() >= 19 && mainEntity.getType() == EntityType.MAGMA_CUBE && mainEntity.getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent && damageEvent.getDamager().getType() == EntityType.FROG ? damageEvent.getDamager() : null;
         boolean callEvents = !RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled();
         boolean isAnimal = mainEntity instanceof Animals;
         boolean isWither = mainEntity.getType() == EntityType.WITHER;
@@ -485,6 +488,20 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     entityItems.add(new ItemStack(Material.NETHER_STAR));
                 if (killedByWither)
                     entityItems.add(new ItemStack(Material.WITHER_ROSE));
+                if (froglightKiller != null) {
+                    Frog frog = (Frog) froglightKiller;
+                    Material froglightType = switch (frog.getVariant().getKey().getKey()) {
+                        case "cold" -> Material.VERDANT_FROGLIGHT;
+                        case "temperate" -> Material.OCHRE_FROGLIGHT;
+                        case "warm" -> Material.PEARLESCENT_FROGLIGHT;
+                        default -> {
+                            RoseStacker.getInstance().getLogger().warning("Unhandled frog type: " + frog.getVariant().getKey());
+                            yield null;
+                        }
+                    };
+                    if (froglightType != null)
+                        entityItems.add(new ItemStack(froglightType));
+                }
 
                 int entityExperience;
                 if (callEvents) {
