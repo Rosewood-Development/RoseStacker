@@ -481,9 +481,9 @@ public class EntityListener implements Listener {
         } else {
             // Make sure disabled AI and from spawner properties get transferred
             if (aiDisabled)
-                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(PersistentDataUtils::removeEntityAi);
+                event.getTransformedEntities().stream().map(x -> (LivingEntity) x).forEach(PersistentDataUtils::removeEntityAi);
             if (fromSpawner)
-                event.getTransformedEntities().stream().map(x -> (Slime) x).forEach(newStackSettings::applySpawnerSpawnedProperties);
+                event.getTransformedEntities().stream().map(x -> (LivingEntity) x).forEach(newStackSettings::applySpawnerSpawnedProperties);
 
             if (event.getTransformReason() == TransformReason.LIGHTNING) { // Wait for lightning to disappear
                 ThreadUtils.runSyncDelayed(stackedEntity::decreaseStackSize, 20);
