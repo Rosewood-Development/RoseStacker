@@ -1,21 +1,22 @@
 package dev.rosewood.rosestacker.config;
 
-import dev.rosewood.rosegarden.config.CommentedConfigurationSection;
 import dev.rosewood.rosegarden.config.RoseSetting;
-import dev.rosewood.rosegarden.config.RoseSettingSerializer;
+import dev.rosewood.rosegarden.config.SettingHolder;
+import dev.rosewood.rosegarden.config.SettingSerializer;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.bukkit.Material;
-import static dev.rosewood.rosegarden.config.RoseSettingSerializers.*;
+import org.bukkit.configuration.ConfigurationSection;
+import static dev.rosewood.rosegarden.config.SettingSerializers.*;
 
-public final class SettingKey {
+public final class SettingKey implements SettingHolder {
 
+    public static final SettingHolder INSTANCE = new SettingKey();
     private static final List<RoseSetting<?>> KEYS = new ArrayList<>();
 
     public static final RoseSetting<List<String>> DISABLED_WORLDS = create("disabled-worlds", STRING_LIST, List.of("disabled_world_name"), "A list of worlds that the plugin is disabled in");
@@ -27,7 +28,7 @@ public final class SettingKey {
     public static final RoseSetting<Long> AUTOSAVE_FREQUENCY = create("autosave-frequency", LONG, 15L, "How often should we autosave all loaded stack data?", "Value is measured in minutes, set to -1 to disable");
     public static final RoseSetting<Long> ENTITY_RESCAN_FREQUENCY = create("entity-rescan-frequency", LONG, 1000L, "How often should we scan the world for missed entities?", "Sometimes entities can spawn and be missed by the plugin for unknown reasons, this fixes that", "Values are in ticks, set to -1 to disable");
 
-    public static final RoseSetting<CommentedConfigurationSection> GLOBAL_ENTITY_SETTINGS = create("global-entity-settings", "Global entity settings", "Changed values in entity_settings.yml will override these values");
+    public static final RoseSetting<ConfigurationSection> GLOBAL_ENTITY_SETTINGS = create("global-entity-settings", "Global entity settings", "Changed values in entity_settings.yml will override these values");
     public static final RoseSetting<Boolean> ENTITY_STACKING_ENABLED = create("global-entity-settings.stacking-enabled", BOOLEAN, true, "Should entity stacking be enabled at all?");
     public static final RoseSetting<String> ENTITY_DATA_STORAGE_TYPE = create("global-entity-settings.data-storage-type", STRING, StackedEntityDataStorageType.NBT.name(), Stream.concat(Arrays.stream(new String[] { "What type of data storage should be used for stacked entities?", "Valid Values:" }), Arrays.stream(StackedEntityDataStorageType.values()).map(x -> "  " + x.name() + " - " + x.getDescription())).toArray(String[]::new));
     public static final RoseSetting<Boolean> ENTITY_INSTANT_STACK = create("global-entity-settings.instant-stack", BOOLEAN, true, "Should entities try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of entities being visible before stacking");
@@ -44,7 +45,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ENTITY_KILL_ENTIRE_STACK_ON_DEATH = create("global-entity-settings.kill-entire-stack-on-death", BOOLEAN, false, "Should the entire stack of entities always be killed when the main entity dies?");
     public static final RoseSetting<Boolean> ENTITY_KILL_ENTIRE_STACK_ON_DEATH_PERMISSION = create("global-entity-settings.kill-entire-stack-on-death-permission", BOOLEAN, false, "Enabling this will cause players with the permission rosestacker.killentirestack to kill an entire stack at once");
     public static final RoseSetting<List<String>> ENTITY_KILL_ENTIRE_STACK_CONDITIONS = create("global-entity-settings.kill-entire-stack-on-death-conditions", STRING_LIST, List.of("FALL"), "Under what conditions should the entire stack be killed when the main entity dies?", "If kill-entire-stack-on-death is true, this setting will not be used", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html");
-    public static final RoseSetting<CommentedConfigurationSection> ENTITY_MULTIKILL_OPTIONS = create("global-entity-settings.multikill-options", "Allows killing multiple mobs at once, does not work with kill-entire-stack-on-death settings");
+    public static final RoseSetting<ConfigurationSection> ENTITY_MULTIKILL_OPTIONS = create("global-entity-settings.multikill-options", "Allows killing multiple mobs at once, does not work with kill-entire-stack-on-death settings");
     public static final RoseSetting<Boolean> ENTITY_MULTIKILL_ENABLED = create("global-entity-settings.multikill-options.multikill-enabled", BOOLEAN, false, "Should multikill be enabled?");
     public static final RoseSetting<String> ENTITY_MULTIKILL_AMOUNT = create("global-entity-settings.multikill-options.multikill-amount", STRING, "5", "The amount of mobs in the stack to kill at a time", "If using the multikill enchantment, this will be the number of mobs killed per enchantment level", "You can add a % to the end of the number to kill a percentage of the stack, for example '5%'", "You can also define a random range for the multikill, for example '5-50%', you can add % to either side");
     public static final RoseSetting<Boolean> ENTITY_MULTIKILL_PLAYER_ONLY = create("global-entity-settings.multikill-options.multikill-player-only", BOOLEAN, false, "Should the multikill only apply when done directly by a player?");
@@ -59,7 +60,7 @@ public final class SettingKey {
     public static final RoseSetting<List<String>> ENTITY_SHARE_DAMAGE_CONDITIONS = create("global-entity-settings.share-damage-conditions", STRING_LIST, List.of(), "Under what conditions will the damage be propagated through the whole stack?", "Valid conditions can be found here:", "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html", "Note: This setting is not recommended as it can be intensive for larger stack sizes", "      This setting will not work if using data-storage-type: SIMPLE");
     public static final RoseSetting<Boolean> ENTITY_DROP_ACCURATE_ITEMS = create("global-entity-settings.drop-accurate-items", BOOLEAN, true, "Should items be dropped for all entities when an entire stack is killed at once?");
     public static final RoseSetting<Boolean> ENTITY_DROP_ACCURATE_EXP = create("global-entity-settings.drop-accurate-exp", BOOLEAN, true, "Should exp be dropped for all entities when an entire stack is killed at once?");
-    public static final RoseSetting<CommentedConfigurationSection> ENTITY_LOOT_APPROXIMATION_OPTIONS = create("global-entity-settings.loot-approximation-options", "Allows approximating loot for killing an entire stack of entities at once", "Can greatly reduce lag and improve performance at the cost of some loot accuracy");
+    public static final RoseSetting<ConfigurationSection> ENTITY_LOOT_APPROXIMATION_OPTIONS = create("global-entity-settings.loot-approximation-options", "Allows approximating loot for killing an entire stack of entities at once", "Can greatly reduce lag and improve performance at the cost of some loot accuracy");
     public static final RoseSetting<Boolean> ENTITY_LOOT_APPROXIMATION_ENABLED = create("global-entity-settings.loot-approximation-options.approximation-enabled", BOOLEAN, true, "Should loot be approximated to reduce lag for killing large stack sizes at once?");
     public static final RoseSetting<Integer> ENTITY_LOOT_APPROXIMATION_THRESHOLD = create("global-entity-settings.loot-approximation-options.approximation-threshold", INTEGER, 2048, "The threshold at which loot drops will be approximated");
     public static final RoseSetting<Integer> ENTITY_LOOT_APPROXIMATION_AMOUNT = create("global-entity-settings.loot-approximation-options.approximation-amount", INTEGER, 256, "The number of times the entity loot tables will be run");
@@ -81,7 +82,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ENTITY_DISABLE_ALL_MOB_AI = create("global-entity-settings.disable-all-mob-ai", BOOLEAN, false, "Should the AI of ALL MOBS on the server be disabled?", "The parts of the AI that are disabled can be further customized in the global-spawner-settings section");
     public static final RoseSetting<Integer> ENTITY_SAVE_MAX_STACK_SIZE = create("global-entity-settings.save-max-stack-size", INTEGER, -1, "The maximum amount of entities that will be stored when entities are saved to chunk data", "Useful for when you have a very high max stack size, set to -1 to disable");
 
-    public static final RoseSetting<CommentedConfigurationSection> GLOBAL_ITEM_SETTINGS = create("global-item-settings", "Global item settings", "Changed values in item_settings.yml will override these values");
+    public static final RoseSetting<ConfigurationSection> GLOBAL_ITEM_SETTINGS = create("global-item-settings", "Global item settings", "Changed values in item_settings.yml will override these values");
     public static final RoseSetting<Boolean> ITEM_STACKING_ENABLED = create("global-item-settings.stacking-enabled", BOOLEAN, true, "Should item stacking be enabled at all?");
     public static final RoseSetting<Boolean> ITEM_INSTANT_STACK = create("global-item-settings.instant-stack", BOOLEAN, true, "Should items try to be stacked instantly upon spawning?", "Setting this to false may yield better performance at the cost of items being visible before stacking");
     public static final RoseSetting<Integer> ITEM_MAX_STACK_SIZE = create("global-item-settings.max-stack-size", INTEGER, 1024, "The maximum number of items that can be in a single stack");
@@ -97,7 +98,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ITEM_MERGE_INTO_NEWEST = create("global-item-settings.merge-into-newest", BOOLEAN, false, "Should items be merged into the newest stack?");
     public static final RoseSetting<Boolean> ITEM_DISABLE_PICKUP_IF_VANISHED = create("global-item-settings.disable-pickup-if-vanished", BOOLEAN, true, "Should items be prevented from being picked up while vanished?", "This is for compatibility with external vanish plugins");
 
-    public static final RoseSetting<CommentedConfigurationSection> GLOBAL_BLOCK_SETTINGS = create("global-block-settings", "Global block settings", "Changed values in block_settings.yml will override these values");
+    public static final RoseSetting<ConfigurationSection> GLOBAL_BLOCK_SETTINGS = create("global-block-settings", "Global block settings", "Changed values in block_settings.yml will override these values");
     public static final RoseSetting<Boolean> BLOCK_STACKING_ENABLED = create("global-block-settings.stacking-enabled", BOOLEAN, true, "Should block stacking be enabled at all?");
     public static final RoseSetting<Integer> BLOCK_MAX_STACK_SIZE = create("global-block-settings.max-stack-size", INTEGER, 2048, "The maximum number of blocks that can be in a single stack");
     public static final RoseSetting<Boolean> BLOCK_DISPLAY_TAGS = create("global-block-settings.display-tags", BOOLEAN, true, "Should tags be displayed above stacks to show their amount and type?");
@@ -114,7 +115,7 @@ public final class SettingKey {
     public static final RoseSetting<String> BLOCK_GUI_BORDER_MATERIAL = create("global-block-settings.gui-border-material", STRING, Material.BLUE_STAINED_GLASS_PANE.name(), "What material should be used for the border of the GUI?");
     public static final RoseSetting<Boolean> BLOCK_GUI_ONLY_ONE_PLAYER_ALLOWED = create("global-block-settings.gui-only-one-player-allowed", BOOLEAN, false, "Should only one player be allowed to use the stack GUIs at a time?");
 
-    public static final RoseSetting<CommentedConfigurationSection> GLOBAL_SPAWNER_SETTINGS = create("global-spawner-settings", "Global spawner settings", "Changed values in spawner_settings.yml will override these values");
+    public static final RoseSetting<ConfigurationSection> GLOBAL_SPAWNER_SETTINGS = create("global-spawner-settings", "Global spawner settings", "Changed values in spawner_settings.yml will override these values");
     public static final RoseSetting<Boolean> SPAWNER_STACKING_ENABLED = create("global-spawner-settings.stacking-enabled", BOOLEAN, true, "Should RoseStacker handle spawners?", "Disabling this will prevent spawners from stacking and being handled entirely.", "If you don't want spawners to stack but still want them handled", "by RoseStacker, set the max-stack-size to 1 instead.", "Changing this setting will require a full server restart to fully take effect.");
     public static final RoseSetting<Integer> SPAWNER_MAX_STACK_SIZE = create("global-spawner-settings.max-stack-size", INTEGER, 32, "The maximum number of spawners that can be in a single stack");
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS = create("global-spawner-settings.display-tags", BOOLEAN, true, "Should tags be displayed above stacks to show their amount and type?");
@@ -122,7 +123,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> SPAWNER_DISPLAY_TAGS_SINGLE_AMOUNT = create("global-spawner-settings.display-tags-single-amount", BOOLEAN, false, "Should stacks of size one show the amount on their tags if enabled?");
     public static final RoseSetting<Double> SPAWNER_DISPLAY_TAGS_HEIGHT_OFFSET = create("global-spawner-settings.display-tags-height-offset", DOUBLE, 0.75, "The height offset of the hologram relative to the spawner");
     public static final RoseSetting<Boolean> SPAWNER_DISABLE_MOB_AI = create("global-spawner-settings.disable-mob-ai", BOOLEAN, false, "Should mob AI be disabled for mobs spawned by spawners?");
-    public static final RoseSetting<CommentedConfigurationSection> SPAWNER_DISABLE_MOB_AI_OPTIONS = create("global-spawner-settings.disable-mob-ai-options", "Options to apply to mobs with disabled AI");
+    public static final RoseSetting<ConfigurationSection> SPAWNER_DISABLE_MOB_AI_OPTIONS = create("global-spawner-settings.disable-mob-ai-options", "Options to apply to mobs with disabled AI");
     public static final RoseSetting<Boolean> SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS = create("global-spawner-settings.disable-mob-ai-options.remove-goals", BOOLEAN, true, "Should mob goals be removed? This includes movement and targeting along with other mob AI behaviors.", "This cannot be undone without a full restart.");
     public static final RoseSetting<Boolean> SPAWNER_DISABLE_MOB_AI_OPTIONS_SET_UNAWARE = create("global-spawner-settings.disable-mob-ai-options.set-unaware", BOOLEAN, true, "Should mobs be set to be unaware?");
     public static final RoseSetting<Boolean> SPAWNER_DISABLE_MOB_AI_OPTIONS_UNDEAD_BURN_IN_DAYLIGHT = create("global-spawner-settings.disable-mob-ai-options.undead-burn-in-daylight", BOOLEAN, false, "Should undead mobs be able to burn in the daylight?");
@@ -194,7 +195,7 @@ public final class SettingKey {
     public static final RoseSetting<String> SPAWNER_GUI_VALID_SPAWN_CONDITIONS_MATERIAL = create("global-spawner-settings.gui-valid-spawn-conditions-material", STRING, Material.EMERALD_BLOCK.name(), "What material should the valid spawn conditions icon be?");
     public static final RoseSetting<String> SPAWNER_GUI_INVALID_SPAWN_CONDITIONS_MATERIAL = create("global-spawner-settings.gui-invalid-spawn-conditions-material", STRING, Material.REDSTONE_BLOCK.name(), "What material should the invalid spawn conditions icon be?");
 
-    public static final RoseSetting<CommentedConfigurationSection> DYNAMIC_TAG_SETTINGS = create("dynamic-tag-settings", "Settings that apply to the tags above stacks", "These settings require their respective display-tags settings to be set to true to function", "These settings run at the same frequency as the stack-frequency setting", "If you are seeing impacts to server performance, consider disabling these settings");
+    public static final RoseSetting<ConfigurationSection> DYNAMIC_TAG_SETTINGS = create("dynamic-tag-settings", "Settings that apply to the tags above stacks", "These settings require their respective display-tags settings to be set to true to function", "These settings run at the same frequency as the stack-frequency setting", "If you are seeing impacts to server performance, consider disabling these settings");
     public static final RoseSetting<Boolean> ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED = create("dynamic-tag-settings.entity-dynamic-tag-view-range-enabled", BOOLEAN, true, "Should entity tags be hidden when the player is a certain distance away?", "Note: This overrides global-entity-settings.display-tags-hover if enabled");
     public static final RoseSetting<Boolean> ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED = create("dynamic-tag-settings.item-dynamic-tag-view-range-enabled", BOOLEAN, true, "Should item tags be hidden when the player is a certain distance away?");
     public static final RoseSetting<Integer> ENTITY_DYNAMIC_TAG_VIEW_RANGE = create("dynamic-tag-settings.entity-dynamic-tag-view-range", INTEGER, 32, "How far away should a player be able to see entity tags?");
@@ -204,7 +205,7 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED = create("dynamic-tag-settings.item-dynamic-tag-view-range-wall-detection-enabled", BOOLEAN, true, "Should item tags be hidden if they are out of view?");
     public static final RoseSetting<Boolean> BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED = create("dynamic-tag-settings.block-dynamic-tag-view-range-wall-detection-enabled", BOOLEAN, true, "Should block/spawner tags be hidden if they are out of view?");
 
-    public static final RoseSetting<CommentedConfigurationSection> STACK_TOOL_SETTINGS = create("stack-tool-settings", "Settings that apply to the item given from '/rs stacktool'");
+    public static final RoseSetting<ConfigurationSection> STACK_TOOL_SETTINGS = create("stack-tool-settings", "Settings that apply to the item given from '/rs stacktool'");
     public static final RoseSetting<String> STACK_TOOL_MATERIAL = create("stack-tool-settings.material", STRING, Material.STICK.name(), "The material of the stacking tool");
     public static final RoseSetting<String> STACK_TOOL_NAME = create("stack-tool-settings.name", STRING, "<g:#ed3737:#ffaf3e>Stacking Tool", "The name to display on the stacking tool");
     public static final RoseSetting<List<String>> STACK_TOOL_LORE = create("stack-tool-settings.lore", STRING_LIST, List.of(
@@ -223,7 +224,7 @@ public final class SettingKey {
             "&7- &cRed &emeans the mob can not stack."
     ), "The lore to display on the stacking tool");
 
-    public static final RoseSetting<CommentedConfigurationSection> MISC_SETTINGS = create("misc-settings", "Miscellaneous other settings for the plugin");
+    public static final RoseSetting<ConfigurationSection> MISC_SETTINGS = create("misc-settings", "Miscellaneous other settings for the plugin");
     public static final RoseSetting<Boolean> MISC_WORLDGUARD_REGION = create("misc-settings.worldguard-region", BOOLEAN, false, "Should a custom WorldGuard region named 'rosestacker' be registered and used to test stacking?", "All stacking within regions will only work if the result is ALLOW", "This setting will only be updated after a restart");
     public static final RoseSetting<Boolean> MISC_WORLDGUARD_OBEY_FLAGS = create("misc-settings.worldguard-obey-flags", BOOLEAN, true, "Should we try to obey the WorldGuard exp-drops region flag?", "Experience will only drop within regions where the flag is not DENY");
     public static final RoseSetting<Boolean> MISC_COREPROTECT_LOGGING = create("misc-settings.coreprotect-logging-enabled", BOOLEAN, true, "If CoreProtect is installed, should we log stacked block/spawner break/placing?");
@@ -241,22 +242,23 @@ public final class SettingKey {
     public static final RoseSetting<Boolean> MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST = create("misc-settings.spawner-lore-display-global-lore-first", BOOLEAN, true, "Should global lore be displayed before spawner type lore?");
     public static final RoseSetting<Boolean> MISC_SUPERIOR_SKYBLOCK_STACK_GUI_HOOK = create("misc-settings.superior-skyblock-stack-gui-hook", BOOLEAN, true, "Should stacked block/spawner GUIs be blocked from being opened without SuperiorSkyblock2 island break and place permissions?");
 
-    private static <T> RoseSetting<T> create(String key, RoseSettingSerializer<T> serializer, T defaultValue, String... comments) {
-        RoseSetting<T> setting = RoseSetting.backed(RoseStacker.getInstance(), key, serializer, defaultValue, comments);
+    private static <T> RoseSetting<T> create(String key, SettingSerializer<T> serializer, T defaultValue, String... comments) {
+        RoseSetting<T> setting = RoseSetting.ofBackedValue(key, RoseStacker.getInstance(), serializer, defaultValue, comments);
         KEYS.add(setting);
         return setting;
     }
 
-    private static RoseSetting<CommentedConfigurationSection> create(String key, String... comments) {
-        RoseSetting<CommentedConfigurationSection> setting = RoseSetting.backedSection(RoseStacker.getInstance(), key, comments);
+    private static RoseSetting<ConfigurationSection> create(String key, String... comments) {
+        RoseSetting<ConfigurationSection> setting = RoseSetting.ofBackedSection(key, RoseStacker.getInstance(), comments);
         KEYS.add(setting);
         return setting;
-    }
-
-    public static List<RoseSetting<?>> getKeys() {
-        return Collections.unmodifiableList(KEYS);
     }
 
     private SettingKey() {}
+
+    @Override
+    public List<RoseSetting<?>> get() {
+        return KEYS;
+    }
 
 }
