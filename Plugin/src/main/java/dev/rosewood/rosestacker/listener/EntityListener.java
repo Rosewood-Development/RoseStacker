@@ -495,8 +495,16 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChickenLayEgg(EntityDropItemEvent event) {
-        if (event.getEntityType() != EntityType.CHICKEN || event.getItemDrop().getItemStack().getType() != Material.EGG)
+        if (event.getEntityType() != EntityType.CHICKEN)
             return;
+
+        Material eggMaterial = event.getItemDrop().getItemStack().getType();
+        switch (eggMaterial.getKey().getKey()) {
+            case "egg", "blue_egg", "brown_egg" -> {}
+            default -> {
+                return;
+            }
+        }
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         if (stackManager.isAreaDisabled(event.getEntity().getLocation()))
@@ -524,7 +532,7 @@ public class EntityListener implements Listener {
         if (maxAmount > 0)
             amount = Math.min(amount, maxAmount);
 
-        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(Material.EGG, amount);
+        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(eggMaterial, amount);
         stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
