@@ -721,10 +721,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 this.dropStackLoot(new ArrayList<>(), experience);
             } else {
-                EntityDrops drops = calculateDrops(this.getStackSize(), experience, event.getDrops());
-                event.getDrops().clear();
-                event.getDrops().addAll(drops.getDrops());
-                event.setDroppedExp(drops.getExperience());
+                if (SettingKey.ENTITY_KILL_DELAY_NEXT_SPAWN.get()) {
+                    this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
+                    event.getDrops().clear();
+                } else {
+                    EntityDrops drops = calculateDrops(this.getStackSize(), experience, event.getDrops());
+                    event.getDrops().clear();
+                    event.getDrops().addAll(drops.getDrops());
+                    event.setDroppedExp(drops.getExperience());
+                }
             }
 
             if (this.entity.getType() == EntityType.MAGMA_CUBE)
@@ -769,9 +774,15 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(), EntityUtils.getApproximateExperience(this.entity));
             } else {
-                EntityDrops drops = calculateDrops(killedEntities.size(), event.getDroppedExp(), event.getDrops());
-                event.getDrops().addAll(drops.getDrops());
-                event.setDroppedExp(drops.getExperience());
+                if (SettingKey.ENTITY_KILL_DELAY_NEXT_SPAWN.get()) {
+                    this.dropPartialStackLoot(killedEntities, new ArrayList<>(event.getDrops()), event.getDroppedExp());
+                    event.getDrops().clear();
+                    event.setDroppedExp(0);
+                } else {
+                    EntityDrops drops = calculateDrops(killedEntities.size(), event.getDroppedExp(), event.getDrops());
+                    event.getDrops().addAll(drops.getDrops());
+                    event.setDroppedExp(drops.getExperience());
+                }
             }
         } else if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get()) {
             if (event == null) {
