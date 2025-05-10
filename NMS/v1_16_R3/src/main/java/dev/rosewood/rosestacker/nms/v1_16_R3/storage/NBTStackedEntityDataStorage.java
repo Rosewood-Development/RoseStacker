@@ -91,6 +91,15 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     }
 
     @Override
+    public List<EntityDataEntry> peek(int amount) {
+        NBTTagCompound[] array = this.data.toArray(new NBTTagCompound[0]);
+        List<EntityDataEntry> peeked = new ArrayList<>(amount);
+        for (int i = 0; i < amount; i++)
+            peeked.add(new NBTEntityDataEntry(this.rebuild(array[i])));
+        return peeked;
+    }
+
+    @Override
     public NBTEntityDataEntry pop() {
         return new NBTEntityDataEntry(this.rebuild(this.data.remove()));
     }

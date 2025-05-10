@@ -72,6 +72,14 @@ public abstract class StackedEntityDataStorage {
     public abstract EntityDataEntry peek();
 
     /**
+     * Gets the given amount of entities from the list
+     *
+     * @param amount The amount of entities to peek
+     * @return A List of StackedEntityDataEntry objects for the entities at the front of the list
+     */
+    public abstract List<EntityDataEntry> peek(int amount);
+
+    /**
      * Gets and removes an entity from the list
      *
      * @return A StackedEntityDataEntry object for the entity at the front of the list
