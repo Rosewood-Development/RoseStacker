@@ -6,10 +6,12 @@ import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Only called when trigger-death-event-for-entire-stack-kill is disabled in the config.
@@ -25,7 +27,8 @@ public class EntityStackMultipleDeathEvent extends Event {
     private final Multimap<LivingEntity, EntityDrops> entityDrops;
     private final int originalStackSize;
     private final int entityKillCount;
-
+    private final LivingEntity mainEntity;
+    private final Player killer;
 
     /**
      * @param stackedEntity The entity being killed
@@ -35,13 +38,15 @@ public class EntityStackMultipleDeathEvent extends Event {
      */
     public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity,
                                          @NotNull Multimap<LivingEntity, EntityDrops> entityDrops,
-                                         int originalStackSize, int entityKillCount) {
+                                         int originalStackSize, int entityKillCount, LivingEntity mainEntity, Player killer) {
         super(!Bukkit.isPrimaryThread());
 
         this.stackedEntity = stackedEntity;
         this.entityDrops = entityDrops;
         this.originalStackSize = originalStackSize;
         this.entityKillCount = entityKillCount;
+        this.mainEntity = mainEntity;
+        this.killer = killer;
     }
 
     /**
@@ -72,6 +77,25 @@ public class EntityStackMultipleDeathEvent extends Event {
      */
     public int getEntityKillCount() {
         return this.entityKillCount;
+    }
+
+    /**
+     * @return the main entity that was killed, this entity is dead and no longer associated with the stack
+     */
+    @NotNull
+    public LivingEntity getMainEntity() {
+        return this.mainEntity;
+    }
+
+    /**
+     * Gets the Player that killed the main entity in the stack.
+     * May be different from getMainEntity().getKiller() depending on some config settings.
+     *
+     * @return the Player that killed the main entity in the stack, nullable.
+     */
+    @Nullable
+    public Player getKiller() {
+        return this.killer;
     }
 
     @Override

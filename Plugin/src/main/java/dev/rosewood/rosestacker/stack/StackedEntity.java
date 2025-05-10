@@ -525,7 +525,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         // Call the EntityStackMultipleDeathEvent if enabled
         if (!callEvents) {
-            EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops, originalStackSize, entityKillCount);
+            EntityStackMultipleDeathEvent event = new EntityStackMultipleDeathEvent(this, entityDrops, originalStackSize, entityKillCount, mainEntity, killer);
             Bukkit.getPluginManager().callEvent(event);
         }
 
