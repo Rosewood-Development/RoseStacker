@@ -54,6 +54,13 @@ public abstract class AbstractSimpleStackedEntityDataStorage extends StackedEnti
     }
 
     @Override
+    public List<EntityDataEntry> peek(int amount) {
+        EntityDataEntry[] entries = new EntityDataEntry[amount];
+        Arrays.fill(entries, this.copy());
+        return Arrays.asList(entries);
+    }
+
+    @Override
     public EntityDataEntry pop() {
         if (this.isEmpty())
             throw new IllegalStateException("No more data is available");
