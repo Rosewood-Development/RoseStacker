@@ -282,6 +282,31 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 this.calculateEntityDrops(internalEntityData, droppedExp, null, thisEntity, new EntityDrops(new ArrayList<>(existingLoot), droppedExp), originalStackSize, killedEntities));
     }
 
+    public EntityDrops calculateDrops() {
+        return this.calculateDrops(this.getStackSize());
+    }
+
+    public EntityDrops calculateDrops(int entities) {
+        return this.calculateDrops(entities, -1, List.of());
+    }
+
+    public EntityDrops calculateDrops(int entities, int currentXp, List<ItemStack> currentDrops) {
+        if (currentXp == -1)
+            currentXp = 0;
+
+        List<EntityDataEntry> killedEntities = this.stackedEntityDataStorage.peek(entities - 1);
+
+        return this.calculateEntityDrops(
+                killedEntities,
+                currentXp,
+                null,
+                this.entity,
+                new EntityDrops(new ArrayList<>(currentDrops), currentXp),
+                this.getStackSize() + killedEntities.size() + 1,
+                entities
+        );
+    }
+
     private void calculateAndDropPartialStackLoot(Supplier<EntityDrops> calculator) {
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
@@ -696,8 +721,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 this.dropStackLoot(new ArrayList<>(), experience);
             } else {
-                this.dropStackLoot(new ArrayList<>(event.getDrops()), experience);
+                EntityDrops drops = calculateDrops(this.getStackSize(), experience, event.getDrops());
                 event.getDrops().clear();
+                event.getDrops().addAll(drops.getDrops());
+                event.setDroppedExp(drops.getExperience());
             }
 
             if (this.entity.getType() == EntityType.MAGMA_CUBE)
@@ -742,9 +769,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             if (event == null) {
                 this.dropPartialStackLoot(killedEntities, new ArrayList<>(), EntityUtils.getApproximateExperience(this.entity));
             } else {
-                this.dropPartialStackLoot(killedEntities, new ArrayList<>(event.getDrops()), event.getDroppedExp());
-                event.getDrops().clear();
-                event.setDroppedExp(0);
+                EntityDrops drops = calculateDrops(killedEntities.size(), event.getDroppedExp(), event.getDrops());
+                event.getDrops().addAll(drops.getDrops());
+                event.setDroppedExp(drops.getExperience());
             }
         } else if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get()) {
             if (event == null) {
