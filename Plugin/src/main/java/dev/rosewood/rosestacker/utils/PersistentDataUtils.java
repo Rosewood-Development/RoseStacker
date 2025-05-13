@@ -92,6 +92,9 @@ public final class PersistentDataUtils {
                     hoglin.setImmuneToZombification(disable);
                 }
             }
+
+            if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_COLLISION.get())
+                entity.setCollidable(false);
         }
     }
 
