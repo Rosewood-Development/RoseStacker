@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
@@ -79,6 +80,7 @@ import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
 
+    private static final boolean hasFromMobSpawner = NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 19;
     private static final Set<SpawnReason> DELAYED_SPAWN_REASONS = EnumSet.of(
             SpawnReason.BEEHIVE,
             SpawnReason.BUILD_IRONGOLEM,
@@ -164,6 +166,22 @@ public class EntityListener implements Listener {
             PersistentDataUtils.removeEntityAi(entity);
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onSecondarySpawnerSpawn(CreatureSpawnEvent event) {
+        if (event.getSpawnReason() == SpawnReason.SPAWNER || (hasFromMobSpawner && event.getEntity().fromMobSpawner())) {
+            if (PersistentDataUtils.isSpawnedFromSpawner(event.getEntity()))
+                return;
+
+            // If we haven't already handled this mob as being from a spawner, handle it now
+            LivingEntity entity = event.getEntity();
+            PersistentDataUtils.tagSpawnedFromSpawner(entity);
+
+            SpawnerStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getSpawnerStackSettings(entity.getType());
+            if (stackSettings.isMobAIDisabled())
+                PersistentDataUtils.removeEntityAi(entity);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         // Withers can still target enitites due to custom boss AI, so prevent them from targeting when AI is disabled
@@ -172,7 +190,7 @@ public class EntityListener implements Listener {
             return;
 
         boolean disableAttacking = (event.getEntityType() == EntityType.WITHER && PersistentDataUtils.isAiDisabled((Wither) event.getEntity()))
-                || (SettingKey.SPAWNER_DISABLE_ATTACKING.get()) && PersistentDataUtils.isSpawnedFromSpawner((LivingEntity) event.getEntity());
+                || (SettingKey.SPAWNER_DISABLE_ATTACKING.get()) && PersistentDataUtils.isSpawnedFromSpawner(event.getEntity());
         if (disableAttacking)
             event.setCancelled(true);
     }

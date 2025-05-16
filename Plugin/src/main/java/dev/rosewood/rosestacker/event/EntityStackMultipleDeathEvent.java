@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import java.util.List;
+import java.util.function.BiFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -27,26 +28,35 @@ public class EntityStackMultipleDeathEvent extends Event {
     private final Multimap<LivingEntity, EntityDrops> entityDrops;
     private final int originalStackSize;
     private final int entityKillCount;
+    private final double multiplier;
     private final LivingEntity mainEntity;
     private final Player killer;
+    private final BiFunction<Multimap<LivingEntity, EntityDrops>, Double, EntityDrops> dropsCalculator;
 
     /**
      * @param stackedEntity The entity being killed
      * @param entityDrops A Map of the entities being killed and their drops
      * @param originalStackSize The original stack size
      * @param entityKillCount The number of entities being killed
+     * @param multiplier The loot and experience loot-approximation multiplier to apply after this event
+     * @param mainEntity The main entity in the stack at the time of death
+     * @param killer The player that killed the main entity in the stack
      */
     public EntityStackMultipleDeathEvent(@NotNull StackedEntity stackedEntity,
                                          @NotNull Multimap<LivingEntity, EntityDrops> entityDrops,
-                                         int originalStackSize, int entityKillCount, LivingEntity mainEntity, Player killer) {
+                                         int originalStackSize, int entityKillCount, double multiplier,
+                                         LivingEntity mainEntity, Player killer,
+                                         BiFunction<Multimap<LivingEntity, EntityDrops>, Double, EntityDrops> dropsCalculator) {
         super(!Bukkit.isPrimaryThread());
 
         this.stackedEntity = stackedEntity;
         this.entityDrops = entityDrops;
         this.originalStackSize = originalStackSize;
         this.entityKillCount = entityKillCount;
+        this.multiplier = multiplier;
         this.mainEntity = mainEntity;
         this.killer = killer;
+        this.dropsCalculator = dropsCalculator;
     }
 
     /**
@@ -58,7 +68,7 @@ public class EntityStackMultipleDeathEvent extends Event {
     }
 
     /**
-     * @return a Multimap of the entities being killed and their drops
+     * @return a mutable Multimap of the entities being killed and their drops
      */
     @NotNull
     public Multimap<LivingEntity, EntityDrops> getEntityDrops() {
@@ -80,6 +90,13 @@ public class EntityStackMultipleDeathEvent extends Event {
     }
 
     /**
+     * @return the loot-approximation multiplier to be applied to items and experience after this event
+     */
+    public double getMultiplier() {
+        return this.multiplier;
+    }
+
+    /**
      * @return the main entity that was killed, this entity is dead and no longer associated with the stack
      */
     @NotNull
@@ -96,6 +113,13 @@ public class EntityStackMultipleDeathEvent extends Event {
     @Nullable
     public Player getKiller() {
         return this.killer;
+    }
+
+    /**
+     * @return calculates and returns the final entity drops based on the current state of this event
+     */
+    public EntityDrops calculateFinalEntityDrops() {
+        return this.dropsCalculator.apply(this.entityDrops, this.multiplier);
     }
 
     @Override
