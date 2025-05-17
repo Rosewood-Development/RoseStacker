@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.nms.v1_21_R4.event;
 
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
+import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -17,9 +18,8 @@ public class AsyncEntityDeathEventImpl extends EntityDeathEvent implements Async
     private static Field asyncField;
     static {
         try {
-            asyncField = Event.class.getDeclaredField("async");
-            asyncField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
+            asyncField = ReflectionUtils.getFieldByPositionAndType(Event.class, 0, boolean.class);
+        } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }
