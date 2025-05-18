@@ -91,7 +91,7 @@ public class MobSpawningMethod implements SpawningMethod {
         EntityCacheManager entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
-        ThreadUtils.runAsync(() -> {
+        Runnable spawnTask = () -> {
             // Make sure the chunk is still loaded
             if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 4, stackedSpawner.getLocation().getBlockZ() >> 4))
                 return;
@@ -187,7 +187,13 @@ public class MobSpawningMethod implements SpawningMethod {
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });
             }
-        });
+        };
+
+        if (SettingKey.SPAWNER_SPAWN_ASYNC.get()) {
+            ThreadUtils.runAsync(spawnTask);
+        } else {
+            spawnTask.run();
+        }
     }
 
     private int spawnEntitiesIndividually(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, StackManager stackManager, EntityStackSettings entityStackSettings) {

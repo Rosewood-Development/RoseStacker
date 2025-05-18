@@ -41,7 +41,7 @@ public final class EntityUtils {
     private static Map<EntityType, BoundingBox> cachedBoundingBoxes;
 
     private static final Cache<ChunkLocation, ChunkSnapshot> chunkSnapshotCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .expireAfterWrite(3, TimeUnit.SECONDS)
             .build();
 
     /**
