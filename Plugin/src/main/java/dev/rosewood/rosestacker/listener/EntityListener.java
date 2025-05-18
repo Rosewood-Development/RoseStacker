@@ -649,7 +649,7 @@ public class EntityListener implements Listener {
         ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(internal -> {
             Sheep sheep = (Sheep) internal;
             if (shearedHandler.isSheared(sheep) && regrowRemaining.getAndDecrement() > 0) {
-                shearedHandler.setSheared(sheepEntity, false);
+                shearedHandler.setSheared(sheep, false);
                 return true;
             }
             return false;
