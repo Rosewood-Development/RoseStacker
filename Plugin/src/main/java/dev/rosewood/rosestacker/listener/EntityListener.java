@@ -20,6 +20,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -80,7 +81,6 @@ import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
 
-    private static final boolean hasFromMobSpawner = NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 19;
     private static final Set<SpawnReason> DELAYED_SPAWN_REASONS = EnumSet.of(
             SpawnReason.BEEHIVE,
             SpawnReason.BUILD_IRONGOLEM,
@@ -168,7 +168,7 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSecondarySpawnerSpawn(CreatureSpawnEvent event) {
-        if (event.getSpawnReason() == SpawnReason.SPAWNER || (hasFromMobSpawner && event.getEntity().fromMobSpawner())) {
+        if (EntityUtils.hasSpawnerSpawnReason((event.getEntity()))) {
             if (PersistentDataUtils.isSpawnedFromSpawner(event.getEntity()))
                 return;
 

@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import org.bukkit.util.Vector;
 
 public final class EntityUtils {
 
+    private static final boolean HAS_FROM_MOB_SPAWNER = NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 19;
     private static final Random RANDOM = new Random();
     private static Map<EntityType, BoundingBox> cachedBoundingBoxes;
 
@@ -113,6 +115,14 @@ public final class EntityUtils {
         } else {
             return 5;
         }
+    }
+
+    public static boolean hasSpawnerSpawnReason(Entity entity) {
+        return (NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) || (HAS_FROM_MOB_SPAWNER && entity.fromMobSpawner());
+    }
+
+    public static boolean hasSpawnerSpawnReason(CreatureSpawnEvent event) {
+        return event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER || (HAS_FROM_MOB_SPAWNER && event.getEntity().fromMobSpawner());
     }
 
     /**

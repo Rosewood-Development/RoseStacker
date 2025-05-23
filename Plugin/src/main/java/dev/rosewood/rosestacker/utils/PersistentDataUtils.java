@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -16,8 +17,10 @@ import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.PiglinAbstract;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.ApiStatus;
 
 public final class PersistentDataUtils {
 
@@ -113,14 +116,15 @@ public final class PersistentDataUtils {
     }
 
     /**
-     * Checks if an entity was spawned from one of our spawners
+     * Checks if an entity was spawned from a spawner
      *
      * @param entity The entity to check
-     * @return true if the entity was spawned from one of our spawners, otherwise false
+     * @return true if the entity was spawned from a spawner, otherwise false
      */
     public static boolean isSpawnedFromSpawner(Entity entity) {
         RosePlugin rosePlugin = RoseStacker.getInstance();
-        return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER);
+        return entity.getPersistentDataContainer().has(new NamespacedKey(rosePlugin, SPAWNED_FROM_SPAWNER_METADATA_NAME), PersistentDataType.INTEGER)
+                || EntityUtils.hasSpawnerSpawnReason(entity);
     }
 
     public static void increaseSpawnCount(StackedSpawnerTile spawner, long amount) {
