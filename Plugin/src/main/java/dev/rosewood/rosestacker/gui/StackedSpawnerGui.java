@@ -128,34 +128,40 @@ public class StackedSpawnerGui {
                         List<GuiString> lore = new ArrayList<>();
 
                         StackedSpawnerTile spawnerTile = this.stackedSpawner.getSpawnerTile();
-                        lore.add(this.getString("min-spawn-delay", StringPlaceholders.of("delay", spawnerTile.getMinSpawnDelay())));
-                        lore.add(this.getString("max-spawn-delay", StringPlaceholders.of("delay", spawnerTile.getMaxSpawnDelay())));
-                        lore.add(this.getString("disabled-mob-ai", StringPlaceholders.of("disabled", String.valueOf(stackSettings.isMobAIDisabled()))));
+                        this.getAndAccumulateString(lore, "min-spawn-delay", StringPlaceholders.of("delay", spawnerTile.getMinSpawnDelay()));
+                        this.getAndAccumulateString(lore, "max-spawn-delay", StringPlaceholders.of("delay", spawnerTile.getMaxSpawnDelay()));
+                        this.getAndAccumulateString(lore, "disabled-mob-ai", StringPlaceholders.of("disabled", String.valueOf(stackSettings.isMobAIDisabled())));
                         int range = stackSettings.getEntitySearchRange() == -1 ? spawnerTile.getSpawnRange() : stackSettings.getEntitySearchRange();
-                        lore.add(this.getString("entity-search-range", StringPlaceholders.of("range", range)));
+                        this.getAndAccumulateString(lore, "entity-search-range", StringPlaceholders.of("range", range));
                         if (!this.stackedSpawner.getStackSettings().hasUnlimitedPlayerActivationRange())
-                            lore.add(this.getString("player-activation-range", StringPlaceholders.of("range", spawnerTile.getRequiredPlayerRange())));
-                        lore.add(this.getString("spawn-range", StringPlaceholders.of("range", spawnerTile.getSpawnRange())));
+                            this.getAndAccumulateString(lore, "player-activation-range", StringPlaceholders.of("range", spawnerTile.getRequiredPlayerRange()));
+                        this.getAndAccumulateString(lore, "spawn-range", StringPlaceholders.of("range", spawnerTile.getSpawnRange()));
 
                         if (stackSettings.getSpawnCountStackSizeMultiplier() != -1) {
                             if (SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.get()) {
-                                lore.add(this.getString("min-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize()))));
-                                lore.add(this.getString("max-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
+                                this.getAndAccumulateString(lore, "min-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(this.stackedSpawner.getStackSize())));
+                                this.getAndAccumulateString(lore, "max-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount())));
                             } else {
-                                lore.add(this.getString("spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
+                                this.getAndAccumulateString(lore, "spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount())));
                             }
                         } else {
-                            lore.add(this.getString("min-spawn-amount", StringPlaceholders.of("amount", 1)));
-                            lore.add(this.getString("max-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount()))));
+                            this.getAndAccumulateString(lore, "min-spawn-amount", StringPlaceholders.of("amount", 1));
+                            this.getAndAccumulateString(lore, "max-spawn-amount", StringPlaceholders.of("amount", StackerUtils.formatNumber(spawnerTile.getSpawnCount())));
                         }
 
-                        lore.add(GuiFactory.createString());
-                        lore.add(this.getString("spawn-conditions"));
+                        List<GuiString> secondaryLore = new ArrayList<>();
+
+                        this.getAndAccumulateString(secondaryLore, "spawn-conditions", StringPlaceholders.empty());
 
                         List<ConditionTag> spawnConditions = stackSettings.getSpawnRequirements();
                         for (ConditionTag conditionTag : spawnConditions)
                             for (String line : conditionTag.getInfoMessage(this.localeManager))
-                                lore.add(GuiFactory.createString(line));
+                                this.accumulateString(secondaryLore, line);
+
+                        if (!secondaryLore.isEmpty()) {
+                            lore.add(GuiFactory.createString());
+                            lore.addAll(secondaryLore);
+                        }
 
                         return lore;
                     }));
@@ -176,8 +182,11 @@ public class StackedSpawnerGui {
                     .setIcon(spawner)
                     .setItemFlags(flags.toArray(ItemFlag[]::new))
                     .setNameSupplier(() -> this.getString("time-until-next-spawn", StringPlaceholders.of("time", StackerUtils.formatNumber(this.stackedSpawner.getSpawnerTile().getDelay() + 1))))
-                    .setLoreSupplier(() -> List.of(this.getString("total-spawns", StringPlaceholders.of("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile())))))
-                    ));
+                    .setLoreSupplier(() -> {
+                        List<GuiString> lore = new ArrayList<>();
+                        this.getAndAccumulateString(lore, "total-spawns", StringPlaceholders.of("amount", StackerUtils.formatNumber(PersistentDataUtils.getTotalSpawnCount(this.stackedSpawner.getSpawnerTile()))));
+                        return lore;
+                    }));
             mainScreen.addButtonAt(15, GuiFactory.createButton()
                     .setIconSupplier(() -> GuiFactory.createIcon(this.stackedSpawner.getLastInvalidConditions().isEmpty() ? conditionsValid : conditionsInvalid))
                     .setNameSupplier(() -> {
@@ -205,6 +214,18 @@ public class StackedSpawnerGui {
         this.guiContainer.addScreen(mainScreen);
 
         this.guiFramework.getGuiManager().registerGui(this.guiContainer);
+    }
+
+    private void getAndAccumulateString(List<GuiString> accumulator, String key, StringPlaceholders placeholders) {
+        String value = this.localeManager.getLocaleMessage("gui-stacked-spawner-" + key, placeholders);
+        this.accumulateString(accumulator, value);
+    }
+
+    private void accumulateString(List<GuiString> accumulator, String value) {
+        String[] values = value.split("\n");
+        for (String s : values)
+            if (!s.isBlank())
+                accumulator.add(GuiFactory.createString(s));
     }
 
     /**
