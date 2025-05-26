@@ -924,7 +924,7 @@ public class BlockListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBlockForm(BlockFormEvent event) {
         Block block = event.getBlock();
-        if (this.stackManager.isAreaDisabled(block.getLocation()) || !stackManager.isBlockStackingEnabled())
+        if (this.stackManager.isAreaDisabled(block.getLocation()) || !this.stackManager.isBlockStackingEnabled())
             return;
 
         if (this.isBlockOrSpawnerStack(block))

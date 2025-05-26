@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.stack.Stack;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
@@ -397,6 +398,16 @@ public class StackManager extends Manager implements StackingLogic {
         StackingThread stackingThread = this.getStackingThread(entities.get(0).getWorld());
         if (stackingThread != null)
             stackingThread.saveChunkEntities(entities, clearStored);
+    }
+
+    @Override
+    public <T extends Stack<?>> void saveChunkEntityStacks(List<T> stacks, boolean clearStored) {
+        if (stacks.isEmpty())
+            return;
+
+        StackingThread stackingThread = this.getStackingThread(stacks.get(0).getWorld());
+        if (stackingThread != null)
+            stackingThread.saveChunkEntityStacks(stacks, clearStored);
     }
 
     @Override

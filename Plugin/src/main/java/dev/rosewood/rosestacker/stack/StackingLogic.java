@@ -314,10 +314,18 @@ public interface StackingLogic {
     /**
      * Saves stacks for entities and items for a chunk
      *
-     * @param entities The entities that are to be saved, they must all be in the same chunk
+     * @param entities The entities that are to be saved
      * @param clearStored If the data should be cleared from cache
      */
     void saveChunkEntities(List<Entity> entities, boolean clearStored);
+
+    /**
+     * Saves stacks for entities and items for a chunk
+     *
+     * @param stacks The stacks that are to be saved
+     * @param clearStored If the data should be cleared from cache
+     */
+    <T extends Stack<?>> void saveChunkEntityStacks(List<T> stacks, boolean clearStored);
 
     /**
      * Saves all stack data in loaded chunks
