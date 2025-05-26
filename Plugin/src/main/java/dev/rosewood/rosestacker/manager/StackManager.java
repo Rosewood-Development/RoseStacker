@@ -517,7 +517,7 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
-        return this.disabledWorldNames.contains(world.getName().toLowerCase());
+        return this.disabledWorldNames.contains(world.getName());
     }
 
     /**

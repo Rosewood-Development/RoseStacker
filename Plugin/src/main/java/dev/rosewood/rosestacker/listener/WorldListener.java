@@ -22,10 +22,10 @@ import org.bukkit.event.world.WorldUnloadEvent;
 
 public class WorldListener implements Listener {
 
-    private final RosePlugin rosePlugin;
+    private final StackManager stackManager;
 
     public WorldListener(RosePlugin rosePlugin) {
-        this.rosePlugin = rosePlugin;
+        this.stackManager = rosePlugin.getManager(StackManager.class);
     }
 
     /**
@@ -35,23 +35,22 @@ public class WorldListener implements Listener {
      */
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getWorld()))
+        if (this.stackManager.isWorldDisabled(event.getWorld()))
             return;
 
         Chunk chunk = event.getChunk();
         if (event.isNewChunk()) {
             // Stack new entities
-            if (NMSUtil.getVersionNumber() < 17 && stackManager.isEntityStackingEnabled())
+            if (NMSUtil.getVersionNumber() < 17 && this.stackManager.isEntityStackingEnabled())
                 for (Entity entity : chunk.getEntities())
                     if (entity instanceof LivingEntity)
-                        stackManager.createEntityStack((LivingEntity) entity, true);
+                        this.stackManager.createEntityStack((LivingEntity) entity, true);
 
             // Stack new spawners
-            if (stackManager.isSpawnerStackingEnabled())
+            if (this.stackManager.isSpawnerStackingEnabled())
                 for (BlockState tileEntity : chunk.getTileEntities())
                     if (tileEntity instanceof CreatureSpawner)
-                        stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
+                        this.stackManager.createSpawnerStack(tileEntity.getBlock(), 1, false);
         } else {
             if (NMSUtil.getVersionNumber() < 17) {
                 // Make sure AI is disabled if it's marked
@@ -60,36 +59,34 @@ public class WorldListener implements Listener {
                     if (entity instanceof LivingEntity)
                         PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
 
-                stackManager.loadChunkEntities(Arrays.asList(entities));
+                this.stackManager.loadChunkEntities(Arrays.asList(entities));
             }
 
-            stackManager.loadChunkBlocks(chunk);
+            this.stackManager.loadChunkBlocks(chunk);
         }
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        stackManager.saveChunkBlocks(event.getChunk(), true);
+        this.stackManager.saveChunkBlocks(event.getChunk(), true);
 
         if (NMSUtil.getVersionNumber() < 17)
-            stackManager.saveChunkEntities(Arrays.asList(event.getChunk().getEntities()), true);
+            this.stackManager.saveChunkEntities(Arrays.asList(event.getChunk().getEntities()), true);
     }
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
-        this.rosePlugin.getManager(StackManager.class).loadWorld(event.getWorld());
+        this.stackManager.loadWorld(event.getWorld());
     }
 
     @EventHandler
     public void onWorldUnload(WorldUnloadEvent event) {
-        this.rosePlugin.getManager(StackManager.class).unloadWorld(event.getWorld());
+        this.stackManager.unloadWorld(event.getWorld());
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        StackingThread stackingThread = stackManager.getStackingThread(event.getPlayer().getWorld());
+        StackingThread stackingThread = this.stackManager.getStackingThread(event.getPlayer().getWorld());
         if (stackingThread != null)
             ThreadUtils.runAsync(stackingThread::processNametags);
     }
