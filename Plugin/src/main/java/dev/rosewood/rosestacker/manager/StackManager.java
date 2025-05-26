@@ -82,7 +82,7 @@ public class StackManager extends Manager implements StackingLogic {
             this.autosaveTask = this.rosePlugin.getScheduler().runTaskTimer(() -> this.saveAllData(false), interval, interval);
         }
 
-        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get().stream().map(String::toLowerCase).toList());
+        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get());
 
         String multikillAmountValue = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
         int separatorIndex = multikillAmountValue.indexOf("-");
