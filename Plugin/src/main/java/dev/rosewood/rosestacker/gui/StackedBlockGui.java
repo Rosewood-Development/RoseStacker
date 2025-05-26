@@ -76,7 +76,7 @@ public class StackedBlockGui {
      */
     private void buildGui() {
         this.stackType = this.stackedBlock.getBlock().getType();
-        this.guiContainer = GuiFactory.createContainer();
+        this.guiContainer = GuiFactory.createContainer().preventItemDropping(true);
 
         List<Integer> paginatedSlots = new ArrayList<>();
         for (int i = 10; i <= 16; i++) paginatedSlots.add(i);
