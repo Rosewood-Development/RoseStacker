@@ -335,6 +335,20 @@ public interface StackingLogic {
     void saveAllData(boolean clearStored);
 
     /**
+     * Tries to stack a StackedEntity with all other StackedEntities
+     *
+     * @param stackedEntity the StackedEntity to try to stack
+     */
+    void tryStackEntity(StackedEntity stackedEntity);
+
+    /**
+     * Tries to stack a StackedItem with all other StackedItems
+     *
+     * @param stackedItem the StackedItem to try to stack
+     */
+    void tryStackItem(StackedItem stackedItem);
+
+    /**
      * Tries to unstack the given entity if it meets unstacking conditions
      *
      * @param stackedEntity The stacked entity to try unstacking

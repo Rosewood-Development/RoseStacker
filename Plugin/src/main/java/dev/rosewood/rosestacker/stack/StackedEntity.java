@@ -119,6 +119,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         this.entity = entity;
         this.stackedEntityDataStorage.updateEntity(entity);
+        this.resetHasMoved();
         this.updateDisplay();
     }
 
@@ -823,6 +824,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             this.z = location.getZ();
         }
         return moved;
+    }
+
+    public void resetHasMoved() {
+        this.x = this.y = this.z = 0;
     }
 
 }

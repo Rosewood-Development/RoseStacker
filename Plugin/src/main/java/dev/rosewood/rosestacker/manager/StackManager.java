@@ -417,6 +417,24 @@ public class StackManager extends Manager implements StackingLogic {
     }
 
     @Override
+    public void tryStackEntity(StackedEntity stackedEntity) {
+        StackingThread stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
+        if (stackingThread == null)
+            return;
+
+        stackingThread.tryStackEntity(stackedEntity);
+    }
+
+    @Override
+    public void tryStackItem(StackedItem stackedItem) {
+        StackingThread stackingThread = this.getStackingThread(stackedItem.getItem().getWorld());
+        if (stackingThread == null)
+            return;
+
+        stackingThread.tryStackItem(stackedItem);
+    }
+
+    @Override
     public void tryUnstackEntity(StackedEntity stackedEntity) {
         StackingThread stackingThread = this.getStackingThread(stackedEntity.getEntity().getWorld());
         if (stackingThread == null)

@@ -979,7 +979,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      *
      * @param stackedEntity the StackedEntity to try to stack
      */
-    private void tryStackEntity(StackedEntity stackedEntity) {
+    @Override
+    public void tryStackEntity(StackedEntity stackedEntity) {
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null)
             return;
@@ -1066,12 +1067,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         ThreadUtils.runOnPrimary(() -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove));
     }
 
-    /**
-     * Tries to stack a StackedItem with all other StackedItems
-     *
-     * @param stackedItem the StackedItem to try to stack
-     */
-    private void tryStackItem(StackedItem stackedItem) {
+    @Override
+    public void tryStackItem(StackedItem stackedItem) {
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
         Item item = stackedItem.getItem();
         if (stackSettings == null
