@@ -552,15 +552,15 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerShearSheep(PlayerShearEntityEvent event) {
-        this.handleSheepShear(this.rosePlugin, event.getEntity());
+        this.handleSheepShear(event.getEntity());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockShearSheep(BlockShearEntityEvent event) {
-        this.handleSheepShear(this.rosePlugin, event.getEntity());
+        this.handleSheepShear(event.getEntity());
     }
 
-    private void handleSheepShear(RosePlugin rosePlugin, Entity entity) {
+    private void handleSheepShear(Entity entity) {
         if (entity.getType() != EntityType.SHEEP)
             return;
 
@@ -575,9 +575,17 @@ public class EntityListener implements Listener {
         if (stackedEntity == null)
             return;
 
+        if (stackedEntity.getStackSize() == 1) {
+            ThreadUtils.runAsync(() -> {
+                stackedEntity.resetHasMoved();
+                this.stackManager.tryStackEntity(stackedEntity);
+            });
+            return;
+        }
+
         if (!stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.SHEEP_SHEAR_ALL_SHEEP_IN_STACK).getBoolean()) {
             ThreadUtils.runSync(() -> {
-                if (!stackedEntity.shouldStayStacked() && stackedEntity.getStackSize() > 1)
+                if (!stackedEntity.shouldStayStacked())
                     this.stackManager.splitEntityStack(stackedEntity);
             });
             return;
