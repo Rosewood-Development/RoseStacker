@@ -45,12 +45,12 @@ public interface NMSHandler {
             "ArmorItems", "HandItems", "Items", "ChestedHorse", "Saddle",
             "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health",
             "Attributes", "ActiveEffects", "ArmorDropChances", "HandDropChances", "Brain",
-            "LeftHanded", "Team", "SaddleItem", "CanPickUpLoot",
+            "LeftHanded", "Team", "SaddleItem", "CanPickUpLoot", "Equipment", "DropChances",
 
             "armor_items", "hand_items", "items", "chested_horse", "saddle",
             "decor_item", "inventory", "carried_block_state", "death_time", "health",
             "attributes", "active_effects", "armor_drop_chances", "hand_drop_chances", "brain",
-            "left_handed", "team", "saddle_item", "can_pick_up_loot"
+            "left_handed", "team", "saddle_item", "can_pick_up_loot", "equipment", "drop_chances"
     );
 
     /**
