@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -15,7 +14,6 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Container;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -29,14 +27,11 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemListener implements Listener {
 
@@ -71,17 +66,6 @@ public class ItemListener implements Listener {
 
         // We will handle all item merging ourselves, thank you very much
         event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onPlayerSneak(PlayerToggleSneakEvent event) {
-        ItemStack itemStack = ItemStack.of(Material.SPAWNER);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta instanceof BlockStateMeta blockStateMeta) {
-            CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState(); // creates a new block state internally
-            creatureSpawner.setSpawnedType(EntityType.CAT);
-            creatureSpawner.getSpawnedType(); // simply calling this method gives an exception due to an internal world being null
-        }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
