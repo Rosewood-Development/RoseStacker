@@ -220,11 +220,10 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
                 if (NMSUtil.isPaper()) {
-                    PreCreatureSpawnEvent preCreatureSpawnEvent = new PreCreatureSpawnEvent(location, this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
-                    Bukkit.getPluginManager().callEvent(preCreatureSpawnEvent);
-                    if (preCreatureSpawnEvent.shouldAbortSpawn())
+                    var result = PreCreatureSpawnEventHelper.call(location, this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    if (result.abort())
                         return;
-                    if (preCreatureSpawnEvent.isCancelled())
+                    if (result.cancel())
                         continue;
                 }
 
@@ -328,13 +327,12 @@ public class MobSpawningMethod implements SpawningMethod {
                 LivingEntity entity = stackedEntity.getEntity();
 
                 if (NMSUtil.isPaper()) {
-                    PreCreatureSpawnEvent preCreatureSpawnEvent = new PreCreatureSpawnEvent(entity.getLocation(), this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
-                    Bukkit.getPluginManager().callEvent(preCreatureSpawnEvent);
-                    if (preCreatureSpawnEvent.shouldAbortSpawn()) {
+                    var result = PreCreatureSpawnEventHelper.call(entity.getLocation(), this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    if (result.abort()) {
                         newStacks.clear();
                         break;
                     }
-                    if (preCreatureSpawnEvent.isCancelled()) {
+                    if (result.cancel()) {
                         iterator.remove();
                         continue;
                     }
