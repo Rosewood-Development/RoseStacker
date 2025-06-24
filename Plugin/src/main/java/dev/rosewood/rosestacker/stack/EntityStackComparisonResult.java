@@ -11,6 +11,7 @@ public enum EntityStackComparisonResult {
     STACKING_NOT_ENABLED,
     STACK_SIZE_TOO_LARGE,
     MARKED_UNSTACKABLE,
+    CUSTOM_MOB,
     CUSTOM_NAMED,
     NOT_ON_GROUND,
     IN_WATER,

@@ -159,6 +159,9 @@ public final class StackConditions {
             if (SettingKey.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.get() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
                 return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
 
+            if (stack1.checkNPC() || stack2.checkNPC())
+                return EntityStackComparisonResult.CUSTOM_MOB;
+
             return EntityStackComparisonResult.CAN_STACK;
         });
 

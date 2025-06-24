@@ -66,6 +66,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     private LivingEntity entity;
     private StackedEntityDataStorage stackedEntityDataStorage;
     private int npcCheckCounter;
+    private boolean npc;
 
     private String displayName;
     private boolean displayNameVisible;
@@ -99,13 +100,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     // We are going to check if this entity is an NPC multiple times, since MythicMobs annoyingly doesn't
     // actually register it as an NPC until a few ticks after it spawns
     public boolean checkNPC() {
-        boolean npc = false;
-        if (this.npcCheckCounter > 0) {
+        if (!this.npc && this.npcCheckCounter > 0) {
             if (NPCsHook.isNPC(this.entity))
-                npc = true;
+                this.npc = true;
             this.npcCheckCounter--;
         }
-        return npc;
+        return this.npc;
     }
 
     public LivingEntity getEntity() {

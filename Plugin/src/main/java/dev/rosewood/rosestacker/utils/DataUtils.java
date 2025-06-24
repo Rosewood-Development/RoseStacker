@@ -95,6 +95,9 @@ public final class DataUtils {
     }
 
     public static void writeStackedEntity(StackedEntity stackedEntity) {
+        if (stackedEntity.getStackSize() == 1)
+            return;
+
         PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
         byte[] data = null;
 
