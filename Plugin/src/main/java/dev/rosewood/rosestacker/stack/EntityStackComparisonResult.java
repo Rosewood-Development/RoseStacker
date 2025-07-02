@@ -13,6 +13,7 @@ public enum EntityStackComparisonResult {
     MARKED_UNSTACKABLE,
     CUSTOM_MOB,
     CUSTOM_NAMED,
+    DIFFERENT_CUSTOM_NAME,
     NOT_ON_GROUND,
     IN_WATER,
     NOT_SPAWNED_FROM_SPAWNER,

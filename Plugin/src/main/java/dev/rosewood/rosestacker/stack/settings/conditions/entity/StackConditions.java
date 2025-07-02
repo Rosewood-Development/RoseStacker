@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.List;
+import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ageable;
@@ -163,6 +164,15 @@ public final class StackConditions {
                 return EntityStackComparisonResult.CUSTOM_MOB;
 
             return EntityStackComparisonResult.CAN_STACK;
+        });
+
+        // Register settings for all entities
+        registerConfig(LivingEntity.class, "different-custom-name", false, EntityStackComparisonResult.DIFFERENT_CUSTOM_NAME, (entity1, entity2) -> {
+            if (NMSUtil.isPaper()) {
+                return !Objects.equals(entity1.customName(), entity2.customName());
+            } else {
+                return !Objects.equals(entity1.getCustomName(), entity2.getCustomName());
+            }
         });
 
         // Register conditions for specific interfaces
