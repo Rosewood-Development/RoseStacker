@@ -228,7 +228,7 @@ public class StackedSpawnerGui {
     private void accumulateString(List<GuiString> accumulator, String value) {
         String[] values = NEWLINE_PATTERN.split(value);
         for (String s : values)
-            if (!s.isBlank())
+            if (!s.isEmpty())
                 accumulator.add(GuiFactory.createString(s));
     }
 
