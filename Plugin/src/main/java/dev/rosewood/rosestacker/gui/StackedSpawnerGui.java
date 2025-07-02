@@ -24,6 +24,7 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -32,6 +33,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class StackedSpawnerGui {
 
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("\n|\\\\n");
     private final LocaleManager localeManager;
     private final StackedSpawner stackedSpawner;
     private final GuiFramework guiFramework;
@@ -198,14 +200,16 @@ public class StackedSpawnerGui {
                     })
                     .setLoreSupplier(() -> {
                         List<Class<? extends ConditionTag>> invalidConditions = this.stackedSpawner.getLastInvalidConditions();
-                        if (invalidConditions.isEmpty())
-                            return List.of(this.getString("entities-can-spawn"));
-
                         List<GuiString> lore = new ArrayList<>();
-                        lore.add(this.getString("conditions-preventing-spawns"));
+                        if (invalidConditions.isEmpty()) {
+                            this.getAndAccumulateString(lore, "entities-can-spawn", StringPlaceholders.empty());
+                            return lore;
+                        }
+
+                        this.getAndAccumulateString(lore, "conditions-preventing-spawns", StringPlaceholders.empty());
 
                         for (Class<? extends ConditionTag> conditionTagClass : invalidConditions)
-                            lore.add(GuiFactory.createString(ConditionTags.getErrorMessage(conditionTagClass, this.localeManager)));
+                            this.accumulateString(lore, ConditionTags.getErrorMessage(conditionTagClass, this.localeManager));
 
                         return lore;
                     }));
@@ -222,7 +226,7 @@ public class StackedSpawnerGui {
     }
 
     private void accumulateString(List<GuiString> accumulator, String value) {
-        String[] values = value.split("\n");
+        String[] values = NEWLINE_PATTERN.split(value);
         for (String s : values)
             if (!s.isBlank())
                 accumulator.add(GuiFactory.createString(s));

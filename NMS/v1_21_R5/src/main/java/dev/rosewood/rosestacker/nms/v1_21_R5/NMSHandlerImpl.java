@@ -81,7 +81,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_21_R5.CraftWorld;
-import org.bukkit.craftbukkit.v1_21_R5.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftCreeper;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftItem;
