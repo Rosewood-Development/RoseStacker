@@ -168,15 +168,20 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSecondarySpawnerSpawn(CreatureSpawnEvent event) {
-        if (this.stackManager.isAreaDisabled(event.getEntity().getLocation()))
+        LivingEntity entity = event.getEntity();
+        if (this.stackManager.isAreaDisabled(entity.getLocation()))
             return;
 
-        if (EntityUtils.hasSpawnerSpawnReason((event.getEntity()))) {
-            if (PersistentDataUtils.isSpawnedFromSpawner(event.getEntity()))
+        if (EntityUtils.hasTrialSpawnerSpawnReason(entity)) {
+            PersistentDataUtils.tagSpawnedFromTrialSpawner(entity);
+            return;
+        }
+
+        if (EntityUtils.hasSpawnerSpawnReason(entity)) {
+            if (PersistentDataUtils.isSpawnedFromSpawner(entity))
                 return;
 
             // If we haven't already handled this mob as being from a spawner, handle it now
-            LivingEntity entity = event.getEntity();
             PersistentDataUtils.tagSpawnedFromSpawner(entity);
 
             SpawnerStackSettings stackSettings = this.stackSettingManager.getSpawnerStackSettings(entity.getType());

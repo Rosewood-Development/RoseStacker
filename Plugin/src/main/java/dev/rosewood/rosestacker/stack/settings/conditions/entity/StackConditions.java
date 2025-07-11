@@ -157,6 +157,10 @@ public final class StackConditions {
                 }
             }
 
+            if (!comparingForUnstack && SettingKey.ENTITY_DONT_STACK_FROM_TRIAL_SPAWNERS.get() && NMSUtil.getVersionNumber() >= 21)
+                if (PersistentDataUtils.isSpawnedFromTrialSpawner(entity1) || PersistentDataUtils.isSpawnedFromTrialSpawner(entity2))
+                    return EntityStackComparisonResult.FROM_TRIAL_SPAWNER;
+
             if (SettingKey.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.get() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
                 return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
 

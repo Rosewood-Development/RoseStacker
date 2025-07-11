@@ -121,8 +121,8 @@ public final class EntityUtils {
         return (NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) || (HAS_FROM_MOB_SPAWNER && entity.fromMobSpawner());
     }
 
-    public static boolean hasSpawnerSpawnReason(CreatureSpawnEvent event) {
-        return event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER || (HAS_FROM_MOB_SPAWNER && event.getEntity().fromMobSpawner());
+    public static boolean hasTrialSpawnerSpawnReason(Entity entity) {
+        return NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER;
     }
 
     /**
