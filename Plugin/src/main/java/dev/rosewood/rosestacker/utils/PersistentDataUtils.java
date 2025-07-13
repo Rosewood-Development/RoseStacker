@@ -1,7 +1,6 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -17,10 +16,8 @@ import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.PiglinAbstract;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.ApiStatus;
 
 public final class PersistentDataUtils {
 
@@ -75,7 +72,7 @@ public final class PersistentDataUtils {
             }
 
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_ITEM_PICKUP.get())
-                entity.setCanPickupItems(false);
+                entity.setCanPickupItems(!disable);
 
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_SET_UNAWARE.get() && entity instanceof Mob mob)
                 mob.setAware(!disable);
@@ -98,7 +95,7 @@ public final class PersistentDataUtils {
             }
 
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_DISABLE_COLLISION.get())
-                entity.setCollidable(false);
+                entity.setCollidable(!disable);
         }
     }
 
