@@ -25,7 +25,7 @@ public final class NMSAdapter {
                     name = "v1_21_R3";
                 } else if (major == 21 && minor == 5) {
                     name = "v1_21_R4";
-                } else if (major == 21 && (minor == 6 || minor == 7)) {
+                } else if (major == 21 && (minor == 6 || minor == 7 || minor == 8)) {
                     name = "v1_21_R5";
                 }
             }
