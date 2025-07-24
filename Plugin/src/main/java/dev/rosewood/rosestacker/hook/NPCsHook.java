@@ -7,6 +7,7 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
+import net.bestemor.villagermarket.VillagerMarketAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -22,11 +23,12 @@ public class NPCsHook {
     private static Boolean shopkeepersEnabled;
     private static Boolean epicBossesEnabled;
     private static Boolean eliteMobsEnabled;
-    //private static Boolean bossEnabled;
+    private static Boolean bossEnabled;
     private static Boolean proCosmeticsEnabled;
     private static Boolean infernalMobsEnabled;
     private static Boolean simplePetsEnabled;
     private static Boolean levelledMobsEnabled;
+    private static Boolean villagerMarketEnabled;
 
     private static final NamespacedKey LEVELLEDMOBS_KEY = new NamespacedKey("levelledmobs", "level");
 
@@ -80,15 +82,15 @@ public class NPCsHook {
         return eliteMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("EliteMobs");
     }
 
-//    /**
-//     * @return true if Boss is enabled, false otherwise
-//     */
-//    public static boolean bossEnabled() {
-//        if (bossEnabled != null)
-//            return bossEnabled;
-//
-//        return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
-//    }
+    /**
+     * @return true if Boss is enabled, false otherwise
+     */
+    public static boolean bossEnabled() {
+        if (bossEnabled != null)
+            return bossEnabled;
+
+        return bossEnabled = Bukkit.getPluginManager().isPluginEnabled("Boss");
+    }
 
     /**
      * @return true if ProCosmetics is enabled, false otherwise
@@ -110,6 +112,9 @@ public class NPCsHook {
         return infernalMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("InfernalMobs");
     }
 
+    /**
+     * @return true if SimplePets is enabled, false otherwise
+     */
     public static boolean simplePetsEnabled() {
         if (simplePetsEnabled != null)
             return simplePetsEnabled;
@@ -127,11 +132,24 @@ public class NPCsHook {
         return simplePetsEnabled = true;
     }
 
+    /**
+     * @return true if LevelledMobs is enabled, false otherwise
+     */
     public static boolean levelledMobsEnabled() {
         if (levelledMobsEnabled != null)
             return levelledMobsEnabled;
 
         return levelledMobsEnabled = Bukkit.getPluginManager().isPluginEnabled("LevelledMobs");
+    }
+
+    /**
+     * @return true if VillagerMarket is enabled, false otherwise
+     */
+    public static boolean villagerMarketEnabled() {
+        if (villagerMarketEnabled != null)
+            return villagerMarketEnabled;
+
+        return villagerMarketEnabled = Bukkit.getPluginManager().isPluginEnabled("VillagerMarket");
     }
 
     /**
@@ -143,11 +161,12 @@ public class NPCsHook {
                 || mythicMobsEnabled()
                 || epicBossesEnabled()
                 || eliteMobsEnabled()
-//                || bossEnabled()
+                || bossEnabled()
                 || proCosmeticsEnabled()
                 || infernalMobsEnabled()
                 || simplePetsEnabled()
-                || levelledMobsEnabled();
+                || levelledMobsEnabled()
+                || villagerMarketEnabled();
     }
 
     /**
@@ -174,8 +193,8 @@ public class NPCsHook {
         if (!npc && eliteMobsEnabled())
             npc = EntityTracker.isEliteMob(entity) && EntityTracker.isNPCEntity(entity);
 
-//        if (!npc && bossEnabled())
-//            npc = BossAPI.isBoss(entity);
+        if (!npc && bossEnabled())
+            npc = entity.hasMetadata("Boss_V4");
 
         if (!npc && proCosmeticsEnabled())
             npc = entity.hasMetadata("PROCOSMETICS_ENTITY");
@@ -190,6 +209,9 @@ public class NPCsHook {
 
         if (!npc && levelledMobsEnabled() && !SettingKey.MISC_LEVELLEDMOBS_ALLOW_STACKING.get())
             npc = entity.getPersistentDataContainer().has(LEVELLEDMOBS_KEY, PersistentDataType.INTEGER);
+
+        if (!npc && villagerMarketEnabled())
+            npc = VillagerMarketAPI.getShopManager().isShop(entity);
 
         return npc;
     }

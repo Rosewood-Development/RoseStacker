@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'com.mojang:authlib:1.5.21'
 
     // Misc other
-    compileOnly 'net.coreprotect:coreprotect:19.4'
+    compileOnly 'net.coreprotect:coreprotect:22.4'
     compileOnly 'de.diddiz:logblock:1.16.1.1'
     compileOnly 'dev.frankheijden.insights:Insights:6.19.2'
     compileOnly 'com.songoda:epicbosses:1.2.12'
@@ -29,7 +29,6 @@ dependencies {
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
-    //compileOnly 'org.mineacademy.plugin:Boss-API:3.8.0'
     compileOnly 'io.lumine:Mythic-Dist:5.3.3'
     compileOnly ('com.gmail.nossr50.mcMMO:mcMMO:2.2.012') {
         exclude group: 'com.comphenix.protocol'
@@ -38,6 +37,7 @@ dependencies {
     compileOnly 'net.zrips:cmilib:1.5.4.4'
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'simplepets.brainsynder:Version_1.21.4:5.0-BUILD-279'
+    compileOnly 'com.github.Bestem0r:VillagerMarket:1.11.2'
     compileOnly 'com.bgsoftware:SuperiorSkyblockAPI:2024.4'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4', {
