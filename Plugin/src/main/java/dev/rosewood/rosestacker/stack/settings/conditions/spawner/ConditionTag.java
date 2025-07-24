@@ -20,6 +20,7 @@ public abstract class ConditionTag {
     /**
      * @param tag The tag, including both prefix and values
      * @param perSpawn true if this condition must be met for each spawn, false if it only has to be met for the spawner
+     * @throws IllegalArgumentException if the tag is not valid
      */
     public ConditionTag(String tag, boolean perSpawn) {
         if (tag == null || tag.trim().isEmpty())

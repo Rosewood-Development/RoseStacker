@@ -39,7 +39,7 @@ public class MaxNearbyEntityConditionTag extends ConditionTag {
         List<EntityType> entityTypes = stackedSpawner.getSpawnerTile().getSpawnerType().getEntityTypes();
 
         Collection<Entity> nearbyEntities = this.entityCacheManager.getNearbyEntities(
-                block.getLocation().clone().add(0.5, 0.5, 0.5),
+                block.getLocation().add(0.5, 0.5, 0.5),
                 detectionRange,
                 entity -> entityTypes.contains(entity.getType()));
 
