@@ -443,7 +443,7 @@ public class BlockListener implements Listener {
             } else if (stackedSpawner != null) {
                 blockList.remove(block);
 
-                if (!stackedSpawner.isPlacedByPlayer() || SettingKey.SPAWNER_EXPLOSION_DESTROY_NATURAL.get()) {
+                if (!stackedSpawner.isPlacedByPlayer() && SettingKey.SPAWNER_EXPLOSION_DESTROY_NATURAL.get()) {
                     block.setType(Material.AIR);
                     stackedSpawner.setStackSize(0);
                     this.stackManager.removeSpawnerStack(stackedSpawner);
