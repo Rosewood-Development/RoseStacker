@@ -122,7 +122,7 @@ public final class EntityUtils {
     }
 
     public static boolean hasTrialSpawnerSpawnReason(Entity entity) {
-        return NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER;
+        return NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 21 && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER;
     }
 
     /**
