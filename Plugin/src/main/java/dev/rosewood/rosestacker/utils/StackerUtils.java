@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -288,6 +289,14 @@ public final class StackerUtils {
 
     public static boolean isVanished(Player player) {
         return player.getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
+    }
+
+    public static Location adjustBlockLocation(Location location) {
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3)) {
+            return location.add(0.5, 0.5, 0.5);
+        } else {
+            return location;
+        }
     }
 
 }
