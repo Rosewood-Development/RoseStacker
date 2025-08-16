@@ -245,7 +245,7 @@ public class BlockListener implements Listener {
         if (player.getGameMode() == GameMode.CREATIVE || !itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
-        ItemUtils.damageTool(itemStack);
+        ItemUtils.damageTool(player);
     }
 
     /**

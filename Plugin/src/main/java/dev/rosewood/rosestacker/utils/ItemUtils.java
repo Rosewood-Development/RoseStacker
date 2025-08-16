@@ -36,8 +36,10 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -93,13 +95,45 @@ public final class ItemUtils {
             RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, player.getLocation());
     }
 
-    public static void damageTool(ItemStack itemStack) {
-        Damageable damageable = (Damageable) itemStack.getItemMeta();
-        if (damageable == null)
+    public static void damageTool(Player player) {
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        ItemMeta itemMeta = tool.getItemMeta();
+        if (itemMeta == null || itemMeta.isUnbreakable())
             return;
 
-        damageable.setDamage(damageable.getDamage() + 1);
-        itemStack.setItemMeta((ItemMeta) damageable);
+        if (NMSUtil.isPaper() && (NMSUtil.getVersionNumber() > 19 || (NMSUtil.getVersionNumber() == 19 && NMSUtil.getMinorVersionNumber() >= 2))) {
+            player.damageItemStack(EquipmentSlot.HAND, 1);
+            return;
+        }
+
+        if (!(itemMeta instanceof Damageable damageable))
+            return;
+
+        int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
+        if (!checkUnbreakingChance(unbreakingLevel))
+            return;
+
+        // This could decrease the durability more than intended, we'll just have to live with that
+        PlayerItemDamageEvent event = new PlayerItemDamageEvent(player, tool, 1, 1);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled() || event.getDamage() == 0)
+            return;
+
+        damageable.setDamage(damageable.getDamage() + event.getDamage());
+        tool.setItemMeta((ItemMeta) damageable); // Older versions do not have Damageable as implementing ItemMeta, do not remove cast
+
+        if (damageable.getDamage() >= damageable.getMaxDamage())
+            player.getInventory().setItemInMainHand(null);
+    }
+
+    /**
+     * Check if durbility should be applied based on the unbreaking enchantment
+     *
+     * @param level The level of the unbreaking enchantment
+     * @return True if durability should be applied, otherwise false
+     */
+    private static boolean checkUnbreakingChance(int level) {
+        return (1.0 / (level + 1)) > StackerUtils.RANDOM.nextDouble();
     }
 
     /**

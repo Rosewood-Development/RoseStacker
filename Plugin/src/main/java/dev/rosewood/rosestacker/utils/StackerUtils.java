@@ -41,7 +41,7 @@ public final class StackerUtils {
     public static final DustOptions STACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0x00FF00), 1.5F);
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
-    private static final Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();
     private static Set<EntityType> cachedStackableEntityTypes;
 
     private static NumberFormat formatter = NumberFormat.getInstance();
