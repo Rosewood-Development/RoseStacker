@@ -223,7 +223,6 @@ public class StackedBlockGui {
         if (newStackSize > stackSize) {
             BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference, false);
             Bukkit.getPluginManager().callEvent(blockStackEvent);
-            Bukkit.broadcastMessage("Called event with " + difference);
             if (blockStackEvent.isCancelled()) {
                 ItemUtils.dropItemsToPlayer(player, GuiUtil.getMaterialAmountAsItemStacks(this.stackType, difference));
                 return;
@@ -233,7 +232,6 @@ public class StackedBlockGui {
         } else {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, -difference);
             Bukkit.getPluginManager().callEvent(blockUnstackEvent);
-            Bukkit.broadcastMessage("Called event with " + difference);
             if (blockUnstackEvent.isCancelled()) {
                 this.takeFromPlayer(player, -difference);
                 return;
