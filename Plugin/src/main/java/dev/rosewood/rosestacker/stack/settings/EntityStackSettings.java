@@ -345,6 +345,7 @@ public class EntityStackSettings extends StackSettings {
             EntityEquipment equipment = entity.getEquipment();
             if (equipment != null)
                 equipment.clear();
+            entity.setCanPickupItems(false);
         }
 
         if (this.isEntity(Ageable.class))

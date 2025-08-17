@@ -152,7 +152,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     if (successfulSpawns > 0)
                         invalidSpawnConditions.removeIf(x -> x instanceof MaxNearbyEntityConditionTag);
                 } else {
-                    successfulSpawns = this.spawnEntitiesIndividually(stackedSpawner, spawnAmount, spawnLocations, entityStackSettings);
+                    successfulSpawns = this.spawnEntitiesIndividually(stackedSpawner, spawnAmount, spawnLocations, entityStackSettings, stackManager);
                 }
             } else {
                 successfulSpawns = 0;
@@ -190,7 +190,7 @@ public class MobSpawningMethod implements SpawningMethod {
         }
     }
 
-    private int spawnEntitiesIndividually(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, EntityStackSettings entityStackSettings) {
+    private int spawnEntitiesIndividually(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, EntityStackSettings entityStackSettings, StackManager stackManager) {
         if (this.entityType.getEntityClass() == null || locations.isEmpty())
             return 0;
 
@@ -200,6 +200,8 @@ public class MobSpawningMethod implements SpawningMethod {
             return 0;
 
         spawnAmount = event.getSpawnAmount();
+
+        boolean bypassRegions = SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get();
 
         List<Location> possibleLocations = new ArrayList<>(locations);
         int finalSpawnAmount = spawnAmount;
@@ -218,13 +220,22 @@ public class MobSpawningMethod implements SpawningMethod {
                         continue;
                 }
 
-                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
+                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, bypassRegions);
 
                 SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                 Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                 if (spawnerSpawnEvent.isCancelled()) {
                     entity.remove();
                     continue;
+                }
+
+                if (bypassRegions) {
+                    if (!stackManager.isAreaDisabled(location)) {
+                        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
+                            PersistentDataUtils.removeEntityAi(entity);
+
+                        entityStackSettings.applySpawnerSpawnedProperties(entity);
+                    }
                 }
 
                 // Nudge the entities a little so they unstack easier
