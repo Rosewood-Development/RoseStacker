@@ -83,17 +83,20 @@ public class BlockListener implements Listener {
 
         // Check for interacting with certain stacked blocks
         ItemStack item = event.getItem();
-        if (this.stackManager.isBlockStackingEnabled() && this.stackManager.isBlockStacked(block) && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (block.getType() == Material.DRAGON_EGG && !event.getPlayer().isSneaking()) {
+        if (this.stackManager.isBlockStackingEnabled() && this.stackManager.isBlockStacked(block)) {
+            if (block.getType() == Material.DRAGON_EGG) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.ALLOW);
-                return;
-            } else if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
-                event.setUseInteractedBlock(Event.Result.DENY);
-                return;
-            } else if (StackerUtils.isInteractable(block.getType()) && (!event.getPlayer().isSneaking() || item == null)) {
-                event.setUseInteractedBlock(Event.Result.DENY);
-                return;
+            }
+
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                if (item != null && block.getType() == Material.TNT && (item.getType() == Material.FLINT_AND_STEEL || item.getType() == Material.FIRE_CHARGE)) {
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    return;
+                } else if (StackerUtils.isInteractable(block.getType()) && (!event.getPlayer().isSneaking() || item == null)) {
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                    return;
+                }
             }
         }
 
