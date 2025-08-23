@@ -233,8 +233,13 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
-        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).add("name", stackSettings.getDisplayName()).build();
+        StackSettingManager settingManager = RoseStacker.getInstance().getManager(StackSettingManager.class);
+        String mobName = spawnerType.isEmpty() ? "Empty" : settingManager.getEntityStackSettings(spawnerType.next()).getDisplayName();
+        SpawnerStackSettings stackSettings = settingManager.getSpawnerStackSettings(spawnerType);
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount))
+                .add("name", stackSettings.getDisplayName())
+                .add("entity_name", mobName).build();
+
         String displayString;
         if (amount == 1) {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", placeholders);
