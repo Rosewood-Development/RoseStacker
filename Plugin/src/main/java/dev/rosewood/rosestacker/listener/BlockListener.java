@@ -293,7 +293,17 @@ public class BlockListener implements Listener {
             if (destroyFromMissingPermission)
                 destroyAmount = amount;
 
-            if (!(SettingKey.SPAWNER_SILK_TOUCH_ONLY_NATURAL.get() && placedByPlayer)
+            boolean rollSilkTouch = true;
+            if (SettingKey.SPAWNER_SILK_TOUCH_ONLY_PLAYER_PLACED.get()) {
+                if (!placedByPlayer) {
+                    destroyAmount += amount;
+                    rollSilkTouch = false;
+                }
+            } else if (SettingKey.SPAWNER_SILK_TOUCH_ONLY_NATURAL.get() && placedByPlayer) {
+                rollSilkTouch = false;
+            }
+
+            if (rollSilkTouch
                     && (!SettingKey.SPAWNER_ADVANCED_PERMISSIONS.get() || !hasAdvNoSilkPermission)
                     && (!SettingKey.SPAWNER_SILK_TOUCH_GUARANTEE.get() || silkTouchLevel < 2)) {
                 if (silkTouchLevel > 0) {
