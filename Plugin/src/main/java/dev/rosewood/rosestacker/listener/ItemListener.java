@@ -8,6 +8,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
+import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -171,6 +173,13 @@ public class ItemListener implements Listener {
 
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onAnvilRenameSpawner(PrepareAnvilEvent event) {
+        ItemStack item = event.getInventory().getFirstItem();
+        if (item != null && ItemUtils.getStackedItemSpawnerType(item) != null && SettingKey.SPAWNER_DISABLE_ITEM_ANVIL_RENAMING.get())
+            event.setResult(null);
     }
 
     /**
