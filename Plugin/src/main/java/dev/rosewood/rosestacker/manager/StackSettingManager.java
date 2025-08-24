@@ -153,7 +153,9 @@ public class StackSettingManager extends Manager {
                     "Valid Biomes: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/block/Biome.html",
                     "",
                     "Want to remove all requirements? Set the value to the following:",
-                    "spawn-requirements: []"
+                    "spawn-requirements: []",
+                    "",
+                    "If on 1.21.3+, tooltip-style can be set to a namespaced key to change the item tooltip style."
             );
         }
 

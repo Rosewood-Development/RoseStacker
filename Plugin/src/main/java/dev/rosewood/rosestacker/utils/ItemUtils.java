@@ -275,6 +275,12 @@ public final class ItemUtils {
         if (!lore.isEmpty())
             itemMeta.setLore(lore);
 
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3)) {
+            NamespacedKey tooltipStyleKey = stackSettings.getTooltipStyleKey();
+            if (tooltipStyleKey != null)
+                itemMeta.setTooltipStyle(tooltipStyleKey);
+        }
+
         if (!spawnerType.isEmpty()) {
             // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
             BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
