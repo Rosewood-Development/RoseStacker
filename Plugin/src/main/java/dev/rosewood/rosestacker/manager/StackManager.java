@@ -71,6 +71,7 @@ public class StackManager extends Manager implements StackingLogic {
     @Override
     public void reload() {
         this.entityDataStorageType = StackedEntityDataStorageType.fromName(SettingKey.ENTITY_DATA_STORAGE_TYPE.get());
+        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get());
 
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
@@ -81,8 +82,6 @@ public class StackManager extends Manager implements StackingLogic {
             long interval = autosaveFrequency * 20 * 60;
             this.autosaveTask = this.rosePlugin.getScheduler().runTaskTimer(() -> this.saveAllData(false), interval, interval);
         }
-
-        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get());
 
         String multikillAmountValue = SettingKey.ENTITY_MULTIKILL_AMOUNT.get();
         int separatorIndex = multikillAmountValue.indexOf("-");

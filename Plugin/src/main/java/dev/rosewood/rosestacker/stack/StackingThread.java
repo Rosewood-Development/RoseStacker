@@ -77,8 +77,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final EntityCacheManager entityCacheManager;
     private final HologramManager hologramManager;
     private final World targetWorld;
+    private final boolean disabled;
 
-    private final ScheduledTask entityStackTask, itemStackTask, nametagTask, hologramTask;
+    private ScheduledTask entityStackTask, itemStackTask, nametagTask, hologramTask;
     private ScheduledTask entityUnstackTask, entityCleanupTask;
 
     private final Map<UUID, StackedEntity> stackedEntities;
@@ -95,19 +96,22 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
         this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
         this.targetWorld = targetWorld;
+        this.disabled = this.stackManager.isWorldDisabled(targetWorld);
 
-        this.entityStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackEntities, 5L, SettingKey.STACK_FREQUENCY.get());
-        this.itemStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackItems, 5L, SettingKey.ITEM_STACK_FREQUENCY.get());
-        this.nametagTask = rosePlugin.getScheduler().runTaskTimerAsync(this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
-        this.hologramTask = rosePlugin.getScheduler().runTaskTimerAsync(this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+        if (!this.disabled) {
+            this.entityStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackEntities, 5L, SettingKey.STACK_FREQUENCY.get());
+            this.itemStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackItems, 5L, SettingKey.ITEM_STACK_FREQUENCY.get());
+            this.nametagTask = rosePlugin.getScheduler().runTaskTimerAsync(this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
+            this.hologramTask = rosePlugin.getScheduler().runTaskTimerAsync(this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
 
-        long unstackFrequency = SettingKey.UNSTACK_FREQUENCY.get();
-        if (unstackFrequency > 0)
-            this.entityUnstackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::unstackEntities, 5L, unstackFrequency);
+            long unstackFrequency = SettingKey.UNSTACK_FREQUENCY.get();
+            if (unstackFrequency > 0)
+                this.entityUnstackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::unstackEntities, 5L, unstackFrequency);
 
-        long cleanupFrequency = SettingKey.ENTITY_RESCAN_FREQUENCY.get();
-        if (cleanupFrequency > 0)
-            this.entityCleanupTask = rosePlugin.getScheduler().runTaskTimer(this::cleanupOrphanedEntities, 5L, cleanupFrequency);
+            long cleanupFrequency = SettingKey.ENTITY_RESCAN_FREQUENCY.get();
+            if (cleanupFrequency > 0)
+                this.entityCleanupTask = rosePlugin.getScheduler().runTaskTimer(this::cleanupOrphanedEntities, 5L, cleanupFrequency);
+        }
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
@@ -124,6 +128,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         this.entityDynamicWallDetection = SettingKey.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
         this.itemDynamicWallDetection = SettingKey.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
+
+        if (this.disabled)
+            return;
 
         NMSAdapter.getHandler().hijackRandomSource(targetWorld);
 
@@ -326,10 +333,17 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     @Override
     public void close() {
         // Cancel tasks
-        this.entityStackTask.cancel();
-        this.itemStackTask.cancel();
-        this.nametagTask.cancel();
-        this.hologramTask.cancel();
+        if (this.entityStackTask != null)
+            this.entityStackTask.cancel();
+
+        if (this.itemStackTask != null)
+            this.itemStackTask.cancel();
+
+        if (this.nametagTask != null)
+            this.nametagTask.cancel();
+
+        if (this.hologramTask != null)
+            this.hologramTask.cancel();
 
         if (this.entityUnstackTask != null)
             this.entityUnstackTask.cancel();
@@ -990,6 +1004,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      */
     @Override
     public void tryStackEntity(StackedEntity stackedEntity) {
+        if (this.disabled)
+            return;
+
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null)
             return;
@@ -1076,6 +1093,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     @Override
     public void tryStackItem(StackedItem stackedItem) {
+        if (this.disabled)
+            return;
+
         ItemStackSettings stackSettings = stackedItem.getStackSettings();
         Item item = stackedItem.getItem();
         if (stackSettings == null
