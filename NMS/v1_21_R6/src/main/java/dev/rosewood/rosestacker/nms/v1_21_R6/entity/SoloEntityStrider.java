@@ -1,16 +1,16 @@
-package dev.rosewood.rosestacker.nms.v1_21_R5.entity;
+package dev.rosewood.rosestacker.nms.v1_21_R6.entity;
 
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
-public class SoloEntitySpider extends Spider {
+public class SoloEntityStrider extends Strider {
 
-    public SoloEntitySpider(EntityType<? extends Spider> entityType, Level level) {
+    public SoloEntityStrider(EntityType<? extends Strider> entityType, Level level) {
         super(entityType, level);
     }
 

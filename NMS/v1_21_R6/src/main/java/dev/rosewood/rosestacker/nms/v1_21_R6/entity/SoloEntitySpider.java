@@ -1,4 +1,4 @@
-package dev.rosewood.rosestacker.nms.v1_21_R5.entity;
+package dev.rosewood.rosestacker.nms.v1_21_R6.entity;
 
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;

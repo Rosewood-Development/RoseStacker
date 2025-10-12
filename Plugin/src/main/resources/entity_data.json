@@ -192,6 +192,16 @@
     "spawn_category": "WATER_AMBIENT",
     "standard_equipment": []
   },
+  "COPPER_GOLEM": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "COPPER_GOLEM_SPAWN_EGG",
+    "default_spawn_requirements": [],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTllMjRlOTRkYmU0MmUyMzBkODMyOTNhNzdkNjFmZjcxMDFhOGM2OGFiNjhiYmM2YTkzZjk2MzBmYjJmZGI0In19fQ==",
+    "breeding_materials": [],
+    "spawn_category": "MISC",
+    "standard_equipment": []
+  },
   "COW": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
@@ -530,17 +540,13 @@
     "spawn_category": "MONSTER",
     "standard_equipment": []
   },
-  "MULE": {
+  "MANNEQUIN": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
-    "spawn_egg_material": "MULE_SPAWN_EGG",
-    "default_spawn_requirements": [
-      "block:grass_block",
-      "lightness"
-    ],
-    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZkY2RhMjY1ZTU3ZTRmNTFiMTQ1YWFjYmY1YjU5YmRjNjA5OWZmZDNjY2UwYTY2MWIyYzAwNjVkODA5MzBkOCJ9fX0=",
+    "default_spawn_requirements": [],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZhY2QwNmU4NDgzYjE3NmU4ZWEzOWZjMTJmZTEwNWViM2EyYTQ5NzBmNTEwMDA1N2U5ZDg0ZDRiNjBiZGZhNyJ9fX0=",
     "breeding_materials": [],
-    "spawn_category": "ANIMAL",
+    "spawn_category": "MISC",
     "standard_equipment": []
   },
   "MOOSHROOM": {
@@ -556,6 +562,19 @@
     "breeding_materials": [
       "WHEAT"
     ],
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
+  },
+  "MULE": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "MULE_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "block:grass_block",
+      "lightness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZkY2RhMjY1ZTU3ZTRmNTFiMTQ1YWFjYmY1YjU5YmRjNjA5OWZmZDNjY2UwYTY2MWIyYzAwNjVkODA5MzBkOCJ9fX0=",
+    "breeding_materials": [],
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },

@@ -30,6 +30,9 @@ import org.bukkit.entity.Bogged;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.CopperGolem.Oxidizing;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -54,10 +57,12 @@ import org.bukkit.entity.PiglinAbstract;
 import org.bukkit.entity.PufferFish;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Raider;
+import org.bukkit.entity.Salmon;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Snowman;
+import org.bukkit.entity.Squid;
 import org.bukkit.entity.Strider;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TropicalFish;
@@ -207,9 +212,20 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if ((versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 9)) && NMSUtil.isPaper()) { // API methods are different on Spigot, ignore them
+            registerConfig(CopperGolem.class, "different-oxidization", false, EntityStackComparisonResult.DIFFERENT_WEATHERING, (entity1, entity2) -> entity1.getWeatheringState() != entity2.getWeatheringState());
+            registerConfig(CopperGolem.class, "different-weathering", false, EntityStackComparisonResult.DIFFERENT_OXIDIZATION, (entity1, entity2) -> entity1.getOxidizing() == Oxidizing.waxed() ^ entity2.getOxidizing() == Oxidizing.waxed());
+        }
+
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 5)) {
+            registerConfig(Chicken.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+            // Commodore rewrites make this one a headache, just ignoring it for now
+            //registerConfig(Cow.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+            registerConfig(Pig.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
         if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 3)) {
-            // TODO: There still isn't API for this or the other baby mob changes
-            //registerConfig(Salmon.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.get() != entity2.getSize());
+            registerConfig(Salmon.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
         }
 
         if (versionNumber >= 21) {

@@ -120,7 +120,7 @@ public class StackSettingManager extends Manager {
             });
 
             if (!invalidKeys.isEmpty())
-                this.rosePlugin.getLogger().warning("Ignored loading stack settings for entities: " + invalidKeys);
+                this.rosePlugin.getLogger().info("Ignored loading stack settings for unknown entities: " + invalidKeys);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -350,6 +350,14 @@ public class StackSettingManager extends Manager {
 
     public Set<EntityType> getStackableEntityTypes() {
         return this.entitySettings.values().stream()
+                .filter(EntityStackSettings::isStackingEnabled)
+                .map(EntityStackSettings::getEntityType)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<EntityType> getStackableEntityTypesWithSpawnEggs() {
+        return this.entitySettings.values().stream()
+                .filter(x -> x.getEntityTypeData().spawnEggMaterial() != null)
                 .filter(EntityStackSettings::isStackingEnabled)
                 .map(EntityStackSettings::getEntityType)
                 .collect(Collectors.toSet());

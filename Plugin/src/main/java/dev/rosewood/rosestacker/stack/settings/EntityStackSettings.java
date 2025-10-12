@@ -33,6 +33,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Raider;
@@ -155,7 +156,12 @@ public class EntityStackSettings extends StackSettings {
     protected void setDefaults() {
         super.setDefaults();
 
-        this.setIfNotExists("enabled", !this.isEntity(Boss.class));
+        boolean enabledByDefault = switch (this.entityType.getKey().getKey()) {
+            case "ender_dragon", "wither", "copper_golem", "mannequin" -> false;
+            default -> true;
+        };
+
+        this.setIfNotExists("enabled", enabledByDefault);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name()));
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);

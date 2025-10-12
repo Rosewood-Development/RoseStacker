@@ -74,6 +74,7 @@ dependencies {
     implementation project(path: ':NMS:v1_21_R3', configuration: 'remapped')
     implementation project(path: ':NMS:v1_21_R4', configuration: 'remapped')
     implementation project(path: ':NMS:v1_21_R5', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R6', configuration: 'remapped')
 }
 
 shadowJar {
