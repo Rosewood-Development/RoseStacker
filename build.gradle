@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+    id 'com.gradleup.shadow' version '9.2.2' apply false
     id 'maven-publish'
     id 'java'
 }
@@ -12,13 +12,13 @@ jar {
 
 allprojects {
     apply plugin: 'java-library'
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'com.gradleup.shadow'
     group = 'dev.rosewood'
     version = '1.5.37-SNAPSHOT'
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
 
     java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         toolchain.languageVersion.set(JavaLanguageVersion.of(21))
         disableAutoTargetJvm()
     }
@@ -78,6 +78,7 @@ dependencies {
 }
 
 shadowJar {
+    dependsOn(':Plugin:shadowJar')
     archiveClassifier.set(null)
 
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
@@ -89,8 +90,8 @@ shadowJar {
 
 publishing {
     publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
+        shadow(MavenPublication) {
+            from components.shadow
             artifactId = 'rosestacker'
             pom {
                 name = 'rosestacker'
@@ -114,4 +115,4 @@ publishing {
 }
 
 build.dependsOn shadowJar
-publishShadowPublicationToMavenRepository.dependsOn jar
+generateMetadataFileForShadowPublication.dependsOn jar
