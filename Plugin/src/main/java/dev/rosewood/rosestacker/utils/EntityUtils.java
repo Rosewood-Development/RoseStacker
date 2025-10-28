@@ -118,7 +118,7 @@ public final class EntityUtils {
     }
 
     public static boolean hasSpawnerSpawnReason(Entity entity) {
-        return (NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) || (HAS_FROM_MOB_SPAWNER && entity.fromMobSpawner());
+        return (NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) || (HAS_FROM_MOB_SPAWNER && entity.fromMobSpawner() && !hasTrialSpawnerSpawnReason(entity));
     }
 
     public static boolean hasTrialSpawnerSpawnReason(Entity entity) {
