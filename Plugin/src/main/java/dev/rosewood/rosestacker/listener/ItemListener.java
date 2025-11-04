@@ -178,7 +178,7 @@ public class ItemListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onAnvilRenameSpawner(PrepareAnvilEvent event) {
         ItemStack item = event.getInventory().getFirstItem();
-        if (item != null && ItemUtils.getStackedItemSpawnerType(item) != null && SettingKey.SPAWNER_DISABLE_ITEM_ANVIL_RENAMING.get())
+        if (item != null && item.getType() == Material.SPAWNER && SettingKey.SPAWNER_DISABLE_ITEM_ANVIL_RENAMING.get())
             event.setResult(null);
     }
 
