@@ -137,7 +137,7 @@ public class BlockListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        Location dropLocation = block.getLocation().clone();
+        Location dropLocation = StackerUtils.adjustBlockLocation(block.getLocation().clone());
 
         if (isSpawner) {
             if (!this.stackManager.isSpawnerStackingEnabled())
