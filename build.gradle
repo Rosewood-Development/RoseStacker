@@ -41,6 +41,8 @@ allprojects {
         maven { url = 'https://maven.playpro.com' }
         maven { url = 'https://repo.bsdevelopment.org/releases' }
         maven { url = 'https://nexus.neetgames.com/repository/maven-releases/' }
+        maven { url = 'https://repo.magmaguy.com/releases' }
+		maven { url = 'https://raw.githubusercontent.com/Shopkeepers/Repository/main/releases/' }
         maven { url = 'https://jitpack.io' }
 
         maven {
