@@ -610,8 +610,8 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             this.displayNameVisible = !SettingKey.ENTITY_DISPLAY_TAGS_HOVER.get();
             return this.displayName = displayString;
         } else if (this.getStackSize() == 1 && customName != null) {
-            this.displayNameVisible = false;
-            return this.displayName = this.entity.getCustomName();
+            this.displayNameVisible = this.entity.isCustomNameVisible();
+            return this.displayName = customName;
         }
 
         this.displayNameVisible = false;

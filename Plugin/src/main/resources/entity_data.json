@@ -150,6 +150,19 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
+  "CAMEL_HUSK": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "CAMEL_HUSK_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "block:grass_block,sand",
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzUwYmZjOWIyY2M0MGY0ZDhkMDIyNGNjYmFiYWMyNmIzMzhhYTk0N2Q5OWRjZGU3NjlmODU5YjU5YjhkMGIwZSJ9fX0=",
+    "breeding_materials": [],
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
+  },
   "CAVE_SPIDER": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
@@ -575,6 +588,27 @@
     ],
     "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZkY2RhMjY1ZTU3ZTRmNTFiMTQ1YWFjYmY1YjU5YmRjNjA5OWZmZDNjY2UwYTY2MWIyYzAwNjVkODA5MzBkOCJ9fX0=",
     "breeding_materials": [],
+    "spawn_category": "ANIMAL",
+    "standard_equipment": []
+  },
+  "NAUTILUS": {
+    "is_swimming_mob": true,
+    "is_flying_mob": false,
+    "spawn_egg_material": "NAUTILUS_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "fluid:water",
+      "below-sea-level",
+      "above-y-axis:38"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2JiMzQwZGQzMzAyNjE1MzQ4ZGU1MTYyZmUxNjcwYjljNWM5YzYxNmNkOTJkMmRlOWQ4Mzk4Y2IzM2U4NDJhZSJ9fX0=",
+    "breeding_materials": [
+      "PUFFERFISH",
+      "TROPICAL_FISH",
+      "RAW_COD",
+      "RAW_SALMON",
+      "COOKED_COD",
+      "COOKED_SALMON"
+    ],
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
@@ -1125,6 +1159,18 @@
     "spawn_category": "MONSTER",
     "standard_equipment": []
   },
+  "ZOMBIE": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "ZOMBIE_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZmYzg1NGJiODRjZjRiNzY5NzI5Nzk3M2UwMmI3OWJjMTA2OTg0NjBiNTFhNjM5YzYwZTVlNDE3NzM0ZTExIn19fQ==",
+    "breeding_materials": [],
+    "spawn_category": "MONSTER",
+    "standard_equipment": []
+  },
   "ZOMBIE_HORSE": {
     "is_swimming_mob": false,
     "is_flying_mob": false,
@@ -1138,14 +1184,16 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
-  "ZOMBIE": {
-    "is_swimming_mob": false,
+  "ZOMBIE_NAUTILUS": {
+    "is_swimming_mob": true,
     "is_flying_mob": false,
-    "spawn_egg_material": "ZOMBIE_SPAWN_EGG",
+    "spawn_egg_material": "ZOMBIE_NAUTILUS_SPAWN_EGG",
     "default_spawn_requirements": [
-      "darkness"
+      "fluid:water",
+      "below-sea-level",
+      "above-y-axis:38"
     ],
-    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZmYzg1NGJiODRjZjRiNzY5NzI5Nzk3M2UwMmI3OWJjMTA2OTg0NjBiNTFhNjM5YzYwZTVlNDE3NzM0ZTExIn19fQ==",
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmQ5YTkzMzM3NmRhNDRjMzM5MTMwN2NiOWY0Y2YwM2YxNmYzYTU0ZjQ5NWZkNWExMWJhZDhhMzczZjlkNTcyMCJ9fX0=",
     "breeding_materials": [],
     "spawn_category": "MONSTER",
     "standard_equipment": []

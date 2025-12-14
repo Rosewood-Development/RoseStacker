@@ -71,6 +71,7 @@ import org.bukkit.entity.Vex;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieNautilus;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -212,6 +213,10 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 11)) {
+            registerConfig(ZombieNautilus.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
         if ((versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 9)) && NMSUtil.isPaper()) { // API methods are different on Spigot, ignore them
             registerConfig(CopperGolem.class, "different-oxidization", false, EntityStackComparisonResult.DIFFERENT_WEATHERING, (entity1, entity2) -> entity1.getWeatheringState() != entity2.getWeatheringState());
             registerConfig(CopperGolem.class, "different-weathering", false, EntityStackComparisonResult.DIFFERENT_OXIDIZATION, (entity1, entity2) -> entity1.getOxidizing() == Oxidizing.waxed() ^ entity2.getOxidizing() == Oxidizing.waxed());
@@ -219,7 +224,7 @@ public final class StackConditions {
 
         if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 5)) {
             registerConfig(Chicken.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
-            // Commodore rewrites make this one a headache, just ignoring it for now
+            // Commodore rewrites make this one a headache, just ignoring it
             //registerConfig(Cow.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
             registerConfig(Pig.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
         }

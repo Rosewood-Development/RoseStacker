@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -18,7 +19,9 @@ import org.bukkit.block.Container;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -79,8 +82,10 @@ public class ItemListener implements Listener {
         if (!this.stackManager.isItemStackingEnabled())
             return;
 
-        StackedItem stackedItem = this.stackManager.getStackedItem(event.getItem());
-        if (stackedItem == null)
+        Item item = event.getItem();
+        Material itemType = item.getItemStack().getType();
+        StackedItem stackedItem = this.stackManager.getStackedItem(item);
+        if (stackedItem == null || stackedItem.getStackSize() == 1)
             return;
 
         int maxStack = event.getItem().getItemStack().getType().getMaxStackSize();
@@ -124,12 +129,13 @@ public class ItemListener implements Listener {
                 event.setCancelled(true);
             }
             return;
+        } else if (entity instanceof Piglin) {
+            this.stackManager.splitItemStack(stackedItem, 1);
+            return;
         } else {
             // Only pick up one item
-            if (stackedItem.getStackSize() > 1) {
-                this.stackManager.splitItemStack(stackedItem, 1);
-                event.setCancelled(true);
-            }
+            this.stackManager.splitItemStack(stackedItem, 1);
+            event.setCancelled(true);
 
             if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {
                 this.rosePlugin.getScheduler().runTask(() -> {

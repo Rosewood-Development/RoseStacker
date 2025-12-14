@@ -547,21 +547,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (world == null)
             return null;
 
-        ItemStack oldItemStack = stackedItem.getItem().getItemStack();
-        ItemStack newItemStack = oldItemStack.clone();
-
-        newItemStack.setAmount(newSize);
-
+        int splitSize = stackedItem.getStackSize() - newSize;
+        stackedItem.setStackSize(newSize);
         stackedItem.getItem().setPickupDelay(60);
-        stackedItem.getItem().setTicksLived(1);
 
-        Item newItem = world.dropItemNaturally(stackedItem.getLocation(), newItemStack);
-        newItem.setPickupDelay(0);
-
-        StackedItem newStackedItem = new StackedItem(newSize, newItem);
-        this.stackedItems.put(newItem.getUniqueId(), newStackedItem);
-        stackedItem.increaseStackSize(-newSize, true);
-        return newStackedItem;
+        ItemStack newItemStack = stackedItem.getItem().getItemStack().clone();
+        return this.dropItemStack(newItemStack, splitSize, stackedItem.getLocation(), true);
     }
 
     @Override
