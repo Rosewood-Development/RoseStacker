@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+    id 'com.gradleup.shadow' version '9.2.2' apply false
     id 'maven-publish'
     id 'java'
 }
@@ -12,13 +12,13 @@ jar {
 
 allprojects {
     apply plugin: 'java-library'
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'com.gradleup.shadow'
     group = 'dev.rosewood'
-    version = '1.5.28'
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    version = '1.5.38-SNAPSHOT'
 
     java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         toolchain.languageVersion.set(JavaLanguageVersion.of(21))
         disableAutoTargetJvm()
     }
@@ -39,7 +39,7 @@ allprojects {
         maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
         maven { url = 'https://maven.playpro.com' }
-        maven { url = 'https://repo.fvdh.dev/releases' }
+        maven { url = 'https://repo.bsdevelopment.org/releases' }
         maven { url = 'https://nexus.neetgames.com/repository/maven-releases/' }
         maven { url = 'https://jitpack.io' }
 
@@ -67,14 +67,19 @@ dependencies {
     implementation project(path: ':NMS:v1_17_R1', configuration: 'remapped')
     implementation project(path: ':NMS:v1_18_R2', configuration: 'remapped')
     implementation project(path: ':NMS:v1_19_R3', configuration: 'remapped')
-    implementation project(path: ':NMS:v1_20_R1', configuration: 'remapped')
-    implementation project(path: ':NMS:v1_20_R2', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R3', configuration: 'remapped')
     implementation project(path: ':NMS:v1_20_R4', configuration: 'remapped')
     implementation project(path: ':NMS:v1_21_R1', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R2', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R3', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R4', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R5', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R6', configuration: 'remapped')
+    implementation project(path: ':NMS:v1_21_R7', configuration: 'remapped')
 }
 
 shadowJar {
+    dependsOn(':Plugin:shadowJar')
     archiveClassifier.set(null)
 
     relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
@@ -86,8 +91,8 @@ shadowJar {
 
 publishing {
     publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
+        shadow(MavenPublication) {
+            from components.shadow
             artifactId = 'rosestacker'
             pom {
                 name = 'rosestacker'
@@ -111,4 +116,4 @@ publishing {
 }
 
 build.dependsOn shadowJar
-publishShadowPublicationToMavenRepository.dependsOn jar
+generateMetadataFileForShadowPublication.dependsOn jar

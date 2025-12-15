@@ -1,10 +1,12 @@
 package dev.rosewood.rosestacker.utils;
 
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedItem;
@@ -16,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.bukkit.Chunk;
@@ -30,7 +33,7 @@ import org.bukkit.persistence.PersistentDataType;
 public final class DataUtils {
 
     private static final NamespacedKey ENTITY_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_entity_data");
-    private static final int ENTITY_DATA_VERSION = 2;
+    private static final int ENTITY_DATA_VERSION = 3;
 
     private static final NamespacedKey ITEM_KEY = new NamespacedKey(RoseStacker.getInstance(), "stacked_item_data");
     private static final int ITEM_DATA_VERSION = 1;
@@ -46,25 +49,37 @@ public final class DataUtils {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         byte[] data = pdc.get(ENTITY_KEY, PersistentDataType.BYTE_ARRAY);
         if (data == null)
-            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, storageType));
+            return new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, storageType), false);
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
              ObjectInputStream dataInput = new ObjectInputStream(new GZIPInputStream(inputStream))) {
 
             int dataVersion = dataInput.readInt();
-            if (dataVersion == 1) {
+            if (dataVersion == 3) {
+                StackedEntityDataStorageType type = StackedEntityDataStorageType.fromId(dataInput.readInt());
+                int major = dataInput.readByte();
+                int minor = dataInput.readByte();
                 int length = dataInput.readInt();
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT));
+                Set<StorageMigrationType> migrations = getNeededMigrations(major, minor);
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations), false);
             } else if (dataVersion == 2) {
                 StackedEntityDataStorageType type = StackedEntityDataStorageType.fromId(dataInput.readInt());
                 int length = dataInput.readInt();
                 byte[] nbt = new byte[length];
                 for (int i = 0; i < length; i++)
                     nbt[i] = dataInput.readByte();
-                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type));
+                Set<StorageMigrationType> migrations = getNeededMigrations(0, 0);
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, type, migrations), false);
+            } else if (dataVersion == 1) {
+                int length = dataInput.readInt();
+                byte[] nbt = new byte[length];
+                for (int i = 0; i < length; i++)
+                    nbt[i] = dataInput.readByte();
+                Set<StorageMigrationType> migrations = getNeededMigrations(0, 0);
+                return new StackedEntity(entity, nmsHandler.deserializeEntityDataStorage(entity, nbt, StackedEntityDataStorageType.NBT, migrations), false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +88,16 @@ public final class DataUtils {
         return null;
     }
 
+    private static Set<StorageMigrationType> getNeededMigrations(int major, int minor) {
+        if ((major < 21 || (major == 21 && minor < 3)) && (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3)))
+            return Set.of(StorageMigrationType.STRIP_OLD_ATTRIBUTES);
+        return Set.of();
+    }
+
     public static void writeStackedEntity(StackedEntity stackedEntity) {
+        if (stackedEntity.getStackSize() == 1)
+            return;
+
         PersistentDataContainer pdc = stackedEntity.getEntity().getPersistentDataContainer();
         byte[] data = null;
 
@@ -86,6 +110,8 @@ public final class DataUtils {
 
             dataOutput.writeInt(ENTITY_DATA_VERSION);
             dataOutput.writeInt(stackedEntity.getDataStorage().getType().getId());
+            dataOutput.writeByte(NMSUtil.getVersionNumber());
+            dataOutput.writeByte(NMSUtil.getMinorVersionNumber());
             byte[] nbt = stackedEntity.getDataStorage().serialize(maxSaveAmount - 1);
             dataOutput.writeInt(nbt.length);
             dataOutput.write(nbt);
@@ -168,7 +194,7 @@ public final class DataUtils {
                     boolean placedByPlayer = dataInput.readBoolean();
                     Block block = chunk.getBlock(x, y, z);
                     if (block.getType() == Material.SPAWNER)
-                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer));
+                        stackedSpawners.add(new StackedSpawner(stackSize, block, placedByPlayer, false));
                 }
             }
         } catch (Exception e) {
@@ -228,7 +254,7 @@ public final class DataUtils {
                     int y = dataInput.readInt();
                     int z = dataInput.readInt();
 
-                    stackedBlocks.add(new StackedBlock(stackSize, chunk.getBlock(x, y, z)));
+                    stackedBlocks.add(new StackedBlock(stackSize, chunk.getBlock(x, y, z), false));
                 }
             }
         } catch (Exception e) {

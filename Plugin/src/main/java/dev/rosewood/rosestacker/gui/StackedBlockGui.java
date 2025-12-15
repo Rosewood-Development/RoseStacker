@@ -11,6 +11,7 @@ import dev.rosewood.guiframework.gui.GuiSize;
 import dev.rosewood.guiframework.gui.screen.GuiScreen;
 import dev.rosewood.guiframework.gui.screen.GuiScreenSection;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -75,7 +76,7 @@ public class StackedBlockGui {
      */
     private void buildGui() {
         this.stackType = this.stackedBlock.getBlock().getType();
-        this.guiContainer = GuiFactory.createContainer();
+        this.guiContainer = GuiFactory.createContainer().preventItemDropping(true);
 
         List<Integer> paginatedSlots = new ArrayList<>();
         for (int i = 10; i <= 16; i++) paginatedSlots.add(i);
@@ -93,7 +94,11 @@ public class StackedBlockGui {
         ItemMeta itemMeta = borderItem.getItemMeta();
         if (itemMeta != null) {
             itemMeta.setDisplayName(" ");
-            itemMeta.addItemFlags(ItemFlag.values());
+            if (NMSUtil.getVersionNumber() >= 21) {
+                itemMeta.setHideTooltip(true);
+            } else {
+                itemMeta.addItemFlags(ItemFlag.values());
+            }
             borderItem.setItemMeta(itemMeta);
         }
 
@@ -203,8 +208,19 @@ public class StackedBlockGui {
         if (newStackSize == this.stackedBlock.getStackSize())
             return;
 
-        int difference = newStackSize - this.stackedBlock.getStackSize();
-        if (newStackSize > this.stackedBlock.getStackSize()) {
+        int maxStackSize = this.stackedBlock.getStackSettings().getMaxStackSize();
+        if (newStackSize > maxStackSize) {
+            List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, newStackSize - maxStackSize);
+            ItemUtils.dropItemsToPlayer(player, overflowItems);
+            newStackSize = maxStackSize;
+        }
+
+        int stackSize = this.stackedBlock.getStackSize();
+        int difference = newStackSize - stackSize;
+        if (difference == 0)
+            return;
+
+        if (newStackSize > stackSize) {
             BlockStackEvent blockStackEvent = new BlockStackEvent(player, this.stackedBlock, difference, false);
             Bukkit.getPluginManager().callEvent(blockStackEvent);
             if (blockStackEvent.isCancelled()) {
@@ -212,7 +228,7 @@ public class StackedBlockGui {
                 return;
             }
 
-            newStackSize = this.stackedBlock.getStackSize() + blockStackEvent.getIncreaseAmount();
+            newStackSize = stackSize + blockStackEvent.getIncreaseAmount();
         } else {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, -difference);
             Bukkit.getPluginManager().callEvent(blockUnstackEvent);
@@ -221,21 +237,21 @@ public class StackedBlockGui {
                 return;
             }
 
-            newStackSize = this.stackedBlock.getStackSize() - blockUnstackEvent.getDecreaseAmount();
+            newStackSize = stackSize - blockUnstackEvent.getDecreaseAmount();
         }
+
+        if (newStackSize > maxStackSize)
+            newStackSize = maxStackSize;
+        if (newStackSize < 0)
+            newStackSize = 0;
 
         this.stackedBlock.setStackSize(newStackSize);
 
-        int maxStackSize = this.stackedBlock.getStackSettings().getMaxStackSize();
         if (newStackSize == 1) {
             stackManager.removeBlockStack(this.stackedBlock);
         } else if (newStackSize == 0) {
             stackManager.removeBlockStack(this.stackedBlock);
             this.stackedBlock.getBlock().setType(Material.AIR);
-        } else if (newStackSize > maxStackSize) {
-            List<ItemStack> overflowItems = GuiUtil.getMaterialAmountAsItemStacks(this.stackType, newStackSize - maxStackSize);
-            ItemUtils.dropItemsToPlayer(player, overflowItems);
-            this.stackedBlock.setStackSize(maxStackSize);
         }
     }
 
@@ -272,6 +288,11 @@ public class StackedBlockGui {
     private void destroyStackedBlock(Player player) {
         this.kickOutViewers();
 
+        // It's possible we already destroyed the entire stacked block by the time we got here due to kicking out viewers being able to
+        // decrease the stack size, just bail early if that's the case
+        if (this.stackedBlock.getStackSize() == 0)
+            return;
+
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
         ThreadUtils.runSync(() -> {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
@@ -289,7 +310,7 @@ public class StackedBlockGui {
             if (SettingKey.BLOCK_DROP_TO_INVENTORY.get()) {
                 ItemUtils.dropItemsToPlayer(player, itemsToDrop);
             } else {
-                stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation());
+                stackManager.preStackItems(itemsToDrop, this.stackedBlock.getLocation().add(0.5, 0.5, 0.5));
             }
 
             this.stackedBlock.setStackSize(this.stackedBlock.getStackSize() - blockUnstackEvent.getDecreaseAmount());

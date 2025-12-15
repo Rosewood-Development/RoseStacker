@@ -2,6 +2,8 @@ package dev.rosewood.rosestacker.manager;
 
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
+import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackingThread;
@@ -9,23 +11,24 @@ import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
 public class EntityCacheManager extends Manager {
 
+    private static final boolean DIRECT_GETTERS = NMSUtil.isPaper() && (NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() >= 4));
+
     private final Map<ChunkLocation, Collection<Entity>> entityCache;
-    private BukkitTask refreshTask;
+    private ScheduledTask refreshTask;
 
     public EntityCacheManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -34,7 +37,7 @@ public class EntityCacheManager extends Manager {
 
     @Override
     public void reload() {
-        this.refreshTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::refresh, 5L, 60L);
+        this.refreshTask = this.rosePlugin.getScheduler().runTaskTimer(this::refresh, 5L, 60L);
     }
 
     @Override
@@ -72,25 +75,44 @@ public class EntityCacheManager extends Manager {
 
         int minX = (int) boundingBox.getMinX() >> 4;
         int maxX = (int) boundingBox.getMaxX() >> 4;
+        int minY = (int) boundingBox.getMinY() >> 4;
+        int maxY = (int) boundingBox.getMaxY() >> 4;
         int minZ = (int) boundingBox.getMinZ() >> 4;
         int maxZ = (int) boundingBox.getMaxZ() >> 4;
 
+        Location location = center.clone(); // re-use location object to dump positions so we aren't constantly remaking Location objects
         for (int x = minX; x <= maxX; x++) {
-            for (int z = minZ; z <= maxZ; z++) {
-                Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, z));
-                if (entities == null)
-                    continue;
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), x, y, z));
+                    if (entities == null)
+                        continue;
 
-                for (Entity entity : entities) {
-                    if (boundingBox.contains(entity.getLocation().toVector())
-                            && predicate.test(entity)
-                            && entity.isValid())
-                        nearbyEntities.add(entity);
+                    this.filter(location, boundingBox, entities, predicate, nearbyEntities);
                 }
             }
         }
 
         return nearbyEntities;
+    }
+
+    private void filter(Location location, BoundingBox boundingBox, Collection<Entity> entities, Predicate<Entity> predicate, Set<Entity> collector) {
+        if (DIRECT_GETTERS) {
+            for (Entity entity : entities) {
+                if (boundingBox.contains(entity.getX(), entity.getY(), entity.getZ())
+                        && predicate.test(entity)
+                        && entity.isValid())
+                    collector.add(entity);
+            }
+        } else {
+            for (Entity entity : entities) {
+                entity.getLocation(location);
+                if (boundingBox.contains(location.getX(), location.getY(), location.getZ())
+                        && predicate.test(entity)
+                        && entity.isValid())
+                    collector.add(entity);
+            }
+        }
     }
 
     /**
@@ -105,9 +127,17 @@ public class EntityCacheManager extends Manager {
         if (world == null)
             return new ArrayList<>();
 
-        Collection<Entity> entities = this.entityCache.get(new ChunkLocation(world.getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4));
-        if (entities == null)
-            return new ArrayList<>();
+        int x = location.getBlockX() >> 4;
+        int z = location.getBlockZ() >> 4;
+        int minY = world.getMinHeight() >> 4;
+        int maxY = world.getMaxHeight() >> 4;
+
+        Set<Entity> entities = new HashSet<>();
+        for (int y = minY; y <= maxY; y++) {
+            Collection<Entity> chunkEntities = this.entityCache.get(new ChunkLocation(world.getName(), x, y, z));
+            if (chunkEntities != null)
+                entities.addAll(chunkEntities);
+        }
 
         Set<Entity> nearbyEntities = new HashSet<>();
         for (Entity entity : entities)
@@ -124,12 +154,8 @@ public class EntityCacheManager extends Manager {
      */
     public void preCacheEntity(Entity entity) {
         Location location = entity.getLocation();
-        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
-        Collection<Entity> entities = this.entityCache.get(chunkLocation);
-        if (entities == null) {
-            entities = new LinkedBlockingDeque<>();
-            this.entityCache.put(chunkLocation, entities);
-        }
+        ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
+        Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
         entities.add(entity);
     }
 
@@ -139,23 +165,44 @@ public class EntityCacheManager extends Manager {
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (StackingThread stackingThread : this.rosePlugin.getManager(StackManager.class).getStackingThreads().values()) {
                 World world = stackingThread.getTargetWorld();
-                for (Entity entity : nmsHandler.getEntities(world)) {
-                    EntityType type = entity.getType();
-                    if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
-                        continue;
-
-                    ChunkLocation chunkLocation = new ChunkLocation(world.getName(), entity.getLocation().getBlockX() >> 4, entity.getLocation().getBlockZ() >> 4);
-                    Collection<Entity> entities = this.entityCache.get(chunkLocation);
-                    if (entities == null) {
-                        entities = new LinkedBlockingDeque<>();
-                        this.entityCache.put(chunkLocation, entities);
-                    }
-                    entities.add(entity);
-                }
+                this.addWorldEntities(world, nmsHandler.getEntities(world));
             }
         }
     }
 
-    private record ChunkLocation(String world, int x, int z) { }
+    private void addWorldEntities(World world, List<Entity> worldEntities) {
+        if (DIRECT_GETTERS) {
+            for (Entity entity : worldEntities) {
+                EntityType type = entity.getType();
+                if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                    continue;
+
+                ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) entity.getX() >> 4, (int) entity.getY() >> 4, (int) entity.getZ() >> 4);
+                Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
+                entities.add(entity);
+            }
+        } else {
+            Location location = new Location(world, 0, 0, 0);
+            for (Entity entity : worldEntities) {
+                EntityType type = entity.getType();
+                if (type != VersionUtils.ITEM && (!type.isAlive() || type == EntityType.PLAYER || type == EntityType.ARMOR_STAND))
+                    continue;
+
+                entity.getLocation(location); // re-use location object to dump positions so we aren't constantly remaking Location objects
+                ChunkLocation chunkLocation = new ChunkLocation(world.getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
+                Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
+                entities.add(entity);
+            }
+        }
+    }
+
+    private Collection<Entity> createCollection() {
+        return new LinkedBlockingDeque<>();
+    }
+
+    /**
+     * Represents a 16x16x16 chunk in the world
+     */
+    private record ChunkLocation(String world, int x, int y, int z) { }
 
 }

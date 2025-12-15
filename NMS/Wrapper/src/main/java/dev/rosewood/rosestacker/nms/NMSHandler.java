@@ -5,7 +5,9 @@ import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
 import java.util.List;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Creeper;
@@ -43,12 +45,12 @@ public interface NMSHandler {
             "ArmorItems", "HandItems", "Items", "ChestedHorse", "Saddle",
             "DecorItem", "Inventory", "carriedBlockState", "DeathTime", "Health",
             "Attributes", "ActiveEffects", "ArmorDropChances", "HandDropChances", "Brain",
-            "LeftHanded", "Team", "SaddleItem",
+            "LeftHanded", "Team", "SaddleItem", "CanPickUpLoot", "Equipment", "DropChances",
 
             "armor_items", "hand_items", "items", "chested_horse", "saddle",
             "decor_item", "inventory", "carried_block_state", "death_time", "health",
             "attributes", "active_effects", "armor_drop_chances", "hand_drop_chances", "brain",
-            "left_handed", "team", "saddle_item"
+            "left_handed", "team", "saddle_item", "can_pick_up_loot", "equipment", "drop_chances"
     );
 
     /**
@@ -230,9 +232,10 @@ public interface NMSHandler {
      * @param livingEntity The base entity
      * @param data The StackedEntityDataStorage data, should be acquired from {@link StackedEntityDataStorage#serialize()}
      * @param storageType The type of storage to deserialize
+     * @param migrations Migrations to apply to the data
      * @return a new StackedEntityDataStorage instance
      */
-    StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType);
+    StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType, Set<StorageMigrationType> migrations);
 
     /**
      * Injects the custom stacked spawner logic into the tile entity of the given spawner

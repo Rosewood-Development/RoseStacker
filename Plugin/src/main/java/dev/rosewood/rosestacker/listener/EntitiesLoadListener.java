@@ -20,15 +20,23 @@ public class EntitiesLoadListener implements Listener {
 
     @EventHandler
     public void onEntitiesLoad(EntitiesLoadEvent event) {
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getWorld()))
+            return;
+
         for (Entity entity : event.getEntities())
-            if (entity instanceof LivingEntity)
-                PersistentDataUtils.applyDisabledAi((LivingEntity) entity);
+            if (entity instanceof LivingEntity livingEntity && !stackManager.isAreaDisabled(livingEntity.getLocation()))
+                PersistentDataUtils.applyDisabledAi(livingEntity);
 
         this.rosePlugin.getManager(StackManager.class).loadChunkEntities(event.getEntities());
     }
 
     @EventHandler
     public void onEntitiesUnload(EntitiesUnloadEvent event) {
+        StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
+        if (stackManager.isWorldDisabled(event.getWorld()))
+            return;
+
         this.rosePlugin.getManager(StackManager.class).saveChunkEntities(event.getEntities(), true);
     }
 

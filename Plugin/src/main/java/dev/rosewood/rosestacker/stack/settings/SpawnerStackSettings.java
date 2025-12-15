@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack.settings;
 
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.utils.HexUtils;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -13,6 +14,7 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 
 public class SpawnerStackSettings extends StackSettings {
@@ -31,6 +33,7 @@ public class SpawnerStackSettings extends StackSettings {
     private final List<ConditionTag> spawnRequirements;
     private final List<String> itemLoreSingular;
     private final List<String> itemLorePlural;
+    private final NamespacedKey tooltipStyleKey;
 
     public SpawnerStackSettings(CommentedFileConfiguration settingsConfiguration, SpawnerType spawnerType) {
         super(settingsConfiguration);
@@ -81,6 +84,13 @@ public class SpawnerStackSettings extends StackSettings {
 
         this.itemLoreSingular = this.settingsConfiguration.getStringList("item-lore-singular");
         this.itemLorePlural = this.settingsConfiguration.getStringList("item-lore-plural");
+
+        String tooltipStyle = this.settingsConfiguration.getString("tooltip-style", "default");
+        if (!tooltipStyle.equals("default")) {
+            this.tooltipStyleKey = NamespacedKey.fromString(tooltipStyle);
+        } else {
+            this.tooltipStyleKey = null;
+        }
     }
 
     @Override
@@ -107,6 +117,9 @@ public class SpawnerStackSettings extends StackSettings {
 
         this.setIfNotExists("item-lore-singular", List.of());
         this.setIfNotExists("item-lore-plural", List.of());
+
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3))
+            this.setIfNotExists("tooltip-style", "default");
     }
 
     @Override
@@ -204,6 +217,10 @@ public class SpawnerStackSettings extends StackSettings {
         return this.itemLorePlural.stream()
                 .map(x -> HexUtils.colorify(stringPlaceholders.apply(x)))
                 .toList();
+    }
+
+    public NamespacedKey getTooltipStyleKey() {
+        return this.tooltipStyleKey;
     }
 
     private int maxIfNotNegativeOne(int value, int max) {

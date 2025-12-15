@@ -20,74 +20,65 @@ import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.NotPlayer
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.OnGroundConditionTag;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.SkylightAccessConditionTag;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.TotalDarknessConditionTag;
-import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public final class ConditionTags {
 
-    private static final Map<String, Constructor<? extends ConditionTag>> tagPrefixMap = new HashMap<>();
-    private static final Map<Class<? extends ConditionTag>, String> classToPrefixMap = new HashMap<>();
+    private static final Map<String, Function<String, ? extends ConditionTag>> TAG_PREFIX_MAP = new HashMap<>();
+    private static final Map<Class<? extends ConditionTag>, String> CLASS_TO_PREFIX_MAP = new HashMap<>();
     private static final Map<String, String> tagDescriptionMap = new LinkedHashMap<>();
 
     static {
-        registerTag("above-sea-level", AboveSeaLevelConditionTag.class, "Spawn area must be above sea level");
-        registerTag("above-y-axis", AboveYAxisConditionTag.class, "Spawn area must be above the given y-axis. Example: `above-y-axis:30`");
-        registerTag("air", AirConditionTag.class, "Spawn area must have air blocks available");
-        registerTag("below-sea-level", BelowSeaLevelConditionTag.class, "Spawn area must be below the world sea level");
-        registerTag("below-y-axis", BelowYAxisConditionTag.class, "Spawn area must be below the given y-axis. Example: `below-y-axis:30`");
-        registerTag("biome", BiomeConditionTag.class, "Spawn area must be in one of the given biomes. Example: `biome:plains,desert`");
-        registerTag("block", BlockConditionTag.class, "Spawn area must be on one of the given blocks. Example: `block:grass_block,sand`");
-        registerTag("block-exception", BlockExceptionConditionTag.class, "Spawn area must not be on one of the given blocks. Example: `block-exeption:bedrock,barrier`");
-        registerTag("darkness", DarknessConditionTag.class, "Spawn area must be below light level 8");
-        registerTag("total-darkness", TotalDarknessConditionTag.class, "Spawn area must have no light at all");
-        registerTag("fluid", FluidConditionTag.class, "Spawn area must be inside a fluid. Valid values are `water` and `lava`. Example: `fluid:water`");
-        registerTag("lightness", LightnessConditionTag.class, "Spawn area must be above light level 8");
-        registerTag("max-nearby-entities", MaxNearbyEntityConditionTag.class, "Spawn area must have below a certain number of entities. Example: `max-nearby-entities:6`");
-        registerTag("no-skylight-access", NoSkylightAccessConditionTag.class, "Spawn area must have no skylight access");
-        registerTag("on-ground", OnGroundConditionTag.class, "Spawn area must have a ground block to spawn on");
-        registerTag("skylight-access", SkylightAccessConditionTag.class, "Spawn area must have skylight access");
+        registerTag("above-sea-level", AboveSeaLevelConditionTag.class, AboveSeaLevelConditionTag::new, "Spawn area must be above sea level");
+        registerTag("above-y-axis", AboveYAxisConditionTag.class, AboveYAxisConditionTag::new, "Spawn area must be above the given y-axis. Example: `above-y-axis:30`");
+        registerTag("air", AirConditionTag.class, AirConditionTag::new, "Spawn area must have air blocks available");
+        registerTag("below-sea-level", BelowSeaLevelConditionTag.class, BelowSeaLevelConditionTag::new, "Spawn area must be below the world sea level");
+        registerTag("below-y-axis", BelowYAxisConditionTag.class, BelowYAxisConditionTag::new, "Spawn area must be below the given y-axis. Example: `below-y-axis:30`");
+        registerTag("biome", BiomeConditionTag.class, BiomeConditionTag::new, "Spawn area must be in one of the given biomes. Example: `biome:plains,desert`");
+        registerTag("block", BlockConditionTag.class, BlockConditionTag::new, "Spawn area must be on one of the given blocks. Example: `block:grass_block,sand`");
+        registerTag("block-exception", BlockExceptionConditionTag.class, BlockExceptionConditionTag::new, "Spawn area must not be on one of the given blocks. Example: `block-exeption:bedrock,barrier`");
+        registerTag("darkness", DarknessConditionTag.class, DarknessConditionTag::new, "Spawn area must be below light level 8");
+        registerTag("total-darkness", TotalDarknessConditionTag.class, TotalDarknessConditionTag::new, "Spawn area must have no light at all");
+        registerTag("fluid", FluidConditionTag.class, FluidConditionTag::new, "Spawn area must be inside a fluid. Valid values are `water` and `lava`. Example: `fluid:water`");
+        registerTag("lightness", LightnessConditionTag.class, LightnessConditionTag::new, "Spawn area must be above light level 8");
+        registerTag("max-nearby-entities", MaxNearbyEntityConditionTag.class, MaxNearbyEntityConditionTag::new, "Spawn area must have below a certain number of entities. Example: `max-nearby-entities:6`");
+        registerTag("no-skylight-access", NoSkylightAccessConditionTag.class, NoSkylightAccessConditionTag::new, "Spawn area must have no skylight access");
+        registerTag("on-ground", OnGroundConditionTag.class, OnGroundConditionTag::new, "Spawn area must have a ground block to spawn on");
+        registerTag("skylight-access", SkylightAccessConditionTag.class, SkylightAccessConditionTag::new, "Spawn area must have skylight access");
 
         // Tag for when all conditions were met, but no entities were able to spawn
-        registerTag("none", NoneConditionTag.class, null);
+        registerTag("none", NoneConditionTag.class, NoneConditionTag::new, null);
 
         // Tag for when only spawners placed by players can spawn mobs
-        registerTag("not-player-placed", NotPlayerPlacedConditionTag.class, null);
+        registerTag("not-player-placed", NotPlayerPlacedConditionTag.class, NotPlayerPlacedConditionTag::new, null);
     }
 
     public static Map<String, String> getTagDescriptionMap() {
         return Collections.unmodifiableMap(tagDescriptionMap);
     }
 
-    private static <T extends ConditionTag> void registerTag(String prefix, Class<T> tagClass, String description) {
-        try {
-            tagPrefixMap.put(prefix, tagClass.getConstructor(String.class));
-            classToPrefixMap.put(tagClass, prefix);
-            if (description != null)
-                tagDescriptionMap.put(prefix, description);
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
-        }
+    private static <T extends ConditionTag> void registerTag(String prefix, Class<T> tagClass, Function<String, T> tagConstructor, String description) {
+        TAG_PREFIX_MAP.put(prefix, tagConstructor);
+        CLASS_TO_PREFIX_MAP.put(tagClass, prefix);
+        if (description != null)
+            tagDescriptionMap.put(prefix, description);
     }
 
     public static ConditionTag parse(String tag) {
-        try {
-            int index = tag.indexOf(":");
-            if (index == -1) {
-                return tagPrefixMap.get(tag).newInstance(tag);
-            } else {
-                return tagPrefixMap.get(tag.substring(0, index)).newInstance(tag);
-            }
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
-            return null;
+        int index = tag.indexOf(":");
+        if (index == -1) {
+            return TAG_PREFIX_MAP.get(tag).apply(tag);
+        } else {
+            return TAG_PREFIX_MAP.get(tag.substring(0, index)).apply(tag);
         }
     }
 
     public static String getPrefix(Class<? extends ConditionTag> tagClass) {
-        return classToPrefixMap.get(tagClass);
+        return CLASS_TO_PREFIX_MAP.get(tagClass);
     }
 
     /**

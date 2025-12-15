@@ -1,9 +1,9 @@
 package dev.rosewood.rosestacker.spawning;
 
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.PreStackedSpawnerSpawnEvent;
-import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.StackManager;
@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
+import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.MaxNearbyEntityConditionTag;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.NoneConditionTag;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags.NotPlayerPlacedConditionTag;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
@@ -25,6 +26,7 @@ import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -88,16 +90,16 @@ public class MobSpawningMethod implements SpawningMethod {
             spawnAmount = spawnerTile.getSpawnCount();
         }
 
-        EntityCacheManager entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
         StackManager stackManager = RoseStacker.getInstance().getManager(StackManager.class);
 
-        ThreadUtils.runAsync(() -> {
+        Runnable spawnTask = () -> {
             // Make sure the chunk is still loaded
             if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 4, stackedSpawner.getLocation().getBlockZ() >> 4))
                 return;
 
             Set<Location> spawnLocations = new HashSet<>();
             Set<Location> invalidLocations = new HashSet<>();
+
             int spawnRange = spawnerTile.getSpawnRange();
             int attempts = 0;
             int maxFailedSpawnAttempts = SettingKey.SPAWNER_MAX_FAILED_SPAWN_ATTEMPTS.get() * spawnRange * spawnRange;
@@ -143,25 +145,17 @@ public class MobSpawningMethod implements SpawningMethod {
                     break;
             }
 
-            EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnerType().getOrThrow();
-            Predicate<Entity> predicate = entity -> entity.getType() == entityType;
-            Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(stackedSpawner.getLocation(), stackSettings.getSpawnRange(), predicate);
-            List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
-            for (Entity entity : nearbyEntities) {
-                StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) entity);
-                if (stackedEntity != null)
-                    nearbyStackedEntities.add(stackedEntity);
-            }
-
             int successfulSpawns;
             if (!onlyCheckConditions) {
                 if (useNearbyEntitiesForStacking) {
-                    successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, spawnAmount, spawnLocations, nearbyStackedEntities, stackManager, entityStackSettings);
+                    successfulSpawns = this.spawnEntitiesIntoNearbyStacks(stackedSpawner, spawnAmount, spawnLocations, stackManager, stackSettings, entityStackSettings, invalidSpawnConditions);
+                    if (successfulSpawns > 0)
+                        invalidSpawnConditions.removeIf(x -> x instanceof MaxNearbyEntityConditionTag);
                 } else {
-                    successfulSpawns = this.spawnEntitiesIndividually(stackedSpawner, spawnAmount, spawnLocations, entityStackSettings);
+                    successfulSpawns = this.spawnEntitiesIndividually(stackedSpawner, spawnAmount, spawnLocations, entityStackSettings, stackManager);
                 }
             } else {
-                successfulSpawns = spawnAmount > 0 && !spawnLocations.isEmpty() ? 1 : 0;
+                successfulSpawns = 0;
             }
 
             stackedSpawner.getLastInvalidConditions().clear();
@@ -179,7 +173,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     // Spawn particles indicating the spawn did not occur
                     stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                 }
-            } else if (!onlyCheckConditions) {
+            } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                 ThreadUtils.runSync(() -> {
@@ -187,11 +181,17 @@ public class MobSpawningMethod implements SpawningMethod {
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });
             }
-        });
+        };
+
+        if (SettingKey.SPAWNER_SPAWN_ASYNC.get()) {
+            ThreadUtils.runAsync(spawnTask);
+        } else {
+            spawnTask.run();
+        }
     }
 
-    private int spawnEntitiesIndividually(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, EntityStackSettings entityStackSettings) {
-        if (this.entityType.getEntityClass() == null)
+    private int spawnEntitiesIndividually(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, EntityStackSettings entityStackSettings, StackManager stackManager) {
+        if (this.entityType.getEntityClass() == null || locations.isEmpty())
             return 0;
 
         PreStackedSpawnerSpawnEvent event = new PreStackedSpawnerSpawnEvent(stackedSpawner, spawnAmount);
@@ -200,6 +200,8 @@ public class MobSpawningMethod implements SpawningMethod {
             return 0;
 
         spawnAmount = event.getSpawnAmount();
+
+        boolean bypassRegions = SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get();
 
         List<Location> possibleLocations = new ArrayList<>(locations);
         int finalSpawnAmount = spawnAmount;
@@ -210,14 +212,30 @@ public class MobSpawningMethod implements SpawningMethod {
                     break;
 
                 Location location = possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
-                entityStackSettings.applySpawnerSpawnedProperties(entity);
+                if (NMSUtil.isPaper()) {
+                    var result = PreCreatureSpawnEventHelper.call(location, this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    if (result.abort())
+                        return;
+                    if (result.cancel())
+                        continue;
+                }
+
+                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, bypassRegions);
 
                 SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                 Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
                 if (spawnerSpawnEvent.isCancelled()) {
                     entity.remove();
                     continue;
+                }
+
+                if (bypassRegions) {
+                    if (!stackManager.isAreaDisabled(location)) {
+                        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
+                            PersistentDataUtils.removeEntityAi(entity);
+
+                        entityStackSettings.applySpawnerSpawnedProperties(entity);
+                    }
                 }
 
                 // Nudge the entities a little so they unstack easier
@@ -228,11 +246,25 @@ public class MobSpawningMethod implements SpawningMethod {
         return spawnAmount;
     }
 
-    private int spawnEntitiesIntoNearbyStacks(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, List<StackedEntity> nearbyEntities, StackManager stackManager, EntityStackSettings entityStackSettings) {
-        List<StackedEntity> stackedEntities = new ArrayList<>(nearbyEntities);
+    private int spawnEntitiesIntoNearbyStacks(StackedSpawner stackedSpawner, int spawnAmount, Set<Location> locations, StackManager stackManager, SpawnerStackSettings spawnerStackSettings, EntityStackSettings entityStackSettings, Set<ConditionTag> invalidSpawnConditions) {
+        if (!invalidSpawnConditions.isEmpty() && !invalidSpawnConditions.stream().allMatch(x -> x instanceof MaxNearbyEntityConditionTag))
+            return 0;
+
+        boolean canSpawnNewEntities = invalidSpawnConditions.isEmpty();
+        EntityType entityType = stackedSpawner.getSpawnerTile().getSpawnerType().getOrThrow();
+        Predicate<Entity> predicate = entity -> entity.getType() == entityType;
+        EntityCacheManager entityCacheManager = RoseStacker.getInstance().getManager(EntityCacheManager.class);
+        Collection<Entity> nearbyEntities = entityCacheManager.getNearbyEntities(stackedSpawner.getLocation(), spawnerStackSettings.getSpawnRange(), predicate);
+        List<StackedEntity> nearbyStackedEntities = new ArrayList<>();
+        for (Entity entity : nearbyEntities) {
+            StackedEntity stackedEntity = stackManager.getStackedEntity((LivingEntity) entity);
+            if (stackedEntity != null && stackedEntity.getStackSize() < entityStackSettings.getMaxStackSize())
+                nearbyStackedEntities.add(stackedEntity);
+        }
+
         List<Location> possibleLocations = new ArrayList<>(locations);
 
-        if (this.entityType.getEntityClass() == null)
+        if (this.entityType.getEntityClass() == null || (possibleLocations.isEmpty() && nearbyStackedEntities.isEmpty()))
             return 0;
 
         PreStackedSpawnerSpawnEvent event = new PreStackedSpawnerSpawnEvent(stackedSpawner, spawnAmount);
@@ -248,35 +280,29 @@ public class MobSpawningMethod implements SpawningMethod {
 
         List<StackedEntity> updatedStacks = new ArrayList<>();
 
-        Location previousLocation = null;
         for (int i = spawnAmount; i > 0; i--) {
-            Location location = possibleLocations.isEmpty() ? previousLocation : possibleLocations.get(this.random.nextInt(possibleLocations.size()));
-            if (location == null)
-                break;
-
+            Location location = possibleLocations.isEmpty() ? stackedSpawner.getLocation() : possibleLocations.get(this.random.nextInt(possibleLocations.size()));
             switch (stackManager.getEntityDataStorageType(this.entityType)) {
                 case NBT -> {
-                    StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, entityStackSettings);
-                    Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
+                    StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings);
+                    Optional<StackedEntity> matchingEntity = nearbyStackedEntities.stream().filter(x ->
                             WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findAny();
                     if (matchingEntity.isPresent()) {
                         matchingEntity.get().increaseStackSize(newStack.getEntity(), false);
                         updatedStacks.add(matchingEntity.get());
-                    } else {
+                    } else if (canSpawnNewEntities) {
                         if (possibleLocations.isEmpty())
                             break;
 
-                        stackedEntities.add(newStack);
+                        nearbyStackedEntities.add(newStack);
                         newStacks.add(newStack);
-                        possibleLocations.remove(location);
                     }
 
-                    previousLocation = location;
                     successfulSpawns++;
                 }
 
                 case SIMPLE -> {
-                    Optional<StackedEntity> matchingEntity = stackedEntities.stream().filter(x ->
+                    Optional<StackedEntity> matchingEntity = nearbyStackedEntities.stream().filter(x ->
                             WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, x, false, true)).findAny();
                     if (matchingEntity.isPresent()) {
                         // Increase stack size by as much as we can
@@ -285,18 +311,12 @@ public class MobSpawningMethod implements SpawningMethod {
                         updatedStacks.add(matchingEntity.get());
                         i -= amountToIncrease;
                         successfulSpawns += amountToIncrease;
-                    } else {
-                        if (possibleLocations.isEmpty())
-                            break;
-
-                        StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, entityStackSettings);
-                        stackedEntities.add(newStack);
+                    } else if (canSpawnNewEntities) {
+                        StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings);
+                        nearbyStackedEntities.add(newStack);
                         newStacks.add(newStack);
-                        possibleLocations.remove(location);
                         successfulSpawns++;
                     }
-
-                    previousLocation = location;
                 }
             }
         }
@@ -305,8 +325,22 @@ public class MobSpawningMethod implements SpawningMethod {
 
         ThreadUtils.runSync(() -> {
             stackManager.setEntityStackingTemporarilyDisabled(true);
-            for (StackedEntity stackedEntity : newStacks) {
+            Iterator<StackedEntity> iterator = newStacks.iterator();
+            while (iterator.hasNext()) {
+                StackedEntity stackedEntity = iterator.next();
                 LivingEntity entity = stackedEntity.getEntity();
+
+                if (NMSUtil.isPaper()) {
+                    var result = PreCreatureSpawnEventHelper.call(entity.getLocation(), this.entityType, CreatureSpawnEvent.SpawnReason.SPAWNER);
+                    if (result.abort()) {
+                        newStacks.clear();
+                        break;
+                    }
+                    if (result.cancel()) {
+                        iterator.remove();
+                        continue;
+                    }
+                }
 
                 SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                 Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
@@ -314,7 +348,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     continue;
 
                 nmsHandler.spawnExistingEntity(entity, CreatureSpawnEvent.SpawnReason.SPAWNER, SettingKey.SPAWNER_BYPASS_REGION_SPAWNING_RULES.get());
-                entity.setVelocity(Vector.getRandom().multiply(0.01));
+                entity.setVelocity(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01));
                 stackManager.addEntityStack(stackedEntity);
             }
             stackManager.setEntityStackingTemporarilyDisabled(false);
@@ -328,17 +362,18 @@ public class MobSpawningMethod implements SpawningMethod {
             }
         });
 
-        return spawnAmount;
+        return successfulSpawns;
     }
 
-    private StackedEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, EntityStackSettings entityStackSettings) {
+    private StackedEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, StackManager stackManager, EntityStackSettings entityStackSettings) {
         LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
-        SpawnerFlagPersistenceHook.flagSpawnerSpawned(entity);
 
-        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
-            PersistentDataUtils.removeEntityAi(entity);
+        if (!stackManager.isAreaDisabled(location)) {
+            if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
+                PersistentDataUtils.removeEntityAi(entity);
 
-        entityStackSettings.applySpawnerSpawnedProperties(entity);
+            entityStackSettings.applySpawnerSpawnedProperties(entity);
+        }
 
         return new StackedEntity(entity);
     }

@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosegarden.config.RoseSetting;
+import dev.rosewood.rosegarden.config.SettingHolder;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.listener.EntitiesLoadListener;
 import dev.rosewood.rosestacker.listener.EntityListener;
 import dev.rosewood.rosestacker.listener.InteractListener;
 import dev.rosewood.rosestacker.listener.ItemListener;
+import dev.rosewood.rosestacker.listener.SkyblockHookListener;
 import dev.rosewood.rosestacker.listener.StackToolListener;
 import dev.rosewood.rosestacker.listener.WorldListener;
 import dev.rosewood.rosestacker.manager.CommandManager;
@@ -53,17 +54,17 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     public void onLoad() {
-        WorldGuardHook.registerFlag();
-    }
-
-    @Override
-    public void enable() {
         if (!NMSAdapter.isValidVersion()) {
             this.getLogger().severe(String.format("RoseStacker only supports %s through %s. The plugin has been disabled.", StackerUtils.MIN_SUPPORTED_VERSION, StackerUtils.MAX_SUPPORTED_VERSION));
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
+        WorldGuardHook.registerFlag();
+    }
+
+    @Override
+    public void enable() {
         // Register listeners
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new BlockListener(this), this);
@@ -88,10 +89,14 @@ public class RoseStacker extends RosePlugin {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
             new RoseStackerPlaceholderExpansion(this).register();
 
-        // Try to hook with ShopGuiPlus
+        // Try to hook with ShopGuiPlus and skyblock plugins
         ThreadUtils.runSync(() -> {
             if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
                 ShopGuiPlusHook.setupSpawners(this);
+
+            SkyblockHookListener skyblockHookListener = new SkyblockHookListener();
+            if (skyblockHookListener.isEnabled())
+                pluginManager.registerEvents(skyblockHookListener, this);
         });
 
         // Try to hook with WildChests
@@ -107,7 +112,7 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     public void disable() {
-        Bukkit.getScheduler().cancelTasks(this);
+        this.getScheduler().cancelAllTasks();
     }
 
     @Override
@@ -122,8 +127,8 @@ public class RoseStacker extends RosePlugin {
     }
 
     @Override
-    protected List<RoseSetting<?>> getRoseConfigSettings() {
-        return SettingKey.getKeys();
+    protected SettingHolder getRoseConfigSettingHolder() {
+        return SettingKey.INSTANCE;
     }
 
     @Override

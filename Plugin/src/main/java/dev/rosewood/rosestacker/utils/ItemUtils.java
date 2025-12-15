@@ -36,8 +36,10 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -93,13 +95,45 @@ public final class ItemUtils {
             RoseStacker.getInstance().getManager(StackManager.class).preStackItems(extraItems, player.getLocation());
     }
 
-    public static void damageTool(ItemStack itemStack) {
-        Damageable damageable = (Damageable) itemStack.getItemMeta();
-        if (damageable == null)
+    public static void damageTool(Player player) {
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        ItemMeta itemMeta = tool.getItemMeta();
+        if (itemMeta == null || itemMeta.isUnbreakable())
             return;
 
-        damageable.setDamage(damageable.getDamage() + 1);
-        itemStack.setItemMeta((ItemMeta) damageable);
+        if (NMSUtil.isPaper() && (NMSUtil.getVersionNumber() > 19 || (NMSUtil.getVersionNumber() == 19 && NMSUtil.getMinorVersionNumber() >= 2))) {
+            player.damageItemStack(EquipmentSlot.HAND, 1);
+            return;
+        }
+
+        if (!(itemMeta instanceof Damageable damageable))
+            return;
+
+        int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
+        if (!checkUnbreakingChance(unbreakingLevel))
+            return;
+
+        // This could decrease the durability more than intended, we'll just have to live with that
+        PlayerItemDamageEvent event = new PlayerItemDamageEvent(player, tool, 1, 1);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled() || event.getDamage() == 0)
+            return;
+
+        damageable.setDamage(damageable.getDamage() + event.getDamage());
+        tool.setItemMeta((ItemMeta) damageable); // Older versions do not have Damageable as implementing ItemMeta, do not remove cast
+
+        if (damageable.getDamage() >= damageable.getMaxDamage())
+            player.getInventory().setItemInMainHand(null);
+    }
+
+    /**
+     * Check if durbility should be applied based on the unbreaking enchantment
+     *
+     * @param level The level of the unbreaking enchantment
+     * @return True if durability should be applied, otherwise false
+     */
+    private static boolean checkUnbreakingChance(int level) {
+        return (1.0 / (level + 1)) > StackerUtils.RANDOM.nextDouble();
     }
 
     /**
@@ -199,8 +233,13 @@ public final class ItemUtils {
         if (itemMeta == null)
             return itemStack;
 
-        SpawnerStackSettings stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(spawnerType);
-        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount)).add("name", stackSettings.getDisplayName()).build();
+        StackSettingManager settingManager = RoseStacker.getInstance().getManager(StackSettingManager.class);
+        String mobName = spawnerType.isEmpty() ? "Empty" : settingManager.getEntityStackSettings(spawnerType.next()).getDisplayName();
+        SpawnerStackSettings stackSettings = settingManager.getSpawnerStackSettings(spawnerType);
+        StringPlaceholders placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(amount))
+                .add("name", stackSettings.getDisplayName())
+                .add("entity_name", mobName).build();
+
         String displayString;
         if (amount == 1) {
             displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("spawner-stack-display-single", placeholders);
@@ -235,6 +274,12 @@ public final class ItemUtils {
 
         if (!lore.isEmpty())
             itemMeta.setLore(lore);
+
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3)) {
+            NamespacedKey tooltipStyleKey = stackSettings.getTooltipStyleKey();
+            if (tooltipStyleKey != null)
+                itemMeta.setTooltipStyle(tooltipStyleKey);
+        }
 
         if (!spawnerType.isEmpty()) {
             // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
@@ -417,8 +462,18 @@ public final class ItemUtils {
     }
 
     public static List<ItemStack> getMultipliedItemStacks(Collection<ItemStack> itemStacks, double multiplier, boolean reduce) {
+        List<ItemStack> unstackables = new ArrayList<>(); // Don't multiply unstackable items, those are usually unique
+        List<ItemStack> stackables = new ArrayList<>();
+        for (ItemStack itemStack : itemStacks) {
+            if (itemStack.getMaxStackSize() == 1) {
+                unstackables.add(itemStack);
+            } else {
+                stackables.add(itemStack);
+            }
+        }
+
         // Reduce and multiply counts
-        Map<ItemStack, Integer> counts = reduceItemsByCounts(itemStacks).entrySet()
+        Map<ItemStack, Integer> counts = reduceItemsByCounts(stackables).entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) (entry.getValue() * multiplier)));
 
@@ -435,6 +490,9 @@ public final class ItemUtils {
                 items.addAll(splitItemStack(itemStack, amount));
             }
         }
+
+        // Add the unstackable items back
+        items.addAll(unstackables);
 
         return items;
     }

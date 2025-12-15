@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.hook;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class WorldGuardHook {
 
@@ -37,6 +38,20 @@ public class WorldGuardHook {
             return true;
 
         return WorldGuardFlagHook.testLocation(location);
+    }
+
+    /**
+     * Tests if the given Location allows dropping experience
+     *
+     * @param player The player that is causing the experience to drop, nullable
+     * @param location The location the experience is dropping at
+     * @return true if the Location is flagged to allow dropping experience, false otherwise
+     */
+    public static boolean testCanDropExperience(Player player, Location location) {
+        if (!enabled())
+            return true;
+
+        return WorldGuardFlagHook.testCanDropExperience(player, location);
     }
 
 }

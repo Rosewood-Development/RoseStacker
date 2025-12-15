@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_21_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_21_R1.entity.SoloEntityStrider;
@@ -72,10 +73,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.RegionAccessor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_21_R1.CraftRegionAccessor;
 import org.bukkit.craftbukkit.v1_21_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftAbstractVillager;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftCreeper;
@@ -415,7 +414,7 @@ public class NMSHandlerImpl implements NMSHandler {
         };
     }
 
-    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
+    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType, Set<StorageMigrationType> migrations) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity, data);
             case SIMPLE -> new SimpleStackedEntityDataStorage(livingEntity, data);

@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.nms.v1_20_R4.entity;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;

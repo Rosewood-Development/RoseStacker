@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.stack.settings.conditions.spawner.tags;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.conditions.spawner.ConditionTag;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.block.Biome;
@@ -28,11 +29,11 @@ public class BiomeConditionTag extends ConditionTag {
         if (values.length == 0)
             return false;
 
+
         for (String value : values) {
-            try {
-                Biome biome = Biome.valueOf(value.toUpperCase());
+            Biome biome = VersionUtils.getBiome(value);
+            if (biome != null)
                 this.biomes.add(biome);
-            } catch (Exception ignored) { }
         }
 
         return !this.biomes.isEmpty();
@@ -40,7 +41,7 @@ public class BiomeConditionTag extends ConditionTag {
 
     @Override
     protected List<String> getInfoMessageValues(LocaleManager localeManager) {
-        return this.biomes.stream().map(Enum::name).toList();
+        return this.biomes.stream().map(x -> x.getKey().getKey()).toList();
     }
 
 }

@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import java.util.Collection;
@@ -37,11 +38,12 @@ import org.bukkit.util.Vector;
 
 public final class EntityUtils {
 
+    private static final boolean HAS_FROM_MOB_SPAWNER = NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 19;
     private static final Random RANDOM = new Random();
     private static Map<EntityType, BoundingBox> cachedBoundingBoxes;
 
     private static final Cache<ChunkLocation, ChunkSnapshot> chunkSnapshotCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .expireAfterWrite(3, TimeUnit.SECONDS)
             .build();
 
     /**
@@ -113,6 +115,14 @@ public final class EntityUtils {
         } else {
             return 5;
         }
+    }
+
+    public static boolean hasSpawnerSpawnReason(Entity entity) {
+        return (NMSUtil.isPaper() && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) || (HAS_FROM_MOB_SPAWNER && entity.fromMobSpawner() && !hasTrialSpawnerSpawnReason(entity));
+    }
+
+    public static boolean hasTrialSpawnerSpawnReason(Entity entity) {
+        return NMSUtil.isPaper() && NMSUtil.getVersionNumber() >= 21 && entity.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.TRIAL_SPAWNER;
     }
 
     /**

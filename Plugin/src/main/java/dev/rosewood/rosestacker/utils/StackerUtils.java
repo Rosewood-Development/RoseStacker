@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.utils;
 
 import dev.rosewood.rosegarden.utils.EntitySpawnUtil;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
@@ -21,7 +22,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.Tag;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -33,15 +33,15 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 public final class StackerUtils {
 
     public static final String MIN_SUPPORTED_VERSION = "1.16.5";
-    public static final String MAX_SUPPORTED_VERSION = "1.21.1";
-    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.21.1";
+    public static final String MAX_SUPPORTED_VERSION = "1.21.11";
+    public static final String MAX_SUPPORTED_LOCALE_VERSION = "1.21.11";
 
     public static final int ASSUMED_ENTITY_VISIBILITY_RANGE = 75 * 75;
 
     public static final DustOptions STACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0x00FF00), 1.5F);
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
-    private static final Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();
     private static Set<EntityType> cachedStackableEntityTypes;
 
     private static NumberFormat formatter = NumberFormat.getInstance();
@@ -164,14 +164,24 @@ public final class StackerUtils {
                 .filter(Material::isBlock)
                 .filter(Material::isItem)
                 .filter(Material::isSolid)
-                .filter(x -> !x.isInteractable() || x == Material.SPAWNER || x == Material.TNT || x == Material.BEACON || x.name().endsWith("REDSTONE_ORE"))
-                .filter(x -> !x.hasGravity())
+                .filter(x -> !isInteractable(x))
                 .filter(x -> !Tag.CORAL_PLANTS.isTagged(x))
                 .filter(x -> !Tag.SLABS.isTagged(x))
                 .filter(x -> !Tag.BANNERS.isTagged(x))
                 .filter(x -> !x.name().endsWith("_WALL")) // Tags for these don't exist in older versions
                 .filter(x -> !x.name().endsWith("_PRESSURE_PLATE"))
                 .sorted(Comparator.comparing(Enum::name)).toList();
+    }
+
+    public static boolean isInteractable(Material material) {
+        return switch (material.getKey().getKey()) {
+            case "redstone_ore",
+                 "deepslate_redstone_ore",
+                 "beacon",
+                 "tnt",
+                 "dragon_egg" -> false;
+            default -> material.isInteractable();
+        };
     }
 
     /**
@@ -265,7 +275,7 @@ public final class StackerUtils {
 
     public static int getLuckLevel(Player player) {
         double luck = 0;
-        AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_LUCK);
+        AttributeInstance attribute = player.getAttribute(VersionUtils.LUCK);
         if (attribute != null)
             luck += attribute.getValue();
         return (int) Math.floor(luck);
@@ -279,6 +289,14 @@ public final class StackerUtils {
 
     public static boolean isVanished(Player player) {
         return player.getMetadata("vanished").stream().anyMatch(MetadataValue::asBoolean);
+    }
+
+    public static Location adjustBlockLocation(Location location) {
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 3)) {
+            return location.add(0.5, 0.5, 0.5);
+        } else {
+            return location;
+        }
     }
 
 }

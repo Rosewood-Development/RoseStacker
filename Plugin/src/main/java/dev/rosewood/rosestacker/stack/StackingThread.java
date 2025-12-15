@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackClearEvent;
 import dev.rosewood.rosestacker.event.EntityStackEvent;
@@ -63,7 +64,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 public class StackingThread implements StackingLogic, AutoCloseable {
@@ -77,9 +77,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final EntityCacheManager entityCacheManager;
     private final HologramManager hologramManager;
     private final World targetWorld;
+    private final boolean disabled;
 
-    private final BukkitTask entityStackTask, itemStackTask, nametagTask, hologramTask;
-    private BukkitTask entityUnstackTask, entityCleanupTask;
+    private ScheduledTask entityStackTask, itemStackTask, nametagTask, hologramTask;
+    private ScheduledTask entityUnstackTask, entityCleanupTask;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -95,19 +96,22 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.entityCacheManager = this.rosePlugin.getManager(EntityCacheManager.class);
         this.hologramManager = this.rosePlugin.getManager(HologramManager.class);
         this.targetWorld = targetWorld;
+        this.disabled = this.stackManager.isWorldDisabled(targetWorld);
 
-        this.entityStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackEntities, 5L, SettingKey.STACK_FREQUENCY.get());
-        this.itemStackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::stackItems, 5L, SettingKey.ITEM_STACK_FREQUENCY.get());
-        this.nametagTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
-        this.hologramTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+        if (!this.disabled) {
+            this.entityStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackEntities, 5L, SettingKey.STACK_FREQUENCY.get());
+            this.itemStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackItems, 5L, SettingKey.ITEM_STACK_FREQUENCY.get());
+            this.nametagTask = rosePlugin.getScheduler().runTaskTimerAsync(this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
+            this.hologramTask = rosePlugin.getScheduler().runTaskTimerAsync(this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
 
-        long unstackFrequency = SettingKey.UNSTACK_FREQUENCY.get();
-        if (unstackFrequency > 0)
-            this.entityUnstackTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.rosePlugin, this::unstackEntities, 5L, unstackFrequency);
+            long unstackFrequency = SettingKey.UNSTACK_FREQUENCY.get();
+            if (unstackFrequency > 0)
+                this.entityUnstackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::unstackEntities, 5L, unstackFrequency);
 
-        long cleanupFrequency = SettingKey.ENTITY_RESCAN_FREQUENCY.get();
-        if (cleanupFrequency > 0)
-            this.entityCleanupTask = Bukkit.getScheduler().runTaskTimer(this.rosePlugin, this::cleanupOrphanedEntities, 5L, cleanupFrequency);
+            long cleanupFrequency = SettingKey.ENTITY_RESCAN_FREQUENCY.get();
+            if (cleanupFrequency > 0)
+                this.entityCleanupTask = rosePlugin.getScheduler().runTaskTimer(this::cleanupOrphanedEntities, 5L, cleanupFrequency);
+        }
 
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
@@ -124,6 +128,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         this.entityDynamicWallDetection = SettingKey.ENTITY_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
         this.itemDynamicWallDetection = SettingKey.ITEM_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
+
+        if (this.disabled)
+            return;
 
         NMSAdapter.getHandler().hijackRandomSource(targetWorld);
 
@@ -158,24 +165,35 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!entityStackingEnabled || this.stackManager.isEntityUnstackingTemporarilyDisabled())
             return;
 
-        boolean minSplitIfLower = SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get();
-        for (StackedEntity stackedEntity : this.stackedEntities.values()) {
-            LivingEntity entity = stackedEntity.getEntity();
-            if (!stackedEntity.shouldStayStacked() && entity.isValid()) {
-                ThreadUtils.runSync(() -> {
-                    if (stackedEntity.getStackSize() > 1)
-                        this.splitEntityStack(stackedEntity);
-                });
-            } else if (minSplitIfLower && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
-                NMSHandler nmsHandler = NMSAdapter.getHandler();
-                StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
-                stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
-                ThreadUtils.runSync(() -> {
-                    for (EntityDataEntry entityDataEntry : nbt.getAll())
-                        entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
-                });
-            }
+        for (StackedEntity stackedEntity : this.stackedEntities.values())
+            this.tryUnstackEntity(stackedEntity);
+    }
+
+    @Override
+    public void tryUnstackEntity(StackedEntity stackedEntity) {
+        LivingEntity entity = stackedEntity.getEntity();
+        if (entity == null || stackedEntity.getStackSize() <= 1 || !entity.isValid())
+            return;
+
+        if (!stackedEntity.shouldStayStacked()) {
+            ThreadUtils.runSync(() -> {
+                if (stackedEntity.getStackSize() > 1)
+                    this.splitEntityStack(stackedEntity);
+            });
+        } else if (SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get() && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
+            this.splitEntireStack(stackedEntity);
         }
+    }
+
+    private void splitEntireStack(StackedEntity stackedEntity) {
+        LivingEntity entity = stackedEntity.getEntity();
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
+        stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
+        ThreadUtils.runSync(() -> {
+            for (EntityDataEntry entityDataEntry : nbt.getAll())
+                entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
+        });
     }
 
     private void cleanupOrphanedEntities() {
@@ -184,10 +202,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 continue;
 
             if (entity instanceof LivingEntity livingEntity && entity.getType() != EntityType.ARMOR_STAND && entity.getType() != EntityType.PLAYER && !this.isEntityStacked(livingEntity)) {
-                this.createEntityStack(livingEntity, false);
+                if (!this.stackManager.isAreaDisabled(entity.getLocation()))
+                    this.createEntityStack(livingEntity, false);
             } else if (entity.getType() == VersionUtils.ITEM) {
                 Item item = (Item) entity;
-                if (!this.isItemStacked(item))
+                if (!this.isItemStacked(item) && !this.stackManager.isAreaDisabled(entity.getLocation()))
                     this.createItemStack(item, false);
             }
         }
@@ -284,7 +303,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
             if (this.dynamicItemTags) {
                 for (Item item : items) {
-                    if (item.getCustomName() == null || !item.isCustomNameVisible())
+                    if (!item.isCustomNameVisible())
                         continue;
 
                     double distanceSqrd;
@@ -314,16 +333,26 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     @Override
     public void close() {
         // Cancel tasks
-        this.entityStackTask.cancel();
-        this.itemStackTask.cancel();
-        this.nametagTask.cancel();
-        this.hologramTask.cancel();
+        if (this.entityStackTask != null)
+            this.entityStackTask.cancel();
+
+        if (this.itemStackTask != null)
+            this.itemStackTask.cancel();
+
+        if (this.nametagTask != null)
+            this.nametagTask.cancel();
+
+        if (this.hologramTask != null)
+            this.hologramTask.cancel();
 
         if (this.entityUnstackTask != null)
             this.entityUnstackTask.cancel();
 
         if (this.entityCleanupTask != null)
             this.entityCleanupTask.cancel();
+
+        // Save all data
+        this.saveAllData(true);
     }
 
     @Override
@@ -518,21 +547,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (world == null)
             return null;
 
-        ItemStack oldItemStack = stackedItem.getItem().getItemStack();
-        ItemStack newItemStack = oldItemStack.clone();
-
-        newItemStack.setAmount(newSize);
-
+        int splitSize = stackedItem.getStackSize() - newSize;
+        stackedItem.setStackSize(newSize);
         stackedItem.getItem().setPickupDelay(60);
-        stackedItem.getItem().setTicksLived(1);
 
-        Item newItem = world.dropItemNaturally(stackedItem.getLocation(), newItemStack);
-        newItem.setPickupDelay(0);
-
-        StackedItem newStackedItem = new StackedItem(newSize, newItem);
-        this.stackedItems.put(newItem.getUniqueId(), newStackedItem);
-        stackedItem.increaseStackSize(-newSize, true);
-        return newStackedItem;
+        ItemStack newItemStack = stackedItem.getItem().getItemStack().clone();
+        return this.dropItemStack(newItemStack, splitSize, stackedItem.getLocation(), true);
     }
 
     @Override
@@ -546,13 +566,17 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
         this.stackedEntities.put(livingEntity.getUniqueId(), newStackedEntity);
 
-        if (tryStack && SettingKey.ENTITY_INSTANT_STACK.get()) {
+        if (tryStack && this.canEntityInstantStack()) {
             livingEntity.setMetadata(NEW_METADATA, new FixedMetadataValue(this.rosePlugin, true));
             this.tryStackEntity(newStackedEntity);
             livingEntity.removeMetadata(NEW_METADATA, this.rosePlugin);
         }
 
         return newStackedEntity;
+    }
+
+    private boolean canEntityInstantStack() {
+        return SettingKey.ENTITY_INSTANT_STACK.get() && (!NPCsHook.mythicMobsEnabled() || SettingKey.MISC_MYTHICMOBS_ALLOW_STACKING.get());
     }
 
     @Override
@@ -564,14 +588,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (itemStackSettings != null && !itemStackSettings.isStackingEnabled())
             return null;
 
-        StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item);
+        StackedItem newStackedItem = new StackedItem(item.getItemStack().getAmount(), item, false);
         this.stackedItems.put(item.getUniqueId(), newStackedItem);
 
-        if (tryStack) {
+        if (tryStack && SettingKey.ITEM_INSTANT_STACK.get()) {
             item.setMetadata(NEW_METADATA, new FixedMetadataValue(this.rosePlugin, true));
             this.tryStackItem(newStackedItem);
             item.removeMetadata(NEW_METADATA, this.rosePlugin);
         }
+
+        // Only update the display after stacking to avoid needing to calculate the name unnecessarily
+        if (newStackedItem.getStackSize() > 0)
+            newStackedItem.updateDisplay();
 
         return newStackedItem;
     }
@@ -610,7 +638,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
 
-        if (SettingKey.ENTITY_INSTANT_STACK.get())
+        if (this.canEntityInstantStack())
             this.tryStackEntity(stackedEntity);
     }
 
@@ -775,6 +803,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (location.getWorld() == null)
             return null;
 
+        if (!this.stackManager.isItemStackingEnabled()) {
+            ItemStack clone = itemStack.clone();
+            clone.setAmount(amount);
+            this.preStackItems(List.of(clone), location, dropNaturally);
+            return null;
+        }
+
         this.stackManager.setEntityStackingTemporarilyDisabled(true);
 
         Item item;
@@ -808,8 +843,13 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             for (StackedBlock stackedBlock : DataUtils.readStackedBlocks(chunk))
                 stackedBlocks.put(stackedBlock.getBlock(), stackedBlock);
 
-        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty())
+        if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty()) {
             this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
+            ThreadUtils.runAsync(() -> {
+                stackedSpawners.values().forEach(StackedSpawner::updateDisplay);
+                stackedBlocks.values().forEach(StackedBlock::updateDisplay);
+            });
+        }
     }
 
     @Override
@@ -817,6 +857,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entities.isEmpty())
             return;
 
+        List<StackedEntity> stackedEntities = new ArrayList<>();
         if (this.stackManager.isEntityStackingEnabled()) {
             for (Entity entity : entities) {
                 if (!(entity instanceof LivingEntity livingEntity) || entity.getType() == EntityType.ARMOR_STAND || entity.getType() == EntityType.PLAYER)
@@ -825,12 +866,14 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 StackedEntity stackedEntity = DataUtils.readStackedEntity(livingEntity, this.stackManager.getEntityDataStorageType(entity.getType()));
                 if (stackedEntity != null) {
                     this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);
+                    stackedEntities.add(stackedEntity);
                 } else {
                     this.createEntityStack(livingEntity, true);
                 }
             }
         }
 
+        List<StackedItem> stackedItems = new ArrayList<>();
         if (this.stackManager.isItemStackingEnabled()) {
             for (Entity entity : entities) {
                 if (entity.getType() != VersionUtils.ITEM)
@@ -840,10 +883,18 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                 StackedItem stackedItem = DataUtils.readStackedItem(item);
                 if (stackedItem != null) {
                     this.stackedItems.put(stackedItem.getItem().getUniqueId(), stackedItem);
+                    stackedItems.add(stackedItem);
                 } else {
                     this.createItemStack(item, true);
                 }
             }
+        }
+
+        if (!stackedEntities.isEmpty() || !stackedItems.isEmpty()) {
+            ThreadUtils.runAsync(() -> {
+                stackedEntities.forEach(StackedEntity::updateDisplay);
+                stackedItems.forEach(StackedItem::updateDisplay);
+            });
         }
     }
 
@@ -871,11 +922,32 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     @Override
     public void saveChunkEntities(List<Entity> entities, boolean clearStored) {
+        List<Stack<?>> stacks = new ArrayList<>(entities.size());
         if (this.stackManager.isEntityStackingEnabled()) {
-            List<StackedEntity> stackedEntities = entities.stream()
+            stacks.addAll(entities.stream()
                     .filter(x -> x instanceof LivingEntity && x.getType() != EntityType.ARMOR_STAND && x.getType() != EntityType.PLAYER)
                     .map(x -> this.stackedEntities.get(x.getUniqueId()))
                     .filter(Objects::nonNull)
+                    .toList());
+        }
+
+        if (this.stackManager.isItemStackingEnabled()) {
+            stacks.addAll(entities.stream()
+                    .filter(x -> x.getType() == VersionUtils.ITEM)
+                    .map(x -> this.stackedItems.get(x.getUniqueId()))
+                    .filter(Objects::nonNull)
+                    .toList());
+        }
+
+        this.saveChunkEntityStacks(stacks, clearStored);
+    }
+
+    @Override
+    public <T extends Stack<?>> void saveChunkEntityStacks(List<T> stacks, boolean clearStored) {
+        if (this.stackManager.isEntityStackingEnabled()) {
+            List<StackedEntity> stackedEntities = stacks.stream()
+                    .filter(x -> x instanceof StackedEntity)
+                    .map(x -> (StackedEntity) x)
                     .toList();
 
             stackedEntities.forEach(DataUtils::writeStackedEntity);
@@ -885,10 +957,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         if (this.stackManager.isItemStackingEnabled()) {
-            List<StackedItem> stackedItems = entities.stream()
-                    .filter(x -> x.getType() == VersionUtils.ITEM)
-                    .map(x -> this.stackedItems.get(x.getUniqueId()))
-                    .filter(Objects::nonNull)
+            List<StackedItem> stackedItems = stacks.stream()
+                    .filter(x -> x instanceof StackedItem)
+                    .map(x -> (StackedItem) x)
                     .toList();
 
             stackedItems.forEach(DataUtils::writeStackedItem);
@@ -902,13 +973,19 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     public void saveAllData(boolean clearStored) {
         // Save stacked blocks and spawners
         for (Chunk chunk : this.stackChunkData.keySet())
-            this.saveChunkBlocks(chunk, clearStored);
+            this.saveChunkBlocks(chunk, false);
 
         // Save stacked entities and items
-        List<Entity> entities = new ArrayList<>(this.stackedEntities.size() + this.stackedItems.size());
-        this.stackedEntities.values().stream().map(StackedEntity::getEntity).forEach(entities::add);
-        this.stackedItems.values().stream().map(StackedItem::getItem).forEach(entities::add);
-        this.saveChunkEntities(entities, clearStored);
+        List<Stack<?>> stacks = new ArrayList<>(this.stackedEntities.size() + this.stackedItems.size());
+        stacks.addAll(this.stackedEntities.values());
+        stacks.addAll(this.stackedItems.values());
+        this.saveChunkEntityStacks(stacks, false);
+
+        if (clearStored) {
+            this.stackChunkData.clear();
+            this.stackedEntities.clear();
+            this.stackedItems.clear();
+        }
     }
 
     /**
@@ -916,18 +993,20 @@ public class StackingThread implements StackingLogic, AutoCloseable {
      *
      * @param stackedEntity the StackedEntity to try to stack
      */
-    private void tryStackEntity(StackedEntity stackedEntity) {
+    @Override
+    public void tryStackEntity(StackedEntity stackedEntity) {
+        if (this.disabled)
+            return;
+
         EntityStackSettings stackSettings = stackedEntity.getStackSettings();
         if (stackSettings == null)
             return;
 
-        if (stackedEntity.checkNPC()) {
-            this.removeEntityStack(stackedEntity);
+        if (stackedEntity.checkNPC())
             return;
-        }
 
         LivingEntity entity = stackedEntity.getEntity();
-        if (this.isRemoved(entity))
+        if (this.isRemoved(entity) || !stackedEntity.hasMoved())
             return;
 
         if (!WorldGuardHook.testLocation(entity.getLocation()))
@@ -1000,27 +1079,23 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             this.removeEntityStack(toStack);
         }
 
-        Runnable removeTask = () -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove);
-        if (Bukkit.isPrimaryThread()) {
-            removeTask.run();
-        } else {
-            ThreadUtils.runSync(removeTask);
-        }
+        ThreadUtils.runOnPrimary(() -> removable.stream().map(StackedEntity::getEntity).forEach(Entity::remove));
     }
 
-    /**
-     * Tries to stack a StackedItem with all other StackedItems
-     *
-     * @param stackedItem the StackedItem to try to stack
-     */
-    private void tryStackItem(StackedItem stackedItem) {
-        ItemStackSettings stackSettings = stackedItem.getStackSettings();
-        if (stackSettings == null
-                || !stackSettings.isStackingEnabled()
-                || stackedItem.getItem().getPickupDelay() > 40)
+    @Override
+    public void tryStackItem(StackedItem stackedItem) {
+        if (this.disabled)
             return;
 
+        ItemStackSettings stackSettings = stackedItem.getStackSettings();
         Item item = stackedItem.getItem();
+        if (stackSettings == null
+                || !stackSettings.isStackingEnabled()
+                || item.getPickupDelay() > 40
+                || !stackedItem.hasMoved()
+                || PersistentDataUtils.isUnstackable(item))
+            return;
+
         if (this.isRemoved(item))
             return;
 
@@ -1032,13 +1107,21 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         Set<StackedItem> targetItems = new HashSet<>();
         for (Item otherItem : nearbyItems) {
-            if (item == otherItem || otherItem.getPickupDelay() > 40 || !item.getItemStack().isSimilar(otherItem.getItemStack()) || this.isRemoved(otherItem))
+            if (item == otherItem
+                    || otherItem.getPickupDelay() > 40
+                    || !item.getItemStack().isSimilar(otherItem.getItemStack())
+                    || !Objects.equals(item.getOwner(), otherItem.getOwner())
+                    || PersistentDataUtils.isUnstackable(otherItem)
+                    || this.isRemoved(otherItem))
                 continue;
 
             StackedItem other = this.stackedItems.get(otherItem.getUniqueId());
             if (other != null)
                 targetItems.add(other);
         }
+
+        if (targetItems.isEmpty())
+            return;
 
         int totalSize = stackedItem.getStackSize();
         Set<StackedItem> removable = new HashSet<>();
@@ -1061,22 +1144,19 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             if (itemStackEvent.isCancelled())
                 continue;
 
-            increased.increaseStackSize(removed.getStackSize(), true);
+            increased.increaseStackSize(removed.getStackSize(), false);
+            removed.increaseStackSize(-removed.getStackSize(), false);
             if (SettingKey.ITEM_RESET_DESPAWN_TIMER_ON_MERGE.get())
                 increased.getItem().setTicksLived(1); // Reset the 5 minute pickup timer
 
             increased.getItem().setPickupDelay(Math.max(increased.getItem().getPickupDelay(), removed.getItem().getPickupDelay()));
             removed.getItem().setPickupDelay(100); // Don't allow the item we just merged to get picked up or stacked
 
-            Runnable removeTask = () -> removed.getItem().remove();
-            if (Bukkit.isPrimaryThread()) {
-                removeTask.run();
-            } else {
-                ThreadUtils.runSync(removeTask);
-            }
-
+            ThreadUtils.runOnPrimary(() -> removed.getItem().remove());
             this.removeItemStack(removed);
         }
+
+        headStack.updateDisplay();
     }
 
     public void transferExistingEntityStack(UUID entityUUID, StackedEntity stackedEntity, StackingThread toThread) {

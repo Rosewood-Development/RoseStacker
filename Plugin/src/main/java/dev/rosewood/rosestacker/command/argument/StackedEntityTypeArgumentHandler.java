@@ -33,7 +33,7 @@ public class StackedEntityTypeArgumentHandler extends ArgumentHandler<EntityType
 
     @Override
     public List<String> suggest(CommandContext context, Argument argument, String[] args) {
-        return this.rosePlugin.getManager(StackSettingManager.class).getStackableEntityTypes().stream()
+        return this.rosePlugin.getManager(StackSettingManager.class).getStackableEntityTypesWithSpawnEggs().stream()
                 .map(Enum::name)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());

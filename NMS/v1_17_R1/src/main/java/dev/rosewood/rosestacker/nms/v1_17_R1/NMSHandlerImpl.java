@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.nms.spawner.StackedSpawnerTile;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
+import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
 import dev.rosewood.rosestacker.nms.util.ReflectionUtils;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntitySpider;
 import dev.rosewood.rosestacker.nms.v1_17_R1.entity.SoloEntityStrider;
@@ -57,7 +58,6 @@ import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
@@ -79,14 +79,13 @@ import org.bukkit.craftbukkit.v1_17_R1.util.CraftNamespacedKey;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Item;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spigotmc.SpigotWorldConfig;
 import sun.misc.Unsafe;
 
 @SuppressWarnings("unchecked")
@@ -376,7 +375,7 @@ public class NMSHandlerImpl implements NMSHandler {
         };
     }
 
-    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType) {
+    public StackedEntityDataStorage deserializeEntityDataStorage(LivingEntity livingEntity, byte[] data, StackedEntityDataStorageType storageType, Set<StorageMigrationType> migrations) {
         return switch (storageType) {
             case NBT -> new NBTStackedEntityDataStorage(livingEntity, data);
             case SIMPLE -> new SimpleStackedEntityDataStorage(livingEntity, data);

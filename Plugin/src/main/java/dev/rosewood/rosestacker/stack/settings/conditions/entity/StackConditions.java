@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.List;
+import java.util.Objects;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ageable;
@@ -29,6 +30,9 @@ import org.bukkit.entity.Bogged;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.CopperGolem.Oxidizing;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -53,10 +57,12 @@ import org.bukkit.entity.PiglinAbstract;
 import org.bukkit.entity.PufferFish;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Raider;
+import org.bukkit.entity.Salmon;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Snowman;
+import org.bukkit.entity.Squid;
 import org.bukkit.entity.Strider;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TropicalFish;
@@ -65,6 +71,7 @@ import org.bukkit.entity.Vex;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieNautilus;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -156,10 +163,26 @@ public final class StackConditions {
                 }
             }
 
+            if (!comparingForUnstack && SettingKey.ENTITY_DONT_STACK_FROM_TRIAL_SPAWNERS.get() && NMSUtil.getVersionNumber() >= 21)
+                if (PersistentDataUtils.isSpawnedFromTrialSpawner(entity1) || PersistentDataUtils.isSpawnedFromTrialSpawner(entity2))
+                    return EntityStackComparisonResult.FROM_TRIAL_SPAWNER;
+
             if (SettingKey.ENTITY_DONT_STACK_IF_ACTIVE_RAIDER.get() && (NMS_HANDLER.isActiveRaider(entity1) || NMS_HANDLER.isActiveRaider(entity2)))
                 return EntityStackComparisonResult.PART_OF_ACTIVE_RAID;
 
+            if (stack1.checkNPC() || stack2.checkNPC())
+                return EntityStackComparisonResult.CUSTOM_MOB;
+
             return EntityStackComparisonResult.CAN_STACK;
+        });
+
+        // Register settings for all entities
+        registerConfig(LivingEntity.class, "different-custom-name", false, EntityStackComparisonResult.DIFFERENT_CUSTOM_NAME, (entity1, entity2) -> {
+            if (NMSUtil.isPaper()) {
+                return !Objects.equals(entity1.customName(), entity2.customName());
+            } else {
+                return !Objects.equals(entity1.getCustomName(), entity2.getCustomName());
+            }
         });
 
         // Register conditions for specific interfaces
@@ -190,6 +213,26 @@ public final class StackConditions {
         // Register conditions for specific entities
         int versionNumber = NMSUtil.getVersionNumber();
         int minorVersionNumber = NMSUtil.getMinorVersionNumber();
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 11)) {
+            registerConfig(ZombieNautilus.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
+        if ((versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 9)) && NMSUtil.isPaper()) { // API methods are different on Spigot, ignore them
+            registerConfig(CopperGolem.class, "different-oxidization", false, EntityStackComparisonResult.DIFFERENT_WEATHERING, (entity1, entity2) -> entity1.getWeatheringState() != entity2.getWeatheringState());
+            registerConfig(CopperGolem.class, "different-weathering", false, EntityStackComparisonResult.DIFFERENT_OXIDIZATION, (entity1, entity2) -> entity1.getOxidizing() == Oxidizing.waxed() ^ entity2.getOxidizing() == Oxidizing.waxed());
+        }
+
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 5)) {
+            registerConfig(Chicken.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+            // Commodore rewrites make this one a headache, just ignoring it
+            //registerConfig(Cow.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+            registerConfig(Pig.class, "different-types", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
+        if (versionNumber > 21 || (versionNumber == 21 && minorVersionNumber >= 3)) {
+            registerConfig(Salmon.class, "different-size", true, EntityStackComparisonResult.DIFFERENT_SIZES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
+        }
+
         if (versionNumber >= 21) {
             registerConfig(Wolf.class, "different-type", false, EntityStackComparisonResult.DIFFERENT_TYPES, (entity1, entity2) -> entity1.getVariant() != entity2.getVariant());
         }

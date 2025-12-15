@@ -18,7 +18,6 @@ import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -681,7 +680,6 @@ public final class RoseStackerAPI {
         Objects.requireNonNull(stackedEntity);
 
         return stackedEntity.calculateEntityDrops(
-                new ArrayList<>(),
                 stackedEntity.getStackSize(),
                 true,
                 EntityUtils.getApproximateExperience(stackedEntity.getEntity())
@@ -704,7 +702,6 @@ public final class RoseStackerAPI {
         Preconditions.checkArgument(count > 0, "count must be greater than 0");
 
         return stackedEntity.calculateEntityDrops(
-                new ArrayList<>(),
                 count,
                 includeMainEntity,
                 EntityUtils.getApproximateExperience(stackedEntity.getEntity())
@@ -729,7 +726,6 @@ public final class RoseStackerAPI {
         Preconditions.checkArgument(count > 0, "count must be greater than 0");
 
         return stackedEntity.calculateEntityDrops(
-                new ArrayList<>(),
                 count,
                 includeMainEntity,
                 EntityUtils.getApproximateExperience(stackedEntity.getEntity()),

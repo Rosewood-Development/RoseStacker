@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
@@ -32,6 +33,7 @@ import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Raider;
@@ -82,7 +84,7 @@ public class EntityStackSettings extends StackSettings {
         if (this.entityClass == null)
             throw new IllegalArgumentException("EntityType " + this.entityType.name() + " has no entity class");
 
-        this.assignableClassMap = new HashMap<>();
+        this.assignableClassMap = new ConcurrentHashMap<>();
 
         List<StackConditions.StackCondition<?>> stackConditions = StackConditions.getEligibleConditions(this.entityClass);
         this.stackConditions = new ArrayList<>(stackConditions.size());
@@ -139,7 +141,6 @@ public class EntityStackSettings extends StackSettings {
         this.disableAllMobAI = this.settingsConfiguration.getDefaultedBoolean("disable-all-mob-ai");
 
         this.stackConditions.forEach(StackConditionEntry::load);
-        this.extraSettings.values().forEach(EntitySetting::load);
     }
 
     private void putSetting(String key, Object defaultValue) {
@@ -155,7 +156,12 @@ public class EntityStackSettings extends StackSettings {
     protected void setDefaults() {
         super.setDefaults();
 
-        this.setIfNotExists("enabled", !this.isEntity(Boss.class));
+        boolean enabledByDefault = switch (this.entityType.getKey().getKey()) {
+            case "ender_dragon", "wither", "copper_golem", "mannequin" -> false;
+            default -> true;
+        };
+
+        this.setIfNotExists("enabled", enabledByDefault);
         this.setIfNotExists("display-name", StackerUtils.formatName(this.entityType.name()));
         this.setIfNotExists("min-stack-size", -1);
         this.setIfNotExists("max-stack-size", -1);
@@ -301,7 +307,8 @@ public class EntityStackSettings extends StackSettings {
             Mob stackedMob = (Mob) stacked;
             Mob unstackedMob = (Mob) unstacked;
 
-            stackedMob.setTarget(unstackedMob.getTarget());
+            if (SettingKey.ENTITY_KILL_TRANSFER_TARGET.get())
+                stackedMob.setTarget(unstackedMob.getTarget());
         }
 
         if (this.isEntity(Animals.class) && SettingKey.ENTITY_CUMULATIVE_BREEDING.get()) {
@@ -344,6 +351,7 @@ public class EntityStackSettings extends StackSettings {
             EntityEquipment equipment = entity.getEquipment();
             if (equipment != null)
                 equipment.clear();
+            entity.setCanPickupItems(false);
         }
 
         if (this.isEntity(Ageable.class))
@@ -437,19 +445,21 @@ public class EntityStackSettings extends StackSettings {
             EntityStackSettings.this.setIfNotExists(this.key, this.defaultValue);
         }
 
-        public void load() {
-            this.value = EntityStackSettings.this.settingsConfiguration.get(this.key, this.defaultValue);
-        }
-
         public boolean getBoolean() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getBoolean(this.key);
             return (boolean) this.value;
         }
 
         public int getInt() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getInt(this.key);
             return (int) this.value;
         }
 
         public double getDouble() {
+            if (this.value == null)
+                this.value = EntityStackSettings.this.settingsConfiguration.getDouble(this.key);
             return (double) this.value;
         }
 

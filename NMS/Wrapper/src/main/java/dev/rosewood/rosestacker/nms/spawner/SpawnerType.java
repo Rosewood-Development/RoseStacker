@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -120,11 +122,8 @@ public final class SpawnerType {
         if (entityTypes.isEmpty())
             return empty();
 
-        for (EntityType entityType : entityTypes)
-            if (entityType == null || entityType == EntityType.UNKNOWN)
-                throw new IllegalArgumentException("Cannot have null or UNKNOWN EntityType in a SpawnerType");
-
-        return new SpawnerType(entityTypes);
+        Set<EntityType> filteredTypes = entityTypes.stream().filter(x -> x != null && x != EntityType.UNKNOWN).collect(Collectors.toSet());
+        return new SpawnerType(filteredTypes);
     }
 
     /**
