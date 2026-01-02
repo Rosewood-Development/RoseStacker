@@ -20,7 +20,7 @@ dependencies {
 
     // Misc other
     compileOnly 'net.coreprotect:coreprotect:22.4'
-    compileOnly 'de.diddiz:logblock:1.16.1.1'
+    compileOnly 'de.diddiz:logblock:1.19.0.0'
     compileOnly 'dev.frankheijden.insights:Insights:6.19.2'
     compileOnly 'com.songoda:epicbosses:1.2.12'
     compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0', {
