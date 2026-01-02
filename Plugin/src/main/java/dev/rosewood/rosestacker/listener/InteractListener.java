@@ -138,6 +138,11 @@ public class InteractListener implements Listener {
         Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
+            if (SettingKey.ENTITY_DISABLE_NAMETAG_SPLIT.get() && stackedEntity.getStackSize() > 1) {
+                event.setCancelled(true);
+                return;
+            }
+
             ThreadUtils.runSync(stackedEntity::updateDisplay);
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
