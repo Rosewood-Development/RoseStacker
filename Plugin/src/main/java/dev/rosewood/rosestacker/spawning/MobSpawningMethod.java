@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.spawning;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
@@ -25,9 +27,11 @@ import dev.rosewood.rosestacker.utils.ThreadUtils;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -69,13 +73,11 @@ public class MobSpawningMethod implements SpawningMethod {
         List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).toList();
         spawnRequirements.removeAll(perSpawnConditions);
 
-        Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toSet());
+        Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toCollection(HashSet::new));
         if (SettingKey.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.get() && !stackedSpawner.isPlacedByPlayer())
             invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
 
         boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
-
-        invalidSpawnConditions.addAll(perSpawnConditions); // Will be removed when they pass
 
         // Spawn the mobs
         int spawnAmount;
@@ -98,7 +100,7 @@ public class MobSpawningMethod implements SpawningMethod {
                 return;
 
             Set<Location> spawnLocations = new HashSet<>();
-            Set<Location> invalidLocations = new HashSet<>();
+            Multimap<Location, ConditionTag> invalidLocations = MultimapBuilder.hashKeys().arrayListValues().build();
 
             int spawnRange = spawnerTile.getSpawnRange();
             int attempts = 0;
@@ -108,13 +110,14 @@ public class MobSpawningMethod implements SpawningMethod {
             if (!useNearbyEntitiesForStacking)
                 desiredLocations *= 4;
 
+            List<ConditionTag> unmetConditions = new ArrayList<>(perSpawnConditions.size());
             while (attempts <= maxFailedSpawnAttempts) {
                 int xOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                 int yOffset = !SettingKey.SPAWNER_USE_VERTICAL_SPAWN_RANGE.get() ? this.random.nextInt(3) - 1 : this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
                 int zOffset = this.random.nextInt(spawnRange * 2 + 1) - spawnRange;
 
                 Location spawnLocation = stackedSpawner.getLocation().clone().add(xOffset + 0.5, yOffset, zOffset + 0.5);
-                if (invalidLocations.contains(spawnLocation)) {
+                if (invalidLocations.containsKey(spawnLocation)) {
                     // Decrease max failed spawn attempts if the location is invalid to avoid spinning forever
                     maxFailedSpawnAttempts--;
                     continue;
@@ -122,17 +125,17 @@ public class MobSpawningMethod implements SpawningMethod {
 
                 Block target = stackedSpawner.getLocation().clone().add(xOffset, yOffset, zOffset).getBlock();
 
+                unmetConditions.clear();
                 boolean invalid = false;
                 for (ConditionTag conditionTag : perSpawnConditions) {
                     if (!conditionTag.check(stackedSpawner, target)) {
                         invalid = true;
-                    } else {
-                        invalidSpawnConditions.remove(conditionTag);
+                        unmetConditions.add(conditionTag);
                     }
                 }
 
                 if (invalid) {
-                    invalidLocations.add(spawnLocation);
+                    invalidLocations.putAll(spawnLocation, unmetConditions);
                     attempts++;
                     continue;
                 }
@@ -159,14 +162,37 @@ public class MobSpawningMethod implements SpawningMethod {
             }
 
             stackedSpawner.getLastInvalidConditions().clear();
-            if (successfulSpawns <= 0) {
+            if (successfulSpawns == 0) {
+                Collection<ConditionTag> conditions = invalidLocations.values();
+                Map<ConditionTag, Integer> counts = new HashMap<>();
+                for (ConditionTag conditionTag : invalidLocations.values())
+                    counts.merge(conditionTag, 1, Integer::sum);
+
+                int totalInvalidLocations = invalidLocations.size();
+                ConditionTag mostFrequentCondition = null;
+                int highestCount = 0;
+
+                for (Map.Entry<ConditionTag, Integer> entry : counts.entrySet()) {
+                    ConditionTag conditionTag = entry.getKey();
+                    int count = entry.getValue();
+
+                    if (count > highestCount) {
+                        highestCount = count;
+                        mostFrequentCondition = conditionTag;
+                    }
+
+                    if (totalInvalidLocations > 0 && (count / (double) totalInvalidLocations) > 0.5)
+                        invalidSpawnConditions.add(conditionTag);
+                }
+
+                if (invalidSpawnConditions.isEmpty() && mostFrequentCondition != null)
+                    invalidSpawnConditions.add(mostFrequentCondition);
+
                 if (invalidSpawnConditions.isEmpty()) {
                     stackedSpawner.getLastInvalidConditions().add(NoneConditionTag.class);
                 } else {
-                    List<Class<? extends ConditionTag>> invalidSpawnConditionClasses = new ArrayList<>();
                     for (ConditionTag conditionTag : invalidSpawnConditions)
-                        invalidSpawnConditionClasses.add(conditionTag.getClass());
-                    stackedSpawner.getLastInvalidConditions().addAll(invalidSpawnConditionClasses);
+                        stackedSpawner.getLastInvalidConditions().add(conditionTag.getClass());
                 }
 
                 if (!onlyCheckConditions) {
