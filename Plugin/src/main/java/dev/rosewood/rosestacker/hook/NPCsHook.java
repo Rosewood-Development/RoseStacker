@@ -7,10 +7,12 @@ import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
+import java.lang.reflect.Method;
 import net.bestemor.villagermarket.VillagerMarketAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataType;
 import simplepets.brainsynder.api.plugin.SimplePets;
@@ -29,6 +31,10 @@ public class NPCsHook {
     private static Boolean simplePetsEnabled;
     private static Boolean levelledMobsEnabled;
     private static Boolean villagerMarketEnabled;
+    private static Boolean myPetEnabled;
+
+    private static Method myPetIsPetMethod;
+    private static Object myPetEntityUtil;
 
     private static final NamespacedKey LEVELLEDMOBS_KEY = new NamespacedKey("levelledmobs", "level");
 
@@ -153,6 +159,29 @@ public class NPCsHook {
     }
 
     /**
+     * @return true if MyPet is enabled and the API is available, false otherwise
+     */
+    public static boolean myPetEnabled() {
+        if (myPetEnabled != null)
+            return myPetEnabled;
+
+        if (!Bukkit.getPluginManager().isPluginEnabled("MyPet"))
+            return myPetEnabled = false;
+
+        try {
+            Class<?> myPetApiClass = Class.forName("de.Keyle.MyPet.api.MyPetApi");
+            Method getEntityUtilMethod = myPetApiClass.getMethod("getEntityUtil");
+            Object entityUtil = getEntityUtilMethod.invoke(null);
+            Method isMyPetMethod = entityUtil.getClass().getMethod("isMyPet", Entity.class);
+            myPetEntityUtil = entityUtil;
+            myPetIsPetMethod = isMyPetMethod;
+            return myPetEnabled = true;
+        } catch (ReflectiveOperationException e) {
+            return myPetEnabled = false;
+        }
+    }
+
+    /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
     public static boolean anyEnabled() {
@@ -165,6 +194,7 @@ public class NPCsHook {
                 || proCosmeticsEnabled()
                 || infernalMobsEnabled()
                 || simplePetsEnabled()
+                || myPetEnabled()
                 || levelledMobsEnabled()
                 || villagerMarketEnabled();
     }
@@ -213,7 +243,23 @@ public class NPCsHook {
         if (!npc && villagerMarketEnabled())
             npc = VillagerMarketAPI.getShopManager().isShop(entity);
 
+        if (!npc && myPetEnabled())
+            npc = isMyPet(entity);
+
         return npc;
+    }
+
+    private static boolean isMyPet(LivingEntity entity) {
+        if (myPetIsPetMethod == null || myPetEntityUtil == null)
+            return false;
+
+        try {
+            Object result = myPetIsPetMethod.invoke(myPetEntityUtil, entity);
+            return result instanceof Boolean && (Boolean) result;
+        } catch (Exception e) {
+            myPetEnabled = false;
+            return false;
+        }
     }
 
     public static void addCustomPlaceholders(LivingEntity entity, StringPlaceholders.Builder placeholders) {
