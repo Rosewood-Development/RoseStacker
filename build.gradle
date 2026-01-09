@@ -31,6 +31,7 @@ allprojects {
         maven { url = 'https://repo.papermc.io/repository/maven-public/' }
         maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://repo.citizensnpcs.co/' }
         maven { url = 'https://repo.bg-software.com/repository/api/' }
         maven { url = 'https://bitbucket.org/kangarko/libraries/raw/master' }
         maven { url = 'https://maven.enginehub.org/repo/' }
@@ -43,13 +44,15 @@ allprojects {
         maven { url = 'https://nexus.neetgames.com/repository/maven-releases/' }
         maven { url = 'https://jitpack.io' }
 
-        maven {
-            url = 'https://repo.rosewooddev.io/repository/maven-public'
-            credentials {
-                username project.mavenUser
-                password project.mavenPassword
-                authentication {
-                    basic(BasicAuthentication)
+        if (project.hasProperty('mavenUser') && project.hasProperty('mavenPassword')) {
+            maven {
+                url = 'https://repo.rosewooddev.io/repository/maven-public'
+                credentials {
+                    username project.mavenUser
+                    password project.mavenPassword
+                    authentication {
+                        basic(BasicAuthentication)
+                    }
                 }
             }
         }
