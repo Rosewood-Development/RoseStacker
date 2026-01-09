@@ -148,7 +148,7 @@ public class NPCsHook {
     }
 
     /**
-     * @return true if MyPet is enabled and the API is available, false otherwise
+     * @return true if MyPet is enabled is enabled, false otherwise
      */
     public static boolean myPetEnabled() {
         if (myPetEnabled != null)
