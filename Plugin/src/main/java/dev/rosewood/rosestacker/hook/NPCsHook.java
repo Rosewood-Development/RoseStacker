@@ -3,7 +3,9 @@ package dev.rosewood.rosestacker.hook;
 import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
+import de.Keyle.MyPet.api.MyPetApi;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
+import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -11,6 +13,7 @@ import net.bestemor.villagermarket.VillagerMarketAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataType;
 import simplepets.brainsynder.api.plugin.SimplePets;
@@ -29,6 +32,7 @@ public class NPCsHook {
     private static Boolean simplePetsEnabled;
     private static Boolean levelledMobsEnabled;
     private static Boolean villagerMarketEnabled;
+    private static Boolean myPetEnabled;
 
     private static final NamespacedKey LEVELLEDMOBS_KEY = new NamespacedKey("levelledmobs", "level");
 
@@ -120,16 +124,7 @@ public class NPCsHook {
             return simplePetsEnabled;
 
         boolean enabled = Bukkit.getPluginManager().isPluginEnabled("SimplePets");
-        if (!enabled)
-            return simplePetsEnabled = false;
-
-        try {
-            Class.forName("simplepets.brainsynder.api.plugin.SimplePets");
-        } catch (ClassNotFoundException e) {
-            return simplePetsEnabled = false;
-        }
-
-        return simplePetsEnabled = true;
+        return simplePetsEnabled = enabled;
     }
 
     /**
@@ -153,6 +148,16 @@ public class NPCsHook {
     }
 
     /**
+     * @return true if MyPet is enabled is enabled, false otherwise
+     */
+    public static boolean myPetEnabled() {
+        if (myPetEnabled != null)
+            return myPetEnabled;
+
+        return myPetEnabled = Bukkit.getPluginManager().isPluginEnabled("MyPet");
+    }
+
+    /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
     public static boolean anyEnabled() {
@@ -165,6 +170,7 @@ public class NPCsHook {
                 || proCosmeticsEnabled()
                 || infernalMobsEnabled()
                 || simplePetsEnabled()
+                || myPetEnabled()
                 || levelledMobsEnabled()
                 || villagerMarketEnabled();
     }
@@ -213,7 +219,20 @@ public class NPCsHook {
         if (!npc && villagerMarketEnabled())
             npc = VillagerMarketAPI.getShopManager().isShop(entity);
 
+        if (!npc && myPetEnabled())
+            npc = isMyPet(entity);
+
         return npc;
+    }
+
+    private static boolean isMyPet(LivingEntity entity) {
+        try {
+            return MyPetApi.getEntityUtil().isMyPet(entity);
+        } catch (Throwable t) {
+            myPetEnabled = false; // disable hook on failure to mirror other hooks' fail-closed behavior
+            RoseStacker.getInstance().getLogger().warning("Error while querying MyPet hook; disabling MyPet NPC checks.");
+            return false;
+        }
     }
 
     public static void addCustomPlaceholders(LivingEntity entity, StringPlaceholders.Builder placeholders) {
