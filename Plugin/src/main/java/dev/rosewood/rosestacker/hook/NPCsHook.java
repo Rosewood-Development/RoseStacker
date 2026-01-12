@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
+import de.Keyle.MyPet.api.entity.MyPetBukkitEntity;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
@@ -29,6 +30,7 @@ public class NPCsHook {
     private static Boolean simplePetsEnabled;
     private static Boolean levelledMobsEnabled;
     private static Boolean villagerMarketEnabled;
+    private static Boolean mypetEnabled;
 
     private static final NamespacedKey LEVELLEDMOBS_KEY = new NamespacedKey("levelledmobs", "level");
 
@@ -152,6 +154,13 @@ public class NPCsHook {
         return villagerMarketEnabled = Bukkit.getPluginManager().isPluginEnabled("VillagerMarket");
     }
 
+    public static boolean mypetEnabled() {
+        if (mypetEnabled != null)
+            return mypetEnabled;
+
+        return mypetEnabled = Bukkit.getPluginManager().isPluginEnabled("MyPet");
+    }
+
     /**
      * @return true if any NPC plugin is enabled, false otherwise
      */
@@ -166,7 +175,8 @@ public class NPCsHook {
                 || infernalMobsEnabled()
                 || simplePetsEnabled()
                 || levelledMobsEnabled()
-                || villagerMarketEnabled();
+                || villagerMarketEnabled()
+                || mypetEnabled();
     }
 
     /**
@@ -212,6 +222,9 @@ public class NPCsHook {
 
         if (!npc && villagerMarketEnabled())
             npc = VillagerMarketAPI.getShopManager().isShop(entity);
+
+        if (!npc && mypetEnabled())
+            npc = entity instanceof MyPetBukkitEntity;
 
         return npc;
     }

@@ -17,6 +17,7 @@ softdepend:
   - LevelledMobs
   - LogBlock
   - mcMMO
+  - MyPet
   - MythicMobs
   - PlaceholderAPI
   - ProCosmetics

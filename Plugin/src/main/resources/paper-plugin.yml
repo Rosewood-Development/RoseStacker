@@ -27,6 +27,8 @@ dependencies:
     required: false
   - name: mcMMO
     required: false
+  - name: MyPet
+    required: false
   - name: MythicMobs
     required: false
   - name: PlaceholderAPI

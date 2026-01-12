@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'net.citizensnpcs:citizens:2.0.27'
     compileOnly 'com.nisovin:shopkeepers:2.11.0'
     compileOnly 'com.magmaguy:elitemobs:7.2.16'
+    compileOnly 'de.keyle:mypet:3.14.0'
     compileOnly 'io.lumine:Mythic-Dist:5.3.3'
     compileOnly ('com.gmail.nossr50.mcMMO:mcMMO:2.2.012') {
         exclude group: 'com.comphenix.protocol'
