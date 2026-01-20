@@ -14,7 +14,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.gradleup.shadow'
     group = 'dev.rosewood'
-    version = '1.5.38-SNAPSHOT'
+    version = '1.5.38'
 
     java {
         sourceCompatibility = JavaVersion.VERSION_17
