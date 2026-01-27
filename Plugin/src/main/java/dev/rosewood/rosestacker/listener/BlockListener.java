@@ -919,6 +919,7 @@ public class BlockListener implements Listener {
             case BUILD_IRONGOLEM:
             case BUILD_SNOWMAN:
             case BUILD_WITHER:
+            case BUILD_COPPERGOLEM:
                 break;
             default:
                 return;

@@ -4,6 +4,7 @@ import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
@@ -80,12 +81,25 @@ import org.bukkit.util.Vector;
 
 public class EntityListener implements Listener {
 
-    private static final Set<SpawnReason> DELAYED_SPAWN_REASONS = EnumSet.of(
-            SpawnReason.BEEHIVE,
-            SpawnReason.BUILD_IRONGOLEM,
-            SpawnReason.BUILD_SNOWMAN,
-            SpawnReason.BUILD_WITHER
-    );
+    private static final Set<SpawnReason> DELAYED_SPAWN_REASONS;
+    static {
+        if (NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 9)) {
+            DELAYED_SPAWN_REASONS = EnumSet.of(
+                    SpawnReason.BEEHIVE,
+                    SpawnReason.BUILD_IRONGOLEM,
+                    SpawnReason.BUILD_SNOWMAN,
+                    SpawnReason.BUILD_WITHER
+            );
+        } else {
+            DELAYED_SPAWN_REASONS = EnumSet.of(
+                    SpawnReason.BEEHIVE,
+                    SpawnReason.BUILD_IRONGOLEM,
+                    SpawnReason.BUILD_SNOWMAN,
+                    SpawnReason.BUILD_WITHER,
+                    SpawnReason.BUILD_COPPERGOLEM
+            );
+        }
+    }
 
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
