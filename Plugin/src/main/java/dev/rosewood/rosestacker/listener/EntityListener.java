@@ -88,15 +88,15 @@ public class EntityListener implements Listener {
                     SpawnReason.BEEHIVE,
                     SpawnReason.BUILD_IRONGOLEM,
                     SpawnReason.BUILD_SNOWMAN,
-                    SpawnReason.BUILD_WITHER
+                    SpawnReason.BUILD_WITHER,
+                    SpawnReason.BUILD_COPPERGOLEM
             );
         } else {
             DELAYED_SPAWN_REASONS = EnumSet.of(
                     SpawnReason.BEEHIVE,
                     SpawnReason.BUILD_IRONGOLEM,
                     SpawnReason.BUILD_SNOWMAN,
-                    SpawnReason.BUILD_WITHER,
-                    SpawnReason.BUILD_COPPERGOLEM
+                    SpawnReason.BUILD_WITHER
             );
         }
     }
