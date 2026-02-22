@@ -51,7 +51,7 @@ public class BlockUnstackEvent extends UnstackEvent<StackedBlock> {
     public void setDecreaseAmount(int decreaseAmount) {
         if (decreaseAmount < 1)
             throw new IllegalArgumentException("Decrease amount must be at least 1");
-        if (decreaseAmount < this.stack.getStackSize())
+        if (decreaseAmount > this.stack.getStackSize())
             throw new IllegalArgumentException("Decrease amount must not be larger than the total stack size");
         this.decreaseAmount = decreaseAmount;
     }
