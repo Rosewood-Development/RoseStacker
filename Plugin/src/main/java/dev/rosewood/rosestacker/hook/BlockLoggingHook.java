@@ -54,8 +54,13 @@ public class BlockLoggingHook {
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("LogBlock");
         if (plugin != null) {
-            logBlockConsumer = ((LogBlock) plugin).getConsumer();
-            return logBlockEnabled = true;
+            try {
+                Class.forName("de.diddiz.LogBlock.LogBlock");
+                logBlockConsumer = ((LogBlock) plugin).getConsumer();
+                return logBlockEnabled = true;
+            } catch (ClassNotFoundException e) {
+                return logBlockEnabled = false;
+            }
         } else {
             return logBlockEnabled = false;
         }
