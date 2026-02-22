@@ -38,7 +38,7 @@ dependencies {
     compileOnly 'net.zrips:cmilib:1.5.4.4'
     compileOnly 'com.jacob_vejvoda:infernalmobs:6.6'
     compileOnly 'simplepets.brainsynder:Version_1.21.4:5.0-BUILD-279'
-    compileOnly 'com.github.Bestem0r:VillagerMarket:1.11.2'
+    compileOnly 'com.github.Bestem0r:VillagerMarket:1.13.2'
     compileOnly 'com.bgsoftware:SuperiorSkyblockAPI:2024.4'
     compileOnly 'com.bgsoftware:WildChestsAPI:2.2.3'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4', {

@@ -950,15 +950,23 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             return;
 
         if (this.stackManager.isSpawnerStackingEnabled()) {
+            if (clearStored) {
+                stackChunkData.getSpawners().values().forEach(stack -> {
+                    this.hologramManager.deleteHologram(stack.getHologramLocation());
+                    stack.kickOutGuiViewers();
+                });
+            }
             DataUtils.writeStackedSpawners(stackChunkData.getSpawners().values(), chunk);
-            if (clearStored)
-                stackChunkData.getSpawners().values().stream().map(StackedSpawner::getHologramLocation).forEach(this.hologramManager::deleteHologram);
         }
 
         if (this.stackManager.isBlockStackingEnabled()) {
+            if (clearStored) {
+                stackChunkData.getBlocks().values().forEach(stack -> {
+                    this.hologramManager.deleteHologram(stack.getHologramLocation());
+                    stack.kickOutGuiViewers();
+                });
+            }
             DataUtils.writeStackedBlocks(stackChunkData.getBlocks().values(), chunk);
-            if (clearStored)
-                stackChunkData.getBlocks().values().stream().map(StackedBlock::getHologramLocation).forEach(this.hologramManager::deleteHologram);
         }
 
         if (clearStored)
