@@ -10,6 +10,7 @@ import net.minecraft.server.v1_16_R3.Chunk;
 import net.minecraft.server.v1_16_R3.ChunkStatus;
 import net.minecraft.server.v1_16_R3.Entity;
 import net.minecraft.server.v1_16_R3.EntityTypes;
+import net.minecraft.server.v1_16_R3.EntityVillager;
 import net.minecraft.server.v1_16_R3.EnumMobSpawn;
 import net.minecraft.server.v1_16_R3.IChunkAccess;
 import net.minecraft.server.v1_16_R3.MathHelper;
@@ -81,6 +82,9 @@ public class NBTEntityDataEntry implements EntityDataEntry {
 
                 // Load NBT
                 entity.load(nbt);
+
+                if (entity instanceof EntityVillager villager)
+                    villager.setCanPickupLoot(true);
 
                 if (addToWorld) {
                     IChunkAccess ichunkaccess = world.getChunkAt(MathHelper.floor(entity.locX() / 16.0D), MathHelper.floor(entity.locZ() / 16.0D), ChunkStatus.FULL, true);

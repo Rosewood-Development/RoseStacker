@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
 import org.bukkit.Location;
@@ -77,6 +78,9 @@ public class NBTEntityDataEntry implements EntityDataEntry {
                 entity.load(valueInput);
                 if (!reporter.isEmpty())
                     RoseStacker.getInstance().getLogger().severe(reporter.getTreeReport());
+
+                if (entity instanceof Villager villager)
+                    villager.setCanPickUpLoot(true);
 
                 if (addToWorld) {
                     nmsHandler.addEntityToWorld(world, entity);

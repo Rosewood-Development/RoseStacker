@@ -14,6 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.npc.Villager;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.entity.EntityType;
@@ -77,6 +78,9 @@ public class NBTEntityDataEntry implements EntityDataEntry {
 
                 // Load NBT
                 entity.load(nbt);
+
+                if (entity instanceof Villager villager)
+                    villager.setCanPickUpLoot(true);
 
                 if (addToWorld) {
                     nmsHandler.registerEntity(world, entity);
