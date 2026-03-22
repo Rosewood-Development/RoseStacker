@@ -383,8 +383,6 @@ public class EntityListener implements Listener {
             // Should we kill multiple entities?
             if (SettingKey.ENTITY_MULTIKILL_ENABLED.get()) {
                 int killAmount = StackedEntity.getNextMultikillAmount(entity, stackSize);
-                if (event != null)
-                    RoseLoot.getInstance().getLogger().warning("multiple: " + stackedEntity.areMultipleEntitiesDying(event));
                 if (killAmount >= stackSize) {
                     stackedEntity.killEntireStack(event);
                 } else {
