@@ -56,8 +56,8 @@ public class StackManager extends Manager implements StackingLogic {
 
     private StackedEntityDataStorageType entityDataStorageType;
 
-    private MultikillBound lowerMultikillBound;
-    private MultikillBound upperMultikillBound;
+    private static MultikillBound lowerMultikillBound;
+    private static MultikillBound upperMultikillBound;
 
     public StackManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -88,12 +88,12 @@ public class StackManager extends Manager implements StackingLogic {
         if (separatorIndex != -1) {
             String lower = multikillAmountValue.substring(0, separatorIndex);
             String upper = multikillAmountValue.substring(separatorIndex + 1);
-            this.lowerMultikillBound = MultikillBound.parse(lower);
-            this.upperMultikillBound = MultikillBound.parse(upper);
+            lowerMultikillBound = MultikillBound.parse(lower);
+            upperMultikillBound = MultikillBound.parse(upper);
         } else {
             MultikillBound bound = MultikillBound.parse(multikillAmountValue);
-            this.lowerMultikillBound = bound;
-            this.upperMultikillBound = bound;
+            lowerMultikillBound = bound;
+            upperMultikillBound = bound;
         }
     }
 
@@ -630,15 +630,15 @@ public class StackManager extends Manager implements StackingLogic {
     /**
      * @return the lower multikill bound
      */
-    public MultikillBound getLowerMultikillBound() {
-        return this.lowerMultikillBound;
+    public static MultikillBound getLowerMultikillBound() {
+        return lowerMultikillBound;
     }
 
     /**
      * @return the upper multikill bound
      */
-    public MultikillBound getUpperMultikillBound() {
-        return this.upperMultikillBound;
+    public static MultikillBound getUpperMultikillBound() {
+        return upperMultikillBound;
     }
 
 }

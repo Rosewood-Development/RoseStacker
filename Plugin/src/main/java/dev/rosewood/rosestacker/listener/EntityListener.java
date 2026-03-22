@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.compatibility.handler.ShearedHandler;
 import dev.rosewood.rosegarden.utils.NMSUtil;
+import dev.rosewood.roseloot.RoseLoot;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.AsyncEntityDeathEvent;
@@ -381,31 +382,9 @@ public class EntityListener implements Listener {
         Runnable task = () -> {
             // Should we kill multiple entities?
             if (SettingKey.ENTITY_MULTIKILL_ENABLED.get()) {
-                int enchantmentMultiplier = 1;
-                if (!SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() || entity.getKiller() != null) {
-                    if (SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get()) {
-                        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
-                        if (requiredEnchantment == null) {
-                            // Only decrease stack size by 1 and print a warning to the console
-                            RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get());
-                        } else if (event != null && event.getEntity().getKiller() != null) {
-                            Player killer = event.getEntity().getKiller();
-                            enchantmentMultiplier = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
-                        }
-                    }
-                }
-
-                MultikillBound lowerBound = this.stackManager.getLowerMultikillBound();
-                MultikillBound upperBound = this.stackManager.getUpperMultikillBound();
-
-                int lowerValue = lowerBound.getValue(stackSize);
-                int upperValue = upperBound.getValue(stackSize);
-                if (upperValue < lowerValue)
-                    upperValue = lowerValue;
-
-                int targetAmount = StackerUtils.randomInRange(lowerValue, upperValue);
-                int killAmount = Math.max(1, targetAmount * enchantmentMultiplier);
-
+                int killAmount = StackedEntity.getNextMultikillAmount(entity, stackSize);
+                if (event != null)
+                    RoseLoot.getInstance().getLogger().warning("multiple: " + stackedEntity.areMultipleEntitiesDying(event));
                 if (killAmount >= stackSize) {
                     stackedEntity.killEntireStack(event);
                 } else {

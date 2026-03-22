@@ -23,6 +23,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.ItemUtils;
@@ -773,6 +774,37 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             killer.incrementStatistic(Statistic.KILL_ENTITY, this.entity.getType(), amount - 1);
     }
 
+    public static int getNextMultikillAmount(LivingEntity entity, int stackSize) {
+        int enchantmentMultiplier = 1;
+        Player killer = entity.getKiller();
+        if (!SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() || killer != null) {
+            if (SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get()) {
+                Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
+                if (requiredEnchantment == null) {
+                    // Only decrease stack size by 1 and print a warning to the console
+                    RoseStacker.getInstance().getLogger().warning("Invalid multikill enchantment type: " + SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get());
+                    enchantmentMultiplier = 0;
+                } else if (killer != null) {
+                    enchantmentMultiplier = killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment);
+                } else {
+                    enchantmentMultiplier = 0;
+                }
+            }
+        }
+
+        MultikillBound lowerBound = StackManager.getLowerMultikillBound();
+        MultikillBound upperBound = StackManager.getUpperMultikillBound();
+
+        int lowerValue = lowerBound.getValue(stackSize);
+        int upperValue = upperBound.getValue(stackSize);
+        if (upperValue < lowerValue)
+            upperValue = lowerValue;
+
+        long seed = entity.getUniqueId().getMostSignificantBits(); // Consistent seed for same entity UUID so other plugins can calculate the same kill amount
+        int targetAmount = StackerUtils.seededRandomInRange(seed, lowerValue, upperValue);
+        return Math.max(1, targetAmount * enchantmentMultiplier);
+    }
+
     /**
      * Checks if multiple entities are dying from the EntityDeathEvent and an {@link EntityStackMultipleDeathEvent} is
      * going to be called.
@@ -799,17 +831,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (SettingKey.ENTITY_MULTIKILL_PLAYER_ONLY.get() && killer == null)
             return false;
 
-        if (!SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_ENABLED.get())
-            return true;
-
-        if (killer == null)
-            return false;
-
-        Enchantment requiredEnchantment = Enchantment.getByKey(NamespacedKey.fromString(SettingKey.ENTITY_MULTIKILL_ENCHANTMENT_TYPE.get()));
-        if (requiredEnchantment == null)
-            return false;
-
-        return killer.getInventory().getItemInMainHand().getEnchantmentLevel(requiredEnchantment) > 0;
+        return getNextMultikillAmount(event.getEntity(), this.getStackSize()) > 1;
     }
 
     /**

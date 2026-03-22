@@ -42,6 +42,7 @@ public final class StackerUtils {
     public static final DustOptions UNSTACKABLE_DUST_OPTIONS = new DustOptions(Color.fromRGB(0xFF0000), 1.5F);
 
     public static final Random RANDOM = new Random();
+    public static final Random SEEDED_RANDOM = new Random();
     private static Set<EntityType> cachedStackableEntityTypes;
 
     private static NumberFormat formatter = NumberFormat.getInstance();
@@ -87,6 +88,26 @@ public final class StackerUtils {
             max = temp;
         }
         return RANDOM.nextInt(max - min + 1) + min;
+    }
+
+    /**
+     * Gets a seeded random value between the given range, inclusively
+     *
+     * @param min The minimum value
+     * @param max The maximum value
+     * @return A value between the min and max, inclusively
+     */
+    public static int seededRandomInRange(long seed, int min, int max) {
+        if (min == max)
+            return min;
+
+        if (min > max) {
+            int temp = min;
+            min = max;
+            max = temp;
+        }
+        SEEDED_RANDOM.setSeed(seed);
+        return SEEDED_RANDOM.nextInt(max - min + 1) + min;
     }
 
     public static Set<EntityType> getStackableEntityTypes() {
