@@ -68,6 +68,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent.Cause;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
@@ -222,6 +224,13 @@ public class EntityListener implements Listener {
     public void onEntityTeleport(EntityTeleportEvent event) {
         // Endermen can still target enitites due to custom dodging AI, so prevent them from teleporting when AI is disabled
         if (event.getEntityType() == EntityType.ENDERMAN && PersistentDataUtils.isAiDisabled((Enderman) event.getEntity()))
+            event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDrinkPotion(EntityPotionEffectEvent event) {
+        // Prevent witches from drinking potions when AI is disabled
+        if (event.getCause() == Cause.POTION_DRINK && PersistentDataUtils.isAiDisabled((Enderman) event.getEntity()))
             event.setCancelled(true);
     }
 
