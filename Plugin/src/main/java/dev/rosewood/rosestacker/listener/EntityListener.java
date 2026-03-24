@@ -230,7 +230,7 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDrinkPotion(EntityPotionEffectEvent event) {
         // Prevent witches from drinking potions when AI is disabled
-        if (event.getCause() == Cause.POTION_DRINK && PersistentDataUtils.isAiDisabled((Enderman) event.getEntity()))
+        if (event.getCause() == Cause.POTION_DRINK && PersistentDataUtils.isAiDisabled((LivingEntity) event.getEntity()))
             event.setCancelled(true);
     }
 
