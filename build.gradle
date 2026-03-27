@@ -19,7 +19,7 @@ allprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(25))
         disableAutoTargetJvm()
     }
 
@@ -76,13 +76,14 @@ dependencies {
     implementation project(path: ':NMS:v1_21_R5', configuration: 'remapped')
     implementation project(path: ':NMS:v1_21_R6', configuration: 'remapped')
     implementation project(path: ':NMS:v1_21_R7', configuration: 'remapped')
+    implementation project(path: ':NMS:v26_1_R1')
 }
 
 shadowJar {
     dependsOn(':Plugin:shadowJar')
     archiveClassifier.set(null)
 
-    relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
+//    relocate('dev.rosewood.rosegarden', 'dev.rosewood.rosestacker.lib.rosegarden')
     relocate('dev.rosewood.guiframework', 'dev.rosewood.rosestacker.lib.guiframework')
 
     exclude 'com/zaxxer/hikari/**/*.class'

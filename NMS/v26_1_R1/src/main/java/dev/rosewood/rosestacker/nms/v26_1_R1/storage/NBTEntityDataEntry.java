@@ -1,9 +1,9 @@
-package dev.rosewood.rosestacker.nms.v1_21_R5.storage;
+package dev.rosewood.rosestacker.nms.v26_1_R1.storage;
 
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
-import dev.rosewood.rosestacker.nms.v1_21_R5.NMSHandlerImpl;
+import dev.rosewood.rosestacker.nms.v26_1_R1.NMSHandlerImpl;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -17,11 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueInputContextHelper;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R5.CraftWorld;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
