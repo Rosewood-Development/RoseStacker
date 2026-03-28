@@ -48,6 +48,7 @@ public class StackManager extends Manager implements StackingLogic {
 
     private final Map<UUID, StackingThread> stackingThreads;
     private final Set<String> disabledWorldNames;
+    private final Set<String> enabledWorldNames;
 
     private ScheduledTask autosaveTask;
 
@@ -64,6 +65,7 @@ public class StackManager extends Manager implements StackingLogic {
 
         this.stackingThreads = new ConcurrentHashMap<>();
         this.disabledWorldNames = new HashSet<>();
+        this.enabledWorldNames = new HashSet<>();
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -72,6 +74,7 @@ public class StackManager extends Manager implements StackingLogic {
     public void reload() {
         this.entityDataStorageType = StackedEntityDataStorageType.fromName(SettingKey.ENTITY_DATA_STORAGE_TYPE.get());
         this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get());
+        this.enabledWorldNames.addAll(SettingKey.ENABLED_WORLDS.get());
 
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
@@ -112,6 +115,7 @@ public class StackManager extends Manager implements StackingLogic {
         this.stackingThreads.clear();
 
         this.disabledWorldNames.clear();
+        this.enabledWorldNames.clear();
     }
 
     @Override
@@ -545,6 +549,8 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
+        if (!this.enabledWorldNames.isEmpty())
+            return !this.enabledWorldNames.contains(world.getName());
         return this.disabledWorldNames.contains(world.getName());
     }
 

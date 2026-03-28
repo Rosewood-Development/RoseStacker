@@ -20,6 +20,7 @@ public final class SettingKey implements SettingHolder {
     private static final List<RoseSetting<?>> KEYS = new ArrayList<>();
 
     public static final RoseSetting<List<String>> DISABLED_WORLDS = create("disabled-worlds", STRING_LIST, List.of("disabled_world_name"), "A list of worlds that the plugin is disabled in");
+    public static final RoseSetting<List<String>> ENABLED_WORLDS = create("enabled-worlds", STRING_LIST, List.of(), "A list of worlds that the plugin is enabled in.", "If used, disabled-worlds will have no effect and the plugin will be disabled in all other worlds.");
     public static final RoseSetting<Long> STACK_FREQUENCY = create("stack-frequency", LONG, 100L, "How often should we try to stack nearby entities?", "Higher values mean longer times between checks, but also less lag", "Values are in ticks, do not set lower than 1");
     public static final RoseSetting<Long> UNSTACK_FREQUENCY = create("unstack-frequency", LONG, 50L, "How often should we try to unstack entities that are no longer compatible with their stack?", "Values are in ticks, set to -1 to disable");
     public static final RoseSetting<Long> ITEM_STACK_FREQUENCY = create("item-stack-frequency", LONG, 20L, "How often should we try to stack nearby items?", "Values are in ticks, do not set lower than 1");
