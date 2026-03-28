@@ -246,7 +246,7 @@ public class MobSpawningMethod implements SpawningMethod {
                         continue;
                 }
 
-                LivingEntity entity = nmsHandler.spawnEntityWithReason(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER, bypassRegions);
+                LivingEntity entity = this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings);
 
                 SpawnerSpawnEvent spawnerSpawnEvent = new SpawnerSpawnEvent(entity, stackedSpawner.getSpawner());
                 Bukkit.getPluginManager().callEvent(spawnerSpawnEvent);
@@ -255,14 +255,7 @@ public class MobSpawningMethod implements SpawningMethod {
                     continue;
                 }
 
-                if (bypassRegions) {
-                    if (!stackManager.isAreaDisabled(location)) {
-                        if ((stackedSpawner.getStackSettings().isMobAIDisabled() && (!SettingKey.SPAWNER_DISABLE_MOB_AI_ONLY_PLAYER_PLACED.get() || stackedSpawner.isPlacedByPlayer())) || entityStackSettings.isMobAIDisabled())
-                            PersistentDataUtils.removeEntityAi(entity);
-
-                        entityStackSettings.applySpawnerSpawnedProperties(entity);
-                    }
-                }
+                nmsHandler.spawnExistingEntity(entity, CreatureSpawnEvent.SpawnReason.SPAWNER, bypassRegions);
 
                 // Nudge the entities a little so they unstack easier
                 entity.setVelocity(Vector.getRandom().subtract(new Vector(0.5, 0.5, 0.5)).multiply(0.01));
@@ -310,7 +303,7 @@ public class MobSpawningMethod implements SpawningMethod {
             Location location = possibleLocations.isEmpty() ? stackedSpawner.getLocation() : possibleLocations.get(this.random.nextInt(possibleLocations.size()));
             switch (stackManager.getEntityDataStorageType(this.entityType)) {
                 case NBT -> {
-                    StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings);
+                    StackedEntity newStack = new StackedEntity(this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings));
                     Optional<StackedEntity> matchingEntity = nearbyStackedEntities.stream().filter(x ->
                             WorldGuardHook.testLocation(x.getLocation()) && entityStackSettings.testCanStackWith(x, newStack, false, true)).findAny();
                     if (matchingEntity.isPresent()) {
@@ -338,7 +331,7 @@ public class MobSpawningMethod implements SpawningMethod {
                         i -= amountToIncrease;
                         successfulSpawns += amountToIncrease;
                     } else if (canSpawnNewEntities) {
-                        StackedEntity newStack = this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings);
+                        StackedEntity newStack = new StackedEntity(this.createNewEntity(nmsHandler, location, stackedSpawner, stackManager, entityStackSettings));
                         nearbyStackedEntities.add(newStack);
                         newStacks.add(newStack);
                         successfulSpawns++;
@@ -391,7 +384,7 @@ public class MobSpawningMethod implements SpawningMethod {
         return successfulSpawns;
     }
 
-    private StackedEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, StackManager stackManager, EntityStackSettings entityStackSettings) {
+    private LivingEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, StackManager stackManager, EntityStackSettings entityStackSettings) {
         LivingEntity entity = nmsHandler.createNewEntityUnspawned(this.entityType, location, CreatureSpawnEvent.SpawnReason.SPAWNER);
 
         if (!stackManager.isAreaDisabled(location)) {
@@ -401,7 +394,7 @@ public class MobSpawningMethod implements SpawningMethod {
             entityStackSettings.applySpawnerSpawnedProperties(entity);
         }
 
-        return new StackedEntity(entity);
+        return entity;
     }
 
 }
