@@ -12,7 +12,6 @@ import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import dev.rosewood.rosestacker.event.ItemStackClearEvent;
 import dev.rosewood.rosestacker.event.ItemStackEvent;
 import dev.rosewood.rosestacker.event.PreDropStackedItemsEvent;
-import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
 import dev.rosewood.rosestacker.manager.HologramManager;
@@ -605,7 +604,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.stackManager.isEntityStackingEnabled())
             return null;
 
-        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand || NPCsHook.isNPC(livingEntity))
+        if (livingEntity instanceof Player || livingEntity instanceof ArmorStand)
             return null;
 
         StackedEntity newStackedEntity = new StackedEntity(livingEntity);
@@ -621,7 +620,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     }
 
     private boolean canEntityInstantStack() {
-        return SettingKey.ENTITY_INSTANT_STACK.get() && (!NPCsHook.mythicMobsEnabled() || SettingKey.MISC_MYTHICMOBS_ALLOW_STACKING.get());
+        return SettingKey.ENTITY_INSTANT_STACK.get() && (SettingKey.MISC_MYTHICMOBS_ALLOW_STACKING.get());
     }
 
     @Override
@@ -678,7 +677,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
     @Override
     public void addEntityStack(StackedEntity stackedEntity) {
-        if (!this.stackManager.isEntityStackingEnabled() || NPCsHook.isNPC(stackedEntity.getEntity()))
+        if (!this.stackManager.isEntityStackingEnabled())
             return;
 
         this.stackedEntities.put(stackedEntity.getEntity().getUniqueId(), stackedEntity);

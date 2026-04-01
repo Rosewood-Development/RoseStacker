@@ -89,65 +89,13 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         ItemStack itemStack = this.item.getItemStack();
         itemStack.setAmount(Math.min(this.size, itemStack.getMaxStackSize()));
 
-        if (itemStack.getType() == Material.AIR)
-            return;
+        if (itemStack.getType() == Material.AIR) return;
 
         this.item.setItemStack(itemStack);
 
-        if (this.stackSettings == null || !this.stackSettings.isStackingEnabled() || !this.stackSettings.shouldDisplayTags()) {
-            this.item.setCustomNameVisible(false);
-            return;
-        }
+        if (!this.item.isCustomNameVisible()) return;
 
-        String displayName = null;
-        boolean hasCustomName = false;
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta != null) {
-            if (itemMeta.hasDisplayName() && SettingKey.ITEM_DISPLAY_CUSTOM_NAMES.get()) {
-                displayName = itemMeta.getDisplayName();
-                hasCustomName = true;
-            } else if (NMSUtil.getVersionNumber() >= 21 && itemMeta.hasItemName()) { // Support item_name component in 1.21+
-                displayName = itemMeta.getItemName();
-            }
-        }
-
-        if (displayName != null && !SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_COLOR.get())
-            displayName = ChatColor.stripColor(displayName);
-
-        if (displayName == null)
-            displayName = this.stackSettings.getDisplayName();
-
-        displayName = displayName.replace('&', MAGIC_AMPERSAND).replace('<', MAGIC_LESS_THAN).replace('#', MAGIC_POUND);
-
-        StringPlaceholders.Builder placeholdersBuilder = StringPlaceholders.builder()
-                .add("amount", StackerUtils.formatNumber(this.getStackSize()))
-                .add("name", displayName);
-
-        if (SettingKey.ITEM_DISPLAY_DESPAWN_TIMER_PLACEHOLDER.get()) {
-            String timer;
-            if (NMSUtil.getVersionNumber() >= 18 && this.item.isUnlimitedLifetime()) {
-                timer = "∞";
-            } else {
-                int despawnRate = NMSAdapter.getHandler().getItemDespawnRate(this.item);
-                int ticksLeft = despawnRate - this.getAge();
-                int secondsLeft = ticksLeft / 20;
-                timer = String.format("%d:%02d", secondsLeft / 60, secondsLeft % 60);
-            }
-            placeholdersBuilder.add("timer", timer);
-        }
-
-        String displayString;
-        if (this.getStackSize() > 1) {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display", placeholdersBuilder.build());
-        } else {
-            displayString = RoseStacker.getInstance().getManager(LocaleManager.class).getLocaleMessage("item-stack-display-single", placeholdersBuilder.build());
-        }
-
-        displayString = displayString.replace(MAGIC_AMPERSAND, '&').replace(MAGIC_LESS_THAN, '<').replace(MAGIC_POUND, '#');
-
-        this.item.setCustomNameVisible((this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get() || (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName)) &&
-                (this.size > itemStack.getMaxStackSize() || !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get()));
-        NMSAdapter.getHandler().setCustomNameUncapped(this.item, displayString);
+        this.item.setCustomNameVisible(false);
     }
 
     @Override

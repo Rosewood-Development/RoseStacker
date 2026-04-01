@@ -1,8 +1,5 @@
 package dev.rosewood.rosestacker.hook;
 
-import de.diddiz.LogBlock.Actor;
-import de.diddiz.LogBlock.Consumer;
-import de.diddiz.LogBlock.LogBlock;
 import dev.rosewood.rosestacker.config.SettingKey;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
@@ -19,7 +16,6 @@ public class BlockLoggingHook {
     private static CoreProtectAPI coreProtectAPI;
 
     private static Boolean logBlockEnabled;
-    private static Consumer logBlockConsumer;
 
     private static Boolean insightsEnabled;
 
@@ -39,30 +35,6 @@ public class BlockLoggingHook {
             return coreProtectEnabled = coreProtectAPI.isEnabled();
         } else {
             return coreProtectEnabled = false;
-        }
-    }
-
-    /**
-     * @return true if LogBlock is enabled, false otherwise
-     */
-    public static boolean logBlockEnabled() {
-        if (!SettingKey.MISC_LOGBLOCK_LOGGING.get())
-            return false;
-
-        if (logBlockEnabled != null)
-            return logBlockEnabled;
-
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("LogBlock");
-        if (plugin != null) {
-            try {
-                Class.forName("de.diddiz.LogBlock.LogBlock");
-                logBlockConsumer = ((LogBlock) plugin).getConsumer();
-                return logBlockEnabled = true;
-            } catch (ClassNotFoundException e) {
-                return logBlockEnabled = false;
-            }
-        } else {
-            return logBlockEnabled = false;
         }
     }
 
@@ -96,11 +68,6 @@ public class BlockLoggingHook {
             coreProtectAPI.logPlacement(player.getName(), block.getLocation(), type, blockData);
         }
 
-        if (logBlockEnabled())
-            logBlockConsumer.queueBlockPlace(new Actor(player.getName(), player.getUniqueId()), block.getState());
-
-        if (insightsEnabled())
-            InsightsHook.modifyBlockAmount(block, 1);
     }
 
     /**
@@ -119,12 +86,6 @@ public class BlockLoggingHook {
 
             coreProtectAPI.logRemoval(player.getName(), block.getLocation(), type, blockData);
         }
-
-        if (logBlockEnabled())
-            logBlockConsumer.queueBlockBreak(new Actor(player.getName(), player.getUniqueId()), block.getState());
-
-        if (insightsEnabled())
-            InsightsHook.modifyBlockAmount(block, -1);
     }
 
 }

@@ -11,7 +11,6 @@ import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
-import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.hook.WorldGuardHook;
 import dev.rosewood.rosestacker.manager.EntityCacheManager;
@@ -78,7 +77,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public StackedEntity(LivingEntity entity, StackedEntityDataStorage stackedEntityDataStorage, boolean updateDisplay) {
         this.entity = entity;
         this.stackedEntityDataStorage = stackedEntityDataStorage;
-        this.npcCheckCounter = NPCsHook.anyEnabled() ? 5 : 0;
+        this.npcCheckCounter = 0;
 
         this.displayName = null;
         this.displayNameVisible = false;
@@ -102,8 +101,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     // actually register it as an NPC until a few ticks after it spawns
     public boolean checkNPC() {
         if (!this.npc && this.npcCheckCounter > 0) {
-            if (NPCsHook.isNPC(this.entity))
-                this.npc = true;
             this.npcCheckCounter--;
         }
         return this.npc;
@@ -598,7 +595,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.getStackSize() > 1 || SettingKey.ENTITY_DISPLAY_TAGS_SINGLE.get()) {
             String displayString;
             StringPlaceholders.Builder placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()));
-            NPCsHook.addCustomPlaceholders(this.entity, placeholders);
+            //NPCsHook.addCustomPlaceholders(this.entity, placeholders);
 
             if (customName != null && SettingKey.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.get()) {
                 placeholders.add("name", customName);
