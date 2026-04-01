@@ -643,6 +643,20 @@
     "spawn_category": "ANIMAL",
     "standard_equipment": []
   },
+  "PARCHED": {
+    "is_swimming_mob": false,
+    "is_flying_mob": false,
+    "spawn_egg_material": "PARCHED_SPAWN_EGG",
+    "default_spawn_requirements": [
+      "darkness"
+    ],
+    "skull_texture": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRhZWNlZmY1ZjI2ZGQ4NDEzYzVjMDM1NDdjMjM0YWMwMzEwOGQxODdhZjBiOWNkODM0YThjZTEyNTk4NTkxYyJ9fX0=",
+    "breeding_materials": [],
+    "spawn_category": "MONSTER",
+    "standard_equipment": [
+      "BOW"
+    ]
+  },
   "PARROT": {
     "is_swimming_mob": false,
     "is_flying_mob": true,
