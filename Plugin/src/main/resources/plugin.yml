@@ -4,6 +4,7 @@ authors: [Esophose]
 website: https://www.spigotmc.org/resources/82729/
 main: dev.rosewood.rosestacker.RoseStacker
 api-version: '1.13'
+folia-supported: true
 loadbefore: [ShopGUIPlus]
 softdepend:
   - Boss

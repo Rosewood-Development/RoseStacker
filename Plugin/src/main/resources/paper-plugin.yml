@@ -3,6 +3,7 @@ version: '@version@'
 authors: [Esophose]
 website: https://www.spigotmc.org/resources/82729/
 main: dev.rosewood.rosestacker.RoseStacker
+folia-supported: true
 api-version: '1.19'
 dependencies:
   - name: Boss
