@@ -3,6 +3,7 @@ package dev.rosewood.rosestacker.utils;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
+import dev.rosewood.rosestacker.hook.NPCsHook;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
@@ -42,6 +43,9 @@ public final class PersistentDataUtils {
     }
 
     public static void removeEntityAi(LivingEntity entity) {
+        if (!SettingKey.MISC_MYTHICMOBS_ALLOW_DISABLE_AI.get() && NPCsHook.isMythicMob(entity))
+            return;
+
         RosePlugin rosePlugin = RoseStacker.getInstance();
         PersistentDataContainer dataContainer = entity.getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(rosePlugin, NO_AI_METADATA_NAME);
@@ -65,6 +69,9 @@ public final class PersistentDataUtils {
     }
 
     public static void applyDisabledAi(LivingEntity entity, boolean disable) {
+        if (disable && !SettingKey.MISC_MYTHICMOBS_ALLOW_DISABLE_AI.get() && NPCsHook.isMythicMob(entity))
+            return;
+
         if (isAiDisabled(entity) || !disable) {
             if (SettingKey.SPAWNER_DISABLE_MOB_AI_OPTIONS_REMOVE_GOALS.get() && disable) {
                 NMSHandler nmsHandler = NMSAdapter.getHandler();
