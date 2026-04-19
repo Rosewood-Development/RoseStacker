@@ -39,6 +39,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         this.base = ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
+        NMSHandler.UNSAFE_NBT_KEYS.forEach(this.base::remove);
 
         this.data = createBackingQueue();
     }
@@ -255,7 +256,6 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         NMSHandler.REMOVABLE_NBT_KEYS.forEach(compoundTag::remove);
         CompoundTag bukkitValues = compoundTag.getCompoundOrEmpty("BukkitValues");
         bukkitValues.remove("rosestacker:stacked_entity_data");
-        NMSHandler.UNSAFE_NBT_KEYS.forEach(this.base::remove);
     }
 
     private void stripAttributeUuids(CompoundTag compoundTag) {
