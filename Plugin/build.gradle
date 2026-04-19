@@ -11,7 +11,7 @@ dependencies {
     compileOnly project(':NMS:Wrapper')
 
     // Referenced dependencies
-    compileOnly "io.papermc.paper:paper-api:$spigotVersion-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:${paperVersion}.build.+"
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'org.jetbrains:annotations:23.1.0'
 
