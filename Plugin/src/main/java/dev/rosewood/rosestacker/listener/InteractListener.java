@@ -16,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -75,9 +76,20 @@ public class InteractListener implements Listener {
                 return;
             }
 
+            boolean onlyConvertEmpty = SettingKey.SPAWNER_CONVERT_ONLY_EMPTY.get();
+
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-            if (stackedSpawner == null) // Let vanilla handle the interaction instead
+            if (stackedSpawner == null) {
+                // Let vanilla handle the interaction instead
+                if (onlyConvertEmpty && ((CreatureSpawner) clickedBlock.getState()).getSpawnedType() != null)
+                    event.setCancelled(true);
                 return;
+            }
+
+            if (onlyConvertEmpty && !stackedSpawner.getSpawnerTile().getSpawnerType().isEmpty()) {
+                event.setCancelled(true);
+                return;
+            }
 
             SpawnerType newType = SpawnerType.of(entityType);
             if (newType.equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
