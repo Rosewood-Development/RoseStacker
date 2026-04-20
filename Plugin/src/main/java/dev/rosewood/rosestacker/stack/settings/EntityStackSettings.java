@@ -28,12 +28,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Bee;
-import org.bukkit.entity.Boss;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Raider;
@@ -52,6 +50,8 @@ public class EntityStackSettings extends StackSettings {
     public static final String SLIME_ACCURATE_DROPS_WITH_KILL_ENTIRE_STACK_ON_DEATH = "accurate-drops-with-kill-entire-stack-on-death";
     public static final String MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK = "drop-additional-mushrooms-for-each-cow-in-stack";
     public static final String MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK = "extra-mushrooms-per-cow-in-stack";
+    public static final String SNIFFER_MULTIPLY_DIG_DROPS_BY_STACK_SIZE = "multiply-dig-drops-by-stack-size";
+    public static final String SNIFFER_MAX_DIG_DROPS_STACK_SIZE = "max-dig-drops-stack-size";
     public static final String SNOW_GOLEM_FORCE_CUSTOM_NAMED_STACKING = "force-custom-named-stacking";
 
     // Data pertaining to this EntityType
@@ -108,6 +108,10 @@ public class EntityStackSettings extends StackSettings {
             case "mooshroom", "mushroom_cow" -> {
                 this.putSetting(MOOSHROOM_DROP_ADDITIONAL_MUSHROOMS_FOR_EACH_COW_IN_STACK, true);
                 this.putSetting(MOOSHROOM_EXTRA_MUSHROOMS_PER_COW_IN_STACK, 5);
+            }
+            case "sniffer" -> {
+                this.putSetting(SNIFFER_MULTIPLY_DIG_DROPS_BY_STACK_SIZE, false);
+                this.putSetting(SNIFFER_MAX_DIG_DROPS_STACK_SIZE, -1);
             }
         }
 

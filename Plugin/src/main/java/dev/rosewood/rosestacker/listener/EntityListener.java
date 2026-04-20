@@ -46,6 +46,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Sniffer;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -546,6 +547,42 @@ public class EntityListener implements Listener {
             amount = Math.min(amount, maxAmount);
 
         List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(eggMaterial, amount);
+        this.stackManager.preStackItems(items, event.getEntity().getLocation());
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSnifferSniff(EntityDropItemEvent event) {
+        if (!event.getEntityType().getKey().getKey().equals("sniffer"))
+            return;
+
+        if (this.stackManager.isAreaDisabled(event.getEntity().getLocation()))
+            return;
+
+        if (!this.stackManager.isEntityStackingEnabled())
+            return;
+
+        Material dropMaterial = event.getItemDrop().getItemStack().getType();
+
+        Sniffer sniffer = (Sniffer) event.getEntity();
+        StackedEntity stackedEntity = this.stackManager.getStackedEntity(sniffer);
+        if (stackedEntity == null)
+            return;
+
+        EntityStackSettings snifferStackSettings = stackedEntity.getStackSettings();
+        if (!snifferStackSettings.getSettingValue(EntityStackSettings.SNIFFER_MULTIPLY_DIG_DROPS_BY_STACK_SIZE).getBoolean())
+            return;
+
+        event.getItemDrop().remove();
+
+        int maxAmount = snifferStackSettings.getSettingValue(EntityStackSettings.SNIFFER_MAX_DIG_DROPS_STACK_SIZE).getInt();
+        if (maxAmount == 0) // Allow disabling eggs for stacks
+            return;
+
+        int amount = stackedEntity.getStackSize();
+        if (maxAmount > 0)
+            amount = Math.min(amount, maxAmount);
+
+        List<ItemStack> items = GuiUtil.getMaterialAmountAsItemStacks(dropMaterial, amount);
         this.stackManager.preStackItems(items, event.getEntity().getLocation());
     }
 
