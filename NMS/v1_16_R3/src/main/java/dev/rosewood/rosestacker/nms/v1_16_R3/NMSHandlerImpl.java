@@ -41,6 +41,7 @@ import net.minecraft.server.v1_16_R3.DataWatcherObject;
 import net.minecraft.server.v1_16_R3.DataWatcherRegistry;
 import net.minecraft.server.v1_16_R3.Entity;
 import net.minecraft.server.v1_16_R3.EntityCreeper;
+import net.minecraft.server.v1_16_R3.EntityEnderman;
 import net.minecraft.server.v1_16_R3.EntityHuman;
 import net.minecraft.server.v1_16_R3.EntityInsentient;
 import net.minecraft.server.v1_16_R3.EntityLiving;
@@ -55,6 +56,7 @@ import net.minecraft.server.v1_16_R3.EnumMobSpawn;
 import net.minecraft.server.v1_16_R3.GroupDataEntity;
 import net.minecraft.server.v1_16_R3.IChatBaseComponent;
 import net.minecraft.server.v1_16_R3.IChunkAccess;
+import net.minecraft.server.v1_16_R3.IEntityAngerable;
 import net.minecraft.server.v1_16_R3.IRegistry;
 import net.minecraft.server.v1_16_R3.MathHelper;
 import net.minecraft.server.v1_16_R3.MerchantRecipeList;
@@ -444,6 +446,17 @@ public class NMSHandlerImpl implements NMSHandler {
         for (Entity entity : craftWorld.getHandle().entitiesById.values())
             entities.add(entity.getBukkitEntity());
         return entities;
+    }
+
+    @Override
+    public void transferAngerTarget(LivingEntity source, LivingEntity target) {
+        Entity sourceEntity = ((CraftEntity) source).getHandle();
+        Entity targetEntity = ((CraftEntity) target).getHandle();
+
+        if (sourceEntity instanceof IEntityAngerable neutralSource && targetEntity instanceof IEntityAngerable neutralTarget) {
+            neutralTarget.setAnger(neutralSource.getAnger());
+            neutralTarget.setAngerTarget(neutralSource.getAngerTarget());
+        }
     }
 
     private SpawnReason toBukkitSpawnReason(EnumMobSpawn mobSpawnType) {

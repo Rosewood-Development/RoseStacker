@@ -1,6 +1,5 @@
 package dev.rosewood.rosestacker.nms.v26_1_R1;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
@@ -49,6 +48,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.control.JumpControl;
@@ -57,8 +57,8 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.rabbit.Rabbit;
+import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -508,6 +508,17 @@ public class NMSHandlerImpl implements NMSHandler {
         for (Entity entity : craftWorld.getNMSEntities())
             entities.add(entity.getBukkitEntity());
         return entities;
+    }
+
+    @Override
+    public void transferAngerTarget(LivingEntity source, LivingEntity target) {
+        Entity sourceEntity = ((CraftEntity) source).getHandle();
+        Entity targetEntity = ((CraftEntity) target).getHandle();
+
+        if (sourceEntity instanceof NeutralMob neutralSource && targetEntity instanceof NeutralMob neutralTarget) {
+            neutralTarget.setPersistentAngerTarget(neutralSource.getPersistentAngerTarget());
+            neutralTarget.setPersistentAngerEndTime(neutralSource.getPersistentAngerEndTime());
+        }
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {

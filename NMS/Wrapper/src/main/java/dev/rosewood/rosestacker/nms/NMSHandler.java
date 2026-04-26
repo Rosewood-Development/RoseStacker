@@ -318,4 +318,12 @@ public interface NMSHandler {
         return world.getEntities();
     }
 
+    /**
+     * Transfers the persistent anger target from one entity to another.
+     *
+     * @param source The source entity
+     * @param target The target entity
+     */
+    void transferAngerTarget(LivingEntity source, LivingEntity target);
+
 }

@@ -5,10 +5,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
+import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.RoseStacker;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.hook.SpawnerFlagPersistenceHook;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -324,16 +326,13 @@ public class EntityStackSettings extends StackSettings {
             stackedAnimals.setAge(unstackedAnimals.getAge());
         }
 
-        switch (this.entityType) {
-            case BEE -> ((Bee) stacked).setAnger(((Bee) unstacked).getAnger());
-            case WOLF -> ((Wolf) stacked).setAngry(((Wolf) unstacked).isAngry());
-            case ZOMBIFIED_PIGLIN -> ((PigZombie) stacked).setAngry(((PigZombie) unstacked).isAngry());
-        }
+        NMSHandler nmsHandler = NMSAdapter.getHandler();
+        nmsHandler.transferAngerTarget(unstacked, stacked);
 
         SpawnerFlagPersistenceHook.setPersistence(stacked);
 
         stacked.setLastDamageCause(unstacked.getLastDamageCause());
-        NMSAdapter.getHandler().setLastHurtBy(unstacked, stacked.getKiller());
+        nmsHandler.setLastHurtBy(unstacked, stacked.getKiller());
 
         if (SettingKey.ENTITY_KILL_TRANSFER_FIRE.get())
             stacked.setFireTicks(unstacked.getFireTicks());
