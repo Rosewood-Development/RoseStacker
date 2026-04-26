@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.spawner.SpawnerType;
 import dev.rosewood.rosestacker.stack.StackedBlock;
+import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
@@ -609,54 +610,20 @@ public class BlockListener implements Listener {
         int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
         boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
         boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
-        boolean preventSameTypeInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE.get();
-        boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
         if (useAutoStack && spawnerType != null) {
-            StackedSpawner spawnerSameType = null;
-            StackedSpawner nearest = null;
-            boolean anyNearby = false;
-            List<StackedSpawner> spawners = new ArrayList<>(this.stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());
-            if (!autoStackChunk) {
-                double closestDistance = autoStackRange * autoStackRange;
-                for (StackedSpawner spawner : spawners) {
-                    double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                    if (distance < closestDistance && spawner.isPlacedByPlayer()) {
-                        boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
-                        if (sameType)
-                            spawnerSameType = spawner;
-                        anyNearby |= preventMultipleInRange || sameType;
-                        if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                            closestDistance = distance;
-                            nearest = spawner;
-                        }
-                    }
-                }
-            } else {
-                int blockChunkX = block.getLocation().getBlockX() >> 4;
-                int blockChunkZ = block.getLocation().getBlockZ() >> 4;
-                for (StackedSpawner spawner : spawners) {
-                    Block spawnerBlock = spawner.getBlock();
-                    if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ && spawner.isPlacedByPlayer()) {
-                        boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
-                        if (sameType)
-                            spawnerSameType = spawner;
-                        anyNearby |= preventMultipleInRange || sameType;
-                        if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                            nearest = spawner;
-                            break;
-                        }
-                    }
-                }
-            }
+            boolean preventSameTypeInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE.get();
+            boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
 
-            if (nearest != null) {
-                against = nearest.getBlock();
+            SearchNearbySpawnersResult result = searchNearbySpawners(block, stackAmount, spawnerType, this.stackManager);
+
+            if (result.nearest() != null) {
+                against = result.nearest().getBlock();
                 isAdditiveStack = true;
                 isDistanceStack = true;
-            } else if (spawnerSameType != null && preventSameTypeInRange) {
+            } else if (result.spawnerSameType() != null && preventSameTypeInRange) {
                 event.setCancelled(true);
                 return;
-            } else if (anyNearby && preventMultipleInRange) {
+            } else if (result.anyNearby() && preventMultipleInRange) {
                 event.setCancelled(true);
                 return;
             }
@@ -955,5 +922,56 @@ public class BlockListener implements Listener {
     private boolean isBlockOrSpawnerStack(Block block) {
         return this.stackManager.isBlockStacked(block) || this.stackManager.isSpawnerStacked(block);
     }
+
+    public static SearchNearbySpawnersResult searchNearbySpawners(Block block, int stackAmount, SpawnerType spawnerType, StackManager stackManager) {
+        int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
+        boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
+        boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
+
+        StackedSpawner spawnerSameType = null;
+        StackedSpawner nearest = null;
+        boolean anyNearby = false;
+        List<StackedSpawner> spawners = new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());
+        if (!autoStackChunk) {
+            double closestDistance = autoStackRange * autoStackRange;
+            for (StackedSpawner spawner : spawners) {
+                double distance = spawner.getLocation().distanceSquared(block.getLocation());
+                if (distance < closestDistance && spawner.isPlacedByPlayer()) {
+                    boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
+                    if (sameType)
+                        spawnerSameType = spawner;
+                    anyNearby |= preventMultipleInRange || sameType;
+                    if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                        closestDistance = distance;
+                        nearest = spawner;
+                    }
+                }
+            }
+        } else {
+            int blockChunkX = block.getLocation().getBlockX() >> 4;
+            int blockChunkZ = block.getLocation().getBlockZ() >> 4;
+            for (StackedSpawner spawner : spawners) {
+                Block spawnerBlock = spawner.getBlock();
+                if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ && spawner.isPlacedByPlayer()) {
+                    boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
+                    if (sameType)
+                        spawnerSameType = spawner;
+                    anyNearby |= preventMultipleInRange || sameType;
+                    if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                        nearest = spawner;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return new SearchNearbySpawnersResult(spawnerSameType, nearest, anyNearby);
+    }
+
+    public record SearchNearbySpawnersResult(
+            StackedSpawner spawnerSameType,
+            StackedSpawner nearest,
+            boolean anyNearby
+    ) {}
 
 }
