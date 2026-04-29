@@ -16,7 +16,6 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
@@ -135,7 +134,7 @@ public final class EntityUtils {
      * @return true if the entities can see each other, otherwise false
      */
     public static boolean hasLineOfSight(Entity entity1, Entity entity2, double accuracy, boolean requireOccluding) {
-        if (entity1 instanceof LivingEntity) // Try to use the NMS method if possible, it's significantly faster
+        if (entity1 instanceof LivingEntity && RoseStacker.getInstance().getScheduler().isEntityThread(entity1)) // Try to use the NMS method if possible, it's significantly faster
             return NMSAdapter.getHandler().hasLineOfSight((LivingEntity) entity1, entity2);
 
         Location location1 = entity1.getLocation().clone();
@@ -152,8 +151,7 @@ public final class EntityUtils {
         double stepSize = distance / numSteps;
         for (double i = 0; i < distance; i += stepSize) {
             Location location = location1.clone().add(direction.clone().multiply(i));
-            Block block = location.getBlock();
-            Material type = block.getType();
+            Material type = getLazyBlockMaterial(location);
             if (type.isSolid() && (!requireOccluding || StackerUtils.isOccluding(type)))
                 return false;
         }

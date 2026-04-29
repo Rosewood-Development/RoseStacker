@@ -74,12 +74,6 @@ public class MobSpawningMethod implements SpawningMethod {
         List<ConditionTag> perSpawnConditions = spawnRequirements.stream().filter(ConditionTag::isRequiredPerSpawn).toList();
         spawnRequirements.removeAll(perSpawnConditions);
 
-        Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toCollection(HashSet::new));
-        if (SettingKey.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.get() && !stackedSpawner.isPlacedByPlayer())
-            invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
-
-        boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
-
         // Spawn the mobs
         int spawnAmount;
         if (SettingKey.SPAWNER_SPAWN_COUNT_STACK_SIZE_RANDOMIZED.get()) {
@@ -100,6 +94,11 @@ public class MobSpawningMethod implements SpawningMethod {
             if (!stackedSpawner.getWorld().isChunkLoaded(stackedSpawner.getLocation().getBlockX() >> 4, stackedSpawner.getLocation().getBlockZ() >> 4))
                 return;
 
+            Set<ConditionTag> invalidSpawnConditions = spawnRequirements.stream().filter(x -> !x.check(stackedSpawner, stackedSpawner.getBlock())).collect(Collectors.toCollection(HashSet::new));
+            if (SettingKey.SPAWNER_SPAWN_ONLY_PLAYER_PLACED.get() && !stackedSpawner.isPlacedByPlayer())
+                invalidSpawnConditions.add(NotPlayerPlacedConditionTag.INSTANCE);
+
+            boolean passedSpawnerChecks = invalidSpawnConditions.isEmpty();
             Set<Location> spawnLocations = new HashSet<>();
             Multimap<Location, ConditionTag> invalidLocations = MultimapBuilder.hashKeys().arrayListValues().build();
 
@@ -207,15 +206,13 @@ public class MobSpawningMethod implements SpawningMethod {
             } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                ThreadUtils.runSync(() -> {
-                    if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
-                        PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
-                });
+                if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
+                    PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
             }
         };
 
         if (SettingKey.SPAWNER_SPAWN_ASYNC.get()) {
-            ThreadUtils.runAsync(spawnTask);
+            ThreadUtils.runOnLocation(stackedSpawner.getLocation(), spawnTask);
         } else {
             spawnTask.run();
         }
@@ -236,7 +233,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         List<Location> possibleLocations = new ArrayList<>(locations);
         int finalSpawnAmount = spawnAmount;
-        ThreadUtils.runSync(() -> { // No poof particles to show where the mobs spawn with this setting, they immediately try stacking and are entirely unpredictable
+        ThreadUtils.runOnLocation(stackedSpawner.getLocation(), () -> { // No poof particles to show where the mobs spawn with this setting, they immediately try stacking and are entirely unpredictable
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (int i = 0; i < finalSpawnAmount; i++) {
                 if (locations.isEmpty())
@@ -347,7 +344,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         modifiedStacks.forEach(StackedEntity::updateDisplay);
 
-        ThreadUtils.runSync(() -> {
+        ThreadUtils.runOnLocation(stackedSpawner.getLocation(), () -> {
             stackManager.setEntityStackingTemporarilyDisabled(true);
             Iterator<StackedEntity> iterator = newStacks.iterator();
             while (iterator.hasNext()) {

@@ -41,7 +41,7 @@ public class HologramManager extends Manager implements Listener {
 
     @Override
     public void reload() {
-        this.watcherTask = this.rosePlugin.getScheduler().runTaskTimerAsync(this::updateWatchers, 0L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+        this.watcherTask = this.rosePlugin.getScheduler().runTaskTimer(this::updateWatchers, 0L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
         this.renderDistanceSqrd = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get() * SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get();
         this.hideThroughWalls = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
     }
@@ -80,8 +80,8 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        ThreadUtils.runAsync(() -> {
-            Player player = event.getPlayer();
+        Player player = event.getPlayer();
+        ThreadUtils.runOnEntity(player, () -> {
             for (Hologram hologram : this.holograms.values())
                 this.updateWatcher(player, hologram);
         });
@@ -89,8 +89,8 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        ThreadUtils.runAsync(() -> {
-            Player player = event.getPlayer();
+        Player player = event.getPlayer();
+        ThreadUtils.runOnEntity(player, () -> {
             for (Hologram hologram : this.holograms.values())
                 hologram.removeWatcher(player);
         });

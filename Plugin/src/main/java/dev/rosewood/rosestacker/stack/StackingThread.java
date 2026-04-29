@@ -106,8 +106,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (!this.disabled) {
             this.entityStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackEntities, 5L, SettingKey.STACK_FREQUENCY.get());
             this.itemStackTask = rosePlugin.getScheduler().runTaskTimerAsync(this::stackItems, 5L, SettingKey.ITEM_STACK_FREQUENCY.get());
-            this.nametagTask = rosePlugin.getScheduler().runTaskTimerAsync(this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
-            this.hologramTask = rosePlugin.getScheduler().runTaskTimerAsync(this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+            this.nametagTask = rosePlugin.getScheduler().runTaskTimer(this::processNametags, 5L, SettingKey.NAMETAG_UPDATE_FREQUENCY.get());
+            this.hologramTask = rosePlugin.getScheduler().runTaskTimer(this::updateHolograms, 5L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
 
             long unstackFrequency = SettingKey.UNSTACK_FREQUENCY.get();
             if (unstackFrequency > 0)
@@ -166,7 +166,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     continue;
                 }
 
-                this.tryStackEntity(stackedEntity);
+                if (SettingKey.ENTITY_REQUIRE_LINE_OF_SIGHT.get() || SettingKey.ENTITY_DONT_STACK_IF_IN_WATER.get()) {
+                    ThreadUtils.runOnEntity(livingEntity, () -> this.tryStackEntity(stackedEntity));
+                } else {
+                    this.tryStackEntity(stackedEntity);
+                }
             }
         } finally {
             this.stackingEntities = false;
@@ -701,7 +705,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (world == null)
             return;
 
-        ThreadUtils.runAsync(() -> {
+        ThreadUtils.runOnLocation(location, () -> {
             EntityStackSettings stackSettings = this.rosePlugin.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             boolean removeAi = stackSettings.isMobAIDisabled();
@@ -889,7 +893,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (!stackedSpawners.isEmpty() || !stackedBlocks.isEmpty()) {
             this.stackChunkData.put(chunk, new StackChunkData(stackedSpawners, stackedBlocks));
-            ThreadUtils.runAsync(() -> {
+            Location chunkLocation = new Location(chunk.getWorld(), chunk.getX() << 4, chunk.getWorld().getMinHeight(), chunk.getZ() << 4);
+            ThreadUtils.runOnLocation(chunkLocation, () -> {
                 stackedSpawners.values().forEach(StackedSpawner::updateDisplay);
                 stackedBlocks.values().forEach(StackedBlock::updateDisplay);
             });
@@ -935,7 +940,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         }
 
         if (!stackedEntities.isEmpty() || !stackedItems.isEmpty()) {
-            ThreadUtils.runAsync(() -> {
+            Entity entity = !stackedEntities.isEmpty() ? stackedEntities.get(0).getEntity() : stackedItems.get(0).getItem();
+            ThreadUtils.runOnEntity(entity, () -> {
                 stackedEntities.forEach(StackedEntity::updateDisplay);
                 stackedItems.forEach(StackedItem::updateDisplay);
             });

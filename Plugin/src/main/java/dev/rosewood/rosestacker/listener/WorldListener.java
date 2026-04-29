@@ -88,7 +88,7 @@ public class WorldListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         StackingThread stackingThread = this.stackManager.getStackingThread(event.getPlayer().getWorld());
         if (stackingThread != null)
-            ThreadUtils.runAsync(stackingThread::processNametags);
+            ThreadUtils.runOnEntity(event.getPlayer(), stackingThread::processNametags);
     }
 
 }
