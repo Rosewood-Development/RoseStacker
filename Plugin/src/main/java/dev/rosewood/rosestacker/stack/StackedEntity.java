@@ -71,6 +71,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     private String displayName;
     private boolean displayNameVisible;
     private double x, y, z;
+    private int lastModifiedTicks;
 
     private EntityStackSettings stackSettings;
 
@@ -81,6 +82,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         this.displayName = null;
         this.displayNameVisible = false;
+        this.lastModifiedTicks = this.entity != null ? this.entity.getTicksLived() : 0;
 
         if (this.entity != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
@@ -110,6 +112,10 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         return this.entity;
     }
 
+    public int getLastModifiedTicks() {
+        return this.lastModifiedTicks;
+    }
+
     public void updateEntity() {
         LivingEntity entity = (LivingEntity) Bukkit.getEntity(this.entity.getUniqueId());
         if (entity == null || entity == this.entity)
@@ -128,6 +134,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void increaseStackSize(LivingEntity entity, boolean updateDisplay) {
         Runnable task = () -> {
             this.stackedEntityDataStorage.add(entity);
+            this.markModified();
             if (updateDisplay)
                 this.updateDisplay();
         };
@@ -149,6 +156,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
      */
     public void increaseStackSize(int amount, boolean updateDisplay) {
         this.stackedEntityDataStorage.addClones(amount);
+        this.markModified();
 
         if (updateDisplay)
             this.updateDisplay();
@@ -156,6 +164,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
         this.stackedEntityDataStorage.addAll(serializedStackedEntities);
+        this.markModified();
         this.updateDisplay();
     }
 
@@ -189,6 +198,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         }
 
         this.stackedEntityDataStorage.updateEntity(this.entity);
+        this.markModified();
         this.updateDisplay();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
@@ -231,7 +241,12 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void setDataStorage(StackedEntityDataStorage stackedEntityDataStorage) {
         stackedEntityDataStorage.updateEntity(this.entity);
         this.stackedEntityDataStorage = stackedEntityDataStorage;
+        this.markModified();
         this.updateDisplay();
+    }
+
+    private void markModified() {
+        this.lastModifiedTicks = this.entity != null ? this.entity.getTicksLived() : 0;
     }
 
     /**

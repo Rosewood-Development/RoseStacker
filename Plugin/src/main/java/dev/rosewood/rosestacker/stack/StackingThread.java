@@ -79,7 +79,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final boolean disabled;
 
     private ScheduledTask entityStackTask, itemStackTask, nametagTask, hologramTask;
-    private ScheduledTask entityUnstackTask, entityCleanupTask;
+    private ScheduledTask entityUnstackTask, entityCleanupTask, entityTtlTask;
 
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
@@ -116,6 +116,10 @@ public class StackingThread implements StackingLogic, AutoCloseable {
             long cleanupFrequency = SettingKey.ENTITY_RESCAN_FREQUENCY.get();
             if (cleanupFrequency > 0)
                 this.entityCleanupTask = rosePlugin.getScheduler().runTaskTimer(this::cleanupOrphanedEntities, 5L, cleanupFrequency);
+
+            long entityStackTtl = SettingKey.ENTITY_UNMODIFIED_STACK_TTL.get();
+            if (entityStackTtl > 0)
+                this.entityTtlTask = rosePlugin.getScheduler().runTaskTimer(this::cleanupExpiredEntityStacks, 5L, Math.min(entityStackTtl, 20L));
         }
 
         this.stackedEntities = new ConcurrentHashMap<>();
@@ -235,6 +239,33 @@ public class StackingThread implements StackingLogic, AutoCloseable {
                     this.createItemStack(item, false);
             }
         }
+    }
+
+    private void cleanupExpiredEntityStacks() {
+        long entityStackTtl = SettingKey.ENTITY_UNMODIFIED_STACK_TTL.get();
+        if (entityStackTtl <= 0)
+            return;
+
+        List<StackedEntity> toRemove = this.stackedEntities.values().stream()
+                .filter(stackedEntity -> {
+                    LivingEntity entity = stackedEntity.getEntity();
+                    return !this.isRemoved(entity)
+                            && stackedEntity.getStackSize() > 1
+                            && entity.getTicksLived() - stackedEntity.getLastModifiedTicks() >= entityStackTtl;
+                })
+                .toList();
+
+        if (toRemove.isEmpty())
+            return;
+
+        EntityStackClearEvent entityStackClearEvent = new EntityStackClearEvent(this.targetWorld, toRemove);
+        Bukkit.getPluginManager().callEvent(entityStackClearEvent);
+        if (entityStackClearEvent.isCancelled())
+            return;
+
+        toRemove.stream().map(StackedEntity::getEntity).forEach(this::setRemoved);
+        toRemove.stream().map(StackedEntity::getEntity).forEach(LivingEntity::remove);
+        this.stackedEntities.values().removeIf(toRemove::contains);
     }
 
     private void stackItems() {
@@ -398,6 +429,9 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (this.entityCleanupTask != null)
             this.entityCleanupTask.cancel();
+
+        if (this.entityTtlTask != null)
+            this.entityTtlTask.cancel();
 
         // Save all data
         this.saveAllData(true);
