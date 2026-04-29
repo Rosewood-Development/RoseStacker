@@ -41,7 +41,6 @@ permissions:
       rosestacker.give: true
       rosestacker.clearall: true
       rosestacker.stats: true
-      rosestacker.convert: true
       rosestacker.translate: true
       rosestacker.stacktool: true
       rosestacker.stacktool.give: true
@@ -59,9 +58,6 @@ permissions:
     default: op
   rosestacker.stats:
     description: Allows using the stats command
-    default: op
-  rosestacker.convert:
-    description: Allows using the convert command
     default: op
   rosestacker.translate:
     description: Allows using the translate command

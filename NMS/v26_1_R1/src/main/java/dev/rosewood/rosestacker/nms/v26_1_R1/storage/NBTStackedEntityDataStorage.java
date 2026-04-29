@@ -39,6 +39,7 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
         this.base = ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity);
         this.stripUnneeded(this.base);
         this.stripAttributeUuids(this.base);
+        NMSHandler.UNSAFE_NBT_KEYS.forEach(this.base::remove);
 
         this.data = createBackingQueue();
     }

@@ -11,11 +11,13 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import dev.rosewood.rosestacker.utils.VersionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -75,15 +77,45 @@ public class InteractListener implements Listener {
                 return;
             }
 
+            boolean onlyConvertEmpty = SettingKey.SPAWNER_CONVERT_ONLY_EMPTY.get();
+
             StackedSpawner stackedSpawner = stackManager.getStackedSpawner(clickedBlock);
-            if (stackedSpawner == null) // Let vanilla handle the interaction instead
+            if (stackedSpawner == null) {
+                // Let vanilla handle the interaction instead
+                if (onlyConvertEmpty && ((CreatureSpawner) clickedBlock.getState()).getSpawnedType() != null)
+                    event.setCancelled(true);
                 return;
+            }
+
+            if (onlyConvertEmpty && !stackedSpawner.getSpawnerTile().getSpawnerType().isEmpty()) {
+                event.setCancelled(true);
+                return;
+            }
 
             SpawnerType newType = SpawnerType.of(entityType);
             if (newType.equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
                 // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
                 event.setCancelled(true);
                 return;
+            }
+
+            int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
+            boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
+            boolean preventSameTypeInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE.get();
+            boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
+            boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
+            if (useAutoStack && (preventSameTypeInRange || preventMultipleInRange)) { // Prevent converting if another spawner of the same type is nearby
+                BlockListener.SearchNearbySpawnersResult searchResult = BlockListener.searchNearbySpawners(clickedBlock, 0, newType, stackManager);
+
+                if (searchResult.spawnerSameType() != null && preventSameTypeInRange) {
+                    event.setCancelled(true);
+                    stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, clickedBlock.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                    return;
+                } else if (searchResult.anyNearby() && preventMultipleInRange) {
+                    event.setCancelled(true);
+                    stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, clickedBlock.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+                    return;
+                }
             }
 
             boolean consumesItems = player.getGameMode() != GameMode.CREATIVE;
