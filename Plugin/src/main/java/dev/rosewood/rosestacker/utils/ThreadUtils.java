@@ -4,6 +4,8 @@ import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.scheduler.RoseScheduler;
 import dev.rosewood.rosestacker.RoseStacker;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 
 public final class ThreadUtils {
 
@@ -19,6 +21,22 @@ public final class ThreadUtils {
             runnable.run();
         } else {
             runSync(runnable);
+        }
+    }
+
+    public static void runOnLocation(Location location, Runnable runnable) {
+        if (SCHEDULER.isLocationThread(location)) {
+            runnable.run();
+        } else if (checkEnabled()) {
+            SCHEDULER.runTaskAtLocation(location, runnable);
+        }
+    }
+
+    public static void runOnEntity(Entity entity, Runnable runnable) {
+        if (SCHEDULER.isEntityThread(entity)) {
+            runnable.run();
+        } else if (checkEnabled()) {
+            SCHEDULER.runTaskAtEntity(entity, runnable);
         }
     }
 

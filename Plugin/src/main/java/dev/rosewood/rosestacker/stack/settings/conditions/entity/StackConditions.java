@@ -13,6 +13,7 @@ import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedEntity;
 import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
+import dev.rosewood.rosestacker.utils.EntityUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.List;
@@ -119,7 +120,7 @@ public final class StackConditions {
                     return EntityStackComparisonResult.NOT_ON_GROUND;
 
                 if (SettingKey.ENTITY_DONT_STACK_IF_IN_WATER.get() &&
-                        (entity1.getLocation().getBlock().getType() == Material.WATER || entity2.getLocation().getBlock().getType() == Material.WATER))
+                        (EntityUtils.getLazyBlockMaterial(entity1.getLocation()) == Material.WATER || EntityUtils.getLazyBlockMaterial(entity2.getLocation()) == Material.WATER))
                     return EntityStackComparisonResult.IN_WATER;
             }
 
