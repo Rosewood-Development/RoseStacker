@@ -84,6 +84,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final Map<UUID, StackedEntity> stackedEntities;
     private final Map<UUID, StackedItem> stackedItems;
     private final Map<Chunk, StackChunkData> stackChunkData;
+    private final Set<UUID> pendingEntityUnstackChecks;
 
     private final boolean dynamicEntityTags, dynamicItemTags;
     private final double entityDynamicViewRangeSqrd, itemDynamicViewRangeSqrd;
@@ -125,6 +126,7 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         this.stackedEntities = new ConcurrentHashMap<>();
         this.stackedItems = new ConcurrentHashMap<>();
         this.stackChunkData = new ConcurrentHashMap<>();
+        this.pendingEntityUnstackChecks = ConcurrentHashMap.newKeySet();
 
         this.dynamicEntityTags = SettingKey.ENTITY_DISPLAY_TAGS.get() && SettingKey.ENTITY_DYNAMIC_TAG_VIEW_RANGE_ENABLED.get();
         this.dynamicItemTags = SettingKey.ITEM_DISPLAY_TAGS.get() && SettingKey.ITEM_DYNAMIC_TAG_VIEW_RANGE_ENABLED.get();
@@ -204,14 +206,26 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         if (entity == null || stackedEntity.getStackSize() <= 1 || !entity.isValid())
             return;
 
-        if (!stackedEntity.shouldStayStacked()) {
-            ThreadUtils.runSync(() -> {
-                if (stackedEntity.getStackSize() > 1)
-                    this.splitEntityStack(stackedEntity);
-            });
-        } else if (SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get() && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
-            this.splitEntireStack(stackedEntity);
-        }
+        UUID entityId = entity.getUniqueId();
+        if (!this.pendingEntityUnstackChecks.add(entityId))
+            return;
+
+        ThreadUtils.runOnEntity(entity, () -> {
+            try {
+                LivingEntity currentEntity = stackedEntity.getEntity();
+                if (currentEntity == null || stackedEntity.getStackSize() <= 1 || !currentEntity.isValid())
+                    return;
+
+                if (!stackedEntity.shouldStayStacked()) {
+                    if (stackedEntity.getStackSize() > 1)
+                        this.splitEntityStack(stackedEntity);
+                } else if (SettingKey.ENTITY_MIN_SPLIT_IF_LOWER.get() && stackedEntity.getStackSize() < stackedEntity.getStackSettings().getMinStackSize()) {
+                    this.splitEntireStack(stackedEntity);
+                }
+            } finally {
+                this.pendingEntityUnstackChecks.remove(entityId);
+            }
+        });
     }
 
     private void splitEntireStack(StackedEntity stackedEntity) {
@@ -219,10 +233,8 @@ public class StackingThread implements StackingLogic, AutoCloseable {
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         StackedEntityDataStorage nbt = stackedEntity.getDataStorage();
         stackedEntity.setDataStorage(nmsHandler.createEntityDataStorage(entity, this.stackManager.getEntityDataStorageType(entity.getType())));
-        ThreadUtils.runSync(() -> {
-            for (EntityDataEntry entityDataEntry : nbt.getAll())
-                entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
-        });
+        for (EntityDataEntry entityDataEntry : nbt.getAll())
+            entityDataEntry.createEntity(stackedEntity.getLocation(), true, entity.getType());
     }
 
     private void cleanupOrphanedEntities() {

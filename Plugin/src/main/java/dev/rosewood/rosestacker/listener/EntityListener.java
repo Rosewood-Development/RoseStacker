@@ -620,7 +620,7 @@ public class EntityListener implements Listener {
         }
 
         if (!stackedEntity.getStackSettings().getSettingValue(EntityStackSettings.SHEEP_SHEAR_ALL_SHEEP_IN_STACK).getBoolean()) {
-            ThreadUtils.runSync(() -> {
+            ThreadUtils.runOnEntity(sheepEntity, () -> {
                 if (!stackedEntity.shouldStayStacked())
                     this.stackManager.splitEntityStack(stackedEntity);
             });
