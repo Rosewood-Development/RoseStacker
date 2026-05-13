@@ -90,11 +90,11 @@ public class StackingThread implements StackingLogic, AutoCloseable {
     private final double entityDynamicViewRangeSqrd, itemDynamicViewRangeSqrd;
     private final boolean entityDynamicWallDetection, itemDynamicWallDetection;
 
-    private boolean stackingEntities;
-    private boolean stackingItems;
-    private boolean updatingNametags;
-    private boolean updatingHolograms;
-    private boolean unstackingEntities;
+    private volatile boolean stackingEntities;
+    private volatile boolean stackingItems;
+    private volatile boolean updatingNametags;
+    private volatile boolean updatingHolograms;
+    private volatile boolean unstackingEntities;
 
     public StackingThread(RosePlugin rosePlugin, StackManager stackManager, World targetWorld) {
         this.rosePlugin = rosePlugin;
