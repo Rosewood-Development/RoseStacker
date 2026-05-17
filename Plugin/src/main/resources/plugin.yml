@@ -45,6 +45,7 @@ permissions:
       rosestacker.stacktool: true
       rosestacker.stacktool.give: true
       rosestacker.silktouch: true
+      rosestacker.spawnercooldown.bypass: true
       rosestacker.spawnerconvert: true
       rosestacker.killentirestack: false
   rosestacker.reload:
@@ -71,6 +72,9 @@ permissions:
   rosestacker.silktouch:
     description: Allows picking up spawners with silk touch
     default: op
+  rosestacker.spawnercooldown.bypass:
+    description: Allows bypassing the spawner mining cooldown
+    default: false
   rosestacker.spawnerconvert:
     description: Allows converting spawners with mob spawn eggs
     default: op
