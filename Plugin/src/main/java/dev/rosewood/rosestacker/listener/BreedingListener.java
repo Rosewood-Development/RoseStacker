@@ -18,6 +18,8 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Cat;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fox;
 import org.bukkit.entity.Frog;
@@ -26,6 +28,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.Panda;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Tameable;
@@ -187,6 +190,18 @@ public class BreedingListener implements Listener {
 
         if ((NMSUtil.getVersionNumber() > 20 || (NMSUtil.getVersionNumber() == 20 && NMSUtil.getMinorVersionNumber() >= 6)) && parent instanceof Wolf parentWolf && child instanceof Wolf childWolf)
             childWolf.setVariant(parentWolf.getVariant());
+
+        boolean modern = NMSUtil.getVersionNumber() > 21 || (NMSUtil.getVersionNumber() == 21 && NMSUtil.getMinorVersionNumber() >= 5);
+
+        // Spigot does horrible things with cow variants in Commodore, so it's just disabled
+        if (NMSUtil.isPaper() && modern && parent instanceof Cow parentCow && child instanceof Cow childCow)
+            childCow.setVariant(parentCow.getVariant());
+
+        if (modern && parent instanceof Pig parentPig && child instanceof Pig childPig)
+            childPig.setVariant(parentPig.getVariant());
+
+        if (modern && parent instanceof Chicken parentChicken && child instanceof Chicken childChicken)
+            childChicken.setVariant(parentChicken.getVariant());
     }
 
 }
