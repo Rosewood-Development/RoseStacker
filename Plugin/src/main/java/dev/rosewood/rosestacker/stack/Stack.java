@@ -2,6 +2,7 @@ package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.stack.settings.StackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Location;
@@ -15,6 +16,10 @@ public abstract class Stack<T extends StackSettings> {
     public abstract Location getLocation();
 
     public abstract void updateDisplay();
+
+    public void updateDisplaySafely() {
+        ThreadUtils.runOnLocation(this.getLocation(), this::updateDisplay);
+    }
 
     public abstract T getStackSettings();
 

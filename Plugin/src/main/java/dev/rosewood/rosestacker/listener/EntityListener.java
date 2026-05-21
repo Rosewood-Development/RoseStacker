@@ -245,7 +245,7 @@ public class EntityListener implements Listener {
             StackedEntity stackedEntity = this.stackManager.getStackedEntity(livingEntity);
             if (stackedEntity != null) {
                 this.stackManager.changeStackingThread(livingEntity.getUniqueId(), stackedEntity, event.getFrom().getWorld(), event.getTo().getWorld());
-                stackedEntity.updateDisplay();
+                stackedEntity.updateDisplaySafely();
             }
         } else if (entity instanceof Item item) {
             if (!this.stackManager.isItemStackingEnabled())
@@ -254,7 +254,7 @@ public class EntityListener implements Listener {
             StackedItem stackedItem = this.stackManager.getStackedItem(item);
             if (stackedItem != null) {
                 this.stackManager.changeStackingThread(item.getUniqueId(), stackedItem, event.getFrom().getWorld(), event.getTo().getWorld());
-                stackedItem.updateDisplay();
+                stackedItem.updateDisplaySafely();
             }
         }
     }
@@ -491,7 +491,7 @@ public class EntityListener implements Listener {
                         PersistentDataUtils.removeEntityAi(entity);
                     newStack.increaseStackSize(entity, false);
                 });
-                newStack.updateDisplay();
+                newStack.updateDisplaySafely();
             });
         } else {
             // Make sure disabled AI and from spawner properties get transferred

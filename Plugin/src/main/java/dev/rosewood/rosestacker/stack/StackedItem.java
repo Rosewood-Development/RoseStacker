@@ -9,6 +9,7 @@ import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -38,7 +39,7 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getItemStackSettings(this.item);
 
             if (updateDisplay)
-                this.updateDisplay();
+                this.updateDisplaySafely();
         }
     }
 
@@ -56,18 +57,18 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
             return;
 
         this.item = item;
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void increaseStackSize(int amount, boolean updateDisplay) {
         this.size += amount;
         if (updateDisplay)
-            this.updateDisplay();
+            this.updateDisplaySafely();
     }
 
     public void setStackSize(int size) {
         this.size = size;
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public int getAge() {
@@ -96,6 +97,14 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
         if (!this.item.isCustomNameVisible()) return;
 
         this.item.setCustomNameVisible(false);
+    }
+
+    @Override
+    public void updateDisplaySafely() {
+        if (this.item == null)
+            return;
+
+        ThreadUtils.runOnEntity(this.item, this::updateDisplay);
     }
 
     @Override

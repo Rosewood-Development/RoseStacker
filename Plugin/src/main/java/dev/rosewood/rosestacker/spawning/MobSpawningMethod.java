@@ -342,7 +342,7 @@ public class MobSpawningMethod implements SpawningMethod {
             }
         }
 
-        modifiedStacks.forEach(StackedEntity::updateDisplay);
+        modifiedStacks.forEach(StackedEntity::updateDisplaySafely);
 
         ThreadUtils.runOnLocation(stackedSpawner.getLocation(), () -> {
             stackManager.setEntityStackingTemporarilyDisabled(true);
@@ -378,7 +378,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
             // Spawn particles for new entities and update nametags
             for (StackedEntity entity : newStacks) {
-                entity.updateDisplay();
+                entity.updateDisplaySafely();
                 World world = entity.getLocation().getWorld();
                 if (world != null)
                     world.spawnParticle(VersionUtils.POOF, entity.getLocation().clone().add(0, 0.75, 0), 5, 0.25, 0.25, 0.25, 0.01);

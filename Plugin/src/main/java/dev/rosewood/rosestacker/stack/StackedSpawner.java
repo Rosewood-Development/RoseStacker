@@ -52,7 +52,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
 
         ThreadUtils.runOnPrimary(() -> this.updateSpawnerProperties(true));
         if (updateDisplay)
-            this.updateDisplay();
+            this.updateDisplaySafely();
     }
 
     public StackedSpawner(int size, Block spawner, boolean placedByPlayer) {
@@ -100,13 +100,13 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
     public void increaseStackSize(int amount) {
         this.size += amount;
         this.updateSpawnerProperties(false);
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void setStackSize(int size) {
         this.size = size;
         this.updateSpawnerProperties(false);
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void openGui(Player player) {

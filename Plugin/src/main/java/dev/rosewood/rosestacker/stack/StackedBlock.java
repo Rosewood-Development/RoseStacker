@@ -10,7 +10,6 @@ import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.settings.BlockStackSettings;
 import dev.rosewood.rosestacker.utils.StackerUtils;
-import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,7 +32,7 @@ public class StackedBlock extends Stack<BlockStackSettings> {
         if (this.block != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getBlockStackSettings(this.block);
             if (updateDisplay)
-                this.updateDisplay();
+                this.updateDisplaySafely();
         }
     }
 
@@ -59,13 +58,13 @@ public class StackedBlock extends Stack<BlockStackSettings> {
     public void increaseStackSize(int amount) {
         this.size += amount;
 
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void setStackSize(int size) {
         this.size = size;
 
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void openGui(Player player) {

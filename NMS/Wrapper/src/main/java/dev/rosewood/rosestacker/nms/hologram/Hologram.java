@@ -134,6 +134,39 @@ public abstract class Hologram {
         this.update(this.watchers.keySet(), false);
     }
 
+    /**
+     * Sets the hologram text without sending packets.
+     *
+     * @param text The text to set
+     * @return true if the hologram lines need to be recreated for watchers
+     */
+    public boolean setTextSilently(List<String> text) {
+        if (text.size() != this.hologramLines.size()) {
+            this.hologramLines.clear();
+            for (int i = 0; i < text.size(); i++) {
+                double offset = (text.size() - i - 1) * LINE_OFFSET;
+                Location lineLocation = this.location.clone().add(0, offset, 0);
+                this.hologramLines.add(new HologramLine(this.entityIdSupplier.get(), lineLocation, text.get(i)));
+            }
+            return true;
+        }
+
+        for (int i = 0; i < text.size(); i++)
+            this.hologramLines.get(i).setText(text.get(i));
+
+        return false;
+    }
+
+    public void update(Player player, boolean force) {
+        this.update(List.of(player), force);
+    }
+
+    public void refresh(Player player) {
+        this.delete(player);
+        this.create(player);
+        this.update(List.of(player), true);
+    }
+
     private void createLines(List<String> text) {
         this.watchers.keySet().forEach(this::delete);
         this.hologramLines.clear();

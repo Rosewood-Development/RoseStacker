@@ -132,7 +132,7 @@ public class InteractListener implements Listener {
 
             stackedSpawner.getSpawnerTile().setSpawnerType(newType);
             stackedSpawner.updateSpawnerProperties(false);
-            stackedSpawner.updateDisplay();
+            stackedSpawner.updateDisplaySafely();
 
             if (!consumesItems)
                 return;
@@ -170,7 +170,7 @@ public class InteractListener implements Listener {
         Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
-            ThreadUtils.runSync(stackedEntity::updateDisplay);
+            stackedEntity.updateDisplaySafely();
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {

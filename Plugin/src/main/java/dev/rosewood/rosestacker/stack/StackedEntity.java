@@ -87,7 +87,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.entity != null) {
             this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getEntityStackSettings(this.entity);
             if (updateDisplay)
-                this.updateDisplay();
+                this.updateDisplaySafely();
         }
     }
 
@@ -124,7 +124,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.entity = entity;
         this.stackedEntityDataStorage.updateEntity(entity);
         this.resetHasMoved();
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     public void increaseStackSize(LivingEntity entity) {
@@ -136,7 +136,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
             this.stackedEntityDataStorage.add(entity);
             this.markModified();
             if (updateDisplay)
-                this.updateDisplay();
+                this.updateDisplaySafely();
         };
 
         // EnderDragonChangePhaseEvents is called when reading the entity NBT data.
@@ -159,13 +159,13 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.markModified();
 
         if (updateDisplay)
-            this.updateDisplay();
+            this.updateDisplaySafely();
     }
 
     public void increaseStackSize(StackedEntityDataStorage serializedStackedEntities) {
         this.stackedEntityDataStorage.addAll(serializedStackedEntities);
         this.markModified();
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     /**
@@ -199,7 +199,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         this.stackedEntityDataStorage.updateEntity(this.entity);
         this.markModified();
-        this.updateDisplay();
+        this.updateDisplaySafely();
         PersistentDataUtils.applyDisabledAi(this.entity);
 
         DataUtils.clearStackedEntityData(oldEntity);
@@ -242,7 +242,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         stackedEntityDataStorage.updateEntity(this.entity);
         this.stackedEntityDataStorage = stackedEntityDataStorage;
         this.markModified();
-        this.updateDisplay();
+        this.updateDisplaySafely();
     }
 
     private void markModified() {
@@ -639,9 +639,24 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
     public void updateDisplay() {
         this.displayName = null;
         String displayName = this.getDisplayName();
-        NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (Player player : this.getPlayersInVisibleRange())
-            nmsHandler.updateEntityNameTagForPlayer(player, this.entity, displayName, this.displayNameVisible);
+        boolean displayNameVisible = this.displayNameVisible;
+        Location location = this.entity.getLocation();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            ThreadUtils.runOnEntity(player, () -> {
+                if (!player.isValid() || !player.getWorld().equals(location.getWorld()) || player.getLocation().distanceSquared(location) > StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)
+                    return;
+
+                NMSAdapter.getHandler().updateEntityNameTagForPlayer(player, this.entity, displayName, displayNameVisible);
+            });
+        }
+    }
+
+    @Override
+    public void updateDisplaySafely() {
+        if (this.entity == null)
+            return;
+
+        ThreadUtils.runOnEntity(this.entity, this::updateDisplay);
     }
 
     @Override

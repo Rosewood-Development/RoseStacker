@@ -7,13 +7,17 @@ import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
+import dev.rosewood.rosestacker.utils.EntityUtils;
+import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -21,6 +25,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.util.Vector;
 
 public class HologramManager extends Manager implements Listener {
 
@@ -41,7 +46,7 @@ public class HologramManager extends Manager implements Listener {
 
     @Override
     public void reload() {
-        this.watcherTask = this.rosePlugin.getScheduler().runTaskTimer(this::updateWatchers, 0L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
+        this.watcherTask = this.rosePlugin.getScheduler().runTaskTimerAsync(this::updateWatchers, 0L, SettingKey.HOLOGRAM_UPDATE_FREQUENCY.get());
         this.renderDistanceSqrd = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get() * SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE.get();
         this.hideThroughWalls = SettingKey.BLOCK_DYNAMIC_TAG_VIEW_RANGE_WALL_DETECTION_ENABLED.get();
     }
@@ -58,17 +63,20 @@ public class HologramManager extends Manager implements Listener {
     }
 
     private void updateWatchers() {
-        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+        Collection<? extends Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        List<Hologram> holograms = new ArrayList<>(this.holograms.values());
         for (Player player : players)
-            for (Hologram hologram : this.holograms.values())
-                this.updateWatcher(player, hologram);
+            ThreadUtils.runOnEntity(player, () -> {
+                for (Hologram hologram : holograms)
+                    this.updateWatcher(player, hologram);
+            });
     }
 
     private void updateWatcher(Player player, Hologram hologram) {
         if (this.isPlayerInRange(player, hologram.getLocation())) {
             hologram.addWatcher(player);
             if (this.hideThroughWalls)
-                hologram.setVisibility(player, this.nmsHandler.hasLineOfSight(player, hologram.getDisplayLocation()));
+                hologram.setVisibility(player, this.hasLineOfSight(player.getEyeLocation(), hologram.getDisplayLocation(), 0.75, true));
         } else {
             hologram.removeWatcher(player);
         }
@@ -76,6 +84,26 @@ public class HologramManager extends Manager implements Listener {
 
     private boolean isPlayerInRange(Player player, Location location) {
         return player.getWorld().equals(location.getWorld()) && player.getLocation().distanceSquared(location) <= this.renderDistanceSqrd;
+    }
+
+    private boolean hasLineOfSight(Location location1, Location location2, double accuracy, boolean requireOccluding) {
+        Vector vector1 = location1.toVector();
+        Vector vector2 = location2.toVector();
+        double distance = vector1.distance(vector2);
+        if (distance <= 0)
+            return true;
+
+        Vector direction = vector2.clone().subtract(vector1).normalize();
+        double numSteps = distance / accuracy;
+        double stepSize = distance / numSteps;
+        for (double i = 0; i < distance; i += stepSize) {
+            Location location = location1.clone().add(direction.clone().multiply(i));
+            Material type = EntityUtils.getLazyBlockMaterial(location);
+            if (type.isSolid() && (!requireOccluding || StackerUtils.isOccluding(type)))
+                return false;
+        }
+
+        return true;
     }
 
     @EventHandler
@@ -98,13 +126,9 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWorldUnload(WorldUnloadEvent event) {
-        this.holograms.entrySet().removeIf(x -> {
-            if (x.getKey().getWorld().equals(event.getWorld())) {
-                x.getValue().delete();
-                return true;
-            }
-            return false;
-        });
+        new ArrayList<>(this.holograms.keySet()).stream()
+                .filter(x -> x.getWorld().equals(event.getWorld()))
+                .forEach(this::deleteHologram);
     }
 
     /**
@@ -119,9 +143,11 @@ public class HologramManager extends Manager implements Listener {
             hologram = this.nmsHandler.createHologram(location, text);
             this.holograms.put(location, hologram);
             for (Player player : Bukkit.getOnlinePlayers())
-                this.updateWatcher(player, hologram);
+                this.updateWatcherSafely(player, hologram);
         } else {
-            hologram.setText(text);
+            boolean recreate = hologram.setTextSilently(text);
+            for (Player player : new ArrayList<>(hologram.getWatchers()))
+                this.updateTextSafely(player, hologram, recreate);
         }
     }
 
@@ -133,9 +159,24 @@ public class HologramManager extends Manager implements Listener {
     public void deleteHologram(Location location) {
         Hologram hologram = this.holograms.get(location);
         if (hologram != null) {
-            hologram.delete();
             this.holograms.remove(location);
+            for (Player player : new ArrayList<>(hologram.getWatchers()))
+                ThreadUtils.runOnEntity(player, () -> hologram.removeWatcher(player));
         }
+    }
+
+    private void updateWatcherSafely(Player player, Hologram hologram) {
+        ThreadUtils.runOnEntity(player, () -> this.updateWatcher(player, hologram));
+    }
+
+    private void updateTextSafely(Player player, Hologram hologram, boolean recreate) {
+        ThreadUtils.runOnEntity(player, () -> {
+            if (recreate) {
+                hologram.refresh(player);
+            } else {
+                hologram.update(player, true);
+            }
+        });
     }
 
 }
