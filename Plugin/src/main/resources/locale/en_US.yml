@@ -218,6 +218,7 @@ spawner-silk-touch-protect: '&cWarning! &eYou need to use a silk touch pickaxe a
 spawner-advanced-place-no-permission: '&cWarning! &eYou do not have permission to place that type of spawner.'
 spawner-advanced-break-no-permission: '&cWarning! &eYou do not have permission to pick up that type of spawner.'
 spawner-advanced-break-silktouch-no-permission: '&cWarning! &eYou need to use a silk touch pickaxe to pick up that type of spawner.'
+spawner-break-cooldown: '&cWarning! &eYou must wait &c%time% &ebefore mining another spawner.'
 spawner-convert-not-enough: '&cWarning! &eUnable to convert spawners using spawn eggs. You are not holding enough spawn eggs to do this conversion.'
 number-separator: ','
 silktouch-chance-placeholder: '%chance%%'

@@ -1,8 +1,11 @@
 package dev.rosewood.rosestacker.listener;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.rosewood.guiframework.framework.util.GuiUtil;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
+import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.BlockStackEvent;
@@ -25,6 +28,8 @@ import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.bukkit.Bukkit;
 import org.bukkit.ExplosionResult;
 import org.bukkit.GameMode;
@@ -65,11 +70,14 @@ public class BlockListener implements Listener {
     private final RosePlugin rosePlugin;
     private final StackManager stackManager;
     private final StackSettingManager stackSettingManager;
+    private Cache<UUID, Long> spawnerMineCooldowns;
+    private int spawnerMineCooldownSeconds;
 
     public BlockListener(RosePlugin rosePlugin) {
         this.rosePlugin = rosePlugin;
         this.stackManager = rosePlugin.getManager(StackManager.class);
         this.stackSettingManager = rosePlugin.getManager(StackSettingManager.class);
+        this.spawnerMineCooldownSeconds = -1;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -155,6 +163,11 @@ public class BlockListener implements Listener {
             }
 
             SpawnerType spawnerType = stackedSpawner.getSpawnerTile().getSpawnerType();
+            if (this.isSpawnerMineCoolingDown(player)) {
+                event.setCancelled(true);
+                return;
+            }
+
             boolean breakEverything = SettingKey.SPAWNER_BREAK_ENTIRE_STACK_WHILE_SNEAKING.get() && player.isSneaking();
             int breakAmount = breakEverything ? stackedSpawner.getStackSize() : 1;
 
@@ -167,6 +180,7 @@ public class BlockListener implements Listener {
             breakAmount = spawnerUnstackEvent.getDecreaseAmount();
 
             if (this.tryDropSpawners(player, dropLocation, spawnerType, breakAmount, stackedSpawner.isPlacedByPlayer())) {
+                this.startSpawnerMineCooldown(player);
                 BlockLoggingHook.recordBlockBreak(player, block);
                 if (breakAmount == stackedSpawner.getStackSize()) {
                     // Fix an issue where Insights can't detect the last spawner broken when the hook is disabled
@@ -358,6 +372,54 @@ public class BlockListener implements Listener {
         }
 
         return true;
+    }
+
+    private boolean isSpawnerMineCoolingDown(Player player) {
+        Cache<UUID, Long> cooldowns = this.getSpawnerMineCooldowns();
+        if (cooldowns == null || player.getGameMode() == GameMode.CREATIVE || player.hasPermission("rosestacker.spawnercooldown.bypass"))
+            return false;
+
+        UUID playerId = player.getUniqueId();
+        Long expiresAt = cooldowns.getIfPresent(playerId);
+        if (expiresAt == null)
+            return false;
+
+        long remainingMillis = expiresAt - System.currentTimeMillis();
+        if (remainingMillis <= 0) {
+            cooldowns.invalidate(playerId);
+            return false;
+        }
+
+        long remainingTicks = Math.max(1, (remainingMillis + 49) / 50);
+        LocaleManager localeManager = this.rosePlugin.getManager(LocaleManager.class);
+        localeManager.sendMessage(player, "spawner-break-cooldown", StringPlaceholders.of("time", StackerUtils.formatTicksAsTime(remainingTicks)));
+        return true;
+    }
+
+    private void startSpawnerMineCooldown(Player player) {
+        Cache<UUID, Long> cooldowns = this.getSpawnerMineCooldowns();
+        if (cooldowns == null || player.getGameMode() == GameMode.CREATIVE || player.hasPermission("rosestacker.spawnercooldown.bypass"))
+            return;
+
+        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(this.spawnerMineCooldownSeconds));
+    }
+
+    private Cache<UUID, Long> getSpawnerMineCooldowns() {
+        int configuredSeconds = Math.max(0, SettingKey.SPAWNER_MINE_COOLDOWN_SECONDS.get());
+        if (configuredSeconds <= 0) {
+            this.spawnerMineCooldowns = null;
+            this.spawnerMineCooldownSeconds = configuredSeconds;
+            return null;
+        }
+
+        if (this.spawnerMineCooldowns == null || this.spawnerMineCooldownSeconds != configuredSeconds) {
+            this.spawnerMineCooldowns = CacheBuilder.newBuilder()
+                    .expireAfterWrite(configuredSeconds, TimeUnit.SECONDS)
+                    .build();
+            this.spawnerMineCooldownSeconds = configuredSeconds;
+        }
+
+        return this.spawnerMineCooldowns;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
