@@ -54,6 +54,8 @@ public class RoseStacker extends RosePlugin {
 
     @Override
     public void onLoad() {
+        super.onLoad();
+
         if (!NMSAdapter.isValidVersion()) {
             this.getLogger().severe(String.format("RoseStacker only supports %s through %s. The plugin has been disabled.", StackerUtils.MIN_SUPPORTED_VERSION, StackerUtils.MAX_SUPPORTED_VERSION));
             Bukkit.getPluginManager().disablePlugin(this);
