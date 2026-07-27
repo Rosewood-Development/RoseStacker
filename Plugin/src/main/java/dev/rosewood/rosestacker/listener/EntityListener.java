@@ -101,10 +101,10 @@ public class EntityListener implements Listener {
             );
         }
         try {
-            Method method = EntityPotionEffectEvent.class.getDeclaredMethod("getEntity");
-            if (method.getReturnType() != LivingEntity.class)
-                entityPotionEffectEvent_getEntity = method;
-        } catch (ReflectiveOperationException ignored) { }
+            entityPotionEffectEvent_getEntity = EntityPotionEffectEvent.class.getMethod("getEntity");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find `getEntity` method for `EntityPotionEffectEvent` class", e);
+        }
     }
 
     private final RosePlugin rosePlugin;
@@ -232,19 +232,15 @@ public class EntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDrinkPotion(EntityPotionEffectEvent event) {
-        // Prevent witches from drinking potions when AI is disabled
+        // Prevent mobs (ex: witches, wandering traders, etc) from drinking potions when AI is disabled
         if (event.getCause() == Cause.POTION_DRINK) {
-            if (entityPotionEffectEvent_getEntity != null) {
-                try { // The return type of getEntity was changed from Entity to LivingEntity on Paper in 26.2 and can cause a NoSuchMethodError
-                    LivingEntity entity = (LivingEntity) entityPotionEffectEvent_getEntity.invoke(event);
-                    if (PersistentDataUtils.isAiDisabled(entity))
-                        event.setCancelled(true);
-                } catch (ReflectiveOperationException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                if (PersistentDataUtils.isAiDisabled(event.getEntity()))
+            try { // The return type of getEntity was changed from Entity to LivingEntity on Paper in 26.2 and can cause a NoSuchMethodError
+                LivingEntity entity = (LivingEntity) entityPotionEffectEvent_getEntity.invoke(event);
+
+                if (PersistentDataUtils.isAiDisabled(entity))
                     event.setCancelled(true);
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
             }
         }
     }
