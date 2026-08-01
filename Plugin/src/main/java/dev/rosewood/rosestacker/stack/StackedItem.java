@@ -145,8 +145,12 @@ public class StackedItem extends Stack<ItemStackSettings> implements Comparable<
 
         displayString = displayString.replace(MAGIC_AMPERSAND, '&').replace(MAGIC_LESS_THAN, '<').replace(MAGIC_POUND, '#');
 
-        this.item.setCustomNameVisible((this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get() || (SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName)) &&
-                (this.size > itemStack.getMaxStackSize() || !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get()));
+        boolean displayTagsStackSize = this.size > 1 || SettingKey.ITEM_DISPLAY_TAGS_SINGLE.get();
+        boolean displayTagsCustomNameAlways = SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ALWAYS.get() && hasCustomName;
+        boolean displayTagsOnlyOverVanillaSize = !SettingKey.ITEM_DISPLAY_TAGS_ABOVE_VANILLA_STACK_SIZE.get() || this.size > itemStack.getMaxStackSize();
+        boolean displayTagsCustomNameOnly = !SettingKey.ITEM_DISPLAY_CUSTOM_NAMES_ONLY.get() || hasCustomName;
+        boolean displayTags = (displayTagsStackSize || displayTagsCustomNameAlways) && displayTagsOnlyOverVanillaSize && displayTagsCustomNameOnly;
+        this.item.setCustomNameVisible(displayTags);
         NMSAdapter.getHandler().setCustomNameUncapped(this.item, displayString);
     }
 
