@@ -141,7 +141,7 @@ public final class StackConditions {
 
         // Register base LivingEntity conditions
         register(LivingEntity.class, (stackSettings, stack1, stack2, entity1, entity2, comparingForUnstack, ignorePositions) -> {
-            if (!comparingForUnstack && SettingKey.ENTITY_DONT_STACK_IF_LEASHED.get() && (entity1.isLeashed() || entity2.isLeashed()))
+            if (!comparingForUnstack && SettingKey.ENTITY_DONT_STACK_IF_LEASHED.get() && (NMS_HANDLER.isLeashed(entity1) || NMS_HANDLER.isLeashed(entity2)))
                 return EntityStackComparisonResult.LEASHED;
 
             if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {

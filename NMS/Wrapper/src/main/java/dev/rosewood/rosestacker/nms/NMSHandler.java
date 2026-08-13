@@ -333,4 +333,14 @@ public interface NMSHandler {
      */
     void transferAngerTarget(LivingEntity source, LivingEntity target);
 
+    /**
+     * Checks if the entity is leashed
+     *
+     * @param entity The entity to check
+     * @return true if leashed, false otherwise
+     */
+    default boolean isLeashed(LivingEntity entity) {
+        return entity.isLeashed();
+    }
+
 }

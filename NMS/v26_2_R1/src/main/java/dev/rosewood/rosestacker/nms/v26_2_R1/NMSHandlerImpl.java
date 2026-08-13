@@ -45,6 +45,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.Leashable.LeashData;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.PostSpawnProcessor;
@@ -515,6 +517,19 @@ public class NMSHandlerImpl implements NMSHandler {
             neutralTarget.setPersistentAngerTarget(neutralSource.getPersistentAngerTarget());
             neutralTarget.setPersistentAngerEndTime(neutralSource.getPersistentAngerEndTime());
         }
+    }
+
+    @Override
+    public boolean isLeashed(LivingEntity entity) {
+        Entity nmsEntity = ((CraftEntity) entity).getHandle();
+        if (!(nmsEntity instanceof Leashable leashable))
+            return false;
+
+        LeashData leashData = leashable.getLeashData();
+        if (leashData == null)
+            return false;
+
+        return leashData.leashHolder != null || leashData.delayedLeashInfo != null;
     }
 
     public void addEntityToWorld(ServerLevel world, Entity entity) throws ReflectiveOperationException {
