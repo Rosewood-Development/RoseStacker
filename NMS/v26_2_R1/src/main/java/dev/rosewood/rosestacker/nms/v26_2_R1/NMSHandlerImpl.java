@@ -301,7 +301,7 @@ public class NMSHandlerImpl implements NMSHandler {
             Mob mob = (Mob) nmsEntity;
 
             // Remove all goal AI other than floating in water
-            Set<WrappedGoal> goals = (Set<WrappedGoal>) field_GoalSelector_availableGoals.get(mob.goalSelector);
+            Set<WrappedGoal> goals = (Set<WrappedGoal>) field_GoalSelector_availableGoals.get(mob.getGoalSelector());
             Iterator<WrappedGoal> goalsIterator = goals.iterator();
             while (goalsIterator.hasNext()) {
                 WrappedGoal goal = goalsIterator.next();
