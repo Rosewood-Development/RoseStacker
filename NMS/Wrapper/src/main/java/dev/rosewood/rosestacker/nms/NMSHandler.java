@@ -38,7 +38,14 @@ public interface NMSHandler {
             "uuid", "pos", "rotation", "world_uuid_most", "world_uuid_least",
             "motion", "on_ground", "fall_distance", "leash", "patrolling",
             "patrol_target", "raid_id", "wave", "angry_at", "anger_time", "pose",
-            "last_pose_tick"
+            "last_pose_tick",
+
+            // Combat attribution belongs to the entity that was actually hit, never to the next one in the stack.
+            // 1.21.5+ persists these, so without stripping them a freshly unstacked entity spawns already marked as
+            // "killed by" whoever killed the entity before it, which credits its later environmental death (fire,
+            // lava, drowning, ...) to that player. Killer propagation is applied deliberately where it is wanted,
+            // see StackedEntity#calculateEntityDrops.
+            "last_hurt_by_player", "last_hurt_by_player_memory_time"
     );
 
     List<String> UNSAFE_NBT_KEYS = List.of(
