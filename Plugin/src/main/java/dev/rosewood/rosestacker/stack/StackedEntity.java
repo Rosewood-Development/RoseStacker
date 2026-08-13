@@ -575,7 +575,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
 
         NMSHandler nmsHandler = NMSAdapter.getHandler();
         LivingEntity entity = this.stackedEntityDataStorage.peek().createEntity(this.entity.getLocation(), false, this.entity.getType());
-        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())));
+        StackedEntity stackedEntity = new StackedEntity(entity, nmsHandler.createEntityDataStorage(entity, RoseStacker.getInstance().getManager(StackManager.class).getEntityDataStorageType(entity.getType())), false);
         return this.stackSettings.testCanStackWith(this, stackedEntity, true);
     }
 
