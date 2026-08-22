@@ -111,7 +111,6 @@ public class NMSHandlerImpl implements NMSHandler {
     private static Field field_Mob_lookControl; // Field to get the look controller of a mob, normally protected
     private static Field field_Mob_moveControl; // Field to get the move controller of a mob, normally protected
     private static Field field_Mob_jumpControl; // Field to get the jump controller of a mob, normally protected
-    private static Field field_LivingEntity_brain; // Field to get the brain of a living entity, normally protected
 
     private static Field field_ServerLevel_entityManager; // Field to get the persistent entity section manager, normally private
     private static Field field_ServerLevel_entityLookup; // Field to get the entity lookup which is part of paper's chunk system
@@ -139,7 +138,6 @@ public class NMSHandlerImpl implements NMSHandler {
             field_Mob_lookControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, LookControl.class);
             field_Mob_moveControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, MoveControl.class);
             field_Mob_jumpControl = ReflectionUtils.getFieldByPositionAndType(Mob.class, 0, JumpControl.class);
-            field_LivingEntity_brain = ReflectionUtils.getFieldByPositionAndType(net.minecraft.world.entity.LivingEntity.class, 0, Brain.class);
 
             try {
                 // Handle Paper's chunk system
@@ -339,7 +337,6 @@ public class NMSHandlerImpl implements NMSHandler {
                     public void tick() {}
                 });
             }
-            field_LivingEntity_brain.set(mob, new Brain<>());
         } catch (ReflectiveOperationException ex) {
             ex.printStackTrace();
         }
