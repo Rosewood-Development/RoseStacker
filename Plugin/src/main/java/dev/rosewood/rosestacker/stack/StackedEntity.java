@@ -41,7 +41,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AbstractCubeMob;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
@@ -466,7 +465,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     case MAGMA_CUBE -> ((MagmaCube) entity).getSize();
                     default -> throw new IllegalStateException("Invalid slime type");
                 };
-                Slime slime = (Slime) entity;
                 if (isAccurateSlime) {
                     int totalSlimes = 1;
                     while (size > 1) {
@@ -476,9 +474,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     }
                     iterations = totalSlimes;
                 }
-                switch (slime.getType()) { // Slimes require size 1 to drop items, magma cubes require > size 1
-                    case SLIME -> slime.setSize(1);
-                    case MAGMA_CUBE -> slime.setSize(2);
+                switch (entity.getType()) { // Slimes require size 1 to drop items, magma cubes require > size 1
+                    case SLIME -> ((Slime) entity).setSize(1);
+                    case MAGMA_CUBE -> ((MagmaCube) entity).setSize(2);
                 }
             }
 
@@ -778,12 +776,9 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.decreaseStackSize();
 
         // Prevent the entity from splitting
-        if (NMSUtil.getVersionNumber() > 26 || (NMSUtil.getVersionNumber() == 26 && NMSUtil.getMinorVersionNumber() >= 2)) {
-            if (originalEntity instanceof AbstractCubeMob abstractCubeMob)
-                abstractCubeMob.setSize(1);
-        } else {
-            if (originalEntity instanceof Slime slime)
-                slime.setSize(1);
+        switch (originalEntity.getType()) {
+            case SLIME -> ((Slime) originalEntity).setSize(1);
+            case MAGMA_CUBE -> ((MagmaCube) originalEntity).setSize(1);
         }
 
         Player killer = originalEntity.getKiller();
