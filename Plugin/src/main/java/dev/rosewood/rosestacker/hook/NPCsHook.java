@@ -3,7 +3,7 @@ package dev.rosewood.rosestacker.hook;
 import com.magmaguy.elitemobs.entitytracker.EntityTracker;
 import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import com.songoda.epicbosses.EpicBosses;
-import de.Keyle.MyPet.api.entity.MyPetBukkitEntity;
+import de.Keyle.MyPet.MyPetApi;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.config.SettingKey;
 import io.hotmail.com.jacob_vejvoda.infernal_mobs.infernal_mobs;
@@ -158,7 +158,17 @@ public class NPCsHook {
         if (mypetEnabled != null)
             return mypetEnabled;
 
-        return mypetEnabled = Bukkit.getPluginManager().isPluginEnabled("MyPet");
+        boolean enabled = Bukkit.getPluginManager().isPluginEnabled("MyPet");
+        if (!enabled)
+            return mypetEnabled = false;
+
+        try {
+            Class.forName("de.Keyle.MyPet.api.repository.PetManager");
+        } catch (ClassNotFoundException e) {
+            return mypetEnabled = false;
+        }
+
+        return mypetEnabled = true;
     }
 
     /**
@@ -223,8 +233,8 @@ public class NPCsHook {
         if (!npc && villagerMarketEnabled())
             npc = VillagerMarketAPI.getShopManager().isShop(entity);
 
-        if (!npc && mypetEnabled())
-            npc = entity instanceof MyPetBukkitEntity;
+        if (!npc && mypetEnabled() && MyPetApi.isReady())
+            npc = MyPetApi.getPetManager().getPetFromEntity(entity) != null;
 
         return npc;
     }
