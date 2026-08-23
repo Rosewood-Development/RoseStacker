@@ -549,9 +549,14 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
-        if (!this.enabledWorldNames.isEmpty())
-            return !this.enabledWorldNames.contains(world.getName());
-        return this.disabledWorldNames.contains(world.getName());
+        String name = world.getName();
+        boolean whitelist = !this.enabledWorldNames.isEmpty();
+        for (String x : whitelist ? this.enabledWorldNames : this.disabledWorldNames) {
+            int star = x.indexOf('*');
+            if (star == -1 ? name.equals(x) : name.length() >= x.length() - 1 && name.startsWith(x.substring(0, star)) && name.endsWith(x.substring(star + 1)))
+                return !whitelist;
+        }
+        return whitelist;
     }
 
     /**
