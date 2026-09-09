@@ -1,5 +1,7 @@
 package dev.rosewood.rosestacker.manager;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.rosewood.rosegarden.RosePlugin;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosegarden.scheduler.task.ScheduledTask;
@@ -19,6 +21,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -47,8 +53,9 @@ import org.jetbrains.annotations.NotNull;
 public class StackManager extends Manager implements StackingLogic {
 
     private final Map<UUID, StackingThread> stackingThreads;
-    private final Set<String> disabledWorldNames;
-    private final Set<String> enabledWorldNames;
+    private final Set<Pattern> disabledWorldPatterns;
+    private final Set<Pattern> enabledWorldPatterns;
+    private final Cache<String, Boolean> disabledWorldsCache;
 
     private ScheduledTask autosaveTask;
 
@@ -64,8 +71,10 @@ public class StackManager extends Manager implements StackingLogic {
         super(rosePlugin);
 
         this.stackingThreads = new ConcurrentHashMap<>();
-        this.disabledWorldNames = new HashSet<>();
-        this.enabledWorldNames = new HashSet<>();
+        this.disabledWorldPatterns = new HashSet<>();
+        this.enabledWorldPatterns = new HashSet<>();
+
+        this.disabledWorldsCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofMinutes(10)).build();
 
         this.isEntityStackingTemporarilyDisabled = false;
     }
@@ -73,8 +82,8 @@ public class StackManager extends Manager implements StackingLogic {
     @Override
     public void reload() {
         this.entityDataStorageType = StackedEntityDataStorageType.fromName(SettingKey.ENTITY_DATA_STORAGE_TYPE.get());
-        this.disabledWorldNames.addAll(SettingKey.DISABLED_WORLDS.get());
-        this.enabledWorldNames.addAll(SettingKey.ENABLED_WORLDS.get());
+        this.disabledWorldPatterns.addAll(this.compileWorldNamePatterns(SettingKey.DISABLED_WORLDS.get()));
+        this.enabledWorldPatterns.addAll(this.compileWorldNamePatterns(SettingKey.ENABLED_WORLDS.get()));
 
         // Load a new StackingThread per world
         Bukkit.getWorlds().forEach(this::loadWorld);
@@ -114,8 +123,9 @@ public class StackManager extends Manager implements StackingLogic {
         this.stackingThreads.values().forEach(StackingThread::close);
         this.stackingThreads.clear();
 
-        this.disabledWorldNames.clear();
-        this.enabledWorldNames.clear();
+        this.disabledWorldPatterns.clear();
+        this.enabledWorldPatterns.clear();
+        this.disabledWorldsCache.invalidateAll();
     }
 
     @Override
@@ -549,9 +559,30 @@ public class StackManager extends Manager implements StackingLogic {
     public boolean isWorldDisabled(World world) {
         if (world == null)
             return true;
-        if (!this.enabledWorldNames.isEmpty())
-            return !this.enabledWorldNames.contains(world.getName());
-        return this.disabledWorldNames.contains(world.getName());
+
+        String name = world.getName();
+        try {
+            return this.disabledWorldsCache.get(name, () -> {
+                if (!this.enabledWorldPatterns.isEmpty())
+                    return this.enabledWorldPatterns.stream().noneMatch(x -> x.matcher(name).matches());
+                return this.disabledWorldPatterns.stream().anyMatch(x -> x.matcher(name).matches());
+            });
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Set<Pattern> compileWorldNamePatterns(List<String> worldNames) {
+        Set<Pattern> patterns = new HashSet<>(worldNames.size() * 2);
+        for (String name : worldNames) {
+            try {
+                patterns.add(Pattern.compile(name));
+            } catch (PatternSyntaxException e) {
+                e.printStackTrace();
+                this.rosePlugin.getLogger().severe("Failed to parse world regex: [" + name + "]");
+            }
+        }
+        return patterns;
     }
 
     /**
