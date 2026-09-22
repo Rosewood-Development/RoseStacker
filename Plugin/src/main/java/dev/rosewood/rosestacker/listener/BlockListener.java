@@ -613,17 +613,19 @@ public class BlockListener implements Listener {
         if (useAutoStack && spawnerType != null) {
             boolean preventSameTypeInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE.get();
             boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
+            int sameTypeLimit = Math.max(1, SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE_LIMIT.get());
+            int multipleLimit = Math.max(1, SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE_LIMIT.get());
 
-            SearchNearbySpawnersResult result = searchNearbySpawners(block, stackAmount, spawnerType, this.stackManager);
+            SearchNearbySpawnersResult result = searchNearbySpawners(block, stackAmount, spawnerType, this.stackManager, sameTypeLimit, multipleLimit);
 
             if (result.nearest() != null) {
                 against = result.nearest().getBlock();
                 isAdditiveStack = true;
                 isDistanceStack = true;
-            } else if (result.spawnerSameType() != null && preventSameTypeInRange) {
+            } else if (preventSameTypeInRange && result.sameTypeNearbyAmount() >= sameTypeLimit) {
                 event.setCancelled(true);
                 return;
-            } else if (result.anyNearby() && preventMultipleInRange) {
+            } else if (preventMultipleInRange && result.nearbyAmount() >= multipleLimit) {
                 event.setCancelled(true);
                 return;
             }
@@ -923,28 +925,44 @@ public class BlockListener implements Listener {
         return this.stackManager.isBlockStacked(block) || this.stackManager.isSpawnerStacked(block);
     }
 
-    public static SearchNearbySpawnersResult searchNearbySpawners(Block block, int stackAmount, SpawnerType spawnerType, StackManager stackManager) {
+    public static SearchNearbySpawnersResult searchNearbySpawners(Block block, int stackAmount, SpawnerType spawnerType, StackManager stackManager, int sameTypeLimit, int multipleLimit) {
         int autoStackRange = SettingKey.SPAWNER_AUTO_STACK_RANGE.get();
         boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
-        boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
 
         StackedSpawner spawnerSameType = null;
         StackedSpawner nearest = null;
-        boolean anyNearby = false;
+        int sameTypeNearbyAmount = 0;
+        int nearbyAmount = 0;
         List<StackedSpawner> spawners = new ArrayList<>(stackManager.getStackingThread(block.getWorld()).getStackedSpawners().values());
         if (!autoStackChunk) {
-            double closestDistance = autoStackRange * autoStackRange;
+            double rangeSquared = autoStackRange * autoStackRange;
+            double closestDistance = rangeSquared;
             for (StackedSpawner spawner : spawners) {
+                if (spawner.getBlock().equals(block))
+                    continue;
+
+                if (!spawner.isPlacedByPlayer())
+                    continue;
+
                 double distance = spawner.getLocation().distanceSquared(block.getLocation());
-                if (distance < closestDistance && spawner.isPlacedByPlayer()) {
-                    boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
-                    if (sameType)
-                        spawnerSameType = spawner;
-                    anyNearby |= preventMultipleInRange || sameType;
-                    if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                        closestDistance = distance;
-                        nearest = spawner;
-                    }
+                if (distance >= rangeSquared)
+                    continue;
+
+                nearbyAmount++;
+
+                boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
+                if (sameType) {
+                    spawnerSameType = spawner;
+                    sameTypeNearbyAmount++;
+                }
+
+                if (sameType && distance < closestDistance && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                    closestDistance = distance;
+                    nearest = spawner;
+                }
+
+                if (shouldReturnNearbySpawnersResult(block, nearest, sameTypeNearbyAmount, nearbyAmount, sameTypeLimit, multipleLimit)) {
+                    return new SearchNearbySpawnersResult(spawnerSameType, nearest, sameTypeNearbyAmount, nearbyAmount);
                 }
             }
         } else {
@@ -952,26 +970,53 @@ public class BlockListener implements Listener {
             int blockChunkZ = block.getLocation().getBlockZ() >> 4;
             for (StackedSpawner spawner : spawners) {
                 Block spawnerBlock = spawner.getBlock();
-                if (spawnerBlock.getX() >> 4 == blockChunkX && spawnerBlock.getZ() >> 4 == blockChunkZ && spawner.isPlacedByPlayer()) {
-                    boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
-                    if (sameType)
-                        spawnerSameType = spawner;
-                    anyNearby |= preventMultipleInRange || sameType;
-                    if (sameType && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
-                        nearest = spawner;
-                        break;
-                    }
+                if (spawnerBlock.equals(block))
+                    continue;
+
+                if (!spawner.isPlacedByPlayer())
+                    continue;
+
+                if (spawnerBlock.getX() >> 4 != blockChunkX || spawnerBlock.getZ() >> 4 != blockChunkZ)
+                    continue;
+
+                nearbyAmount++;
+
+                boolean sameType = spawner.getSpawnerTile().getSpawnerType().equals(spawnerType);
+                if (sameType) {
+                    spawnerSameType = spawner;
+                    sameTypeNearbyAmount++;
+                }
+
+                if (sameType && nearest == null && spawner.getStackSize() + stackAmount <= spawner.getStackSettings().getMaxStackSize()) {
+                    nearest = spawner;
+                }
+
+                if (shouldReturnNearbySpawnersResult(block, nearest, sameTypeNearbyAmount, nearbyAmount, sameTypeLimit, multipleLimit)) {
+                    return new SearchNearbySpawnersResult(spawnerSameType, nearest, sameTypeNearbyAmount, nearbyAmount);
                 }
             }
         }
 
-        return new SearchNearbySpawnersResult(spawnerSameType, nearest, anyNearby);
+        return new SearchNearbySpawnersResult(spawnerSameType, nearest, sameTypeNearbyAmount, nearbyAmount);
+    }
+
+    private static boolean shouldReturnNearbySpawnersResult(Block block, StackedSpawner nearest, int sameTypeNearbyAmount, int nearbyAmount, int sameTypeLimit, int multipleLimit) {
+        boolean sameTypeLimitReached = sameTypeLimit > 0 && sameTypeNearbyAmount >= sameTypeLimit;
+        boolean multipleLimitReached = multipleLimit > 0 && nearbyAmount >= multipleLimit;
+        if (!sameTypeLimitReached && !multipleLimitReached)
+            return false;
+
+        if (block != null || nearest != null)
+            return true;
+
+        return sameTypeLimitReached;
     }
 
     public record SearchNearbySpawnersResult(
             StackedSpawner spawnerSameType,
             StackedSpawner nearest,
-            boolean anyNearby
+            int sameTypeNearbyAmount,
+            int nearbyAmount
     ) {}
 
 }

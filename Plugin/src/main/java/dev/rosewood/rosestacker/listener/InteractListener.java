@@ -103,15 +103,17 @@ public class InteractListener implements Listener {
             boolean autoStackChunk = SettingKey.SPAWNER_AUTO_STACK_CHUNK.get();
             boolean preventSameTypeInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE.get();
             boolean preventMultipleInRange = SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE.get();
+            int sameTypeLimit = Math.max(1, SettingKey.SPAWNER_AUTO_STACK_PREVENT_SAME_TYPE_IN_RANGE_LIMIT.get());
+            int multipleLimit = Math.max(1, SettingKey.SPAWNER_AUTO_STACK_PREVENT_MULTIPLE_IN_RANGE_LIMIT.get());
             boolean useAutoStack = autoStackRange > 0 || autoStackChunk;
             if (useAutoStack && (preventSameTypeInRange || preventMultipleInRange)) { // Prevent converting if another spawner of the same type is nearby
-                BlockListener.SearchNearbySpawnersResult searchResult = BlockListener.searchNearbySpawners(clickedBlock, 0, newType, stackManager);
+                BlockListener.SearchNearbySpawnersResult searchResult = BlockListener.searchNearbySpawners(clickedBlock, 0, newType, stackManager, sameTypeLimit, multipleLimit);
 
-                if (searchResult.spawnerSameType() != null && preventSameTypeInRange) {
+                if (preventSameTypeInRange && searchResult.sameTypeNearbyAmount() >= sameTypeLimit) {
                     event.setCancelled(true);
                     stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, clickedBlock.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                     return;
-                } else if (searchResult.anyNearby() && preventMultipleInRange) {
+                } else if (preventMultipleInRange && searchResult.nearbyAmount() >= multipleLimit) {
                     event.setCancelled(true);
                     stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, clickedBlock.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
                     return;
