@@ -65,6 +65,14 @@ public class NPCsHook {
     }
 
     /**
+     * @param entity the entity to check
+     * @return true if this entity is a MythicMobs entity, false otherwise
+     */
+    public static boolean isMythicMob(LivingEntity entity) {
+        return mythicMobsEnabled() && MythicBukkit.inst().getAPIHelper().isMythicMob(entity);
+    }
+
+    /**
      * @return true if EpicBosses is enabled, false otherwise
      */
     public static boolean epicBossesEnabled() {
