@@ -635,8 +635,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         this.displayName = null;
         String displayName = this.getDisplayName();
         NMSHandler nmsHandler = NMSAdapter.getHandler();
-        for (Player player : this.getPlayersInVisibleRange())
-            nmsHandler.updateEntityNameTagForPlayer(player, this.entity, displayName, this.displayNameVisible);
+        nmsHandler.updateEntityNameTagForPlayers(this.getPlayersInVisibleRange(), this.entity, displayName, this.displayNameVisible);
     }
 
     @Override

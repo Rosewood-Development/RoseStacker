@@ -24,6 +24,7 @@ import dev.rosewood.rosestacker.stack.StackedSpawner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -246,6 +247,14 @@ public class NMSHandlerImpl implements NMSHandler {
 
     @Override
     public void updateEntityNameTagForPlayer(Player player, org.bukkit.entity.Entity entity, String customName, boolean customNameVisible) {
+        this.updateEntityNameTagForPlayers(List.of(player), entity, customName, customNameVisible);
+    }
+
+    @Override
+    public void updateEntityNameTagForPlayers(Collection<? extends Player> players, org.bukkit.entity.Entity entity, String customName, boolean customNameVisible) {
+        if (players.isEmpty())
+            return;
+
         try {
             List<DataWatcher.Item<?>> dataWatchers = new ArrayList<>();
             Optional<IChatBaseComponent> nameComponent = Optional.ofNullable(CraftChatMessage.fromStringOrNull(customName));
@@ -253,7 +262,8 @@ public class NMSHandlerImpl implements NMSHandler {
             dataWatchers.add(new DataWatcher.Item<>(DataWatcherRegistry.i.a(3), customNameVisible));
 
             PacketPlayOutEntityMetadata packetPlayOutEntityMetadata = new PacketPlayOutEntityMetadata(entity.getEntityId(), new DataWatcherWrapper(dataWatchers), false);
-            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
+            for (Player player : players)
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packetPlayOutEntityMetadata);
         } catch (Exception e) {
             e.printStackTrace();
         }
