@@ -495,11 +495,16 @@ public class EntityListener implements Listener {
                 if (fromSpawner)
                     newStack.getStackSettings().applySpawnerSpawnedProperties(newEntity);
 
-                stackedEntity.getDataStorage().forEach(entity -> {
-                    if (aiDisabled)
-                        PersistentDataUtils.removeEntityAi(entity);
-                    newStack.increaseStackSize(entity, false);
-                });
+                if (newStack.getDataStorage().getType() == StackedEntityDataStorageType.SIMPLE) {
+                    // SIMPLE storage only keeps a count, no need to recreate every entity
+                    newStack.increaseStackSize(stackedEntity.getDataStorage().size(), false);
+                } else {
+                    stackedEntity.getDataStorage().forEach(entity -> {
+                        if (aiDisabled)
+                            PersistentDataUtils.removeEntityAi(entity);
+                        newStack.increaseStackSize(entity, false);
+                    });
+                }
                 newStack.updateDisplay();
             });
         } else {
@@ -688,6 +693,10 @@ public class EntityListener implements Listener {
             shearedHandler.setSheared(sheepEntity, false);
             regrowAmount--;
         }
+
+        // SIMPLE storage clones the main entity and has no per-entity wool state to update
+        if (stackedEntity.getDataStorage().getType() == StackedEntityDataStorageType.SIMPLE)
+            return;
 
         if (regrowAmount <= 1)
             return;
