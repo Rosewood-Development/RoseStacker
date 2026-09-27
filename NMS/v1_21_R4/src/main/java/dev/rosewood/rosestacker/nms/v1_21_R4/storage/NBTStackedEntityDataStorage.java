@@ -111,9 +111,18 @@ public class NBTStackedEntityDataStorage extends StackedEntityDataStorage {
     public List<EntityDataEntry> pop(int amount) {
         amount = Math.min(amount, this.data.size());
 
+        // Adjacent entities with equal data share the same entry so loot calculations only need to create one entity for them
         List<EntityDataEntry> popped = new ArrayList<>(amount);
-        for (int i = 0; i < amount; i++)
-            popped.add(new NBTEntityDataEntry(this.rebuild(this.data.remove())));
+        CompoundTag previousTag = null;
+        NBTEntityDataEntry previousEntry = null;
+        for (int i = 0; i < amount; i++) {
+            CompoundTag compoundTag = this.data.remove();
+            if (previousEntry == null || !compoundTag.equals(previousTag)) {
+                previousEntry = new NBTEntityDataEntry(this.rebuild(compoundTag));
+                previousTag = compoundTag;
+            }
+            popped.add(previousEntry);
+        }
         return popped;
     }
 

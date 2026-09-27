@@ -32,8 +32,10 @@ import dev.rosewood.rosestacker.utils.StackerUtils;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -368,16 +370,33 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         EntityType type = this.entity.getType();
         List<LivingEntity> finalEntities = new ArrayList<>();
         double multiplier = 1;
+        int limit = count;
         int threshold = SettingKey.ENTITY_LOOT_APPROXIMATION_THRESHOLD.get();
         int approximationAmount = SettingKey.ENTITY_LOOT_APPROXIMATION_AMOUNT.get();
         if (SettingKey.ENTITY_LOOT_APPROXIMATION_ENABLED.get() && count > threshold) {
-            Iterator<EntityDataEntry> entryIterator = internalEntities.iterator();
             int offset = mainEntityDrops != null ? 1 : 0; // If main entity drops are present, we've already approximated one entity, make sure to account for it
-            while (entryIterator.hasNext() && finalEntities.size() < approximationAmount - offset)
-                finalEntities.add(entryIterator.next().createEntity(location, false, type));
+            limit = approximationAmount - offset;
             multiplier = (internalEntities.size() + offset) / (double) approximationAmount;
-        } else {
-            finalEntities.addAll(internalEntities.stream().map(x -> x.createEntity(location, false, type)).toList());
+        }
+
+        // Entries that are the same instance describe identical entities (simple storage returns the same entry for every
+        // entity, nbt storage shares an entry between adjacent entities with equal data). Loot rolls only read the entity's
+        // state, so those entries can share one created entity instead of creating one each.
+        // Don't share when an EntityDeathEvent is called for each entity since listeners may expect a unique entity per event,
+        // or for slimes and magma cubes since their size is changed while calculating their loot.
+        boolean shareEntities = RoseStackerAPI.getInstance().isEntityStackMultipleDeathEventCalled()
+                && type != EntityType.SLIME && type != EntityType.MAGMA_CUBE;
+        Map<EntityDataEntry, LivingEntity> sharedEntities = new IdentityHashMap<>();
+        Iterator<EntityDataEntry> entryIterator = internalEntities.iterator();
+        while (entryIterator.hasNext() && finalEntities.size() < limit) {
+            EntityDataEntry entry = entryIterator.next();
+            LivingEntity entity = shareEntities ? sharedEntities.get(entry) : null;
+            if (entity == null) {
+                entity = entry.createEntity(location, false, type);
+                if (shareEntities && entity != null)
+                    sharedEntities.put(entry, entity);
+            }
+            finalEntities.add(entity);
         }
 
         return this.calculateEntityDrops(finalEntities, multiplier, entityExpValue, lootingModifier, mainEntity, mainEntityDrops, originalStackSize, entityKillCount);
