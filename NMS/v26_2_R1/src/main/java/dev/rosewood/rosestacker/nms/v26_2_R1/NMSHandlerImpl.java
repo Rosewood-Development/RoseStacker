@@ -16,6 +16,7 @@ import dev.rosewood.rosestacker.nms.v26_2_R1.entity.SoloEntityStrider;
 import dev.rosewood.rosestacker.nms.v26_2_R1.event.AsyncEntityDeathEventImpl;
 import dev.rosewood.rosestacker.nms.v26_2_R1.hologram.HologramImpl;
 import dev.rosewood.rosestacker.nms.v26_2_R1.spawner.StackedSpawnerTileImpl;
+import dev.rosewood.rosestacker.nms.v26_2_R1.storage.KeySkippingValueOutput;
 import dev.rosewood.rosestacker.nms.v26_2_R1.storage.NBTEntityDataEntry;
 import dev.rosewood.rosestacker.nms.v26_2_R1.storage.NBTStackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.v26_2_R1.storage.SimpleStackedEntityDataStorage;
@@ -560,6 +561,20 @@ public class NMSHandlerImpl implements NMSHandler {
     }
 
     public CompoundTag saveEntityToTag(LivingEntity livingEntity) {
+        return this.saveEntityToTag(livingEntity, Set.of());
+    }
+
+    /**
+     * Saves the entity like {@link #saveEntityToTag(LivingEntity)}, except that writes to top-level keys in
+     * {@code skippedKeys} are dropped before they are encoded, so no time is spent encoding data the caller discards
+     * anyway (attribute lists, position vectors, brain memories, equipment). Fields inlined through a {@code MapCodec}
+     * have no key to match and are still written, so callers should still remove those keys from the result.
+     *
+     * @param livingEntity the entity to save
+     * @param skippedKeys top-level keys to leave out, matched exactly
+     * @return the saved entity data
+     */
+    public CompoundTag saveEntityToTag(LivingEntity livingEntity, Set<String> skippedKeys) {
         Entity nmsEntity = ((CraftEntity) livingEntity).getHandle();
         // Async villager "fix", if the trades aren't loaded yet force them to save as empty, they will get loaded later
         if (livingEntity instanceof AbstractVillager) {
@@ -573,7 +588,7 @@ public class NMSHandlerImpl implements NMSHandler {
 
                 ProblemReporter.Collector reporter = new ProblemReporter.Collector();
                 TagValueOutput valueOutput = TagValueOutput.createWithContext(reporter, villager.registryAccess());
-                ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(valueOutput);
+                ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(KeySkippingValueOutput.wrap(valueOutput, skippedKeys));
                 if (!reporter.isEmpty())
                     RoseStacker.getInstance().getLogger().severe(reporter.getTreeReport());
                 CompoundTag compoundTag = valueOutput.buildResult();
@@ -593,7 +608,7 @@ public class NMSHandlerImpl implements NMSHandler {
             TagValueOutput valueOutput = TagValueOutput.createWithContext(reporter, nmsEntity.registryAccess());
             if (!reporter.isEmpty())
                 RoseStacker.getInstance().getLogger().severe(reporter.getTreeReport());
-            ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(valueOutput);
+            ((CraftLivingEntity) livingEntity).getHandle().saveWithoutId(KeySkippingValueOutput.wrap(valueOutput, skippedKeys));
             return valueOutput.buildResult();
         }
     }
