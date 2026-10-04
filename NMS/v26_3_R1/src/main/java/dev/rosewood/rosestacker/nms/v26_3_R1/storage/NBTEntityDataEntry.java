@@ -1,0 +1,111 @@
+package dev.rosewood.rosestacker.nms.v26_3_R1.storage;
+
+import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.nms.NMSAdapter;
+import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
+import dev.rosewood.rosestacker.nms.v26_3_R1.NMSHandlerImpl;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftEntityType;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+
+public class NBTEntityDataEntry implements EntityDataEntry {
+
+    private final CompoundTag compoundTag;
+
+    public NBTEntityDataEntry(LivingEntity livingEntity) {
+        this.compoundTag = ((NMSHandlerImpl) NMSAdapter.getHandler()).saveEntityToTag(livingEntity);
+    }
+
+    public NBTEntityDataEntry(CompoundTag compoundTag) {
+        this.compoundTag = compoundTag;
+    }
+
+    public CompoundTag get() {
+        return this.compoundTag;
+    }
+
+    @Override
+    public LivingEntity createEntity(Location location, boolean addToWorld, EntityType entityType) {
+        try {
+            NMSHandlerImpl nmsHandler = (NMSHandlerImpl) NMSAdapter.getHandler();
+            CompoundTag nbt = this.compoundTag.copy();
+
+            ListTag positionTagList = nbt.getListOrEmpty("Pos");
+            this.setTag(positionTagList, 0, DoubleTag.valueOf(location.getX()));
+            this.setTag(positionTagList, 1, DoubleTag.valueOf(location.getY()));
+            this.setTag(positionTagList, 2, DoubleTag.valueOf(location.getZ()));
+            nbt.put("Pos", positionTagList);
+            ListTag rotationTagList = nbt.getListOrEmpty("Rotation");
+            this.setTag(rotationTagList, 0, FloatTag.valueOf(location.getYaw()));
+            this.setTag(rotationTagList, 1, FloatTag.valueOf(location.getPitch()));
+            nbt.put("Rotation", rotationTagList);
+            nbt.store("UUID", UUIDUtil.CODEC, UUID.randomUUID()); // Reset the UUID to resolve possible duplicates
+
+            if (nbt.getCompoundOrEmpty("BukkitValues").isEmpty()) // fix error on Spigot when looking up BukkitValues
+                nbt.remove("BukkitValues");
+
+            net.minecraft.world.entity.EntityType<?> nmsEntityType = CraftEntityType.bukkitToMinecraft(entityType);
+            if (nmsEntityType != null) {
+                ServerLevel world = ((CraftWorld) location.getWorld()).getHandle();
+
+                Entity entity = nmsHandler.createCreature(
+                        nmsEntityType,
+                        world,
+                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                        EntitySpawnReason.COMMAND
+                );
+
+                if (entity == null)
+                    throw new NullPointerException("Unable to create entity from NBT");
+
+                // Load NBT
+                ProblemReporter.Collector reporter = new ProblemReporter.Collector();
+                ValueInput valueInput = TagValueInput.create(reporter, entity.registryAccess(), nbt);
+                if (!reporter.isEmpty())
+                    RoseStacker.getInstance().getLogger().severe(reporter.getTreeReport());
+
+                entity.load(valueInput);
+
+                if (entity instanceof Villager villager)
+                    villager.setCanPickUpLoot(true);
+
+                if (addToWorld) {
+                    nmsHandler.addEntityToWorld(world, entity);
+                    entity.setInvulnerableTime(0);
+                }
+
+                return (LivingEntity) entity.getBukkitEntity();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private void setTag(ListTag tag, int index, Tag value) {
+        if (index >= tag.size()) {
+            tag.addTag(index, value);
+        } else {
+            tag.setTag(index, value);
+        }
+    }
+
+}

@@ -14,7 +14,6 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.gradleup.shadow'
     group = 'dev.rosewood'
-    version = '1.5.43-SNAPSHOT'
 
     java {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -79,6 +78,7 @@ dependencies {
     implementation project(path: ':NMS:v1_21_R7', configuration: 'remapped')
     implementation project(path: ':NMS:v26_1_R1')
     implementation project(path: ':NMS:v26_2_R1')
+    implementation project(path: ':NMS:v26_3_R1')
 }
 
 shadowJar {
