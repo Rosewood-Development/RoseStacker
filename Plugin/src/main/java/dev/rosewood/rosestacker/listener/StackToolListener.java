@@ -5,6 +5,7 @@ import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
+import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.stack.EntityStackComparisonResult;
 import dev.rosewood.rosestacker.stack.StackedBlock;
 import dev.rosewood.rosestacker.stack.StackedEntity;
@@ -87,10 +88,13 @@ public class StackToolListener implements Listener {
             localeManager.sendCommandMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
         } else {
             PersistentDataUtils.setUnstackable(entity, true);
-            ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(x -> {
-                PersistentDataUtils.setUnstackable(x, true);
-                return true;
-            }));
+            // SIMPLE storage clones the main entity, which was already marked above
+            if (stackedEntity.getDataStorage().getType() != StackedEntityDataStorageType.SIMPLE) {
+                ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(x -> {
+                    PersistentDataUtils.setUnstackable(x, true);
+                    return true;
+                }));
+            }
             localeManager.sendCommandMessage(player, "command-stacktool-marked-all-unstackable", StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
         }
     }
