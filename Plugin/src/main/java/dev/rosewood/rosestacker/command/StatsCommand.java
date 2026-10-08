@@ -34,10 +34,10 @@ public class StatsCommand extends BaseRoseCommand {
         int blockStackAmount = stackManager.getStackedBlocks().size();
         int spawnerStackAmount = stackManager.getStackedSpawners().size();
 
-        int entityAmount = stackManager.getStackedEntities().values().stream().mapToInt(Stack::getStackSize).sum();
-        int itemAmount = stackManager.getStackedItems().values().stream().mapToInt(Stack::getStackSize).sum();
-        int blockAmount = stackManager.getStackedBlocks().values().stream().mapToInt(Stack::getStackSize).sum();
-        int spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToInt(Stack::getStackSize).sum();
+        long entityAmount = stackManager.getStackedEntities().values().stream().mapToLong(Stack::getStackSize).sum();
+        long itemAmount = stackManager.getStackedItems().values().stream().mapToLong(Stack::getStackSize).sum();
+        long blockAmount = stackManager.getStackedBlocks().values().stream().mapToLong(Stack::getStackSize).sum();
+        long spawnerAmount = stackManager.getStackedSpawners().values().stream().mapToLong(Stack::getStackSize).sum();
 
         localeManager.sendCommandMessage(context.getSender(), "command-stats-header");
         localeManager.sendSimpleCommandMessage(context.getSender(), "command-stats-threads", StringPlaceholders.of("amount", StackerUtils.formatNumber(threadAmount)));
