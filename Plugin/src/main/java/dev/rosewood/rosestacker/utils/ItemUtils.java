@@ -56,6 +56,7 @@ public final class ItemUtils {
     private final static Map<String, ItemStack> skullCache = new HashMap<>();
     private static Field field_SkullMeta_profile;
     private static ItemStack cachedStackingTool;
+    private static Boolean modernPlayerItemDamageEvent;
 
     public static Material getWoolMaterial(DyeColor dyeColor) {
         if (dyeColor == null)
@@ -113,8 +114,16 @@ public final class ItemUtils {
         if (!checkUnbreakingChance(unbreakingLevel))
             return;
 
+        if (modernPlayerItemDamageEvent == null)
+            modernPlayerItemDamageEvent = PlayerItemDamageEvent.class.getConstructors().length > 1;
+
         // This could decrease the durability more than intended, we'll just have to live with that
-        PlayerItemDamageEvent event = new PlayerItemDamageEvent(player, tool, 1, 1);
+        PlayerItemDamageEvent event;
+        if (modernPlayerItemDamageEvent) {
+            event = new PlayerItemDamageEvent(player, tool, 1, 1);
+        } else {
+            event = new PlayerItemDamageEvent(player, tool, 1);
+        }
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled() || event.getDamage() == 0)
             return;
