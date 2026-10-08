@@ -109,7 +109,7 @@ public final class ItemUtils {
         if (!(itemMeta instanceof Damageable damageable))
             return;
 
-        int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
+        int unbreakingLevel = tool.getEnchantmentLevel(VersionUtils.UNBREAKING);
         if (!checkUnbreakingChance(unbreakingLevel))
             return;
 

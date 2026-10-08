@@ -22,6 +22,7 @@ public class VersionUtils {
     public static final Particle SMOKE;
     public static final Enchantment INFINITY;
     public static final Enchantment SWEEPING_EDGE;
+    public static final Enchantment UNBREAKING;
     public static final ItemFlag HIDE_ADDITIONAL_TOOLTIP;
     public static final Attribute MAX_HEALTH;
     public static final Attribute KNOCKBACK_RESISTANCE;
@@ -36,6 +37,7 @@ public class VersionUtils {
             DUST = Particle.DUST;
             INFINITY = Registry.ENCHANTMENT.get(NamespacedKey.minecraft("infinity"));
             SWEEPING_EDGE = Registry.ENCHANTMENT.get(NamespacedKey.minecraft("sweeping_edge"));
+            UNBREAKING = Registry.ENCHANTMENT.get(NamespacedKey.minecraft("unbreaking"));
             HIDE_ADDITIONAL_TOOLTIP = ItemFlag.HIDE_ADDITIONAL_TOOLTIP;
         } else {
             ITEM = EntityType.valueOf("DROPPED_ITEM");
@@ -46,6 +48,7 @@ public class VersionUtils {
             DUST = Particle.valueOf("REDSTONE");
             INFINITY = findEnchantmentLegacy("infinity", "arrow_infinite");
             SWEEPING_EDGE = findEnchantmentLegacy("sweeping", "sweeping_edge");
+            UNBREAKING = findEnchantmentLegacy("unbreaking", "durability");
             HIDE_ADDITIONAL_TOOLTIP = ItemFlag.valueOf("HIDE_POTION_EFFECTS");
         }
 
