@@ -57,6 +57,7 @@ public final class ItemUtils {
     private static Field field_SkullMeta_profile;
     private static ItemStack cachedStackingTool;
     private static Boolean modernPlayerItemDamageEvent;
+    private static Boolean hasGetMaxDamage;
 
     public static Material getWoolMaterial(DyeColor dyeColor) {
         if (dyeColor == null)
@@ -114,8 +115,15 @@ public final class ItemUtils {
         if (!checkUnbreakingChance(unbreakingLevel))
             return;
 
-        if (modernPlayerItemDamageEvent == null)
+        if (modernPlayerItemDamageEvent == null) {
             modernPlayerItemDamageEvent = PlayerItemDamageEvent.class.getConstructors().length > 1;
+            try {
+                Damageable.class.getMethod("getMaxDamage");
+                hasGetMaxDamage = true;
+            } catch (ReflectiveOperationException ex) {
+                hasGetMaxDamage = false;
+            }
+        }
 
         // This could decrease the durability more than intended, we'll just have to live with that
         PlayerItemDamageEvent event;
@@ -131,7 +139,13 @@ public final class ItemUtils {
         damageable.setDamage(damageable.getDamage() + event.getDamage());
         tool.setItemMeta((ItemMeta) damageable); // Older versions do not have Damageable as implementing ItemMeta, do not remove cast
 
-        if (damageable.getDamage() >= damageable.getMaxDamage())
+        int maxDamage;
+        if (hasGetMaxDamage) {
+            maxDamage = damageable.getMaxDamage();
+        } else {
+            maxDamage = tool.getType().getMaxDurability();
+        }
+        if (damageable.getDamage() >= maxDamage)
             player.getInventory().setItemInMainHand(null);
     }
 
