@@ -6,6 +6,7 @@ import dev.rosewood.rosestacker.nms.storage.EntityDataEntry;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorage;
 import dev.rosewood.rosestacker.nms.storage.StackedEntityDataStorageType;
 import dev.rosewood.rosestacker.nms.storage.StorageMigrationType;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.Location;
@@ -102,6 +103,20 @@ public interface NMSHandler {
      * @param customNameVisible true to make the nametag visible, otherwise false
      */
     void updateEntityNameTagForPlayer(Player player, Entity entity, String customName, boolean customNameVisible);
+
+    /**
+     * Updates the name and visibility of an Entity's nametag for multiple Players.
+     * Implementations should build the packet once and send the same instance to every Player.
+     *
+     * @param players The Players to send the packet to
+     * @param entity The Entity to toggle
+     * @param customName The name to display for the entity, nullable
+     * @param customNameVisible true to make the nametag visible, otherwise false
+     */
+    default void updateEntityNameTagForPlayers(Collection<? extends Player> players, Entity entity, String customName, boolean customNameVisible) {
+        for (Player player : players)
+            this.updateEntityNameTagForPlayer(player, entity, customName, customNameVisible);
+    }
 
     /**
      * Updates the visibility of an Entity's nametag for a Player
