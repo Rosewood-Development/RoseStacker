@@ -133,4 +133,13 @@ public interface StackedSpawnerTile {
      */
     PersistentDataContainer getPersistentDataContainer();
 
+    /**
+     * Notifies this spawner tile that its last spawn attempt was blocked by spawn conditions that may change,
+     * allowing it to try again sooner than the full spawn delay
+     */
+    @ApiStatus.Internal
+    default void spawnConditionsFailed() {
+
+    }
+
 }

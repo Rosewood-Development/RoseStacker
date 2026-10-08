@@ -203,6 +203,10 @@ public class MobSpawningMethod implements SpawningMethod {
                 if (!onlyCheckConditions) {
                     // Spawn particles indicating the spawn did not occur
                     stackedSpawner.getWorld().spawnParticle(VersionUtils.SMOKE, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
+
+                    // Let the spawner try again sooner if no spawn location passed spawn conditions that may change
+                    if (spawnLocations.isEmpty() && this.canRetrySooner(invalidSpawnConditions))
+                        spawnerTile.spawnConditionsFailed();
                 }
             } else {
                 // Spawn particles indicating the spawn occurred
@@ -389,6 +393,18 @@ public class MobSpawningMethod implements SpawningMethod {
         });
 
         return new SpawnResult(successfulSpawns, modifiedStacks, spawnedStacks);
+    }
+
+    /**
+     * Checks if a spawn attempt that failed due to the given conditions should be retried before the full spawn delay.
+     * Vanilla spawners keep retrying while positions fail their spawn rules, but wait the full delay once the
+     * max nearby entities limit is reached. A spawner that is not player placed will never pass that condition.
+     *
+     * @param invalidSpawnConditions The conditions that caused the spawn attempt to fail
+     * @return true if the spawner should try to spawn again sooner, false otherwise
+     */
+    private boolean canRetrySooner(Set<ConditionTag> invalidSpawnConditions) {
+        return !invalidSpawnConditions.isEmpty() && invalidSpawnConditions.stream().noneMatch(x -> x instanceof MaxNearbyEntityConditionTag || x instanceof NotPlayerPlacedConditionTag);
     }
 
     private LivingEntity createNewEntity(NMSHandler nmsHandler, Location location, StackedSpawner stackedSpawner, StackManager stackManager, EntityStackSettings entityStackSettings) {

@@ -33,6 +33,7 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     private boolean playersNearby;
     private int playersTimeSinceLastCheck;
     private boolean checkedInitialConditions;
+    private volatile boolean spawnConditionsFailed;
 
     public StackedSpawnerTileImpl(MobSpawnerAbstract old, TileEntityMobSpawner blockEntity, StackedSpawner stackedSpawner) {
         this.blockEntity = blockEntity;
@@ -82,6 +83,16 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
             }
 
             this.redstoneTimeSinceLastCheck = (this.redstoneTimeSinceLastCheck + 1) % SettingKey.SPAWNER_POWERED_CHECK_FREQUENCY.get();
+        }
+
+        // Try again sooner if the last spawn attempt was blocked by spawn conditions
+        if (this.spawnConditionsFailed) {
+            this.spawnConditionsFailed = false;
+            int retryDelay = SettingKey.SPAWNER_SPAWN_CONDITION_RETRY_DELAY.get();
+            if (retryDelay >= 0 && this.spawnDelay > retryDelay) {
+                this.spawnDelay = retryDelay;
+                this.updateTile();
+            }
         }
 
         // Count down spawn timer unless we are ready to spawn
@@ -295,6 +306,11 @@ public class StackedSpawnerTileImpl extends MobSpawnerAbstract implements Stacke
     @Override
     public PersistentDataContainer getPersistentDataContainer() {
         return this.blockEntity.persistentDataContainer;
+    }
+
+    @Override
+    public void spawnConditionsFailed() {
+        this.spawnConditionsFailed = true;
     }
 
 }
