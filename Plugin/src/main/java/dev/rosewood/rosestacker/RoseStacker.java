@@ -101,7 +101,7 @@ public class RoseStacker extends RosePlugin {
             new RoseStackerPlaceholderExpansion(this).register();
 
         // Try to hook with ShopGuiPlus and skyblock plugins
-        ThreadUtils.runSync(() -> {
+        ThreadUtils.runSyncGlobal(() -> {
             if (Bukkit.getPluginManager().isPluginEnabled("ShopGUIPlus"))
                 ShopGuiPlusHook.setupSpawners(this);
 

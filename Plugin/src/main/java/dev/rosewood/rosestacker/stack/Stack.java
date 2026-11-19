@@ -1,6 +1,7 @@
 package dev.rosewood.rosestacker.stack;
 
 import dev.rosewood.rosestacker.stack.settings.StackSettings;
+import dev.rosewood.rosestacker.utils.Folia;
 import dev.rosewood.rosestacker.utils.StackerUtils;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,6 +38,16 @@ public abstract class Stack<T extends StackSettings> {
         World world = location.getWorld();
         if (world == null)
             return players;
+
+        if (Folia.ENABLED) {
+            // Player locations may only be read from the region that owns the player, so only players
+            // in the region of this stack are considered. getNearbyPlayers already enforces that.
+            if (!Folia.isOwner(location))
+                return players;
+
+            players.addAll(world.getNearbyPlayers(location, Math.sqrt(StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)));
+            return players;
+        }
 
         for (Player player : world.getPlayers())
             if (player.getWorld().equals(world) && player.getLocation().distanceSquared(location) <= StackerUtils.ASSUMED_ENTITY_VISIBILITY_RANGE)

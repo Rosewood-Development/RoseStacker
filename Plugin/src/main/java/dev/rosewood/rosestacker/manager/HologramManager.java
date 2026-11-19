@@ -7,6 +7,7 @@ import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.nms.hologram.Hologram;
+import dev.rosewood.rosestacker.utils.Folia;
 import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.Collection;
 import java.util.List;
@@ -59,15 +60,20 @@ public class HologramManager extends Manager implements Listener {
 
     private void updateWatchers() {
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-        for (Player player : players)
-            for (Hologram hologram : this.holograms.values())
-                this.updateWatcher(player, hologram);
+        for (Player player : players) {
+            // Player location and line of sight must be read from the player's owning region on Folia
+            ThreadUtils.runOnOwner(player, () -> {
+                for (Hologram hologram : this.holograms.values())
+                    this.updateWatcher(player, hologram);
+            });
+        }
     }
 
     private void updateWatcher(Player player, Hologram hologram) {
         if (this.isPlayerInRange(player, hologram.getLocation())) {
             hologram.addWatcher(player);
-            if (this.hideThroughWalls)
+            // The ray cast reads blocks, which Folia only allows inside the region owned by the current thread
+            if (this.hideThroughWalls && Folia.isOwner(hologram.getDisplayLocation(), 1))
                 hologram.setVisibility(player, this.nmsHandler.hasLineOfSight(player, hologram.getDisplayLocation()));
         } else {
             hologram.removeWatcher(player);
@@ -80,7 +86,7 @@ public class HologramManager extends Manager implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        ThreadUtils.runAsync(() -> {
+        ThreadUtils.runAsync(event.getPlayer(), () -> {
             Player player = event.getPlayer();
             for (Hologram hologram : this.holograms.values())
                 this.updateWatcher(player, hologram);
@@ -118,8 +124,9 @@ public class HologramManager extends Manager implements Listener {
         if (hologram == null) {
             hologram = this.nmsHandler.createHologram(location, text);
             this.holograms.put(location, hologram);
+            Hologram created = hologram;
             for (Player player : Bukkit.getOnlinePlayers())
-                this.updateWatcher(player, hologram);
+                ThreadUtils.runOnOwner(player, () -> this.updateWatcher(player, created));
         } else {
             hologram.setText(text);
         }

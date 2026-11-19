@@ -107,7 +107,7 @@ public class BreedingListener implements Listener {
 
         boolean disableAi = PersistentDataUtils.isAiDisabled(animal);
         // Drop experience and spawn entities a few ticks later
-        ThreadUtils.runSyncDelayed(() -> {
+        ThreadUtils.runSyncDelayed(animal, () -> {
             ItemStack breedingItemCopy = breedingItem.clone();
             breedingItemCopy.setAmount(1);
             boolean callEvents = SettingKey.ENTITY_CUMULATIVE_BREEDING_TRIGGER_BREED_EVENT.get();

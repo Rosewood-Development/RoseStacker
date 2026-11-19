@@ -21,6 +21,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.stack.settings.SpawnerStackSettings;
 import dev.rosewood.rosestacker.utils.DataUtils;
+import dev.rosewood.rosestacker.utils.Folia;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,8 +60,11 @@ public class StackManager extends Manager implements StackingLogic {
 
     private ScheduledTask autosaveTask;
 
-    private boolean isEntityStackingTemporarilyDisabled;
-    private boolean isEntityUnstackingTemporarilyDisabled;
+    private volatile boolean isEntityStackingTemporarilyDisabled;
+    // Folia: "disabled" only ever spans one synchronous spawn call, so it is scoped to the calling region thread
+    // instead of being shared across every region (which would let one region re-enable stacking for another).
+    private final ThreadLocal<Boolean> foliaStackingTemporarilyDisabled = ThreadLocal.withInitial(() -> false);
+    private volatile boolean isEntityUnstackingTemporarilyDisabled;
 
     private StackedEntityDataStorageType entityDataStorageType;
 
@@ -627,7 +631,11 @@ public class StackManager extends Manager implements StackingLogic {
      * @param disabled true to disable, otherwise false to enable
      */
     public void setEntityStackingTemporarilyDisabled(boolean disabled) {
-        this.isEntityStackingTemporarilyDisabled = disabled;
+        if (Folia.ENABLED) {
+            this.foliaStackingTemporarilyDisabled.set(disabled);
+        } else {
+            this.isEntityStackingTemporarilyDisabled = disabled;
+        }
     }
 
     /**
@@ -644,7 +652,7 @@ public class StackManager extends Manager implements StackingLogic {
      * @return true if instant entity stacking is temporarily disabled, otherwise false
      */
     public boolean isEntityStackingTemporarilyDisabled() {
-        return this.isEntityStackingTemporarilyDisabled;
+        return Folia.ENABLED ? this.foliaStackingTemporarilyDisabled.get() : this.isEntityStackingTemporarilyDisabled;
     }
 
     /**

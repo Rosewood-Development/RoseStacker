@@ -7,6 +7,7 @@ import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
 import dev.rosewood.rosestacker.nms.NMSHandler;
 import dev.rosewood.rosestacker.stack.StackingThread;
+import dev.rosewood.rosestacker.utils.Folia;
 import dev.rosewood.rosestacker.utils.VersionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,10 @@ public class EntityCacheManager extends Manager {
 
     @Override
     public void reload() {
+        // Folia: a world-wide snapshot cannot be built from one thread. Lookups read live, region-owned state instead.
+        if (Folia.ENABLED)
+            return;
+
         this.refreshTask = this.rosePlugin.getScheduler().runTaskTimer(this::refresh, 5L, 60L);
     }
 
@@ -63,6 +68,9 @@ public class EntityCacheManager extends Manager {
         World world = center.getWorld();
         if (world == null)
             return nearbyEntities;
+
+        if (Folia.ENABLED)
+            return this.getNearbyEntitiesOwned(center, world, radius, predicate, nearbyEntities);
 
         BoundingBox boundingBox = new BoundingBox(
                 center.getX() - radius,
@@ -94,6 +102,27 @@ public class EntityCacheManager extends Manager {
         }
 
         return nearbyEntities;
+    }
+
+    /**
+     * Folia path: only entities in chunks owned by the calling region can be read. If the search area is not
+     * fully owned, nothing is returned so the caller simply skips this pass instead of touching foreign state.
+     */
+    private Collection<Entity> getNearbyEntitiesOwned(Location center, World world, double radius, Predicate<Entity> predicate, Set<Entity> collector) {
+        int chunkRadius = (int) Math.ceil(radius / 16.0) + 1;
+        if (!Folia.isOwner(center, chunkRadius))
+            return collector;
+
+        BoundingBox boundingBox = new BoundingBox(
+                center.getX() - radius, center.getY() - radius, center.getZ() - radius,
+                center.getX() + radius, center.getY() + radius, center.getZ() + radius
+        );
+
+        for (Entity entity : world.getNearbyEntities(boundingBox, predicate)) {
+            if (entity.isValid())
+                collector.add(entity);
+        }
+        return collector;
     }
 
     private void filter(Location location, BoundingBox boundingBox, Collection<Entity> entities, Predicate<Entity> predicate, Set<Entity> collector) {
@@ -129,6 +158,18 @@ public class EntityCacheManager extends Manager {
 
         int x = location.getBlockX() >> 4;
         int z = location.getBlockZ() >> 4;
+
+        if (Folia.ENABLED) {
+            Set<Entity> chunkEntities = new HashSet<>();
+            if (!Folia.isOwner(location, 1) || !world.isChunkLoaded(x, z))
+                return chunkEntities;
+
+            for (Entity entity : world.getChunkAt(x, z).getEntities())
+                if (predicate.test(entity) && entity.isValid())
+                    chunkEntities.add(entity);
+            return chunkEntities;
+        }
+
         int minY = world.getMinHeight() >> 4;
         int maxY = world.getMaxHeight() >> 4;
 
@@ -153,6 +194,9 @@ public class EntityCacheManager extends Manager {
      * @param entity The entity to cache
      */
     public void preCacheEntity(Entity entity) {
+        if (Folia.ENABLED)
+            return;
+
         Location location = entity.getLocation();
         ChunkLocation chunkLocation = new ChunkLocation(entity.getWorld().getName(), (int) location.getX() >> 4, (int) location.getY() >> 4, (int) location.getZ() >> 4);
         Collection<Entity> entities = this.entityCache.computeIfAbsent(chunkLocation, k -> this.createCollection());
