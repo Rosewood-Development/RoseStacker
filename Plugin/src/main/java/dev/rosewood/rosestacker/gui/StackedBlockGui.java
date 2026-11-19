@@ -294,7 +294,7 @@ public class StackedBlockGui {
             return;
 
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        ThreadUtils.runSync(() -> {
+        ThreadUtils.runSync(this.stackedBlock.getLocation(), () -> {
             BlockUnstackEvent blockUnstackEvent = new BlockUnstackEvent(player, this.stackedBlock, this.stackedBlock.getStackSize());
             Bukkit.getPluginManager().callEvent(blockUnstackEvent);
             if (blockUnstackEvent.isCancelled())

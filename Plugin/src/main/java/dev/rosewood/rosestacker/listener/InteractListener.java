@@ -170,13 +170,13 @@ public class InteractListener implements Listener {
         Player player = event.getPlayer();
         ItemStack itemStack = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
         if (itemStack.getType() == Material.NAME_TAG) {
-            ThreadUtils.runSync(stackedEntity::updateDisplay);
+            ThreadUtils.runSync(entity, stackedEntity::updateDisplay);
             return;
         } else if (itemStack.getType() == Material.WATER_BUCKET) {
             switch (entity.getType()) {
                 case COD, SALMON, PUFFERFISH, TROPICAL_FISH, AXOLOTL, TADPOLE, SULFUR_CUBE -> {
                     if (stackedEntity.getStackSize() != 1)
-                        ThreadUtils.runSync(stackedEntity::decreaseStackSize);
+                        ThreadUtils.runSync(entity, stackedEntity::decreaseStackSize);
                 }
             }
             return;
@@ -200,7 +200,7 @@ public class InteractListener implements Listener {
 
         if (this.spawnEntities(null, spawnLocation, itemStack)) {
             Inventory inventory = ((Container) block.getState()).getInventory();
-            ThreadUtils.runSync(() -> {
+            ThreadUtils.runSync(block.getLocation(), () -> {
                 for (int slot = 0; slot < inventory.getSize(); slot++) {
                     ItemStack item = inventory.getItem(slot);
                     if (item == null || !item.isSimilar(itemStack))

@@ -26,6 +26,7 @@ import dev.rosewood.rosestacker.stack.settings.EntityStackSettings;
 import dev.rosewood.rosestacker.stack.settings.MultikillBound;
 import dev.rosewood.rosestacker.utils.DataUtils;
 import dev.rosewood.rosestacker.utils.EntityUtils;
+import dev.rosewood.rosestacker.utils.Folia;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.PersistentDataUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
@@ -140,7 +141,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         // Since we usually do this async and the event isn't allowed to be async, Spigot throws a fit.
         // We switch over to a non-async thread specifically for ender dragons because of this.
         if (!Bukkit.isPrimaryThread() && entity instanceof EnderDragon) {
-            ThreadUtils.runSync(task);
+            ThreadUtils.runSync(entity, task);
         } else {
             task.run();
         }
@@ -290,7 +291,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         // The stack loot can either be processed synchronously or asynchronously depending on a setting
         // It should always be processed async unless errors are caused by other plugins
         Player killer = this.entity.getKiller();
-        boolean async = SettingKey.ENTITY_DEATH_EVENT_RUN_ASYNC.get();
+        boolean async = SettingKey.ENTITY_DEATH_EVENT_RUN_ASYNC.get() && !Folia.ENABLED;
         Runnable mainTask = () -> {
             EntityDrops drops = calculator.get();
 
@@ -302,14 +303,19 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                     StackerUtils.dropExperience(location, finalDroppedExp, finalDroppedExp, finalDroppedExp / 2);
             };
 
-            if (!Bukkit.isPrimaryThread()) {
+            if (Folia.ENABLED) {
+                finishTask.run(); // mainTask already runs on the owning region
+            } else if (!Bukkit.isPrimaryThread()) {
                 ThreadUtils.runSync(finishTask);
             } else {
                 finishTask.run();
             }
         };
 
-        if (async && Bukkit.isPrimaryThread()) {
+        if (Folia.ENABLED) {
+            // Loot calculation reads the entity, its location and killer: always run it on the owning region
+            ThreadUtils.runOnOwner(this.entity, mainTask);
+        } else if (async && Bukkit.isPrimaryThread()) {
             ThreadUtils.runAsync(mainTask);
         } else if (!async && !Bukkit.isPrimaryThread()) {
             ThreadUtils.runSync(mainTask);

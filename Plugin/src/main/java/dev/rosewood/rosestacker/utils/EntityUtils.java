@@ -218,8 +218,11 @@ public final class EntityUtils {
         if (world == null || location.getBlockY() < world.getMinHeight() || location.getBlockY() >= world.getMaxHeight())
             return Material.AIR;
 
-        // TODO: Account for the maximum size of slimes and magma cubes
+        // Folia only allows reading the chunks of the region the caller owns
+        if (Folia.ENABLED && (!Folia.isOwner(location) || !world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)))
+            return Material.AIR;
 
+        // TODO: Account for the maximum size of slimes and magma cubes
         try {
             ChunkLocation pair = new ChunkLocation(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
             return chunkSnapshotCache.get(pair, () -> {

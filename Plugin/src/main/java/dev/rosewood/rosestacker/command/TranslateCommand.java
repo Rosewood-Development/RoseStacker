@@ -99,7 +99,7 @@ public class TranslateCommand extends BaseRoseCommand {
             itemStackConfig.save(itemSettingsFile, true);
             spawnerStackConfig.save(spawnerSettingsFile, true);
 
-            ThreadUtils.runSync(() -> {
+            ThreadUtils.runSyncGlobal(() -> {
                 this.rosePlugin.reload();
                 localeManager.sendCommandMessage(context.getSender(), "command-translate-success");
             });

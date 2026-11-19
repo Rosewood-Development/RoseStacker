@@ -50,7 +50,7 @@ public class StackedSpawner extends Stack<SpawnerStackSettings> {
         this.spawnerTile = NMSAdapter.getHandler().injectStackedSpawnerTile(this);
         this.stackSettings = RoseStacker.getInstance().getManager(StackSettingManager.class).getSpawnerStackSettings(this.spawnerTile.getSpawnerType());
 
-        ThreadUtils.runOnPrimary(() -> this.updateSpawnerProperties(true));
+        ThreadUtils.runOnOwner(this.block.getLocation(), () -> this.updateSpawnerProperties(true));
         if (updateDisplay)
             this.updateDisplay();
     }

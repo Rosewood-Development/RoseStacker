@@ -11,6 +11,7 @@ import dev.rosewood.rosestacker.stack.StackedItem;
 import dev.rosewood.rosestacker.stack.settings.ItemStackSettings;
 import dev.rosewood.rosestacker.utils.ItemUtils;
 import dev.rosewood.rosestacker.utils.StackerUtils;
+import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
@@ -138,7 +139,7 @@ public class ItemListener implements Listener {
             event.setCancelled(true);
 
             if (SettingKey.ENTITY_DONT_STACK_IF_HAS_EQUIPMENT.get()) {
-                this.rosePlugin.getScheduler().runTask(() -> {
+                ThreadUtils.runSync(entity, () -> {
                     StackedEntity stackedEntity = this.stackManager.getStackedEntity(entity);
                     if (stackedEntity != null)
                         this.stackManager.tryUnstackEntity(stackedEntity);

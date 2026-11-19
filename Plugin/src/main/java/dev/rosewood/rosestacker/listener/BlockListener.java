@@ -445,7 +445,7 @@ public class BlockListener implements Listener {
                     continue;
 
                 int finalDestroyAmount = destroyAmount;
-                ThreadUtils.runSync(() -> { // Delay a tick so the items aren't destroyed by the explosion
+                ThreadUtils.runSync(block.getLocation(), () -> { // Delay a tick so the items aren't destroyed by the explosion
                     Location dropLocation = StackerUtils.adjustBlockLocation(block.getLocation());
                     if (SettingKey.BLOCK_BREAK_ENTIRE_STACK_INTO_SEPARATE.get()) {
                         ItemStack blockItem = new ItemStack(type, 1);
@@ -503,7 +503,7 @@ public class BlockListener implements Listener {
                     continue;
 
                 int finalDestroyAmount = destroyAmount;
-                ThreadUtils.runSync(() -> { // Delay a tick so the items aren't destroyed by the explosion
+                ThreadUtils.runSync(block.getLocation(), () -> { // Delay a tick so the items aren't destroyed by the explosion
                     Location dropLocation = StackerUtils.adjustBlockLocation(block.getLocation());
                     if (SettingKey.SPAWNER_BREAK_ENTIRE_STACK_INTO_SEPARATE.get()) {
                         ItemStack spawnerItem = ItemUtils.getSpawnerAsStackedItemStack(spawnerType, 1);

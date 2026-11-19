@@ -207,7 +207,7 @@ public class MobSpawningMethod implements SpawningMethod {
             } else {
                 // Spawn particles indicating the spawn occurred
                 stackedSpawner.getWorld().spawnParticle(Particle.FLAME, stackedSpawner.getLocation().clone().add(0.5, 0.5, 0.5), 50, 0.5, 0.5, 0.5, 0);
-                ThreadUtils.runSync(() -> {
+                ThreadUtils.runSync(stackedSpawner.getLocation(), () -> {
                     if (stackedSpawner.getBlock().getType() == Material.SPAWNER)
                         PersistentDataUtils.increaseSpawnCount(spawnerTile, successfulSpawns);
                 });
@@ -215,7 +215,7 @@ public class MobSpawningMethod implements SpawningMethod {
         };
 
         if (SettingKey.SPAWNER_SPAWN_ASYNC.get()) {
-            ThreadUtils.runAsync(spawnTask);
+            ThreadUtils.runAsync(stackedSpawner.getLocation(), spawnTask);
         } else {
             spawnTask.run();
         }
@@ -236,7 +236,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         List<Location> possibleLocations = new ArrayList<>(locations);
         int finalSpawnAmount = spawnAmount;
-        ThreadUtils.runSync(() -> { // No poof particles to show where the mobs spawn with this setting, they immediately try stacking and are entirely unpredictable
+        ThreadUtils.runSync(stackedSpawner.getLocation(), () -> { // No poof particles to show where the mobs spawn with this setting, they immediately try stacking and are entirely unpredictable
             NMSHandler nmsHandler = NMSAdapter.getHandler();
             for (int i = 0; i < finalSpawnAmount; i++) {
                 if (locations.isEmpty())
@@ -347,7 +347,7 @@ public class MobSpawningMethod implements SpawningMethod {
 
         modifiedStacks.forEach(StackedEntity::updateDisplay);
 
-        ThreadUtils.runSync(() -> {
+        ThreadUtils.runSync(stackedSpawner.getLocation(), () -> {
             stackManager.setEntityStackingTemporarilyDisabled(true);
             Iterator<StackedEntity> iterator = newStacks.iterator();
             while (iterator.hasNext()) {

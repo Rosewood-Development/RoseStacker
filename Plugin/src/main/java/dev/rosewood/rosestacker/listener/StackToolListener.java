@@ -87,7 +87,7 @@ public class StackToolListener implements Listener {
             localeManager.sendCommandMessage(player, "command-stacktool-marked-" + stackableStr, StringPlaceholders.of("type", stackedEntity.getStackSettings().getDisplayName()));
         } else {
             PersistentDataUtils.setUnstackable(entity, true);
-            ThreadUtils.runAsync(() -> stackedEntity.getDataStorage().forEachTransforming(x -> {
+            ThreadUtils.runAsync(entity, () -> stackedEntity.getDataStorage().forEachTransforming(x -> {
                 PersistentDataUtils.setUnstackable(x, true);
                 return true;
             }));
